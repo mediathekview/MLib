@@ -62,6 +62,12 @@ public class MSearchIoXmlFilmlisteSchreiben {
     // ##############################
     private void xmlSchreibenStart(String datei) throws IOException, XMLStreamException {
         File file = new File(datei);
+        File dir = new File(file.getParent());
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
+            }
+        }
         MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
         outFactory = XMLOutputFactory.newInstance();
         if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {

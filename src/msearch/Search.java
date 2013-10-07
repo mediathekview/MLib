@@ -69,8 +69,8 @@ public class Search {
 
     public void starten() {
         if (MSearchConfig.dateiFilmliste.isEmpty()) {
-            System.exit(-1);
             MSearchLog.systemMeldung("Keine URI der Filmliste angegeben");
+            System.exit(-1);
         }
         // Infos schreiben
         MSearchLog.startMeldungen(this.getClass().getName());

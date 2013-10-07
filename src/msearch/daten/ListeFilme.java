@@ -114,6 +114,15 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         }
     }
 
+    public void anhaengen(ListeFilme listeFilme) {
+        // die listeFilme wird an diese Liste 1:1 angehängt
+        // dient zum kopieren eine Liste in eine leere
+        Iterator<DatenFilm> it = listeFilme.iterator();
+        while (it.hasNext()) {
+            this.add(it.next());
+        }
+    }
+
     public synchronized DatenFilm istInFilmListe(String sender, String thema, String titel) {
         Iterator<DatenFilm> it = listIterator();
         while (it.hasNext()) {

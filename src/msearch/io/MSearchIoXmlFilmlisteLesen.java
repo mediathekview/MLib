@@ -59,6 +59,12 @@ public class MSearchIoXmlFilmlisteLesen {
         // die Filmliste "vonDateiUrl" (Url oder lokal) wird in die List "listeFilme" eingelesen
         boolean ret = true;
         boolean istUrl = GuiFunktionen.istUrl(vonDateiUrl);
+        if (!istUrl) {
+            if (!new File(vonDateiUrl).exists()) {
+                MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", "Datei existiert nicht: " + vonDateiUrl);
+                return false;
+            }
+        }
         if (istUrl && vonDateiUrl.endsWith(MSearchConst.FORMAT_BZ2) || istUrl && vonDateiUrl.endsWith(MSearchConst.FORMAT_ZIP)) {
             // da wird eine temp-Datei benutzt
             this.notifyStart(300);
@@ -141,7 +147,7 @@ public class MSearchIoXmlFilmlisteLesen {
             notifyFertig(listeFilme);
         } catch (Exception ex) {
             ret = false;
-            MSearchLog.fehlerMeldung(468956200, MSearchLog.FEHLER_ART_PROG, "IoXmlLesen.importDatenFilm", ex, "von: " + vonDateiUrl);
+            MSearchLog.fehlerMeldung(468956200, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", ex, "von: " + vonDateiUrl);
         } finally {
             try {
                 if (inReader != null) {
@@ -151,7 +157,7 @@ public class MSearchIoXmlFilmlisteLesen {
                     tmpFile.delete();
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(468983014, MSearchLog.FEHLER_ART_PROG, "IoXmlLesen.importDatenFilm", ex);
+                MSearchLog.fehlerMeldung(468983014, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", ex);
             }
         }
         return ret;
@@ -161,7 +167,7 @@ public class MSearchIoXmlFilmlisteLesen {
         String dest = "";
         try {
             if (listeFilme.isEmpty()) {
-                MSearchLog.fehlerMeldung(312126987, MSearchLog.FEHLER_ART_PROG, "IoXmlLesen.filmlisteUmbenennen", "Die Filmliste ist leer.");
+                MSearchLog.fehlerMeldung(312126987, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteUmbenennen", "Die Filmliste ist leer.");
                 return "";
             }
             dest = dateiFilmliste + listeFilme.genDateRev();
@@ -178,7 +184,7 @@ public class MSearchIoXmlFilmlisteLesen {
             fileSrc = null;
             fileDest = null;
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(978451206, MSearchLog.FEHLER_ART_PROG, "IoXmlLesen.filmlisteUmbenennen", ex);
+            MSearchLog.fehlerMeldung(978451206, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteUmbenennen", ex);
         }
         return dest;
     }

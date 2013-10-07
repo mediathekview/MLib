@@ -19,7 +19,6 @@
  */
 package msearch;
 
-import msearch.daten.MSearchConfig;
 import msearch.tool.MSearchLog;
 
 public class Main {

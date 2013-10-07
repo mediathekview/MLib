@@ -294,7 +294,7 @@ public class MSearchFilmeSuchen {
         listeFilmeNeu.sort();
         // FilmlisteMetaDaten
         listeFilmeNeu.metaDatenSchreiben();
-        listeFilmeAlt = listeFilmeNeu;
+        listeFilmeAlt.anhaengen(listeFilmeNeu);
         listeFilmeNeu = null;
         stopZeit = new Date(System.currentTimeMillis());
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
