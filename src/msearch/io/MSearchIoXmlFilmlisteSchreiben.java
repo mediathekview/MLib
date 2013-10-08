@@ -90,7 +90,7 @@ public class MSearchIoXmlFilmlisteSchreiben {
 
     private void xmlSchreibenFilmliste(ListeFilme listeFilme) throws XMLStreamException {
         //Filmliste Metadaten schreiben
-        listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION;
+        listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
         xmlSchreibenDaten(ListeFilme.FILMLISTE, ListeFilme.COLUMN_NAMES, listeFilme.metaDaten);
         xmlSchreibenFeldInfo();
         //Filme schreiben

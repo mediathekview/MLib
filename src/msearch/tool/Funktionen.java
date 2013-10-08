@@ -93,12 +93,8 @@ public class Funktionen {
         return s;
     }
 
-    public static String getPfadIcons() {
-        return getPathJar() + MSearchConst.VERZEICNHISS_ICONS;
-    }
-
     public static String getProgVersionString() {
-        return MSearchConst.PROGRAMMNAME + " " + MSearchConst.VERSION + "  [Buildnummer: " + getBuildNr() + "]";
+        return MSearchConst.PROGRAMMNAME + " [Rel: " + getBuildNr() + "]";
     }
 
     public static String[] getJavaVersion() {

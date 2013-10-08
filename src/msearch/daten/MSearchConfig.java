@@ -27,7 +27,6 @@ public class MSearchConfig {
     public static String proxyUrl = "";
     public static int proxyPort = -1;
     public static int warten = 1;
-    public static String version = MSearchConst.VERSION;
     public static int bandbreite = 0; // maxBandbreite in Byte
     public static String importUrl__anhaengen = "";
     public static String importUrl__ersetzen = "";

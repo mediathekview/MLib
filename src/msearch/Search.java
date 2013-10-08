@@ -20,8 +20,6 @@
 package msearch;
 
 import msearch.filmeSuchen.MSearchFilmeSuchen;
-import java.util.Iterator;
-import java.util.LinkedList;
 import msearch.filmeSuchen.MSearchListenerFilmeLaden;
 import msearch.filmeSuchen.MSearchListenerFilmeLadenEvent;
 import msearch.io.MSearchIoXmlFilmlisteLesen;
@@ -79,7 +77,7 @@ public class Search {
         filmeSuchenSender.addAdListener(new MSearchListenerFilmeLaden() {
             @Override
             public void fertig(MSearchListenerFilmeLadenEvent event) {
-                undTschuess(true /* exit */);
+                undTschuess();
             }
         });
         // laden was es schon gibt
@@ -101,58 +99,42 @@ public class Search {
         return listeFilme;
     }
 
-    private void undTschuess(boolean exit) {
+    private void undTschuess() {
         if (!MSearchConfig.importUrl__anhaengen.equals("")) {
             // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
-            MSearchLog.systemMeldung("Filmliste importieren von: " + MSearchConfig.importUrl__anhaengen);
+            MSearchLog.systemMeldung("Filmliste importieren (anhängen) von: " + MSearchConfig.importUrl__anhaengen);
             ListeFilme tmpListe = new ListeFilme();
             new MSearchIoXmlFilmlisteLesen().filmlisteLesen(MSearchConfig.importUrl__anhaengen, tmpListe);
             listeFilme.updateListe(tmpListe, false /* nur URL vergleichen */);
             tmpListe.clear();
+            System.gc();
+            listeFilme.sort();
         }
         if (!MSearchConfig.importUrl__ersetzen.equals("")) {
             // wenn eine ImportUrl angegeben, dann noch eine Liste importieren, Filme die es schon gibt
             // werden ersetzt
-            MSearchLog.systemMeldung("Filmliste importieren von: " + MSearchConfig.importUrl__ersetzen);
+            MSearchLog.systemMeldung("Filmliste importieren (ersetzen) von: " + MSearchConfig.importUrl__ersetzen);
             ListeFilme tmpListe = new ListeFilme();
             new MSearchIoXmlFilmlisteLesen().filmlisteLesen(MSearchConfig.importUrl__ersetzen, tmpListe);
             tmpListe.updateListe(listeFilme, false /* nur URL vergleichen */);
             tmpListe.metaDaten = listeFilme.metaDaten;
-            tmpListe.sort(); // jetzt sollte alles passen
             listeFilme.clear();
+            System.gc();
+            tmpListe.sort(); // jetzt sollte alles passen
             listeFilme = tmpListe;
         }
         new MSearchIoXmlFilmlisteSchreiben().filmeSchreiben(MSearchConfig.dateiFilmliste, listeFilme);
         if (!MSearchConfig.exportFilmliste.equals("")) {
-            LinkedList<String> out = new LinkedList<>();
-            String tmp;
-            do {
-                if (MSearchConfig.exportFilmliste.startsWith(",")) {
-                    MSearchConfig.exportFilmliste = MSearchConfig.exportFilmliste.substring(1);
-                }
-                if (MSearchConfig.exportFilmliste.contains(",")) {
-                    tmp = MSearchConfig.exportFilmliste.substring(0, MSearchConfig.exportFilmliste.indexOf(","));
-                    MSearchConfig.exportFilmliste = MSearchConfig.exportFilmliste.substring(MSearchConfig.exportFilmliste.indexOf(","));
-                    out.add(tmp);
-                } else {
-                    out.add(MSearchConfig.exportFilmliste);
-                }
-            } while (MSearchConfig.exportFilmliste.contains(","));
-            Iterator<String> it = out.iterator();
-            while (it.hasNext()) {
-                //datei schreiben
-                new MSearchIoXmlFilmlisteSchreiben().filmeSchreiben(it.next(), listeFilme);
-            }
+            //datei schreiben
+            new MSearchIoXmlFilmlisteSchreiben().filmeSchreiben(MSearchConfig.exportFilmliste, listeFilme);
         }
         MSearchLog.printEndeMeldung();
-        if (exit) {
-            // nur dann das Programm beenden
-            if (listeFilme.isEmpty()) {
-                //Satz mit x, war wohl nix
-                System.exit(1);
-            } else {
-                System.exit(0);
-            }
+        // nur dann das Programm beenden
+        if (listeFilme.isEmpty()) {
+            //Satz mit x, war wohl nix
+            System.exit(1);
+        } else {
+            System.exit(0);
         }
     }
 }

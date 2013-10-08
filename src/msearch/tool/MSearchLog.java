@@ -109,17 +109,20 @@ public class MSearchLog {
         MSearchLog.systemMeldung("");
         MSearchLog.systemMeldung("");
         if (MSearchConfig.senderAllesLaden) {
-            MSearchLog.systemMeldung("Filme laden: alles laden");
+            MSearchLog.systemMeldung("Laden:  alles");
         } else {
-            MSearchLog.systemMeldung("Filme laden: nur update laden");
+            MSearchLog.systemMeldung("Laden:  nur update");
         }
         if (MSearchConfig.updateFilmliste) {
-            MSearchLog.systemMeldung("Filmliste nur updaten");
+            MSearchLog.systemMeldung("Filmliste:  nur updaten");
         } else {
-            MSearchLog.systemMeldung("Filmliste neu erstellen");
+            MSearchLog.systemMeldung("Filmliste:  neu erstellen");
         }
+        MSearchLog.systemMeldung("Import (ersetzen):  " + MSearchConfig.importUrl__ersetzen);
+        MSearchLog.systemMeldung("Import (anhängen):  " + MSearchConfig.importUrl__anhaengen);
+        MSearchLog.systemMeldung("Export Filmliste:  " + MSearchConfig.exportFilmliste);
         if (MSearchConfig.nurSenderLaden != null) {
-            MSearchLog.systemMeldung("Nur einen Sender laden: " + StringUtils.join(MSearchConfig.nurSenderLaden, ','));
+            MSearchLog.systemMeldung("Nur Sender laden:  " + StringUtils.join(MSearchConfig.nurSenderLaden, ','));
         }
         MSearchLog.systemMeldung("###########################################################");
     }

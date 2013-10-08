@@ -186,7 +186,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
         DatenFilm film;
-        HashSet<String> hash = new HashSet<String>();
+        HashSet<String> hash = new HashSet<>();
         Iterator<DatenFilm> it = this.iterator();
         while (it.hasNext()) {
             if (index) {
@@ -477,7 +477,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
             filmDate = sdf.parse(date);
         } catch (ParseException ex) {
         }
-        if (jetzt != null && filmDate != null) {
+        if (filmDate != null) {
             ret = Math.round((jetzt.getTime() - filmDate.getTime()) / (1000));
             if (ret < 0) {
                 ret = 0;
@@ -512,7 +512,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
             metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = "";
             metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = "";
         }
-        metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION;
+        metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
         metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = Funktionen.getProgVersionString() + " - Compiled: " + Funktionen.getCompileDate();
     }
 
