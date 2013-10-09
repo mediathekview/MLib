@@ -26,7 +26,9 @@ import msearch.io.MSearchIoXmlFilmlisteLesen;
 import msearch.io.MSearchIoXmlFilmlisteSchreiben;
 import msearch.daten.MSearchConfig;
 import msearch.daten.ListeFilme;
+import msearch.tool.Funktionen;
 import msearch.tool.MSearchLog;
+import static msearch.tool.MSearchLog.versionsMeldungen;
 
 public class Search {
 
@@ -97,6 +99,29 @@ public class Search {
 
     public ListeFilme getListeFilme() {
         return listeFilme;
+    }
+
+    public static void senderLoeschenUndExit(String senderLoeschen, String dateiFilmliste) {
+        // Infos schreiben
+        ListeFilme listeFilme = new ListeFilme();
+        versionsMeldungen("Search.senderLoeschenUndExit()");
+        MSearchLog.systemMeldung("###########################################################");
+        MSearchLog.systemMeldung("Programmpfad:   " + Funktionen.getPathJar());
+        MSearchLog.systemMeldung("Sender löschen: " + senderLoeschen);
+        MSearchLog.systemMeldung("Filmliste:      " + dateiFilmliste);
+        MSearchLog.systemMeldung("###########################################################");
+        MSearchLog.systemMeldung("");
+        MSearchLog.systemMeldung("");
+        new MSearchIoXmlFilmlisteLesen().filmlisteLesen(dateiFilmliste, listeFilme);
+        // dann nur einen Sender löschen und dann wieder beenden
+        int anz1 = listeFilme.size();
+        MSearchLog.systemMeldung("Anzahl Filme vorher: " + anz1);
+        listeFilme.delSender(senderLoeschen);
+        int anz2 = listeFilme.size();
+        MSearchLog.systemMeldung("Anzehl Filme nachher: " + anz2);
+        MSearchLog.systemMeldung(" --> gelöscht: " + (anz1 - anz2));
+        new MSearchIoXmlFilmlisteSchreiben().filmeSchreiben(dateiFilmliste, listeFilme);
+        System.exit(0);
     }
 
     private void undTschuess() {
