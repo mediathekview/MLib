@@ -198,7 +198,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                             DatenFilm film = MediathekZdf.filmHolenId(getUrl, seite2, nameSenderMReader, thema, titel, link, id);
                             if (film == null) {
                                 // dann mit der herkömmlichen Methode versuchen
-                                MSearchLog.fehlerMeldung(-13568978, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.laden", "auf die alte Art: " + url_rss);
+                                MSearchLog.fehlerMeldung(-925464987, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.laden", "auf die alte Art: " + url_rss);
                             } else {
                                 // dann wars gut
                                 addFilm(film);

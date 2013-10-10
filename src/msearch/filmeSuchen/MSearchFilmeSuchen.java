@@ -68,6 +68,7 @@ public class MSearchFilmeSuchen {
     private String[] titel3 = {"Sender       ", "Geladen[MB]", "Nix", "Deflaet", "Gzip", "AnzGroesse", "Anz-403", "Anz-Proxy"};
     private final String TRENNER = " | ";
     private final String TTRENNER = " || ";
+    private boolean allStarted = false;
 
     /**
      * ###########################################################################################################
@@ -100,10 +101,9 @@ public class MSearchFilmeSuchen {
         mediathekListe.add(new MediathekOrf(this, 0));
     }
 
-    public void infoMeldung() {
-        MSearchLog.startMeldungen(this.getClass().getName());
-    }
-
+//    public void infoMeldung() {
+//        MSearchLog.startMeldungen(this.getClass().getName());
+//    }
     public void addAdListener(MSearchListenerFilmeLaden listener) {
         listeners.add(MSearchListenerFilmeLaden.class, listener);
     }
@@ -112,12 +112,14 @@ public class MSearchFilmeSuchen {
      * es werden alle Filme gesucht
      */
     public synchronized void filmeBeimSenderLaden(ListeFilme listeFilme) {
+        allStarted = false;
         initStart(listeFilme);
         // die mReader nach Prio starten
         mrStarten(0);
         if (!MSearchConfig.getStop()) {
             mrWarten();
             mrStarten(1);
+            allStarted = true;
         }
     }
 
@@ -137,6 +139,7 @@ public class MSearchFilmeSuchen {
      */
     public void updateSender(String[] nameSender, ListeFilme listeFilme) {
         // nur für den Mauskontext "Sender aktualisieren"
+        allStarted = false;
         boolean starten = false;
         MSearchConfig.senderAllesLaden = false;
         MSearchConfig.updateFilmliste = true;
@@ -151,6 +154,7 @@ public class MSearchFilmeSuchen {
                 }
             }
         }
+        allStarted = true;
         if (!starten) {
             // dann fertig
             meldenFertig("");
@@ -218,8 +222,8 @@ public class MSearchFilmeSuchen {
             zeile += textLaenge(titel3[7].length(), String.valueOf(MSearchUrlDateiGroesse.getZaehlerProxy(run.sender))) + TRENNER;
             runde3.add(zeile);
         }
-        if (!listeSenderLaufen.listeFertig()) {
-            //nur ein Sender fertig
+        if (!allStarted || !listeSenderLaufen.listeFertig()) {
+            //nur ein Sender fertig oder noch nicht alle gestartet
             notifyProgress(new MSearchListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress()));
         } else {
             // wird einmal aufgerufen, wenn alle Sender fertig sind
@@ -227,6 +231,10 @@ public class MSearchFilmeSuchen {
             endeMeldung();
             notifyFertig(new MSearchListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress()));
         }
+    }
+
+    public ListeFilme getErgebnis() {
+        return listeFilmeNeu;
     }
 
     //===================================
@@ -245,12 +253,13 @@ public class MSearchFilmeSuchen {
     }
 
     private synchronized void mrWarten() {
+        // 3 Minuten warten, alle 10 Sekunden auf STOP prüfen
         try {
-            for (int i = 0; i < 6; ++i) {
+            for (int i = 0; i < 18; ++i) {
                 if (MSearchConfig.getStop()) {
                     break;
                 }
-                this.wait(30 * 1000); // 0,5 Min. warten, Sender nach der Gesamtlaufzeit starten
+                this.wait(10 * 1000); // 0,5 Min. warten, Sender nach der Gesamtlaufzeit starten
             }
         } catch (Exception ex) {
             MSearchLog.fehlerMeldung(978754213, MSearchLog.FEHLER_ART_PROG, "FilmeSuchenSender.mrWarten", ex);
@@ -287,15 +296,15 @@ public class MSearchFilmeSuchen {
         // Gesamt ===============================================
         // ======================================================
         int anzFilme = listeFilmeNeu.size();
-        if (!MSearchConfig.senderAllesLaden || MSearchConfig.updateFilmliste) {
+        if (MSearchConfig.updateFilmliste) {
             // alte Filme eintragen wenn angefordert oder nur ein update gesucht wurde
             listeFilmeNeu.updateListe(listeFilmeAlt, true /* über den Index vergleichen */);
         }
         listeFilmeNeu.sort();
         // FilmlisteMetaDaten
         listeFilmeNeu.metaDatenSchreiben();
-        listeFilmeAlt.anhaengen(listeFilmeNeu);
-        listeFilmeNeu = null;
+//        listeFilmeAlt.anhaengen(listeFilmeNeu);
+//        listeFilmeNeu = null;
         stopZeit = new Date(System.currentTimeMillis());
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         int sekunden;
@@ -329,10 +338,6 @@ public class MSearchFilmeSuchen {
 
     private void initStart(ListeFilme listeFilme) {
         listeFilmeAlt = listeFilme;
-        if (!MSearchConfig.updateFilmliste) {
-            // Dann brauchmer die alte Liste nicht mehr und sparen uns den Speicher
-            listeFilmeAlt.clear();
-        }
         MSearchConfig.setStop(false);
         startZeit = new Date(System.currentTimeMillis());
         listeFilmeNeu = new ListeFilme();

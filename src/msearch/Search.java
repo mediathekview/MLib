@@ -30,13 +30,14 @@ import msearch.tool.Funktionen;
 import msearch.tool.MSearchLog;
 import static msearch.tool.MSearchLog.versionsMeldungen;
 
-public class Search {
+public class Search implements Runnable {
 
     private ListeFilme listeFilme = new ListeFilme();
-    private MSearchFilmeSuchen filmeSuchenSender;
+    private MSearchFilmeSuchen mSearchFilmeSuchen;
+    private boolean serverLaufen = false;
 
     public Search(String[] ar) {
-        filmeSuchenSender = new MSearchFilmeSuchen();
+        mSearchFilmeSuchen = new MSearchFilmeSuchen();
         if (ar != null) {
             for (int i = 0; i < ar.length; ++i) {
                 if (ar[i].equals(Main.STARTP_ALLES)) {
@@ -76,10 +77,10 @@ public class Search {
         MSearchLog.startMeldungen(this.getClass().getName());
         MSearchLog.systemMeldung("");
         MSearchLog.systemMeldung("");
-        filmeSuchenSender.addAdListener(new MSearchListenerFilmeLaden() {
+        mSearchFilmeSuchen.addAdListener(new MSearchListenerFilmeLaden() {
             @Override
             public void fertig(MSearchListenerFilmeLadenEvent event) {
-                undTschuess();
+                undTschuess(true);
             }
         });
         // laden was es schon gibt
@@ -87,14 +88,14 @@ public class Search {
         new MSearchIoXmlFilmlisteLesen().filmlisteLesen(MSearchConfig.dateiFilmliste, listeFilme);
         // das eigentliche Suchen der Filme bei den Sendern starten
         if (MSearchConfig.nurSenderLaden == null) {
-            filmeSuchenSender.filmeBeimSenderLaden(listeFilme);
+            mSearchFilmeSuchen.filmeBeimSenderLaden(listeFilme);
         } else {
-            filmeSuchenSender.updateSender(MSearchConfig.nurSenderLaden, listeFilme);
+            mSearchFilmeSuchen.updateSender(MSearchConfig.nurSenderLaden, listeFilme);
         }
     }
 
     public void addAdListener(MSearchListenerFilmeLaden listener) {
-        filmeSuchenSender.addAdListener(listener);
+        mSearchFilmeSuchen.addAdListener(listener);
     }
 
     public ListeFilme getListeFilme() {
@@ -124,7 +125,45 @@ public class Search {
         System.exit(0);
     }
 
-    private void undTschuess() {
+    @Override
+    public synchronized void run() {
+        // für den MServer
+        serverLaufen = true;
+        if (MSearchConfig.dateiFilmliste.isEmpty()) {
+            MSearchLog.systemMeldung("Keine URI der Filmliste angegeben");
+            System.exit(-1);
+        }
+        // Infos schreiben
+        MSearchLog.startMeldungen(this.getClass().getName());
+        MSearchLog.systemMeldung("");
+        MSearchLog.systemMeldung("");
+        mSearchFilmeSuchen.addAdListener(new MSearchListenerFilmeLaden() {
+            @Override
+            public void fertig(MSearchListenerFilmeLadenEvent event) {
+                serverLaufen = false;
+            }
+        });
+        // laden was es schon gibt
+        //Daten.ioXmlFilmlisteLesen.filmlisteLesen(Daten.getBasisVerzeichnis() + Konstanten.XML_DATEI_FILME, false /* istUrl */, Daten.listeFilme);
+        new MSearchIoXmlFilmlisteLesen().filmlisteLesen(MSearchConfig.dateiFilmliste, listeFilme);
+        // das eigentliche Suchen der Filme bei den Sendern starten
+        if (MSearchConfig.nurSenderLaden == null) {
+            mSearchFilmeSuchen.filmeBeimSenderLaden(listeFilme);
+        } else {
+            mSearchFilmeSuchen.updateSender(MSearchConfig.nurSenderLaden, listeFilme);
+        }
+        try {
+            while (serverLaufen) {
+                this.wait(5000);
+            }
+        } catch (Exception ex) {
+            MSearchLog.fehlerMeldung(496378742, MSearchLog.FEHLER_ART_FILME_SUCHEN, Search.class.getName(), "run()");
+        }
+        undTschuess(false /* exit */);
+    }
+
+    private void undTschuess(boolean exit) {
+        listeFilme = mSearchFilmeSuchen.getErgebnis();
         if (!MSearchConfig.importUrl__anhaengen.equals("")) {
             // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
             MSearchLog.systemMeldung("Filmliste importieren (anhängen) von: " + MSearchConfig.importUrl__anhaengen);
@@ -155,11 +194,8 @@ public class Search {
         }
         MSearchLog.printEndeMeldung();
         // nur dann das Programm beenden
-        if (listeFilme.isEmpty()) {
-            //Satz mit x, war wohl nix
-            System.exit(1);
-        } else {
-            System.exit(0);
+        if (exit) {
+            System.exit(listeFilme.isEmpty() ? 1 : 0);
         }
     }
 }
