@@ -297,7 +297,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                                 }
                             }
                             if (thema.equals("")) {
-                                thema = seite2.extractLast("<div class=\"subline\">", "<");
+                                thema = seite2.extract("<h1>", "<div class=\"subline\">", "<");
                                 if (thema.contains("|")) {
                                     thema = thema.substring(0, thema.lastIndexOf("|"));
                                     thema = thema.trim();
