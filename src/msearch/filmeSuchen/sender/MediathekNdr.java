@@ -84,6 +84,15 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                 MSearchLog.fehlerMeldung(-332945670, MSearchLog.FEHLER_ART_MREADER, "MediathekNdr.finden", ex);
             }
         }
+        // http://www.ndr.de/mediathek/verpasst109-extapponly_date-20131009_branding-ndrtv.html?verpasstNow=13.10.2013&verpasstDate=09.10.2013&verpasstBrand=ndrtv
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+        int maxTage = MSearchConfig.senderAllesLaden ? 30 : 20;
+        for (int i = 0; i < maxTage; ++i) {
+            final String URL = "http://www.ndr.de/mediathek/verpasst109-extapponly_date-";
+            String tag = formatter.format(new Date().getTime() - (1000 * 60 * 60 * 24 * i));
+            String urlString = URL + tag + "_branding-ndrtv.html";
+            listeThemen.addUrl(new String[]{urlString, ""});
+        }
         if (MSearchConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
@@ -247,9 +256,6 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                             }
                         }
                     }
-                    if (thema.equals("")) {
-                        thema = "NDR";
-                    }
                     filmSuchen(strUrlFeed, thema, titel, "http://www.ndr.de/" + url, datum, zeit, durationInSeconds);
                     lastPos = pos;
                 }
@@ -290,8 +296,25 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                                     url = url.replace("hi.mp4", "hq.mp4");
                                 }
                             }
-                            DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, zeit, durationInSeconds, description, 
-                                     imageUrl, keywords);
+                            if (thema.equals("")) {
+                                thema = seite2.extractLast("<div class=\"subline\">", "<");
+                                if (thema.contains("|")) {
+                                    thema = thema.substring(0, thema.lastIndexOf("|"));
+                                    thema = thema.trim();
+                                }
+                                if (thema.contains("-")) {
+                                    thema = thema.substring(0, thema.lastIndexOf("-"));
+                                    thema = thema.trim();
+                                }
+                                if (thema.contains("Uhr")) {
+                                    thema = "";
+                                }
+                                if (thema.equals("")) {
+                                    thema = "NDR";
+                                }
+                            }
+                            DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, zeit, durationInSeconds, description,
+                                    imageUrl, keywords);
                             if (url.contains(".hq.")) {
                                 String urlKlein = url.replace(".hq.", ".hi.");
                                 film.addUrlKlein(urlKlein, "");

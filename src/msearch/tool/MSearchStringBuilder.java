@@ -78,6 +78,16 @@ public class MSearchStringBuilder {
         return "";
     }
 
+    public String extractLast(String musterStart, String musterEnde) {
+        if ((pos1 = cont.lastIndexOf(musterStart)) != -1) {
+            pos1 += musterStart.length();
+            if ((pos2 = cont.indexOf(musterEnde, pos1)) != -1) {
+                return cont.substring(pos1, pos2);
+            }
+        }
+        return "";
+    }
+
     public String extract(String musterStart, String musterEnde, int abPos, int stopPos) {
         if ((pos1 = cont.indexOf(musterStart, abPos)) != -1) {
             pos1 += musterStart.length();

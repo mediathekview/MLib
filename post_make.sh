@@ -5,6 +5,7 @@ then
 # nur für den Entwicklungsrechner sinnvoll
 
 cp -r /mnt/daten/software/Mediathek/MSearch/bin/* /mnt/daten/software/Mediathek/MSearch/dist
+cp -r /mnt/daten/software/Mediathek/MSearch/dist/lib/* /mnt/daten/software/Mediathek/MSearch/libs
 
 # Aufräumen
 rm /mnt/daten/software/Mediathek/MSearch/dist/README.TXT
