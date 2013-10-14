@@ -21,7 +21,7 @@ package msearch.tool;
 
 public class MSearchConst {
 
-    public static final String VERSION_FILMLISTE = "2";
+    public static final String VERSION_FILMLISTE = "3";
     public static final String PROGRAMMNAME = "MSearch";
     public static final String USER_AGENT_DEFAULT = Funktionen.getProgVersionString();
     // MediathekView URLs
