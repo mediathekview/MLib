@@ -379,41 +379,45 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     public void init() {
-        // Dateigröße
-        dateigroesseL = new MSearchLong(this);
-        // Filmdauer
         try {
-            if (!this.arr[DatenFilm.FILM_DAUER_NR].contains(":") && !this.arr[DatenFilm.FILM_DAUER_NR].isEmpty()) {
-                // nur als Übergang bis die Liste umgestellt ist
-                long l = Long.parseLong(this.arr[DatenFilm.FILM_DAUER_NR]);
-                dauerL = l;
-                if (l > 0) {
-                    long hours = l / 3600;
-                    l = l - (hours * 3600);
-                    long min = l / 60;
-                    l = l - (min * 60);
-                    long seconds = l;
-                    this.arr[DatenFilm.FILM_DAUER_NR] = fuellen(2, String.valueOf(hours)) + ":" + fuellen(2, String.valueOf(min)) + ":" + fuellen(2, String.valueOf(seconds));
+            // Dateigröße
+            dateigroesseL = new MSearchLong(this);
+            // Filmdauer
+            try {
+                if (!this.arr[DatenFilm.FILM_DAUER_NR].contains(":") && !this.arr[DatenFilm.FILM_DAUER_NR].isEmpty()) {
+                    // nur als Übergang bis die Liste umgestellt ist
+                    long l = Long.parseLong(this.arr[DatenFilm.FILM_DAUER_NR]);
+                    dauerL = l;
+                    if (l > 0) {
+                        long hours = l / 3600;
+                        l = l - (hours * 3600);
+                        long min = l / 60;
+                        l = l - (min * 60);
+                        long seconds = l;
+                        this.arr[DatenFilm.FILM_DAUER_NR] = fuellen(2, String.valueOf(hours)) + ":" + fuellen(2, String.valueOf(min)) + ":" + fuellen(2, String.valueOf(seconds));
+                    } else {
+                        this.arr[DatenFilm.FILM_DAUER_NR] = "";
+                    }
                 } else {
-                    this.arr[DatenFilm.FILM_DAUER_NR] = "";
-                }
-            } else {
-                dauerL = 0;
-                if (!this.arr[DatenFilm.FILM_DAUER_NR].equals("")) {
-                    String[] parts = this.arr[DatenFilm.FILM_DAUER_NR].split(":");
-                    long power = 1;
-                    for (int i = parts.length - 1; i >= 0; i--) {
-                        dauerL += Long.parseLong(parts[i]) * power;
-                        power *= 60;
+                    dauerL = 0;
+                    if (!this.arr[DatenFilm.FILM_DAUER_NR].equals("")) {
+                        String[] parts = this.arr[DatenFilm.FILM_DAUER_NR].split(":");
+                        long power = 1;
+                        for (int i = parts.length - 1; i >= 0; i--) {
+                            dauerL += Long.parseLong(parts[i]) * power;
+                            power *= 60;
+                        }
                     }
                 }
+            } catch (Exception ex) {
+                dauerL = 0;
+                MSearchLog.fehlerMeldung(468912049, MSearchLog.FEHLER_ART_PROG, "DatenFilm.init", "Dauer: " + this.arr[DatenFilm.FILM_DAUER_NR]);
             }
+            // Datum
+            datumFilm = DatumZeit.getDatumForObject(this);
         } catch (Exception ex) {
-            dauerL = 0;
-            MSearchLog.fehlerMeldung(468912049, MSearchLog.FEHLER_ART_PROG, "DatenFilm.init", "Dauer: " + this.arr[DatenFilm.FILM_DAUER_NR]);
+            MSearchLog.fehlerMeldung(715263987, MSearchLog.FEHLER_ART_PROG, DatenFilm.class.getName() + ".init()", ex);
         }
-        // Datum
-        datumFilm = DatumZeit.getDatumForObject(this);
     }
 
     private String fuellen(int anz, String s) {

@@ -122,7 +122,6 @@ public class ListeFilme extends LinkedList<DatenFilm> {
 //            this.add(it.next());
 //        }
 //    }
-
     public synchronized DatenFilm istInFilmListe(String sender, String thema, String titel) {
         Iterator<DatenFilm> it = listIterator();
         while (it.hasNext()) {
@@ -514,6 +513,17 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         }
         metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
         metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = Funktionen.getProgVersionString() + " - Compiled: " + Funktionen.getCompileDate();
+    }
+
+    public void cleanCvs() {
+        ListIterator<DatenFilm> it = this.listIterator(0);
+        while (it.hasNext()) {
+            DatenFilm f = it.next();
+            for (int i = 0; i < f.arr.length; ++i) {
+                f.arr[i] = f.arr[i].replace(";", ",");
+                f.arr[i] = f.arr[i].replace("\n", "  ");
+            }
+        }
     }
 
     String getJetzt_ddMMyyyy_HHmm() {
