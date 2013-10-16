@@ -19,6 +19,8 @@
  */
 package msearch.io;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +29,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ListIterator;
 import java.util.zip.ZipInputStream;
 import javax.swing.event.EventListenerList;
 import javax.xml.stream.XMLInputFactory;
@@ -397,6 +400,44 @@ public class MSearchIoXmlFilmlisteLesen {
             }
         }
         return ret;
+    }
+
+    public ListeFilme filmlisteLesenKryo(String vonDateiUrl) {
+        // die Filmliste "vonDateiUrl" (Url oder lokal) wird in die List "listeFilme" eingelesen
+        boolean ret = true;
+        ListeFilme listeFilme = null;
+        if (!new File(vonDateiUrl).exists()) {
+            MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", "Datei existiert nicht: " + vonDateiUrl);
+            return null;
+        }
+        this.notifyStart(200);
+        this.notifyProgress(vonDateiUrl);
+        InputStreamReader inReader = null;
+        BZip2CompressorInputStream bZip2CompressorInputStream;
+        int timeout = 10000; //10 Sekunden
+        URLConnection conn;
+        File tmpFile = null;
+        try {
+            if (!new File(vonDateiUrl).exists()) {
+                return null;
+            }
+            Kryo kryo = new Kryo();
+            Input input = new Input(new FileInputStream(vonDateiUrl));
+            listeFilme = kryo.readObject(input, ListeFilme.class);
+            input.close();
+
+//            ListIterator<DatenFilm> iterator;
+//            iterator = listeFilme.listIterator();
+//            while (iterator.hasNext()){
+//                iterator.next().init();
+//            }
+
+            notifyFertig(listeFilme);
+        } catch (Exception ex) {
+            ret = false;
+            MSearchLog.fehlerMeldung(468956200, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", ex, "von: " + vonDateiUrl);
+        }
+        return listeFilme;
     }
 
     public String filmlisteUmbenennen(String dateiFilmliste, ListeFilme listeFilme) {

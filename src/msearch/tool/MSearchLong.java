@@ -26,6 +26,9 @@ public class MSearchLong implements Comparable<MSearchLong> {
     Long l = 0L;
     String s = "";
 
+    public MSearchLong() {
+    }
+
     public MSearchLong(long ll) {
         l = new Long(ll);
         s = l.toString();

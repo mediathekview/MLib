@@ -19,12 +19,13 @@
  */
 package msearch.io;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Output;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.StringWriter;
 import java.util.ListIterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -37,7 +38,6 @@ import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 public class MSearchIoXmlFilmlisteSchreiben {
 
@@ -134,6 +134,33 @@ public class MSearchIoXmlFilmlisteSchreiben {
                 out.close();
             }
 
+            MSearchLog.systemMeldung("geschrieben!");
+        } catch (Exception ex) {
+            MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
+        }
+    }
+
+    public void filmeSchreibenKryo(String datei, ListeFilme listeFilme) {
+        try {
+            FileOutputStream o;
+            MSearchLog.systemMeldung("Filme Schreiben");
+            File file = new File(datei);
+            File dir = new File(file.getParent());
+            if (!dir.exists()) {
+                if (!dir.mkdirs()) {
+                    MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
+                }
+            }
+            MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
+            listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
+            try {
+                Kryo kryo = new Kryo();
+                o = new FileOutputStream(file);
+                Output op = new Output(o);
+                kryo.writeObject(op, listeFilme);
+                op.close();
+            } catch (Exception ex) {
+            }
             MSearchLog.systemMeldung("geschrieben!");
         } catch (Exception ex) {
             MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
