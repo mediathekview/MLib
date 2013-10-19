@@ -106,20 +106,18 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String[] COLUMN_NAMES_ = {FILM_NR_, FILM_SENDER_, FILM_THEMA_, FILM_TITEL_, FILM_DATUM_, FILM_ZEIT_, FILM_DAUER_, FILM_GROESSE_,
         FILM_BESCHREIBUNG_, FILM_KEYWORDS_, FILM_URL_, FILM_WEBSEITE_, FILM_ABO_NAME_,
         FILM_IMAGE_URL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_};
-    public Datum datumFilm = new Datum(0);
+    public transient Datum datumFilm = new Datum(0);
     public long dauerL = 0; // Sekunden
-    public MSearchLong dateigroesseL = new MSearchLong(0); // Dateigröße in MByte
+    public transient MSearchLong dateigroesseL = new MSearchLong(0); // Dateigröße in MByte
     public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
-    public String[] arr;
+    public String[] arr = new String[]{"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""};
 
     public DatenFilm() {
-        makeArr();
     }
 
     public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
             String datum, String zeit,
             long dauerSekunden, String description, String imageUrl, String[] keywords) {
-        makeArr();
         arr[FILM_SENDER_NR] = ssender;
         arr[FILM_THEMA_NR] = tthema.isEmpty() ? ssender : tthema;
         arr[FILM_TITEL_NR] = ttitel;
@@ -427,13 +425,12 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return s;
     }
 
-    private void makeArr() {
-        arr = new String[MAX_ELEM];
-        for (int i = 0; i < arr.length; ++i) {
-            arr[i] = "";
-        }
-    }
-
+//    private void makeArr() {
+//        arr = new String[MAX_ELEM];
+//        for (int i = 0; i < arr.length; ++i) {
+//            arr[i] = "";
+//        }
+//    }
     public static String checkDatum(String datum, String fehlermeldung) {
         //Datum max. 100 Tage in der Zukunft
         final long MAX = 1000L * 60L * 60L * 24L * 100L;

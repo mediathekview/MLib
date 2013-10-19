@@ -19,6 +19,7 @@
  */
 package msearch.daten;
 
+import com.sun.media.sound.FFT;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -520,9 +521,30 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         while (it.hasNext()) {
             DatenFilm f = it.next();
             for (int i = 0; i < f.arr.length; ++i) {
+                f.getClean();
                 f.arr[i] = f.arr[i].replace(";", ",");
                 f.arr[i] = f.arr[i].replace("\n", "  ");
             }
+        }
+    }
+
+    public void cleanXml() {
+        ListIterator<DatenFilm> it = this.listIterator(0);
+        while (it.hasNext()) {
+            DatenFilm f = it.next();
+            for (int i = 0; i < f.arr.length; ++i) {
+                f.getClean();
+                f.arr[i] = f.arr[i].replace("&", "&amp;");
+                f.arr[i] = f.arr[i].replace("<", " - ");
+                f.arr[i] = f.arr[i].replace(">", " - ");
+            }
+        }
+    }
+
+    public void clean() {
+        ListIterator<DatenFilm> it = this.listIterator(0);
+        while (it.hasNext()) {
+            it.next().getClean();
         }
     }
 

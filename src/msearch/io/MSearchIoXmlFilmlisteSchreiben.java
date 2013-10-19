@@ -21,6 +21,8 @@ package msearch.io;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Output;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,7 +39,6 @@ import msearch.daten.ListeFilme;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
-import org.json.simple.JSONArray;
 
 public class MSearchIoXmlFilmlisteSchreiben {
 
@@ -62,6 +63,15 @@ public class MSearchIoXmlFilmlisteSchreiben {
         }
     }
 
+    public void filmeSchreibenStream(String datei, ListeFilme listeFilme) {
+        try {
+            MSearchLog.systemMeldung("Filme Schreiben");
+            xmlSchreibenStream(datei, listeFilme);
+        } catch (Exception ex) {
+            MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
+        }
+    }
+
     public void filmeSchreibenCvs(String datei, ListeFilme listeFilme) {
         try {
             MSearchLog.systemMeldung("Filme Schreiben");
@@ -74,16 +84,16 @@ public class MSearchIoXmlFilmlisteSchreiben {
     }
 
     public void filmeSchreibenJson(String datei, ListeFilme listeFilme) {
-        try {
-            MSearchLog.systemMeldung("Filme Schreiben");
-            File file = new File(datei);
-            File dir = new File(file.getParent());
-            if (!dir.exists()) {
-                if (!dir.mkdirs()) {
-                    MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
-                }
+        MSearchLog.systemMeldung("Filme Schreiben");
+        File file = new File(datei);
+        File dir = new File(file.getParent());
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
             }
-            MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
+        }
+        MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
+        try {
             if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
                 bZip2CompressorOutputStream = new BZip2CompressorOutputStream(new FileOutputStream(file), 9 /*Blocksize: 1 - 9*/);
                 out = new OutputStreamWriter(bZip2CompressorOutputStream, MSearchConst.KODIERUNG_UTF);
@@ -95,45 +105,39 @@ public class MSearchIoXmlFilmlisteSchreiben {
             } else {
                 out = new OutputStreamWriter(new FileOutputStream(file), MSearchConst.KODIERUNG_UTF);
             }
-//            bw = new BufferedWriter(out);
-            //////////////////////////
             //Filmliste Metadaten schreiben
             listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
+            JsonFactory jsonF = new JsonFactory();
+            //JsonGenerator jg = jsonF.createGenerator(new File(datei), JsonEncoding.UTF8);
+            JsonGenerator jg = jsonF.createGenerator(out);
+            jg.useDefaultPrettyPrinter(); // enable indentation just to make debug/testing easier
+            jg.writeStartObject();
+            // Infos zur Filmliste
+            jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
+            for (int i = 0; i < ListeFilme.MAX_ELEM; ++i) {
+                jg.writeString(listeFilme.metaDaten[i]);
+            }
+            jg.writeEndArray();
+            // Infos der Felder in der Filmliste
+            jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
+            for (int i = 0; i < DatenFilm.MAX_ELEM; ++i) {
+                jg.writeString(DatenFilm.COLUMN_NAMES[i]);
+            }
+            jg.writeEndArray();
             //Filme schreiben
             ListIterator<DatenFilm> iterator;
             DatenFilm datenFilm;
-            String sender = "", thema = "";
-            DatenFilm datenFilmSchreiben = new DatenFilm();
             iterator = listeFilme.listIterator();
-            try {
-                bw.write(DatenFilm.FILME);
-                bw.write("\n");
-//            bw.write("#");
-            } catch (Exception ex) {
-            }
             while (iterator.hasNext()) {
-
-                JSONArray list = new JSONArray();
-                datenFilm = iterator.next();
-                for (int i = 0; i < datenFilm.arr.length; ++i) {
-                    list.add(datenFilm.arr[i]);
+                datenFilm = iterator.next().getClean();
+                jg.writeArrayFieldStart(DatenFilm.FILME_);
+                for (int i = 0; i < DatenFilm.MAX_ELEM; ++i) {
+                    jg.writeString(datenFilm.arr[i]);
                 }
-                ////////////////////////////////////////
-                out.write(list.toJSONString());
-                out.write("\n");//neue Zeile
+                jg.writeEndArray();
             }
-            ////////////////////////////////////////
-            if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
-                out.close();
-                bZip2CompressorOutputStream.close();
-            } else if (datei.endsWith(MSearchConst.FORMAT_ZIP)) {
-                zipOutputStream.closeEntry();
-                out.close();
-                zipOutputStream.close();
-            } else {
-                out.close();
-            }
-
+            jg.writeEndObject();
+            jg.close();
             MSearchLog.systemMeldung("geschrieben!");
         } catch (Exception ex) {
             MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
@@ -304,6 +308,93 @@ public class MSearchIoXmlFilmlisteSchreiben {
         writer.writeCharacters("\n");//neue Zeile
     }
 
+    private void xmlSchreibenStream(String datei, ListeFilme listeFilme) throws IOException, XMLStreamException {
+        File file = new File(datei);
+        File dir = new File(file.getParent());
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
+            }
+        }
+        MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
+        outFactory = XMLOutputFactory.newInstance();
+        if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
+            bZip2CompressorOutputStream = new BZip2CompressorOutputStream(new FileOutputStream(file), 9 /*Blocksize: 1 - 9*/);
+            out = new OutputStreamWriter(bZip2CompressorOutputStream, MSearchConst.KODIERUNG_UTF);
+        } else if (datei.endsWith(MSearchConst.FORMAT_ZIP)) {
+            zipOutputStream = new ZipOutputStream(new FileOutputStream(file));
+            ZipEntry entry = new ZipEntry(MSearchConst.XML_DATEI_FILME);
+            zipOutputStream.putNextEntry(entry);
+            out = new OutputStreamWriter(zipOutputStream, MSearchConst.KODIERUNG_UTF);
+        } else {
+            out = new OutputStreamWriter(new FileOutputStream(file), MSearchConst.KODIERUNG_UTF);
+        }
+        bw = new BufferedWriter(out);
+        //Filmliste Metadaten schreiben
+        listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
+        bw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                + "<Mediathek>\n"
+                + "<Filmliste><Filmliste-Datum>19.10.2013, 12:16</Filmliste-Datum><Filmliste-Datum-GMT>19.10.2013, 10:16</Filmliste-Datum-GMT><Filmliste-Version>3</Filmliste-Version><Filmliste-Programm>MSearch [Rel: 53] - Compiled: 14.10.2013 / 18:24:30</Filmliste-Programm></Filmliste>\n"
+                + "<Feldinfo>\n"
+                + "<a>Nr</a>\n"
+                + "<b>Sender</b>\n"
+                + "<c>Thema</c>\n"
+                + "<d>Titel</d>\n"
+                + "<e>Datum</e>\n"
+                + "<f>Zeit</f>\n"
+                + "<m>Dauer</m>\n"
+                + "<t>Größe [MB]</t>\n"
+                + "<n>Beschreibung</n>\n"
+                + "<q>Keywords</q>\n"
+                + "<g>Url</g>\n"
+                + "<k>Website</k>\n"
+                + "<l>Aboname</l>\n"
+                + "<o>Bild</o>\n"
+                + "<i>UrlRTMP</i>\n"
+                + "<j>UrlAuth</j>\n"
+                + "<r>Url_Klein</r>\n"
+                + "<s>UrlRTMP_Klein</s>\n"
+                + "<t>Url_HD</t>\n"
+                + "<u>UrlRTMP_HD</u>\n"
+                + "</Feldinfo>");
+
+        bw.write("\n");
+        //Filme schreiben
+        ListIterator<DatenFilm> iterator;
+        DatenFilm datenFilm;
+        iterator = listeFilme.listIterator();
+        while (iterator.hasNext()) {
+            bw.write("<" + DatenFilm.FILME_ + ">");
+            datenFilm = iterator.next();
+            for (int i = 0; i < datenFilm.arr.length; ++i) {
+                if (!datenFilm.arr[i].isEmpty()) {
+                    bw.write("<" + DatenFilm.COLUMN_NAMES_[i] + ">");
+                    bw.write(datenFilm.arr[i]);
+                    bw.write("</" + DatenFilm.COLUMN_NAMES_[i] + ">");
+                }
+            }
+            bw.write("</" + DatenFilm.FILME_ + ">");
+            bw.write("\n");
+        }
+        bw.write("\n");
+        bw.write("</Mediathek>");
+        bw.flush();
+        if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
+            bw.close();
+            out.close();
+            bZip2CompressorOutputStream.close();
+        } else if (datei.endsWith(MSearchConst.FORMAT_ZIP)) {
+            zipOutputStream.closeEntry();
+            bw.close();
+            out.close();
+            zipOutputStream.close();
+        } else {
+            bw.close();
+            out.close();
+        }
+        MSearchLog.systemMeldung("geschrieben!");
+    }
+
     private void xmlSchreibenFilmliste(ListeFilme listeFilme) throws XMLStreamException {
         //Filmliste Metadaten schreiben
         listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
@@ -320,17 +411,17 @@ public class MSearchIoXmlFilmlisteSchreiben {
             for (int i = 0; i < datenFilm.arr.length; ++i) {
                 datenFilmSchreiben.arr[i] = datenFilm.arr[i];
             }
-            if (sender.equals(datenFilm.arr[DatenFilm.FILM_SENDER_NR])) {
-                datenFilmSchreiben.arr[DatenFilm.FILM_SENDER_NR] = "";
-            } else {
-                sender = datenFilm.arr[DatenFilm.FILM_SENDER_NR];
-            }
-            if (thema.equals(datenFilm.arr[DatenFilm.FILM_THEMA_NR])) {
-                datenFilmSchreiben.arr[DatenFilm.FILM_THEMA_NR] = "";
-            } else {
-                thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
-            }
-            xmlSchreibenDaten(DatenFilm.FILME_, DatenFilm.COLUMN_NAMES_, datenFilmSchreiben.getClean().arr);
+////            if (sender.equals(datenFilm.arr[DatenFilm.FILM_SENDER_NR])) {
+////                datenFilmSchreiben.arr[DatenFilm.FILM_SENDER_NR] = "";
+////            } else {
+////                sender = datenFilm.arr[DatenFilm.FILM_SENDER_NR];
+////            }
+////            if (thema.equals(datenFilm.arr[DatenFilm.FILM_THEMA_NR])) {
+////                datenFilmSchreiben.arr[DatenFilm.FILM_THEMA_NR] = "";
+////            } else {
+////                thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
+////            }
+            xmlSchreibenDaten(DatenFilm.FILME_, DatenFilm.COLUMN_NAMES_, datenFilmSchreiben/*.getClean()*/.arr);
         }
     }
 
