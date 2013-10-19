@@ -45,7 +45,6 @@ public class MSearchIoXmlFilmlisteSchreiben {
     private XMLOutputFactory outFactory;
     private XMLStreamWriter writer;
     private OutputStreamWriter out = null;
-    private BufferedWriter bw = null;
     ZipOutputStream zipOutputStream = null;
     BZip2CompressorOutputStream bZip2CompressorOutputStream = null;
 
@@ -58,26 +57,6 @@ public class MSearchIoXmlFilmlisteSchreiben {
             xmlSchreibenStart(datei);
             xmlSchreibenFilmliste(listeFilme);
             xmlSchreibenEnde(datei);
-        } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
-        }
-    }
-
-    public void filmeSchreibenStream(String datei, ListeFilme listeFilme) {
-        try {
-            MSearchLog.systemMeldung("Filme Schreiben");
-            xmlSchreibenStream(datei, listeFilme);
-        } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
-        }
-    }
-
-    public void filmeSchreibenCvs(String datei, ListeFilme listeFilme) {
-        try {
-            MSearchLog.systemMeldung("Filme Schreiben");
-            cvsSchreibenStart(datei);
-            cvsSchreibenFilmliste(listeFilme);
-            cvsSchreibenEnde(datei);
         } catch (Exception ex) {
             MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
         }
@@ -144,141 +123,9 @@ public class MSearchIoXmlFilmlisteSchreiben {
         }
     }
 
-    public void filmeSchreibenKryo(String datei, ListeFilme listeFilme) {
-        try {
-            FileOutputStream o;
-            MSearchLog.systemMeldung("Filme Schreiben");
-            File file = new File(datei);
-            File dir = new File(file.getParent());
-            if (!dir.exists()) {
-                if (!dir.mkdirs()) {
-                    MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
-                }
-            }
-            MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
-            listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
-            try {
-                Kryo kryo = new Kryo();
-                o = new FileOutputStream(file);
-                Output op = new Output(o);
-                kryo.writeObject(op, listeFilme);
-                op.close();
-            } catch (Exception ex) {
-            }
-            MSearchLog.systemMeldung("geschrieben!");
-        } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
-        }
-    }
-
     // ##############################
     // private
     // ##############################
-    private void cvsSchreibenStart(String datei) throws IOException, XMLStreamException {
-        File file = new File(datei);
-        File dir = new File(file.getParent());
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
-            }
-        }
-        MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
-        if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
-            bZip2CompressorOutputStream = new BZip2CompressorOutputStream(new FileOutputStream(file), 9 /*Blocksize: 1 - 9*/);
-            out = new OutputStreamWriter(bZip2CompressorOutputStream, MSearchConst.KODIERUNG_UTF);
-        } else if (datei.endsWith(MSearchConst.FORMAT_ZIP)) {
-            zipOutputStream = new ZipOutputStream(new FileOutputStream(file));
-            ZipEntry entry = new ZipEntry(MSearchConst.XML_DATEI_FILME);
-            zipOutputStream.putNextEntry(entry);
-            out = new OutputStreamWriter(zipOutputStream, MSearchConst.KODIERUNG_UTF);
-        } else {
-            out = new OutputStreamWriter(new FileOutputStream(file), MSearchConst.KODIERUNG_UTF);
-        }
-        bw = new BufferedWriter(out);
-    }
-
-    private void cvsSchreibenFilmliste(ListeFilme listeFilme) throws XMLStreamException {
-        //Filmliste Metadaten schreiben
-        listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
-        cvsSchreibenDaten(ListeFilme.FILMLISTE, ListeFilme.COLUMN_NAMES, listeFilme.metaDaten);
-        cvsSchreibenFeldInfo();
-        //Filme schreiben
-        ListIterator<DatenFilm> iterator;
-        DatenFilm datenFilm;
-        String sender = "", thema = "";
-        DatenFilm datenFilmSchreiben = new DatenFilm();
-        iterator = listeFilme.listIterator();
-        try {
-            bw.write(DatenFilm.FILME);
-            bw.write("\n");
-//            bw.write("#");
-        } catch (Exception ex) {
-        }
-        while (iterator.hasNext()) {
-            datenFilm = iterator.next();
-            for (int i = 0; i < datenFilm.arr.length; ++i) {
-                datenFilmSchreiben.arr[i] = datenFilm.arr[i];
-            }
-            if (sender.equals(datenFilm.arr[DatenFilm.FILM_SENDER_NR])) {
-                datenFilmSchreiben.arr[DatenFilm.FILM_SENDER_NR] = "";
-            } else {
-                sender = datenFilm.arr[DatenFilm.FILM_SENDER_NR];
-            }
-            if (thema.equals(datenFilm.arr[DatenFilm.FILM_THEMA_NR])) {
-                datenFilmSchreiben.arr[DatenFilm.FILM_THEMA_NR] = "";
-            } else {
-                thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
-            }
-            cvsSchreibenDaten(DatenFilm.FILME_, DatenFilm.COLUMN_NAMES_, datenFilmSchreiben.getClean().arr);
-        }
-    }
-
-    private void cvsSchreibenFeldInfo() {
-        int xmlMax = DatenFilm.COLUMN_NAMES.length;
-        try {
-            bw.write(DatenFilm.FELD_INFO);
-            bw.write("\n");//neue Zeile
-            for (int i = 0; i < xmlMax; ++i) {
-                bw.write(DatenFilm.COLUMN_NAMES_[i]);
-                bw.write(DatenFilm.COLUMN_NAMES[i]);
-                bw.write("\n");//neue Zeile
-            }
-            bw.write("\n");//neue Zeile
-        } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(638214005, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.xmlSchreibenFeldInfo", ex);
-        }
-    }
-
-    private void cvsSchreibenDaten(String xmlName, String[] xmlSpalten, String[] datenArray) throws XMLStreamException {
-        int xmlMax = datenArray.length;
-        try {
-            for (int i = 0; i < xmlMax; ++i) {
-                bw.write(datenArray[i]);
-                bw.write(";");
-            }
-            bw.write("\n");//neue Zeile
-        } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(638214005, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.xmlSchreibenFeldInfo", ex);
-        }
-    }
-
-    private void cvsSchreibenEnde(String datei) throws Exception {
-        bw.flush();
-        if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
-            bw.close();
-            out.close();
-            bZip2CompressorOutputStream.close();
-        } else if (datei.endsWith(MSearchConst.FORMAT_ZIP)) {
-            zipOutputStream.closeEntry();
-            bw.close();
-            out.close();
-            zipOutputStream.close();
-        } else {
-            bw.close();
-            out.close();
-        }
-        MSearchLog.systemMeldung("geschrieben!");
-    }
 
     private void xmlSchreibenStart(String datei) throws IOException, XMLStreamException {
         File file = new File(datei);
@@ -308,93 +155,6 @@ public class MSearchIoXmlFilmlisteSchreiben {
         writer.writeCharacters("\n");//neue Zeile
     }
 
-    private void xmlSchreibenStream(String datei, ListeFilme listeFilme) throws IOException, XMLStreamException {
-        File file = new File(datei);
-        File dir = new File(file.getParent());
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
-            }
-        }
-        MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
-        outFactory = XMLOutputFactory.newInstance();
-        if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
-            bZip2CompressorOutputStream = new BZip2CompressorOutputStream(new FileOutputStream(file), 9 /*Blocksize: 1 - 9*/);
-            out = new OutputStreamWriter(bZip2CompressorOutputStream, MSearchConst.KODIERUNG_UTF);
-        } else if (datei.endsWith(MSearchConst.FORMAT_ZIP)) {
-            zipOutputStream = new ZipOutputStream(new FileOutputStream(file));
-            ZipEntry entry = new ZipEntry(MSearchConst.XML_DATEI_FILME);
-            zipOutputStream.putNextEntry(entry);
-            out = new OutputStreamWriter(zipOutputStream, MSearchConst.KODIERUNG_UTF);
-        } else {
-            out = new OutputStreamWriter(new FileOutputStream(file), MSearchConst.KODIERUNG_UTF);
-        }
-        bw = new BufferedWriter(out);
-        //Filmliste Metadaten schreiben
-        listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
-        bw.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                + "<Mediathek>\n"
-                + "<Filmliste><Filmliste-Datum>19.10.2013, 12:16</Filmliste-Datum><Filmliste-Datum-GMT>19.10.2013, 10:16</Filmliste-Datum-GMT><Filmliste-Version>3</Filmliste-Version><Filmliste-Programm>MSearch [Rel: 53] - Compiled: 14.10.2013 / 18:24:30</Filmliste-Programm></Filmliste>\n"
-                + "<Feldinfo>\n"
-                + "<a>Nr</a>\n"
-                + "<b>Sender</b>\n"
-                + "<c>Thema</c>\n"
-                + "<d>Titel</d>\n"
-                + "<e>Datum</e>\n"
-                + "<f>Zeit</f>\n"
-                + "<m>Dauer</m>\n"
-                + "<t>Größe [MB]</t>\n"
-                + "<n>Beschreibung</n>\n"
-                + "<q>Keywords</q>\n"
-                + "<g>Url</g>\n"
-                + "<k>Website</k>\n"
-                + "<l>Aboname</l>\n"
-                + "<o>Bild</o>\n"
-                + "<i>UrlRTMP</i>\n"
-                + "<j>UrlAuth</j>\n"
-                + "<r>Url_Klein</r>\n"
-                + "<s>UrlRTMP_Klein</s>\n"
-                + "<t>Url_HD</t>\n"
-                + "<u>UrlRTMP_HD</u>\n"
-                + "</Feldinfo>");
-
-        bw.write("\n");
-        //Filme schreiben
-        ListIterator<DatenFilm> iterator;
-        DatenFilm datenFilm;
-        iterator = listeFilme.listIterator();
-        while (iterator.hasNext()) {
-            bw.write("<" + DatenFilm.FILME_ + ">");
-            datenFilm = iterator.next();
-            for (int i = 0; i < datenFilm.arr.length; ++i) {
-                if (!datenFilm.arr[i].isEmpty()) {
-                    bw.write("<" + DatenFilm.COLUMN_NAMES_[i] + ">");
-                    bw.write(datenFilm.arr[i]);
-                    bw.write("</" + DatenFilm.COLUMN_NAMES_[i] + ">");
-                }
-            }
-            bw.write("</" + DatenFilm.FILME_ + ">");
-            bw.write("\n");
-        }
-        bw.write("\n");
-        bw.write("</Mediathek>");
-        bw.flush();
-        if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
-            bw.close();
-            out.close();
-            bZip2CompressorOutputStream.close();
-        } else if (datei.endsWith(MSearchConst.FORMAT_ZIP)) {
-            zipOutputStream.closeEntry();
-            bw.close();
-            out.close();
-            zipOutputStream.close();
-        } else {
-            bw.close();
-            out.close();
-        }
-        MSearchLog.systemMeldung("geschrieben!");
-    }
-
     private void xmlSchreibenFilmliste(ListeFilme listeFilme) throws XMLStreamException {
         //Filmliste Metadaten schreiben
         listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
@@ -411,16 +171,16 @@ public class MSearchIoXmlFilmlisteSchreiben {
             for (int i = 0; i < datenFilm.arr.length; ++i) {
                 datenFilmSchreiben.arr[i] = datenFilm.arr[i];
             }
-////            if (sender.equals(datenFilm.arr[DatenFilm.FILM_SENDER_NR])) {
-////                datenFilmSchreiben.arr[DatenFilm.FILM_SENDER_NR] = "";
-////            } else {
-////                sender = datenFilm.arr[DatenFilm.FILM_SENDER_NR];
-////            }
-////            if (thema.equals(datenFilm.arr[DatenFilm.FILM_THEMA_NR])) {
-////                datenFilmSchreiben.arr[DatenFilm.FILM_THEMA_NR] = "";
-////            } else {
-////                thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
-////            }
+            if (sender.equals(datenFilm.arr[DatenFilm.FILM_SENDER_NR])) {
+                datenFilmSchreiben.arr[DatenFilm.FILM_SENDER_NR] = "";
+            } else {
+                sender = datenFilm.arr[DatenFilm.FILM_SENDER_NR];
+            }
+            if (thema.equals(datenFilm.arr[DatenFilm.FILM_THEMA_NR])) {
+                datenFilmSchreiben.arr[DatenFilm.FILM_THEMA_NR] = "";
+            } else {
+                thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
+            }
             xmlSchreibenDaten(DatenFilm.FILME_, DatenFilm.COLUMN_NAMES_, datenFilmSchreiben/*.getClean()*/.arr);
         }
     }
