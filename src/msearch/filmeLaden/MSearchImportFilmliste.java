@@ -25,7 +25,7 @@ import javax.swing.event.EventListenerList;
 import msearch.daten.ListeFilme;
 import msearch.filmeSuchen.MSearchListenerFilmeLaden;
 import msearch.filmeSuchen.MSearchListenerFilmeLadenEvent;
-import msearch.io.MSearchIoXmlFilmlisteLesen;
+import msearch.io.MSearchFilmlisteLesen;
 import msearch.tool.MSearchListenerMediathekView;
 import msearch.tool.MSearchLog;
 import msearch.tool.MVMessageDialog;
@@ -35,11 +35,11 @@ public class MSearchImportFilmliste {
 //    public ListeFilme listeFilme;
     public String[] filmlisteMetaDaten;
     private EventListenerList listeners = new EventListenerList();
-    private MSearchIoXmlFilmlisteLesen ioXmlFilmlisteLesen = null;
+    private MSearchFilmlisteLesen ioXmlFilmlisteLesen = null;
     public MSearchFilmlistenSuchen filmlistenSuchen = new MSearchFilmlistenSuchen();
 
     public MSearchImportFilmliste() {
-        ioXmlFilmlisteLesen = new MSearchIoXmlFilmlisteLesen();
+        ioXmlFilmlisteLesen = new MSearchFilmlisteLesen();
         ioXmlFilmlisteLesen.addAdListener(new MSearchListenerFilmeLaden() {
             @Override
             public synchronized void start(MSearchListenerFilmeLadenEvent event) {
@@ -172,7 +172,7 @@ public class MSearchImportFilmliste {
             if (!dateiUrl.equals("")) {
                 MSearchLog.systemMeldung("Filmliste laden von: " + dateiUrl);
 //                listeFilme = new ListeFilme();
-                ret = ioXmlFilmlisteLesen.filmlisteLesen(dateiUrl, listeFilme);
+                ret = ioXmlFilmlisteLesen.filmlisteLesenXml(dateiUrl, listeFilme);
             }
         } catch (Exception ex) {
             MSearchLog.fehlerMeldung(965412378, MSearchLog.FEHLER_ART_PROG, "ImportListe.urlLaden: ", ex);

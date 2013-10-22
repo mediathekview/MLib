@@ -45,6 +45,7 @@ public class MSearchConst {
     public static final int STRING_BUFFER_START_BUFFER = 10 * 1024 * 8; // 10 KiB
     public static final String FORMAT_ZIP = ".zip";
     public static final String FORMAT_BZ2 = ".bz2";
+    public static final String FORMAT_JSON = ".json";
     public static final String RTMP_PRTOKOLL = "rtmp";
     public static final String RTMP_FLVSTREAMER = "-r ";
     public static final int ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE = 3 * 60 * 60; // beim Start des Programms wir die Liste geladen wenn sie älter ist als ..

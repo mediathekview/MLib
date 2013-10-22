@@ -19,21 +19,24 @@
  */
 package msearch.tool;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import msearch.daten.DatenFilm;
 
 public class MSearchLong implements Comparable<MSearchLong> {
 
-    Long l = 0L;
-    String s = "";
+    public Long l = 0L;
+    public String s = "";
 
     public MSearchLong() {
     }
 
+    @JsonIgnore
     public MSearchLong(long ll) {
         l = new Long(ll);
         s = l.toString();
     }
 
+    @JsonIgnore
     public MSearchLong(DatenFilm film) {
         if (film.arr[DatenFilm.FILM_GROESSE_NR].equals("<1")) {
             film.arr[DatenFilm.FILM_GROESSE_NR] = "1";
@@ -51,11 +54,13 @@ public class MSearchLong implements Comparable<MSearchLong> {
     }
 
     @Override
+    @JsonIgnore
     public String toString() {
         return s;
     }
 
     @Override
+    @JsonIgnore
     public int compareTo(MSearchLong ll) {
         return (l.compareTo(ll.l));
     }

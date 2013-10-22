@@ -19,6 +19,8 @@
  */
 package msearch.daten;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import msearch.tool.Datum;
@@ -29,6 +31,7 @@ import msearch.tool.MSearchLog;
 import msearch.tool.MSearchLong;
 import msearch.tool.MSearchUrlDateiGroesse;
 
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class DatenFilm implements Comparable<DatenFilm> {
 
     public static final String AUFLOESUNG_NORMAL = "normal";
@@ -106,18 +109,20 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String[] COLUMN_NAMES_ = {FILM_NR_, FILM_SENDER_, FILM_THEMA_, FILM_TITEL_, FILM_DATUM_, FILM_ZEIT_, FILM_DAUER_, FILM_GROESSE_,
         FILM_BESCHREIBUNG_, FILM_KEYWORDS_, FILM_URL_, FILM_WEBSEITE_, FILM_ABO_NAME_,
         FILM_IMAGE_URL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_};
-    public transient Datum datumFilm = new Datum(0);
+    public Datum datumFilm = new Datum(0);
     public long dauerL = 0; // Sekunden
-    public transient MSearchLong dateigroesseL = new MSearchLong(0); // Dateigröße in MByte
+    public MSearchLong dateigroesseL; // Dateigröße in MByte
     public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
     public String[] arr = new String[]{"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""};
 
     public DatenFilm() {
+        dateigroesseL = new MSearchLong(0); // Dateigröße in MByte
     }
 
     public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
             String datum, String zeit,
             long dauerSekunden, String description, String imageUrl, String[] keywords) {
+        dateigroesseL = new MSearchLong(0); // Dateigröße in MByte
         arr[FILM_SENDER_NR] = ssender;
         arr[FILM_THEMA_NR] = tthema.isEmpty() ? ssender : tthema;
         arr[FILM_TITEL_NR] = ttitel;
@@ -142,6 +147,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
+    @JsonIgnore
     public boolean addUrlKlein(String url, String urlRtmp) {
         boolean ret = true;
         arr[FILM_URL_KLEIN_NR] = url.isEmpty() ? "" : getKlein(arr[FILM_URL_NR], url);
@@ -149,6 +155,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     public boolean addUrlHd(String url, String urlRtmp) {
         boolean ret = true;
         arr[FILM_URL_HD_NR] = url.isEmpty() ? "" : getKlein(arr[FILM_URL_NR], url);
@@ -156,6 +163,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     public String getUrlFuerAufloesung(String aufloesung) {
         if (aufloesung.equals(AUFLOESUNG_KLEIN)) {
             return getUrlNormalKlein();
@@ -166,6 +174,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return getUrlNormal();
     }
 
+    @JsonIgnore
     public String getDateigroesse(String url) {
         if (url.equals(arr[DatenFilm.FILM_URL_NR])) {
             return arr[DatenFilm.FILM_GROESSE_NR];
@@ -174,6 +183,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
+    @JsonIgnore
     public String getUrlRtmpFuerAufloesung(String aufloesung) {
         if (aufloesung.equals(AUFLOESUNG_KLEIN)) {
             return getUrlFlvstreamerKlein();
@@ -184,6 +194,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return getUrlFlvstreamer();
     }
 
+    @JsonIgnore
     private String getKlein(String url1, String url2) {
         String ret = "";
         boolean diff = false;
@@ -205,6 +216,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     public static boolean anzeigen(int i) {
         if (spaltenAnzeigen == null) {
             return true;
@@ -213,11 +225,13 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
+    @JsonIgnore
     public String getUrlNormal() {
         // liefert die normale URL
         return arr[DatenFilm.FILM_URL_NR];
     }
 
+    @JsonIgnore
     private String getUrlNormalKlein() {
         // liefert die kleine normale URL
         int i;
@@ -231,6 +245,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return arr[DatenFilm.FILM_URL_NR];
     }
 
+    @JsonIgnore
     private String getUrlNormalHd() {
         // liefert die HD normale URL
         int i;
@@ -244,6 +259,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return getUrlNormal();
     }
 
+    @JsonIgnore
     private String getUrlFlvstreamer() {
         String ret;
         if (!arr[DatenFilm.FILM_URL_RTMP_NR].isEmpty()) {
@@ -258,6 +274,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     private String getUrlFlvstreamerKlein() {
         // liefert die kleine flvstreamer URL
         String ret = "";
@@ -284,6 +301,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     private String getUrlFlvstreamerHd() {
         // liefert die HD flvstreamer URL
         if (!arr[DatenFilm.FILM_URL_RTMP_HD_NR].isEmpty()) {
@@ -298,6 +316,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return getUrlFlvstreamer();
     }
 
+    @JsonIgnore
     private String beschreibung(String s, String thema, String titel) {
         // die Beschreibung auf x Zeichen beschränken
         if (s.startsWith(titel)) {
@@ -329,6 +348,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
+    @JsonIgnore
     private String keywordsToString(String[] keywords) {
         final int x = 200;
         String k = "";
@@ -345,18 +365,13 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return k;
     }
 
+    @JsonIgnore
     public String getIndex() {
         // liefert einen eindeutigen Index für die Filmliste
         return arr[FILM_SENDER_NR].toLowerCase() + arr[FILM_THEMA_NR].toLowerCase() + arr[FILM_URL_NR];
     }
 
-    public DatenFilm getClean() {
-        // vor dem Speichern nicht benötigte Felder löschen
-        arr[FILM_NR_NR] = "";
-        arr[FILM_ABO_NAME_NR] = "";
-        return this;
-    }
-
+    @JsonIgnore
     public DatenFilm getCopy() {
         DatenFilm ret = new DatenFilm();
         for (int i = 0; i < arr.length; ++i) {
@@ -366,6 +381,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     @Override
     public int compareTo(DatenFilm arg0) {
         int ret;
@@ -376,6 +392,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
+    public void clean() {
+        // vor dem Speichern nicht benötigte Felder löschen
+        arr[FILM_NR_NR] = "";
+        arr[FILM_ABO_NAME_NR] = "";
+    }
+
+    @JsonIgnore
     public void init() {
         try {
             // Dateigröße
@@ -418,19 +442,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
-    private String fuellen(int anz, String s) {
-        while (s.length() < anz) {
-            s = "0" + s;
-        }
-        return s;
-    }
-
-//    private void makeArr() {
-//        arr = new String[MAX_ELEM];
-//        for (int i = 0; i < arr.length; ++i) {
-//            arr[i] = "";
-//        }
-//    }
+    @JsonIgnore
     public static String checkDatum(String datum, String fehlermeldung) {
         //Datum max. 100 Tage in der Zukunft
         final long MAX = 1000L * 60L * 60L * 24L * 100L;
@@ -468,6 +480,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     public static String checkZeit(String datum, String zeit, String fehlermeldung) {
         String ret = zeit.trim();
         if (datum.equals("")) {
@@ -487,5 +500,13 @@ public class DatenFilm implements Comparable<DatenFilm> {
             }
         }
         return ret;
+    }
+
+    @JsonIgnore
+    private String fuellen(int anz, String s) {
+        while (s.length() < anz) {
+            s = "0" + s;
+        }
+        return s;
     }
 }

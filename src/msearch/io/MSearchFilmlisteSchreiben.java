@@ -19,11 +19,9 @@
  */
 package msearch.io;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Output;
+import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,7 +38,7 @@ import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 
-public class MSearchIoXmlFilmlisteSchreiben {
+public class MSearchFilmlisteSchreiben {
 
     private XMLOutputFactory outFactory;
     private XMLStreamWriter writer;
@@ -48,21 +46,7 @@ public class MSearchIoXmlFilmlisteSchreiben {
     ZipOutputStream zipOutputStream = null;
     BZip2CompressorOutputStream bZip2CompressorOutputStream = null;
 
-    public MSearchIoXmlFilmlisteSchreiben() {
-    }
-
-    public void filmeSchreiben(String datei, ListeFilme listeFilme) {
-        try {
-            MSearchLog.systemMeldung("Filme Schreiben");
-            xmlSchreibenStart(datei);
-            xmlSchreibenFilmliste(listeFilme);
-            xmlSchreibenEnde(datei);
-        } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
-        }
-    }
-
-    public void filmeSchreibenJson(String datei, ListeFilme listeFilme) {
+    public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
         MSearchLog.systemMeldung("Filme Schreiben");
         File file = new File(datei);
         File dir = new File(file.getParent());
@@ -73,22 +57,20 @@ public class MSearchIoXmlFilmlisteSchreiben {
         }
         MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
         try {
+            String sender = "", thema = "";
+            JsonFactory jsonF = new JsonFactory();
+            JsonGenerator jg;
             if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
                 bZip2CompressorOutputStream = new BZip2CompressorOutputStream(new FileOutputStream(file), 9 /*Blocksize: 1 - 9*/);
-                out = new OutputStreamWriter(bZip2CompressorOutputStream, MSearchConst.KODIERUNG_UTF);
+                jg = jsonF.createGenerator(bZip2CompressorOutputStream, JsonEncoding.UTF8);
             } else if (datei.endsWith(MSearchConst.FORMAT_ZIP)) {
                 zipOutputStream = new ZipOutputStream(new FileOutputStream(file));
                 ZipEntry entry = new ZipEntry(MSearchConst.XML_DATEI_FILME);
                 zipOutputStream.putNextEntry(entry);
-                out = new OutputStreamWriter(zipOutputStream, MSearchConst.KODIERUNG_UTF);
+                jg = jsonF.createGenerator(zipOutputStream, JsonEncoding.UTF8);
             } else {
-                out = new OutputStreamWriter(new FileOutputStream(file), MSearchConst.KODIERUNG_UTF);
+                jg = jsonF.createGenerator(new File(datei), JsonEncoding.UTF8);
             }
-            //Filmliste Metadaten schreiben
-            listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
-            JsonFactory jsonF = new JsonFactory();
-            //JsonGenerator jg = jsonF.createGenerator(new File(datei), JsonEncoding.UTF8);
-            JsonGenerator jg = jsonF.createGenerator(out);
             jg.useDefaultPrettyPrinter(); // enable indentation just to make debug/testing easier
             jg.writeStartObject();
             // Infos zur Filmliste
@@ -108,10 +90,30 @@ public class MSearchIoXmlFilmlisteSchreiben {
             DatenFilm datenFilm;
             iterator = listeFilme.listIterator();
             while (iterator.hasNext()) {
-                datenFilm = iterator.next().getClean();
+                datenFilm = iterator.next();
                 jg.writeArrayFieldStart(DatenFilm.FILME_);
                 for (int i = 0; i < DatenFilm.MAX_ELEM; ++i) {
-                    jg.writeString(datenFilm.arr[i]);
+                    if (i == DatenFilm.FILM_NR_NR) {
+                        jg.writeString("");
+                    } else if (i == DatenFilm.FILM_ABO_NAME_NR) {
+                        jg.writeString("");
+                    } else if (i == DatenFilm.FILM_SENDER_NR) {
+                        if (datenFilm.arr[i].equals(sender)) {
+                            jg.writeString("");
+                        } else {
+                            sender = datenFilm.arr[i];
+                            jg.writeString(datenFilm.arr[i]);
+                        }
+                    } else if (i == DatenFilm.FILM_THEMA_NR) {
+                        if (datenFilm.arr[i].equals(thema)) {
+                            jg.writeString("");
+                        } else {
+                            thema = datenFilm.arr[i];
+                            jg.writeString(datenFilm.arr[i]);
+                        }
+                    } else {
+                        jg.writeString(datenFilm.arr[i]);
+                    }
                 }
                 jg.writeEndArray();
             }
@@ -123,9 +125,16 @@ public class MSearchIoXmlFilmlisteSchreiben {
         }
     }
 
-    // ##############################
-    // private
-    // ##############################
+    public void filmlisteSchreibenXml(String datei, ListeFilme listeFilme) {
+        try {
+            MSearchLog.systemMeldung("Filme Schreiben");
+            xmlSchreibenStart(datei);
+            xmlSchreibenFilmliste(listeFilme);
+            xmlSchreibenEnde(datei);
+        } catch (Exception ex) {
+            MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
+        }
+    }
 
     private void xmlSchreibenStart(String datei) throws IOException, XMLStreamException {
         File file = new File(datei);
@@ -159,8 +168,23 @@ public class MSearchIoXmlFilmlisteSchreiben {
         //Filmliste Metadaten schreiben
         listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
         xmlSchreibenDaten(ListeFilme.FILMLISTE, ListeFilme.COLUMN_NAMES, listeFilme.metaDaten);
-        xmlSchreibenFeldInfo();
-        //Filme schreiben
+        // Feldinfo schreiben
+        int xmlMax = DatenFilm.COLUMN_NAMES.length;
+        try {
+            writer.writeStartElement(DatenFilm.FELD_INFO);
+            writer.writeCharacters("\n");//neue Zeile
+            for (int i = 0; i < xmlMax; ++i) {
+                writer.writeStartElement(DatenFilm.COLUMN_NAMES_[i]);
+                writer.writeCharacters(DatenFilm.COLUMN_NAMES[i]);
+                writer.writeEndElement();
+                writer.writeCharacters("\n");//neue Zeile
+            }
+            writer.writeEndElement();
+            writer.writeCharacters("\n");//neue Zeile
+        } catch (Exception ex) {
+            MSearchLog.fehlerMeldung(638214005, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.xmlSchreibenFeldInfo", ex);
+        }
+        // Filme schreiben
         ListIterator<DatenFilm> iterator;
         DatenFilm datenFilm;
         String sender = "", thema = "";
@@ -182,24 +206,6 @@ public class MSearchIoXmlFilmlisteSchreiben {
                 thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
             }
             xmlSchreibenDaten(DatenFilm.FILME_, DatenFilm.COLUMN_NAMES_, datenFilmSchreiben/*.getClean()*/.arr);
-        }
-    }
-
-    private void xmlSchreibenFeldInfo() {
-        int xmlMax = DatenFilm.COLUMN_NAMES.length;
-        try {
-            writer.writeStartElement(DatenFilm.FELD_INFO);
-            writer.writeCharacters("\n");//neue Zeile
-            for (int i = 0; i < xmlMax; ++i) {
-                writer.writeStartElement(DatenFilm.COLUMN_NAMES_[i]);
-                writer.writeCharacters(DatenFilm.COLUMN_NAMES[i]);
-                writer.writeEndElement();
-                writer.writeCharacters("\n");//neue Zeile
-            }
-            writer.writeEndElement();
-            writer.writeCharacters("\n");//neue Zeile
-        } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(638214005, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.xmlSchreibenFeldInfo", ex);
         }
     }
 

@@ -22,8 +22,8 @@ package msearch;
 import msearch.filmeSuchen.MSearchFilmeSuchen;
 import msearch.filmeSuchen.MSearchListenerFilmeLaden;
 import msearch.filmeSuchen.MSearchListenerFilmeLadenEvent;
-import msearch.io.MSearchIoXmlFilmlisteLesen;
-import msearch.io.MSearchIoXmlFilmlisteSchreiben;
+import msearch.io.MSearchFilmlisteLesen;
+import msearch.io.MSearchFilmlisteSchreiben;
 import msearch.daten.MSearchConfig;
 import msearch.daten.ListeFilme;
 import msearch.tool.Funktionen;
@@ -85,7 +85,7 @@ public class Search implements Runnable {
         });
         // laden was es schon gibt
         //Daten.ioXmlFilmlisteLesen.filmlisteLesen(Daten.getBasisVerzeichnis() + Konstanten.XML_DATEI_FILME, false /* istUrl */, Daten.listeFilme);
-        new MSearchIoXmlFilmlisteLesen().filmlisteLesen(MSearchConfig.dateiFilmliste, listeFilme);
+        new MSearchFilmlisteLesen().filmlisteLesenXml(MSearchConfig.dateiFilmliste, listeFilme);
         // das eigentliche Suchen der Filme bei den Sendern starten
         if (MSearchConfig.nurSenderLaden == null) {
             mSearchFilmeSuchen.filmeBeimSenderLaden(listeFilme);
@@ -113,7 +113,7 @@ public class Search implements Runnable {
         MSearchLog.systemMeldung("###########################################################");
         MSearchLog.systemMeldung("");
         MSearchLog.systemMeldung("");
-        new MSearchIoXmlFilmlisteLesen().filmlisteLesen(dateiFilmliste, listeFilme);
+        new MSearchFilmlisteLesen().filmlisteLesenXml(dateiFilmliste, listeFilme);
         // dann nur einen Sender löschen und dann wieder beenden
         int anz1 = listeFilme.size();
         MSearchLog.systemMeldung("Anzahl Filme vorher: " + anz1);
@@ -121,7 +121,7 @@ public class Search implements Runnable {
         int anz2 = listeFilme.size();
         MSearchLog.systemMeldung("Anzehl Filme nachher: " + anz2);
         MSearchLog.systemMeldung(" --> gelöscht: " + (anz1 - anz2));
-        new MSearchIoXmlFilmlisteSchreiben().filmeSchreiben(dateiFilmliste, listeFilme);
+        new MSearchFilmlisteSchreiben().filmlisteSchreibenXml(dateiFilmliste, listeFilme);
         System.exit(0);
     }
 
@@ -145,7 +145,7 @@ public class Search implements Runnable {
         });
         // laden was es schon gibt
         //Daten.ioXmlFilmlisteLesen.filmlisteLesen(Daten.getBasisVerzeichnis() + Konstanten.XML_DATEI_FILME, false /* istUrl */, Daten.listeFilme);
-        new MSearchIoXmlFilmlisteLesen().filmlisteLesen(MSearchConfig.dateiFilmliste, listeFilme);
+        new MSearchFilmlisteLesen().filmlisteLesenXml(MSearchConfig.dateiFilmliste, listeFilme);
         // das eigentliche Suchen der Filme bei den Sendern starten
         if (MSearchConfig.nurSenderLaden == null) {
             mSearchFilmeSuchen.filmeBeimSenderLaden(listeFilme);
@@ -168,7 +168,7 @@ public class Search implements Runnable {
             // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
             MSearchLog.systemMeldung("Filmliste importieren (anhängen) von: " + MSearchConfig.importUrl__anhaengen);
             ListeFilme tmpListe = new ListeFilme();
-            new MSearchIoXmlFilmlisteLesen().filmlisteLesen(MSearchConfig.importUrl__anhaengen, tmpListe);
+            new MSearchFilmlisteLesen().filmlisteLesenXml(MSearchConfig.importUrl__anhaengen, tmpListe);
             listeFilme.updateListe(tmpListe, false /* nur URL vergleichen */);
             tmpListe.clear();
             System.gc();
@@ -179,7 +179,7 @@ public class Search implements Runnable {
             // werden ersetzt
             MSearchLog.systemMeldung("Filmliste importieren (ersetzen) von: " + MSearchConfig.importUrl__ersetzen);
             ListeFilme tmpListe = new ListeFilme();
-            new MSearchIoXmlFilmlisteLesen().filmlisteLesen(MSearchConfig.importUrl__ersetzen, tmpListe);
+            new MSearchFilmlisteLesen().filmlisteLesenXml(MSearchConfig.importUrl__ersetzen, tmpListe);
             tmpListe.updateListe(listeFilme, false /* nur URL vergleichen */);
             tmpListe.metaDaten = listeFilme.metaDaten;
             listeFilme.clear();
@@ -187,10 +187,10 @@ public class Search implements Runnable {
             tmpListe.sort(); // jetzt sollte alles passen
             listeFilme = tmpListe;
         }
-        new MSearchIoXmlFilmlisteSchreiben().filmeSchreiben(MSearchConfig.dateiFilmliste, listeFilme);
+        new MSearchFilmlisteSchreiben().filmlisteSchreibenXml(MSearchConfig.dateiFilmliste, listeFilme);
         if (!MSearchConfig.exportFilmliste.equals("")) {
             //datei schreiben
-            new MSearchIoXmlFilmlisteSchreiben().filmeSchreiben(MSearchConfig.exportFilmliste, listeFilme);
+            new MSearchFilmlisteSchreiben().filmlisteSchreibenXml(MSearchConfig.exportFilmliste, listeFilme);
         }
         MSearchLog.printEndeMeldung();
         // nur dann das Programm beenden

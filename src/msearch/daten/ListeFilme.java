@@ -19,9 +19,19 @@
  */
 package msearch.daten;
 
-import com.sun.media.sound.FFT;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -41,7 +51,7 @@ import msearch.tool.MSearchLog;
 import msearch.tool.MSearchUrlDateiGroesse;
 import org.apache.commons.lang3.StringEscapeUtils;
 
-public class ListeFilme extends LinkedList<DatenFilm> {
+public class ListeFilme extends ArrayList<DatenFilm> {
 
     public static final String THEMA_LIVE = "Livestream";
     //Tags Infos Filmliste, erste Zeile der .filme-Datei
@@ -56,27 +66,20 @@ public class ListeFilme extends LinkedList<DatenFilm> {
     public static final int FILMLISTE_PRGRAMM_NR = 3;
     public static final int MAX_ELEM = 4;
     public static final String[] COLUMN_NAMES = {FILMLISTE_DATUM, FILMLISTE_DATUM_GMT, FILMLISTE_VERSION, FILMLISTE_PROGRAMM};
-    private int nr = 0;
-    public String[] metaDaten;
+    public int nr = 0;
+    public boolean listeClean = false;
+    public String[] metaDaten = new String[]{"", "", "", ""};
     public HashSet<String> hashSet = new HashSet<>();
     final String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
     final String DATUM_ZEIT_FORMAT_REV = "yyyy.MM.dd__HH:mm";
 
     public ListeFilme() {
-        metaDaten = newMetaDaten();
     }
 
     //===================================
     // public
     //===================================
-    public static String[] newMetaDaten() {
-        String[] ret = new String[MAX_ELEM];
-        for (int i = 0; i < ret.length; ++i) {
-            ret[i] = "";
-        }
-        return ret;
-    }
-
+    @JsonIgnore
     @Override
     public synchronized void clear() {
         hashSet.clear();
@@ -84,6 +87,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         super.clear();
     }
 
+    @JsonIgnore
     public void check() {
         Iterator<DatenFilm> it = this.iterator();
         DatenFilm film;
@@ -97,6 +101,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         }
     }
 
+    @JsonIgnore
     public void sort() {
         Collections.<DatenFilm>sort(this);
         // und jetzt noch die Nummerierung in Ordnung bringen
@@ -109,20 +114,14 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         }
     }
 
+    @JsonIgnore
     public synchronized void setMeta(String[] mmeta) {
         for (int i = 0; i < MAX_ELEM; ++i) {
             metaDaten[i] = mmeta[i].toString();
         }
     }
 
-//    public void anhaengen(ListeFilme listeFilme) {
-//        // die listeFilme wird an diese Liste 1:1 angehängt
-//        // dient zum kopieren eine Liste in eine leere
-//        Iterator<DatenFilm> it = listeFilme.iterator();
-//        while (it.hasNext()) {
-//            this.add(it.next());
-//        }
-//    }
+    @JsonIgnore
     public synchronized DatenFilm istInFilmListe(String sender, String thema, String titel) {
         Iterator<DatenFilm> it = listIterator();
         while (it.hasNext()) {
@@ -136,6 +135,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return null;
     }
 
+    @JsonIgnore
     public String getDateiGroesse(String url, String sender) {
         // sucht in der Liste nach der URL und gibt die Dateigröße zurück
         // oder versucht sie übers Web zu ermitteln
@@ -154,6 +154,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return MSearchUrlDateiGroesse.laengeString(url, sender);
     }
 
+    @JsonIgnore
     public synchronized boolean addFilmVomSender(DatenFilm film) {
         // Filme die beim Sender gesucht wurden (und nur die) hier eintragen
         // nur für die MediathekReader
@@ -182,6 +183,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return addInit(film);
     }
 
+    @JsonIgnore
     public synchronized void updateListe(ListeFilme listeEinsortieren, boolean index /* Vergleich über Index, sonst nur URL */) {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
@@ -211,6 +213,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         hash.clear();
     }
 
+    @JsonIgnore
     public synchronized void nurDoppelteAnzeigen(boolean index) {
         // zum Debuggen: URLs die doppelt sind, in die History eintragen
         // damit sie markiert werden
@@ -246,10 +249,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         hashDoppelt.clear();
     }
 
-//    public boolean addInit(DatenFilm film) {
-//        film.init();
-//        return add(film);
-//    }
+    @JsonIgnore
     private boolean addInit(DatenFilm film) {
         if (film.arr[DatenFilm.FILM_GROESSE_NR].length() < 3) {
             film.arr[DatenFilm.FILM_GROESSE_NR] = film.arr[DatenFilm.FILM_GROESSE_NR].intern();
@@ -258,6 +258,29 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return add(film);
     }
 
+    @JsonIgnore
+    public void init() {
+        // es werden die gelöschten Felder nach "clean" wieder
+        // erstellt
+        Iterator<DatenFilm> it = iterator();
+        while (it.hasNext()) {
+            it.next().init();
+        }
+        listeClean = false;
+    }
+
+    @JsonIgnore
+    public void clean() {
+        // zum Speichern werden alle nicht notwendigen Felder
+        // gelöscht
+        ListIterator<DatenFilm> it = this.listIterator(0);
+        while (it.hasNext()) {
+            it.next().clean();
+        }
+        listeClean = true;
+    }
+
+    @JsonIgnore
     @Override
     public boolean add(DatenFilm film) {
         if (film.arr[DatenFilm.FILM_URL_KLEIN_NR].length() < 15) {
@@ -271,12 +294,14 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return super.add(film);
     }
 
+    @JsonIgnore
     public synchronized boolean addWithNr(DatenFilm film) {
         // hier nur beim Laden von der Filmliste
         film.arr[DatenFilm.FILM_NR_NR] = getNr(nr++);
         return addInit(film);
     }
 
+    @JsonIgnore
     private String getNr(int nr) {
         final int MAX_STELLEN = 5;
         final String FUELL_ZEICHEN = "0";
@@ -287,6 +312,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return str;
     }
 
+    @JsonIgnore
     public synchronized int countSender(String sender) {
         int ret = 0;
         ListIterator<DatenFilm> it = this.listIterator(0);
@@ -298,6 +324,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     public synchronized void delSender(String sender) {
         // alle Filme VOM SENDER löschen
         DatenFilm film;
@@ -310,6 +337,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         }
     }
 
+    @JsonIgnore
     public void liveStreamEintragen() {
         // Live-Stream eintragen
         //DatenFilm(Daten ddaten, String ssender, String tthema, String urlThema, String ttitel, String uurl, String datum, String zeit) {
@@ -348,6 +376,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
                 "http://kikaplus.net/clients/kika/player/myplaylist.php?channel=1&programm=1&videoid=1", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
     }
 
+    @JsonIgnore
     public synchronized DatenFilm getFilmByUrl(String url) {
         // Problem wegen gleicher URLs
         DatenFilm ret = null;
@@ -362,6 +391,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     public synchronized DatenFilm getFilmByUrl_klein_hoch_hd(String url) {
         // Problem wegen gleicher URLs
         // wird versucht, einen Film mit einer kleinen/Hoher/HD-URL zu finden
@@ -383,6 +413,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     public synchronized DatenFilm getFilmByNr(String nr) {
         int n = 0;
         try {
@@ -393,6 +424,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         }
         return this.get(n);
     }
+
 //    public synchronized DatenFilm getFilmByNr(String nr) {
 //        DatenFilm ret = null;
 //        ListIterator<DatenFilm> it = this.listIterator(0);
@@ -405,7 +437,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
 //        }
 //        return ret;
 //    }
-
+    @JsonIgnore
     public String genDate() {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "dd.MM.yyyy, HH:mm"
@@ -433,6 +465,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     public String genDateRev() {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "yyyy.MM.dd__HH:mm"
@@ -460,6 +493,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     public int alterFilmlisteSek() {
         // Alter der Filmliste in Sekunden
         int ret = 0;
@@ -486,6 +520,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return ret;
     }
 
+    @JsonIgnore
     public boolean filmlisteZuAlt() {
         if (this.size() == 0) {
             return true;
@@ -494,6 +529,7 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return filmlisteIstAelter(MSearchConst.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE);
     }
 
+    @JsonIgnore
     public boolean filmlisteIstAelter(int sekunden) {
         int ret = alterFilmlisteSek();
         if (ret != 0) {
@@ -502,9 +538,12 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         return ret > sekunden;
     }
 
+    @JsonIgnore
     public void metaDatenSchreiben() {
         // FilmlisteMetaDaten
-        metaDaten = ListeFilme.newMetaDaten();
+        for (int i = 0; i < metaDaten.length; ++i) {
+            metaDaten[i] = "";
+        }
         if (!MSearchConfig.getStop() /* löschen */) {
             metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = getJetzt_ddMMyyyy_HHmm();
             metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = getJetzt_ddMMyyyy_HHmm_gmt();
@@ -516,43 +555,13 @@ public class ListeFilme extends LinkedList<DatenFilm> {
         metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = Funktionen.getProgVersionString() + " - Compiled: " + Funktionen.getCompileDate();
     }
 
-    public void cleanCvs() {
-        ListIterator<DatenFilm> it = this.listIterator(0);
-        while (it.hasNext()) {
-            DatenFilm f = it.next();
-            for (int i = 0; i < f.arr.length; ++i) {
-                f.getClean();
-                f.arr[i] = f.arr[i].replace(";", ",");
-                f.arr[i] = f.arr[i].replace("\n", "  ");
-            }
-        }
-    }
-
-    public void cleanXml() {
-        ListIterator<DatenFilm> it = this.listIterator(0);
-        while (it.hasNext()) {
-            DatenFilm f = it.next();
-            for (int i = 0; i < f.arr.length; ++i) {
-                f.getClean();
-                f.arr[i] = f.arr[i].replace("&", "&amp;");
-                f.arr[i] = f.arr[i].replace("<", " - ");
-                f.arr[i] = f.arr[i].replace(">", " - ");
-            }
-        }
-    }
-
-    public void clean() {
-        ListIterator<DatenFilm> it = this.listIterator(0);
-        while (it.hasNext()) {
-            it.next().getClean();
-        }
-    }
-
+    @JsonIgnore
     String getJetzt_ddMMyyyy_HHmm() {
         SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         return formatter.format(new Date());
     }
 
+    @JsonIgnore
     String getJetzt_ddMMyyyy_HHmm_gmt() {
         SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         formatter.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
