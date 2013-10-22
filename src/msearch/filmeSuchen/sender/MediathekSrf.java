@@ -19,6 +19,9 @@
  */
 package msearch.filmeSuchen.sender;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import msearch.filmeSuchen.MSearchFilmeSuchen;
 import java.util.LinkedList;
 import msearch.io.MSearchGetUrl;
@@ -36,6 +39,36 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
     public MediathekSrf(MSearchFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 1000, startPrio);
+    }
+
+    /**
+     * Pings a HTTP URL. This effectively sends a GET request (HEAD is blocked) and returns
+     * <code>true</code> if the response code is in
+     * the 200-399 range.
+     * Response Codes >=400 are logged for debug purposes (except 404)
+     *
+     * @param url The HTTP URL to be pinged
+     * @return <code>true</code> if the given HTTP URL has returned response code 200-399 on a GET request within the
+     * given timeout, otherwise <code>false</code>.
+     */
+    public static boolean ping(String url) {
+        url = url.replaceFirst("https", "http"); // Otherwise an exception may be thrown on invalid SSL certificates.
+
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setConnectTimeout(1000); //1000ms timeout for connect, read timeout to infinity
+            connection.setReadTimeout(0);
+            int responseCode = connection.getResponseCode();
+            if (responseCode > 399 && responseCode != 404) {
+                System.out.println(responseCode + " + responseCode " + "Url " + url);
+                MSearchLog.debugMeldung("SRF: " + responseCode + " + responseCode " + "Url " + url);
+                return false;
+            }
+            return (200 <= responseCode);
+
+        } catch (IOException exception) {
+            return false;
+        }
     }
 
     @Override
@@ -97,8 +130,9 @@ public class MediathekSrf extends MediathekReader implements Runnable {
         MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
         private MSearchStringBuilder seite1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
         private MSearchStringBuilder seite2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        private MSearchStringBuilder seite3 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
         private MSearchStringBuilder film_website = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        private final String PATTERN_URL = "\"url\":\"";
+        private final String PATTERN_URL_END = "\"";
 
         @Override
         public void run() {
@@ -116,6 +150,9 @@ public class MediathekSrf extends MediathekReader implements Runnable {
         }
 
         private void addFilme(String thema, String strUrlFeed) {
+
+
+
             // href="/player/tv/die-groessten-schweizer-talente/video/andrea-sutter-der-weg-ins-finale?id=06411758-1bd6-42ea-bc0e-cb8ebde3dfaa"
             // <title>Die grössten Schweizer Talente vom 17.03.2012, 20:11</title>
             // href="/player/tv/die-groessten-schweizer-talente/video/andrea-sutter-der-weg-ins-finale?id=06411758-1bd6-42ea-bc0e-cb8ebde3dfaa"&gt;Andrea Sutter - der Weg ins Finale&lt;/a&gt;&lt;/li&gt;
@@ -197,11 +234,9 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
         private void addFilme2(String thema, String urlWebsite, String urlFilm, String titel, String datum, String zeit) {
 
-
             meldung(urlFilm);
             seite2 = getUrl.getUri_Utf(nameSenderMReader, urlFilm, seite2, "");
             try {
-
 
                 String[] keywords = extractKeywords(seite2);
                 String thumbOrImage = extractThumbnail(seite2);
@@ -209,24 +244,22 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 String description = extractDescription(seite2);
                 String title = extractTitle(seite2);
                 String urlHd = extractHdUrl(seite2, urlWebsite);
-                String url_normal = extractUrl(seite2);
-                String url_small = extractSmallUrl(seite2);
-
-
-
-
-
+                String url_normal = getNormalUrlFromM3u8(seite2);
+                String url_small = getSmallUrlFromM3u8(seite2);
 
                 urlHd = urlHd.isEmpty() ? getHdUrlFromM3u8(seite2) : urlHd;
-//                url_normal = url_normal.isEmpty() ? getNormalUrlFromM3u8(seite2) : url_normal;
-//                url_small = url_small.isEmpty() ? getSmallUrlFromM3u8(seite2) : url_small;
-
-                //For HD films, normal or small RTMP urls don't work
-                url_normal = (isHdAvailable(seite2) || url_normal.isEmpty()) ? getNormalUrlFromM3u8(seite2) : url_normal;
-                url_small = (isHdAvailable(seite2) || url_small.isEmpty()) ? getSmallUrlFromM3u8(seite2) : url_small;
+                url_normal = url_normal.isEmpty() ? extractUrl(seite2) : url_normal;
+                url_small = url_small.isEmpty() ? extractSmallUrl(seite2) : url_small;
 
                 if (url_normal.isEmpty()) {
-                    MSearchLog.fehlerMeldung(-159873540, MSearchLog.FEHLER_ART_MREADER, "MediathekSRf.filmLaden", "keine NORMALE Url für: " + urlWebsite + " : " + url_normal);
+                    if (!url_small.isEmpty()) {
+                        url_normal = url_small;
+                        url_small = "";
+                    } else {
+                        // dann gibst nix
+                        MSearchLog.fehlerMeldung(-159873540, MSearchLog.FEHLER_ART_MREADER, "MediathekSRf.filmLaden", "keine NORMALE Url für: " + urlWebsite + " : " + url_normal);
+                        return;
+                    }
                 }
 
                 DatenFilm film = new DatenFilm(nameSenderMReader, thema, urlWebsite, title, url_normal, ""/*rtmpURL*/, datum, zeit, duration, description,
@@ -248,92 +281,134 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
         private String getSmallUrlFromM3u8(MSearchStringBuilder page) {
             final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
-            final String PATTERN_RESOLUTION = "RESOLUTION=320x180";
-            final String INDEX_2 = "index_0_av.m3u8";
+            final String PATTERN_RESOLUTION = "RESOLUTION=320x180"; //480x272
 
-            final String PATTERN_URL = "\"url\":\"";
-            final String PATTERN_URL_END = "\"";
-
+            final String INDEX_0 = "index_0_av.m3u8";
+            final String INDEX_1 = "index_1_av.m3u8";
 
             String m3u8Url = normalizeJsonUrl(subString(PATTERN_QUALITY_100, PATTERN_URL, PATTERN_URL_END, page));
-            if (m3u8Url.isEmpty()) {
-                return m3u8Url;
+            if (!m3u8Url.isEmpty()) {
+                String newResolutionUrl = getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_1);
+                if (newResolutionUrl.isEmpty()) {
+                    return getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_0);
+                }
+                return newResolutionUrl;
             }
-            return getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_2);
+
+            return "";
         }
 
         private String getNormalUrlFromM3u8(MSearchStringBuilder page) {
             final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
             final String PATTERN_RESOLUTION = "RESOLUTION=640x360";
+            final String INDEX_3 = "index_3_av.m3u8";
             final String INDEX_2 = "index_2_av.m3u8";
 
-            final String PATTERN_URL = "\"url\":\"";
-            final String PATTERN_URL_END = "\"";
-
-
             String m3u8Url = normalizeJsonUrl(subString(PATTERN_QUALITY_100, PATTERN_URL, PATTERN_URL_END, page));
-            if (m3u8Url.isEmpty()) {
-                return m3u8Url;
+            if (!m3u8Url.isEmpty()) {
+                String higherQuality = getHiqherQualityUrl(page);
+                if (higherQuality.isEmpty()) {
+                    String newUrlResolution = getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_3);
+
+                    if (newUrlResolution.isEmpty()) {
+                        return getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_2);
+                    }
+                    return newUrlResolution;
+                }
+                return higherQuality;
             }
-            return getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_2);
+            return "";
+
+        }
+
+        private String getHiqherQualityUrl(MSearchStringBuilder page) {
+            final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
+            final String INDEX_4 = "index_4_av.m3u8";
+            final String INDEX_3 = "index_3_av.m3u8";
+
+            final String PATTERN_RESOLUTION = "RESOLUTION=960x544";
+            if (isHigherResolutionAvaiable(page)) {
+                String m3u8Url = normalizeJsonUrl(subString(PATTERN_QUALITY_100, PATTERN_URL, PATTERN_URL_END, page));
+                m3u8Url = buildHqUrlM3u8(m3u8Url);
+
+                if (!m3u8Url.isEmpty()) {
+                    String newResolutionUrl = getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_4);
+                    if (newResolutionUrl.isEmpty()) {
+                        return getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_3);
+                    }
+                    return newResolutionUrl;
+                }
+
+            }
+            return "";
+        }
+
+        /**
+         * Builds the m3u8 Url for higher quality (960x...)
+         *
+         * @param m3u8Url The master m3u8Url
+         * @return Returns the build hiqh quality url
+         */
+        private String buildHqUrlM3u8(String m3u8Url) {
+
+            final String MP4 = ".mp4";
+            final String QUALITY = "q50,";
+            final String Q10 = "q10,";
+            final String Q20 = "q20,";
+            final String Q30 = "q30";
+            String newUrl = "";
+            if (m3u8Url.indexOf(Q20) != -1) {
+
+                int posMp4 = m3u8Url.indexOf(MP4);
+                newUrl = m3u8Url.substring(0, posMp4);
+                newUrl = newUrl + QUALITY + m3u8Url.substring(posMp4, m3u8Url.length());
+            }
+            return newUrl;
+        }
+
+        private boolean isHigherResolutionAvaiable(MSearchStringBuilder page) {
+            final String PATTERN_WIDTH_960 = "\"frame_width\":960";
+            final String PATTERN_WIDTH_640 = "\"frame_width\":640";
+            final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
+
+            return page.indexOf(PATTERN_WIDTH_960) != -1;
+
         }
 
         private String getHdUrlFromM3u8(MSearchStringBuilder page) {
             final String PATTERN_QUALITY_200 = "\"quality\":\"200\",";
             final String PATTERN_RESOLUTION = "RESOLUTION=1280x720";
-            final String PATTERN_URL = "\"url\":\"";
-            final String PATTERN_URL_END = "\"";
 
             final String INDEX_5 = "index_5_av.m3u8";
-
+            final String INDEX_4 = "index_4_av.m3u8";
 
             String m3u8Url = normalizeJsonUrl(subString(PATTERN_QUALITY_200, PATTERN_URL, PATTERN_URL_END, page));
-            if (m3u8Url.isEmpty()) {
-                return m3u8Url;
+            if (!m3u8Url.isEmpty()) {
+                String hdUrl = getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_5);
+                if (hdUrl.isEmpty()) //Sometimes some quality Index is missing, so we have Index4 instead of Index5
+                {
+                    hdUrl = getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_4);
+                }
+
+                return hdUrl;
             }
 
-            return getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_5);
+            return "";
 
         }
 
         private String getUrlFromM3u8(String m3u8Url, String resolutionPattern, String qualityIndex) {
-            final String PATTERN_URL = "http://";
-            final String PATTERN_URL_END = "?null";
-
             final String CSMIL = "csmil/";
-            String playlist = "";
-            String url = "";
-            seite3 = getUrl.getUri_Utf(nameSenderMReader, m3u8Url, seite3, "");
-            if (seite3.length() != 0) {
-                playlist = subString(resolutionPattern, PATTERN_URL, PATTERN_URL_END, seite3);
-                if (playlist.isEmpty()) {
-                    if (seite3.indexOf(qualityIndex) != -1) {
-                        if (m3u8Url.contains(CSMIL)) {
-                            url = m3u8Url.substring(0, m3u8Url.indexOf(CSMIL)) + CSMIL + qualityIndex;
-                            if (url.contains(PATTERN_URL)) {
-                                return url;
-                            }
-                        } else {
-                            url = PATTERN_URL + url;
-                        }
-                        return url;
-                    }
+            String url = m3u8Url.substring(0, m3u8Url.indexOf(CSMIL)) + CSMIL + qualityIndex;
 
-                } else {
-                    playlist = PATTERN_URL + playlist;
-                }
-
-            } else {
-                MSearchLog.fehlerMeldung(-362514789, MSearchLog.FEHLER_ART_MREADER, "MediathekSf.getUrlFromm3u8", "keine Seite gefunden" + m3u8Url);
+            if (ping(url)) {
+                return url;
             }
 
-            return playlist;
+            return "";
         }
 
         private String extractHdUrl(MSearchStringBuilder page, String urlWebsite) {
-
-//            final String PATTERN_HD_WIDTH = "\"frame_width\":1280";
-//            final String PATTERN_QUALITY_200 = "\"quality\":\"200\",";
 
             final String PATTERN_DL_URL_START = "button_download_img offset\" href=\"";
             final String PATTERN_DL_URL_END = "\"";
@@ -351,18 +426,12 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             final String PATTERN_HD_WIDTH = "\"frame_width\":1280";
             final String PATTERN_QUALITY_200 = "\"quality\":\"200\",";
 
-            if ((page.indexOf(PATTERN_HD_WIDTH) != -1) || page.indexOf(PATTERN_QUALITY_200) != -1) {
-                return true;
-            }
+            return page.indexOf(PATTERN_HD_WIDTH) != -1 || page.indexOf(PATTERN_QUALITY_200) != -1;
 
-            return false;
         }
 
         private String extractUrl(MSearchStringBuilder page) {
             final String PATTERN_WIDTH_640 = "\"frame_width\":640";
-
-            final String PATTERN_URL = "\"url\":\"";
-            final String PATTERN_URL_END = "\"";
 
             return normalizeJsonUrl(subString(PATTERN_WIDTH_640, PATTERN_URL, PATTERN_URL_END, page));
         }
@@ -370,14 +439,6 @@ public class MediathekSrf extends MediathekReader implements Runnable {
         private String extractSmallUrl(MSearchStringBuilder page) {
             final String PATTERN_WIDTH_320 = "\"frame_width\":320";
             final String PATTERN_WIDTH_384 = "\"frame_width\":384";
-            final String PATTERN_URL = "\"url\":\"";
-            final String PATTERN_URL_END = "\"";
-
-//            String url = subString(PATTERN_WIDTH_320, PATTERN_URL, PATTERN_URL_END, page);
-//            if (url.isEmpty()) {
-//                url = subString(PATTERN_WIDTH_384, PATTERN_URL, PATTERN_URL_END, page);
-//            }
-//            return normalizeJsonUrl(url);
 
             String url = subString(PATTERN_WIDTH_320, PATTERN_URL, PATTERN_URL_END, page);
             if (url.isEmpty()) {
@@ -405,7 +466,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                         if (!d.isEmpty()) {
                             duration = Long.parseLong(d);
                         }
-                    } catch (Exception ex) {
+                    } catch (NumberFormatException ex) {
                         MSearchLog.fehlerMeldung(-646490237, MSearchLog.FEHLER_ART_MREADER, "MediathekSf.extractDuration", ex);
                     }
                 }
@@ -415,14 +476,11 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
         private String extractThumbnail(MSearchStringBuilder page) {
 
-
             final String PATTERN_ID = "\"id\":\"";
             final String PATTERN_ID_END = "\",";
 
-
             String id = subString(PATTERN_ID, PATTERN_ID_END, page);
             String thumbnail = "http://www.srf.ch/webservice/cvis/segment/thumbnail/" + id + "?width=150";
-
 
             return thumbnail;
         }
@@ -432,20 +490,15 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             final String PATTERN_DESC_END = "\",";
             final String PATTERN_DESC_ALTERNATIVE = "\"description\":\"";
 
-
-
             String description = subString(PATTERN_DESCRIPTION, PATTERN_DESC_END, page);
             if (description.isEmpty()) {
                 description = subString(PATTERN_DESC_ALTERNATIVE, PATTERN_DESC_END, page);
             }
 
-
-
             return StringEscapeUtils.unescapeJava(description).trim();
         }
 
         private String extractTitle(MSearchStringBuilder page) {
-
 
             final String PATTERN_TITLE = "\"description_title\":\"";
             final String PATTERN_TITLE_END = "\",";
@@ -473,7 +526,6 @@ public class MediathekSrf extends MediathekReader implements Runnable {
              "count": 1
              }]
              },*/
-
             final String PATTERN_TAGS_START = "\"tags\":{";
             final String PATTERN_TAGS_END = "]},";
             final String PATTERN_TAG_START = "\"name\":\"";
