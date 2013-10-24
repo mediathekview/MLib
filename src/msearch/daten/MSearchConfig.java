@@ -33,7 +33,8 @@ public class MSearchConfig {
     public static boolean senderAllesLaden = false;
     public static boolean updateFilmliste = false; // die bestehende Filmliste wird aktualisiert und bleibt erhalten
     public static String[] nurSenderLaden = null; // es wird nur dieser Sender geladen => "senderAllesLaden"=false, "updateFillmliste"=true
-    public static String exportFilmliste = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert
+    public static String exportFilmlisteXml = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: XML)
+    public static String exportFilmlisteJson = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: Json)
     //
     private static String userAgent = null;
     // flags

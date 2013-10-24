@@ -110,7 +110,7 @@ public class MSearchImportFilmliste {
         public void run() {
             //wenn auto-update-url dann erst mal die Updateserver aktualiseren
             boolean ret = false;
-            ArrayList<String> versuchteUrls = new ArrayList<String>();
+            ArrayList<String> versuchteUrls = new ArrayList<>();
             String updateUrl = filmlistenSuchen.suchen(versuchteUrls);
             if (!updateUrl.equals("")) {
                 for (int i = 0; i < 10; ++i) {

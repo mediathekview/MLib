@@ -52,7 +52,7 @@ public class MSearchFilmlisteSchreiben {
         File dir = new File(file.getParent());
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
-                MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
+                MSearchLog.fehlerMeldung(915236478, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
         MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
@@ -141,7 +141,7 @@ public class MSearchFilmlisteSchreiben {
         File dir = new File(file.getParent());
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
-                MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
+                MSearchLog.fehlerMeldung(947623049, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
         MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
@@ -205,7 +205,8 @@ public class MSearchFilmlisteSchreiben {
             } else {
                 thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
             }
-            xmlSchreibenDaten(DatenFilm.FILME_, DatenFilm.COLUMN_NAMES_, datenFilmSchreiben/*.getClean()*/.arr);
+            datenFilmSchreiben.clean();
+            xmlSchreibenDaten(DatenFilm.FILME_, DatenFilm.COLUMN_NAMES_, datenFilmSchreiben.arr);
         }
     }
 

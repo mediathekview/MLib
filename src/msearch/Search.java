@@ -188,9 +188,13 @@ public class Search implements Runnable {
             listeFilme = tmpListe;
         }
         new MSearchFilmlisteSchreiben().filmlisteSchreibenXml(MSearchConfig.dateiFilmliste, listeFilme);
-        if (!MSearchConfig.exportFilmliste.equals("")) {
+        if (!MSearchConfig.exportFilmlisteXml.equals("")) {
             //datei schreiben
-            new MSearchFilmlisteSchreiben().filmlisteSchreibenXml(MSearchConfig.exportFilmliste, listeFilme);
+            new MSearchFilmlisteSchreiben().filmlisteSchreibenXml(MSearchConfig.exportFilmlisteXml, listeFilme);
+        }
+        if (!MSearchConfig.exportFilmlisteJson.equals("")) {
+            //datei schreiben
+            new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.exportFilmlisteJson, listeFilme);
         }
         MSearchLog.printEndeMeldung();
         // nur dann das Programm beenden

@@ -120,7 +120,8 @@ public class MSearchLog {
         }
         MSearchLog.systemMeldung("Import (ersetzen):  " + MSearchConfig.importUrl__ersetzen);
         MSearchLog.systemMeldung("Import (anhängen):  " + MSearchConfig.importUrl__anhaengen);
-        MSearchLog.systemMeldung("Export Filmliste:  " + MSearchConfig.exportFilmliste);
+        MSearchLog.systemMeldung("Export Filmliste (XML):  " + MSearchConfig.exportFilmlisteXml);
+        MSearchLog.systemMeldung("Export Filmliste (Json):  " + MSearchConfig.exportFilmlisteJson);
         if (MSearchConfig.nurSenderLaden != null) {
             MSearchLog.systemMeldung("Nur Sender laden:  " + StringUtils.join(MSearchConfig.nurSenderLaden, ','));
         }

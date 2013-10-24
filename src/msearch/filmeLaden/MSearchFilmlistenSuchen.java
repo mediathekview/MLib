@@ -37,9 +37,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import msearch.daten.MSearchConfig;
-import msearch.tool.MSearchConst;
 import msearch.tool.DatumZeit;
 import msearch.tool.GuiFunktionen;
+import msearch.tool.MSearchConst;
 import msearch.tool.MSearchListenerMediathekView;
 import msearch.tool.MSearchLog;
 
@@ -76,7 +76,7 @@ public class MSearchFilmlistenSuchen {
         ListeDownloadUrlsFilmlisten tmp = new ListeDownloadUrlsFilmlisten();
         try {
             // Ausweichen auf andere Listenserver bei Bedarf
-            getDownloadUrlsFilmlisten(MSearchConst.ADRESSE_FILMLISTEN_SERVER, tmp, MSearchConfig.getUserAgent());
+            getDownloadUrlsFilmlisten(MSearchConst.ADRESSE_FILMLISTEN_SERVER_XML, tmp, MSearchConfig.getUserAgent());
             if (tmp.size() > 0) {
                 // dann die Liste Filmlistenserver aktualisieren
                 updateListeFilmlistenServer(tmp);
@@ -177,20 +177,18 @@ public class MSearchFilmlistenSuchen {
                 inReader = new InputStreamReader(conn.getInputStream(), MSearchConst.KODIERUNG_UTF);
             } else {
                 // eine Datei verarbeiten
-                inReader = new InputStreamReader(new FileInputStream(dateiUrl), MSearchConst.KODIERUNG_UTF);
+                File f = new File(dateiUrl);
+                if (!f.exists()) {
+                    return;
+                }
+                inReader = new InputStreamReader(new FileInputStream(f), MSearchConst.KODIERUNG_UTF);
             }
             parser = inFactory.createXMLStreamReader(inReader);
             while (parser.hasNext()) {
                 event = parser.next();
                 if (event == XMLStreamConstants.START_ELEMENT) {
                     String parsername = parser.getLocalName();
-                    if (parsername.equals("Program_Version")) {
-                        //ret[0] = parser.getElementText();
-                    } else if (parsername.equals("Program_Release_Info")) {
-                        //ret[1] = parser.getElementText();
-                    } else if (parsername.equals("Download_Programm")) {
-                        //ret[2] = parser.getElementText();
-                    } else if (parsername.equals("Server")) {
+                    if (parsername.equals("Server")) {
                         //wieder ein neuer Server, toll
                         getServer(parser, sListe);
                     }

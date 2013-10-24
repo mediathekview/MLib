@@ -133,7 +133,7 @@ public class MSearchFilmlisteLesen {
         boolean istUrl = GuiFunktionen.istUrl(vonDateiUrl);
         if (!istUrl) {
             if (!new File(vonDateiUrl).exists()) {
-                MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", "Datei existiert nicht: " + vonDateiUrl);
+                MSearchLog.fehlerMeldung(602140697, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", "Datei existiert nicht: " + vonDateiUrl);
                 return false;
             }
         }
@@ -273,7 +273,7 @@ public class MSearchFilmlisteLesen {
             // ##########################################################
             // und jetzt die Liste einlesen, URL kann es jetzt schon nicht mehr sein!
             if (!vonDatei.exists()) {
-                MSearchLog.fehlerMeldung(936254789, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", "Datei existiert nicht: " + vonDatei.getName());
+                MSearchLog.fehlerMeldung(702030698, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", "Datei existiert nicht: " + vonDatei.getName());
                 return false;
             }
             if (vonDatei.getName().endsWith(MSearchConst.FORMAT_BZ2)) {
