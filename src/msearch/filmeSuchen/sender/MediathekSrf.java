@@ -22,11 +22,11 @@ package msearch.filmeSuchen.sender;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import msearch.filmeSuchen.MSearchFilmeSuchen;
 import java.util.LinkedList;
-import msearch.io.MSearchGetUrl;
-import msearch.daten.MSearchConfig;
 import msearch.daten.DatenFilm;
+import msearch.daten.MSearchConfig;
+import msearch.filmeSuchen.MSearchFilmeSuchen;
+import msearch.io.MSearchGetUrl;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchStringBuilder;
@@ -64,8 +64,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 MSearchLog.debugMeldung("SRF: " + responseCode + " + responseCode " + "Url " + url);
                 return false;
             }
-            return (200 <= responseCode);
-
+            return (200 <= responseCode && responseCode <= 399);
         } catch (IOException exception) {
             return false;
         }
