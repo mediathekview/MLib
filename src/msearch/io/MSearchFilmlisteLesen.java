@@ -39,11 +39,11 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import msearch.filmeSuchen.MSearchListenerFilmeLaden;
-import msearch.filmeSuchen.MSearchListenerFilmeLadenEvent;
-import msearch.daten.MSearchConfig;
 import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
+import msearch.daten.MSearchConfig;
+import msearch.filmeSuchen.MSearchListenerFilmeLaden;
+import msearch.filmeSuchen.MSearchListenerFilmeLadenEvent;
 import msearch.tool.DatumZeit;
 import msearch.tool.GuiFunktionen;
 import msearch.tool.MSearchConst;
@@ -334,7 +334,6 @@ public class MSearchFilmlisteLesen {
         boolean ret = false;
         String vonDateiName = vonDatei.getName();
         BufferedInputStream in;
-        BZip2CompressorInputStream bZip2CompressorInputStream;
         if (vonDateiName.equals(nachDatei.getName())) {
             return true;
         }

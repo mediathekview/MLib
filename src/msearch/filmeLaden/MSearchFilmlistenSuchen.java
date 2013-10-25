@@ -48,7 +48,6 @@ public class MSearchFilmlistenSuchen {
     // gesucht
     //
     //Tags FilmUpdateServer Filmliste
-
     public static final String FILM_UPDATE_SERVER_PRIO_1 = "1";
     public static final String FILM_UPDATE_SERVER = "film-update-server";
     public static final int FILM_UPDATE_SERVER_MAX_ELEM = 5;
@@ -146,7 +145,6 @@ public class MSearchFilmlistenSuchen {
         // für den Notfall fest hinterlegte Downloadserver
         getDownloadUrlsFilmlisten(GuiFunktionen.addUrl("http://176.28.8.161/mediathek1", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
         getDownloadUrlsFilmlisten(GuiFunktionen.addUrl("http://176.28.8.161/mediathek2", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
-        getDownloadUrlsFilmlisten(GuiFunktionen.addUrl("http://176.28.8.161/mediathek3", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
         Iterator<DatenFilmlistenServer> it = listeFilmlistenServer.iterator();
         while (it.hasNext()) {
             if (sListe.size() > 100) {
