@@ -324,6 +324,7 @@ public class MSearchFilmlisteLesen {
                 }
             }
             jp.close();
+            ret = true;
         } catch (Exception ex) {
             MSearchLog.fehlerMeldung(468956200, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", ex, "von: " + vonDatei.getName());
         }

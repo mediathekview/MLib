@@ -26,14 +26,11 @@ import msearch.daten.ListeFilme;
 import msearch.filmeSuchen.MSearchListenerFilmeLaden;
 import msearch.filmeSuchen.MSearchListenerFilmeLadenEvent;
 import msearch.io.MSearchFilmlisteLesen;
-import msearch.tool.MSearchListenerMediathekView;
 import msearch.tool.MSearchLog;
 import msearch.tool.MVMessageDialog;
 
 public class MSearchImportFilmliste {
 
-//    public ListeFilme listeFilme;
-    public String[] filmlisteMetaDaten;
     private EventListenerList listeners = new EventListenerList();
     private MSearchFilmlisteLesen ioXmlFilmlisteLesen = null;
     public MSearchFilmlistenSuchen filmlistenSuchen = new MSearchFilmlistenSuchen();
@@ -69,40 +66,31 @@ public class MSearchImportFilmliste {
     // #######################################
     // Filme von Server/Datei importieren
     // #######################################
-    public ListeDownloadUrlsFilmlisten getDownloadUrlsFilmlisten(boolean update) {
+    public ListeDownloadUrlsFilmlisten getDownloadUrls_Filmlisten(boolean update) {
         if (update) {
             filmlistenSuchen.suchen(null);
         }
         return filmlistenSuchen.listeDownloadUrlsFilmlisten;
     }
 
-    public ListeFilmlistenServer getListeFilmlistnServer() {
+    public ListeFilmlistenServer getListe_FilmlistenServer() {
         return filmlistenSuchen.listeFilmlistenServer;
     }
 
     // #########################################################
-    // Filme als Liste importieren
+    // Filmeliste importieren, URL automatisch wählen
     // #########################################################
-    public void importFilmliste(String dateiUrl, ListeFilme listeFilme) {
-        MSearchListenerMediathekView.notify(MSearchListenerMediathekView.EREIGNIS_FILMLISTE_GEAENDERT, MSearchFilmeLaden.class.getSimpleName());
-        if (dateiUrl.equals("")) {
-            // Filme als Liste importieren, Url automatisch ermitteln
-            filmeImportierenAuto(listeFilme);
-        } else {
-            // Filme als Liste importieren, feste URL/Datei
-            filmeImportierenDatei(dateiUrl, listeFilme);
-        }
-    }
-
-    public void filmeImportierenAuto(ListeFilme listeFilme) {
-        new Thread(new FilmeImportierenAutoThread(listeFilme)).start();
+    public void filmeImportierenAuto(String dateiZiel, ListeFilme listeFilme) {
+        new Thread(new FilmeImportierenAutoThread(dateiZiel, listeFilme)).start();
     }
 
     private class FilmeImportierenAutoThread implements Runnable {
 
         private ListeFilme listeFilme;
+        private String ziel;
 
-        public FilmeImportierenAutoThread(ListeFilme llisteFilme) {
+        public FilmeImportierenAutoThread(String dateiZiel, ListeFilme llisteFilme) {
+            ziel = dateiZiel;
             listeFilme = llisteFilme;
         }
 
@@ -113,15 +101,15 @@ public class MSearchImportFilmliste {
             ArrayList<String> versuchteUrls = new ArrayList<>();
             String updateUrl = filmlistenSuchen.suchen(versuchteUrls);
             if (!updateUrl.equals("")) {
-                for (int i = 0; i < 10; ++i) {
-                    //10 mal mit einem anderen Server probieren
-                    if (urlLaden(updateUrl, listeFilme)) {
+                for (int i = 0; i < 5; ++i) {
+                    //5 mal mit einem anderen Server probieren
+                    if (urlLaden(updateUrl, ziel, listeFilme)) {
                         // hat geklappt, nix wie weiter
                         ret = true; // keine Fehlermeldung
-                        if (i < 4 && listeFilme.filmlisteIstAelter(5 * 60 * 60 /*sekunden*/)) {
+                        if (i < 3 && listeFilme.filmlisteIstAelter(5 * 60 * 60 /*sekunden*/)) {
                             MSearchLog.systemMeldung("Filmliste zu alt, neuer Versuch");
                         } else {
-                            // 5 Versuche mit einer alten Liste sind genug
+                            // 3 Versuche mit einer alten Liste sind genug
                             break;
                         }
                     }
@@ -138,25 +126,27 @@ public class MSearchImportFilmliste {
     }
 
     // #######################################
-    // Filme aus Datei laden
+    // Filmeliste importieren, mit fester URL/Pfad
     // #######################################
-    public void filmeImportierenDatei(String pfad, ListeFilme listeFilme) {
-        new Thread(new FilmeImportierenDateiThread(pfad, listeFilme)).start();
+    public void filmeImportierenDatei(String pfad, String dateiZiel, ListeFilme listeFilme) {
+        new Thread(new FilmeImportierenDateiThread(pfad, dateiZiel, listeFilme)).start();
     }
 
     private class FilmeImportierenDateiThread implements Runnable {
 
         private String pfad;
+        private String ziel;
         private ListeFilme listeFilme;
 
-        public FilmeImportierenDateiThread(String ppfad, ListeFilme llisteFilme) {
+        public FilmeImportierenDateiThread(String ppfad, String dateiZiel, ListeFilme llisteFilme) {
             pfad = ppfad;
+            ziel = dateiZiel;
             listeFilme = llisteFilme;
         }
 
         @Override
         public void run() {
-            if (!urlLaden(pfad, listeFilme)) {
+            if (!urlLaden(pfad, ziel, listeFilme)) {
                 MVMessageDialog.showMessageDialog(null, "Das Laden der Filmliste hat nicht geklappt!", "Fehler", JOptionPane.ERROR_MESSAGE);
             }
             fertigMelden();
@@ -166,13 +156,12 @@ public class MSearchImportFilmliste {
     //===================================
     // private
     //===================================
-    private boolean urlLaden(String dateiUrl, ListeFilme listeFilme) {
+    private boolean urlLaden(String dateiUrl, String dateiZiel, ListeFilme listeFilme) {
         boolean ret = false;
         try {
             if (!dateiUrl.equals("")) {
                 MSearchLog.systemMeldung("Filmliste laden von: " + dateiUrl);
-//                listeFilme = new ListeFilme();
-                ret = ioXmlFilmlisteLesen.filmlisteLesenXml(dateiUrl, listeFilme);
+                ret = ioXmlFilmlisteLesen.filmlisteLesenJson(dateiUrl, dateiZiel, listeFilme);
             }
         } catch (Exception ex) {
             MSearchLog.fehlerMeldung(965412378, MSearchLog.FEHLER_ART_PROG, "ImportListe.urlLaden: ", ex);
