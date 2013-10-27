@@ -37,6 +37,8 @@ import msearch.daten.ListeFilme;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
+import org.tukaani.xz.LZMA2Options;
+import org.tukaani.xz.XZOutputStream;
 
 public class MSearchFilmlisteSchreiben {
 
@@ -45,7 +47,6 @@ public class MSearchFilmlisteSchreiben {
     private OutputStreamWriter out = null;
     ZipOutputStream zipOutputStream = null;
     BZip2CompressorOutputStream bZip2CompressorOutputStream = null;
-
     public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
         MSearchLog.systemMeldung("Filme Schreiben");
         File file = new File(datei);
@@ -60,7 +61,11 @@ public class MSearchFilmlisteSchreiben {
             String sender = "", thema = "";
             JsonFactory jsonF = new JsonFactory();
             JsonGenerator jg;
-            if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
+            if (datei.endsWith(MSearchConst.FORMAT_XZ)) {
+                LZMA2Options options = new LZMA2Options();
+                XZOutputStream out = new XZOutputStream(new FileOutputStream(file), options);
+                jg = jsonF.createGenerator(out);
+            } else if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
                 bZip2CompressorOutputStream = new BZip2CompressorOutputStream(new FileOutputStream(file), 9 /*Blocksize: 1 - 9*/);
                 jg = jsonF.createGenerator(bZip2CompressorOutputStream, JsonEncoding.UTF8);
             } else if (datei.endsWith(MSearchConst.FORMAT_ZIP)) {

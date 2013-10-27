@@ -19,13 +19,13 @@
  */
 package msearch;
 
+import msearch.daten.ListeFilme;
+import msearch.daten.MSearchConfig;
 import msearch.filmeSuchen.MSearchFilmeSuchen;
 import msearch.filmeSuchen.MSearchListenerFilmeLaden;
 import msearch.filmeSuchen.MSearchListenerFilmeLadenEvent;
 import msearch.io.MSearchFilmlisteLesen;
 import msearch.io.MSearchFilmlisteSchreiben;
-import msearch.daten.MSearchConfig;
-import msearch.daten.ListeFilme;
 import msearch.tool.Funktionen;
 import msearch.tool.MSearchLog;
 import static msearch.tool.MSearchLog.versionsMeldungen;
@@ -168,7 +168,7 @@ public class Search implements Runnable {
             // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
             MSearchLog.systemMeldung("Filmliste importieren (anhängen) von: " + MSearchConfig.importUrl__anhaengen);
             ListeFilme tmpListe = new ListeFilme();
-            new MSearchFilmlisteLesen().filmlisteLesenXml(MSearchConfig.importUrl__anhaengen, tmpListe);
+            new MSearchFilmlisteLesen().filmlisteLesenJson(MSearchConfig.importUrl__anhaengen, "", tmpListe);
             listeFilme.updateListe(tmpListe, false /* nur URL vergleichen */);
             tmpListe.clear();
             System.gc();
@@ -179,7 +179,7 @@ public class Search implements Runnable {
             // werden ersetzt
             MSearchLog.systemMeldung("Filmliste importieren (ersetzen) von: " + MSearchConfig.importUrl__ersetzen);
             ListeFilme tmpListe = new ListeFilme();
-            new MSearchFilmlisteLesen().filmlisteLesenXml(MSearchConfig.importUrl__ersetzen, tmpListe);
+            new MSearchFilmlisteLesen().filmlisteLesenJson(MSearchConfig.importUrl__ersetzen, "", tmpListe);
             tmpListe.updateListe(listeFilme, false /* nur URL vergleichen */);
             tmpListe.metaDaten = listeFilme.metaDaten;
             listeFilme.clear();

@@ -20,23 +20,13 @@
 package msearch.daten;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.SimpleTimeZone;
 import msearch.filmeSuchen.sender.MediathekArd;
@@ -72,6 +62,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public HashSet<String> hashSet = new HashSet<>();
     final String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
     final String DATUM_ZEIT_FORMAT_REV = "yyyy.MM.dd__HH:mm";
+    SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
 
     public ListeFilme() {
     }
@@ -498,7 +489,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // Alter der Filmliste in Sekunden
         int ret = 0;
         Date jetzt = new Date(System.currentTimeMillis());
-        SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         String date;
         if (!metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
             date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
@@ -525,7 +515,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         if (this.size() == 0) {
             return true;
         }
-        // Filmliste ist älter als: FilmeLaden.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE
         return filmlisteIstAelter(MSearchConst.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE);
     }
 

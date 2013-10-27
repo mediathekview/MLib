@@ -46,6 +46,7 @@ public class MSearchConst {
     public static final int STRING_BUFFER_START_BUFFER = 10 * 1024 * 8; // 10 KiB
     public static final String FORMAT_ZIP = ".zip";
     public static final String FORMAT_BZ2 = ".bz2";
+    public static final String FORMAT_XZ = ".xz";
     public static final String FORMAT_JSON = ".json";
     public static final String RTMP_PRTOKOLL = "rtmp";
     public static final String RTMP_FLVSTREAMER = "-r ";

@@ -49,6 +49,7 @@ import msearch.tool.GuiFunktionen;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.tukaani.xz.XZInputStream;
 
 public class MSearchFilmlisteLesen {
 
@@ -69,7 +70,9 @@ public class MSearchFilmlisteLesen {
         boolean ret = false;
         boolean istUrl = GuiFunktionen.istUrl(vonDateiUrl);
         try {
-            if (istUrl && vonDateiUrl.endsWith(MSearchConst.FORMAT_BZ2) || istUrl && vonDateiUrl.endsWith(MSearchConst.FORMAT_ZIP)) {
+            if (istUrl && vonDateiUrl.endsWith(MSearchConst.FORMAT_XZ)
+                    || istUrl && vonDateiUrl.endsWith(MSearchConst.FORMAT_BZ2)
+                    || istUrl && vonDateiUrl.endsWith(MSearchConst.FORMAT_ZIP)) {
                 // da wird eine temp-Datei benutzt
                 this.notifyStart(300);
                 this.notifyProgress(vonDateiUrl);
@@ -80,11 +83,12 @@ public class MSearchFilmlisteLesen {
             if (istUrl) {
                 // dann erst Download in temp-Datei
                 File tmpFile;
-                if (vonDateiUrl.endsWith(MSearchConst.FORMAT_BZ2)) {
+                if (vonDateiUrl.endsWith(MSearchConst.FORMAT_XZ)) {
+                    tmpFile = File.createTempFile("mediathek", MSearchConst.FORMAT_XZ);
+                } else if (vonDateiUrl.endsWith(MSearchConst.FORMAT_BZ2)) {
                     tmpFile = File.createTempFile("mediathek", MSearchConst.FORMAT_BZ2);
                 } else if (vonDateiUrl.endsWith(MSearchConst.FORMAT_ZIP)) {
                     tmpFile = File.createTempFile("mediathek", MSearchConst.FORMAT_ZIP);
-
                 } else {
                     tmpFile = File.createTempFile("mediathek", null);
                 }
@@ -276,7 +280,10 @@ public class MSearchFilmlisteLesen {
                 MSearchLog.fehlerMeldung(702030698, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", "Datei existiert nicht: " + vonDatei.getName());
                 return false;
             }
-            if (vonDatei.getName().endsWith(MSearchConst.FORMAT_BZ2)) {
+            if (vonDatei.getName().endsWith(MSearchConst.FORMAT_XZ)) {
+                XZInputStream xZInputStream = new XZInputStream(new FileInputStream(vonDatei));
+                jp = jsonF.createParser(new InputStreamReader(xZInputStream, MSearchConst.KODIERUNG_UTF));
+            } else if (vonDatei.getName().endsWith(MSearchConst.FORMAT_BZ2)) {
                 bZip2CompressorInputStream = new BZip2CompressorInputStream(new FileInputStream(vonDatei));
                 jp = jsonF.createParser(new InputStreamReader(bZip2CompressorInputStream, MSearchConst.KODIERUNG_UTF));
             } else if (vonDatei.getName().endsWith(MSearchConst.FORMAT_ZIP)) {
@@ -339,7 +346,9 @@ public class MSearchFilmlisteLesen {
             return true;
         }
         try {
-            if (vonDateiName.endsWith(MSearchConst.FORMAT_BZ2)) {
+            if (vonDatei.getName().endsWith(MSearchConst.FORMAT_XZ)) {
+                in = new BufferedInputStream(new XZInputStream(new FileInputStream(vonDatei)));
+            } else if (vonDateiName.endsWith(MSearchConst.FORMAT_BZ2)) {
                 in = new BufferedInputStream(new BZip2CompressorInputStream(new FileInputStream(vonDatei)));
             } else if (vonDateiName.endsWith(MSearchConst.FORMAT_ZIP)) {
                 ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(vonDatei));
@@ -355,7 +364,9 @@ public class MSearchFilmlisteLesen {
             int n = 0;
             int count = 0;
             int countMax;
-            if (vonDateiName.endsWith(MSearchConst.FORMAT_BZ2) || vonDateiName.endsWith(MSearchConst.FORMAT_ZIP)) {
+            if (vonDateiName.endsWith(MSearchConst.FORMAT_XZ)
+                    || vonDateiName.endsWith(MSearchConst.FORMAT_BZ2)
+                    || vonDateiName.endsWith(MSearchConst.FORMAT_ZIP)) {
                 countMax = 44;
             } else {
                 countMax = 250;
@@ -395,7 +406,9 @@ public class MSearchFilmlisteLesen {
             int n = 0;
             int count = 0;
             int countMax;
-            if (uurl.endsWith(MSearchConst.FORMAT_BZ2) || uurl.endsWith(MSearchConst.FORMAT_ZIP)) {
+            if (uurl.endsWith(MSearchConst.FORMAT_XZ)
+                    || uurl.endsWith(MSearchConst.FORMAT_BZ2)
+                    || uurl.endsWith(MSearchConst.FORMAT_ZIP)) {
                 countMax = 44;
             } else {
                 countMax = 250;
