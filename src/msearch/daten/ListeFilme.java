@@ -19,7 +19,6 @@
  */
 package msearch.daten;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.SimpleTimeZone;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekKika;
 import msearch.filmeSuchen.sender.MediathekNdr;
+import msearch.filmeSuchen.sender.MediathekRbb;
 import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.tool.Funktionen;
@@ -70,7 +70,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     //===================================
     // public
     //===================================
-    @JsonIgnore
     @Override
     public synchronized void clear() {
         hashSet.clear();
@@ -78,7 +77,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         super.clear();
     }
 
-    @JsonIgnore
     public void check() {
         Iterator<DatenFilm> it = this.iterator();
         DatenFilm film;
@@ -92,7 +90,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         }
     }
 
-    @JsonIgnore
     public void sort() {
         Collections.<DatenFilm>sort(this);
         // und jetzt noch die Nummerierung in Ordnung bringen
@@ -105,14 +102,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         }
     }
 
-    @JsonIgnore
     public synchronized void setMeta(String[] mmeta) {
         for (int i = 0; i < MAX_ELEM; ++i) {
             metaDaten[i] = mmeta[i].toString();
         }
     }
 
-    @JsonIgnore
     public synchronized DatenFilm istInFilmListe(String sender, String thema, String titel) {
         Iterator<DatenFilm> it = listIterator();
         while (it.hasNext()) {
@@ -126,7 +121,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return null;
     }
 
-    @JsonIgnore
     public String getDateiGroesse(String url, String sender) {
         // sucht in der Liste nach der URL und gibt die Dateigröße zurück
         // oder versucht sie übers Web zu ermitteln
@@ -145,7 +139,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return MSearchUrlDateiGroesse.laengeString(url, sender);
     }
 
-    @JsonIgnore
     public synchronized boolean addFilmVomSender(DatenFilm film) {
         // Filme die beim Sender gesucht wurden (und nur die) hier eintragen
         // nur für die MediathekReader
@@ -174,7 +167,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return addInit(film);
     }
 
-    @JsonIgnore
     public synchronized void updateListe(ListeFilme listeEinsortieren, boolean index /* Vergleich über Index, sonst nur URL */) {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
@@ -204,7 +196,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         hash.clear();
     }
 
-    @JsonIgnore
     public synchronized void nurDoppelteAnzeigen(boolean index) {
         // zum Debuggen: URLs die doppelt sind, in die History eintragen
         // damit sie markiert werden
@@ -240,7 +231,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         hashDoppelt.clear();
     }
 
-    @JsonIgnore
     private boolean addInit(DatenFilm film) {
         if (film.arr[DatenFilm.FILM_GROESSE_NR].length() < 3) {
             film.arr[DatenFilm.FILM_GROESSE_NR] = film.arr[DatenFilm.FILM_GROESSE_NR].intern();
@@ -249,7 +239,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return add(film);
     }
 
-    @JsonIgnore
     public void init() {
         // es werden die gelöschten Felder nach "clean" wieder
         // erstellt
@@ -260,7 +249,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         listeClean = false;
     }
 
-    @JsonIgnore
     public void clean() {
         // zum Speichern werden alle nicht notwendigen Felder
         // gelöscht
@@ -271,7 +259,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         listeClean = true;
     }
 
-    @JsonIgnore
     @Override
     public boolean add(DatenFilm film) {
         if (film.arr[DatenFilm.FILM_URL_KLEIN_NR].length() < 15) {
@@ -285,14 +272,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return super.add(film);
     }
 
-    @JsonIgnore
     public synchronized boolean addWithNr(DatenFilm film) {
         // hier nur beim Laden von der Filmliste
         film.arr[DatenFilm.FILM_NR_NR] = getNr(nr++);
         return addInit(film);
     }
 
-    @JsonIgnore
     private String getNr(int nr) {
         final int MAX_STELLEN = 5;
         final String FUELL_ZEICHEN = "0";
@@ -303,7 +288,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return str;
     }
 
-    @JsonIgnore
     public synchronized int countSender(String sender) {
         int ret = 0;
         ListIterator<DatenFilm> it = this.listIterator(0);
@@ -315,7 +299,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    @JsonIgnore
     public synchronized void delSender(String sender) {
         // alle Filme VOM SENDER löschen
         DatenFilm film;
@@ -328,7 +311,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         }
     }
 
-    @JsonIgnore
     public void liveStreamEintragen() {
         // Live-Stream eintragen
         //DatenFilm(Daten ddaten, String ssender, String tthema, String urlThema, String ttitel, String uurl, String datum, String zeit) {
@@ -362,12 +344,18 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 MediathekZdf.SENDER + ".neo " + THEMA_LIVE,
                 "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de09_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         // KIKA
+//        addFilmVomSender(new DatenFilm(MediathekKika.SENDER, THEMA_LIVE, ""/* urlThema */,
+//                MediathekKika.SENDER + " " + THEMA_LIVE,
+//                "http://kikaplus.net/clients/kika/player/myplaylist.php?channel=1&programm=1&videoid=1", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekKika.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekKika.SENDER + " " + THEMA_LIVE,
-                "http://kikaplus.net/clients/kika/player/myplaylist.php?channel=1&programm=1&videoid=1", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                "rtmp://85.239.122.162/live/mk3w-3faw-3rqf-enc0-kika", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+        // RBB
+        addFilmVomSender(new DatenFilm(MediathekRbb.SENDER, THEMA_LIVE, ""/* urlThema */,
+                MediathekRbb.SENDER + " " + THEMA_LIVE,
+                "http://rbb_live-lh.akamaihd.net/i/rbb_berlin@108248/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
     }
 
-    @JsonIgnore
     public synchronized DatenFilm getFilmByUrl(String url) {
         // Problem wegen gleicher URLs
         DatenFilm ret = null;
@@ -382,7 +370,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    @JsonIgnore
     public synchronized DatenFilm getFilmByUrl_klein_hoch_hd(String url) {
         // Problem wegen gleicher URLs
         // wird versucht, einen Film mit einer kleinen/Hoher/HD-URL zu finden
@@ -404,7 +391,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    @JsonIgnore
     public synchronized DatenFilm getFilmByNr(String nr) {
         int n = 0;
         try {
@@ -428,7 +414,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 //        }
 //        return ret;
 //    }
-    @JsonIgnore
     public String genDate() {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "dd.MM.yyyy, HH:mm"
@@ -456,7 +441,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    @JsonIgnore
     public String genDateRev() {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "yyyy.MM.dd__HH:mm"
@@ -484,7 +468,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    @JsonIgnore
     public int alterFilmlisteSek() {
         // Alter der Filmliste in Sekunden
         int ret = 0;
@@ -510,7 +493,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    @JsonIgnore
     public boolean filmlisteZuAlt() {
         if (this.size() == 0) {
             return true;
@@ -518,7 +500,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return filmlisteIstAelter(MSearchConst.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE);
     }
 
-    @JsonIgnore
     public boolean filmlisteIstAelter(int sekunden) {
         int ret = alterFilmlisteSek();
         if (ret != 0) {
@@ -527,7 +508,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret > sekunden;
     }
 
-    @JsonIgnore
     public void metaDatenSchreiben() {
         // FilmlisteMetaDaten
         for (int i = 0; i < metaDaten.length; ++i) {
@@ -544,13 +524,11 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = Funktionen.getProgVersionString() + " - Compiled: " + Funktionen.getCompileDate();
     }
 
-    @JsonIgnore
     String getJetzt_ddMMyyyy_HHmm() {
         SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         return formatter.format(new Date());
     }
 
-    @JsonIgnore
     String getJetzt_ddMMyyyy_HHmm_gmt() {
         SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         formatter.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));

@@ -19,14 +19,11 @@
  */
 package msearch.tool;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Datum extends Date {
 
-    @JsonIgnoreProperties({"sdf1", "sdf2"})
     final static SimpleDateFormat sdf1 = new SimpleDateFormat("dd.MM.yyyy");
     final static SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy.MM.dd");
 
@@ -39,7 +36,6 @@ public class Datum extends Date {
     }
 
     @Override
-    @JsonIgnore
     public String toString() {
         if (this.getTime() == 0) {
             return "";
@@ -48,7 +44,6 @@ public class Datum extends Date {
         }
     }
 
-    @JsonIgnore
     public String toStringR() {
         if (this.getTime() == 0) {
             return sdf2.format(new Date());
@@ -57,7 +52,6 @@ public class Datum extends Date {
         }
     }
 
-    @JsonIgnore
     public int diffInSekunden() {
         // liefert den BETRAG! der Zeitdifferenz zu jetzt
         int ret = 0;
@@ -68,7 +62,6 @@ public class Datum extends Date {
         return ret;
     }
 
-    @JsonIgnore
     public int diffInMinuten() {
         // liefert den BETRAG! der Zeitdifferenz zu jetzt
         int ret = this.diffInSekunden();
