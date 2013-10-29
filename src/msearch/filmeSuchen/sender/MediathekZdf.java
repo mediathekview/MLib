@@ -19,11 +19,10 @@
  */
 package msearch.filmeSuchen.sender;
 
-import msearch.filmeSuchen.MSearchFilmeSuchen;
-import static msearch.filmeSuchen.sender.MediathekReader.extractDuration;
-import msearch.io.MSearchGetUrl;
-import msearch.daten.MSearchConfig;
 import msearch.daten.DatenFilm;
+import msearch.daten.MSearchConfig;
+import msearch.filmeSuchen.MSearchFilmeSuchen;
+import msearch.io.MSearchGetUrl;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchStringBuilder;
