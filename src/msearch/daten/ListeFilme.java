@@ -399,7 +399,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             MSearchLog.fehlerMeldung(936254978, MSearchLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
             return null;
         }
-        return this.get(n);
+        try {
+            return this.get(n);
+        } catch (Exception ex) {
+            MSearchLog.fehlerMeldung(203647098, MSearchLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
+            return new DatenFilm();
+        }
     }
 
 //    public synchronized DatenFilm getFilmByNr(String nr) {

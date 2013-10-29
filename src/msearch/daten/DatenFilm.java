@@ -108,7 +108,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         FILM_IMAGE_URL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_};
     public Datum datumFilm = new Datum(0);
     public long dauerL = 0; // Sekunden
-    public int aboNr = -1; // ist die Nummer des Abos oder "-1"
+    public Object abo = null;
     public MSearchLong dateigroesseL; // Dateigröße in MByte
     public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
     public String[] arr = new String[]{"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""};
