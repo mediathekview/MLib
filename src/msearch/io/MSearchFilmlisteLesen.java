@@ -315,6 +315,11 @@ public class MSearchFilmlisteLesen {
                 if (jp.isExpectedStartArrayToken()) {
                     DatenFilm datenFilm = new DatenFilm();
                     for (int i = 0; i < DatenFilm.MAX_ELEM; ++i) {
+                        if (i == DatenFilm.FILM_ABSPIELEN_NR
+                                || i == DatenFilm.FILM_AUFZEICHNEN_NR) {
+                            // Felder werden nicht in die Liste geschrieben/gelesen
+                            continue;
+                        }
                         datenFilm.arr[i] = jp.nextTextValue();
                     }
                     if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals("")) {

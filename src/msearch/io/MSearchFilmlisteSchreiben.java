@@ -47,6 +47,7 @@ public class MSearchFilmlisteSchreiben {
     private OutputStreamWriter out = null;
     ZipOutputStream zipOutputStream = null;
     BZip2CompressorOutputStream bZip2CompressorOutputStream = null;
+
     public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
         MSearchLog.systemMeldung("Filme Schreiben");
         File file = new File(datei);
@@ -98,6 +99,11 @@ public class MSearchFilmlisteSchreiben {
                 datenFilm = iterator.next();
                 jg.writeArrayFieldStart(DatenFilm.FILME_);
                 for (int i = 0; i < DatenFilm.MAX_ELEM; ++i) {
+                    if (i == DatenFilm.FILM_ABSPIELEN_NR
+                            || i == DatenFilm.FILM_AUFZEICHNEN_NR) {
+                        // Felder werden nicht in die Liste geschrieben/gelesen
+                        continue;
+                    }
                     if (i == DatenFilm.FILM_NR_NR) {
                         jg.writeString("");
                     } else if (i == DatenFilm.FILM_ABO_NAME_NR) {
