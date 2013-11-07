@@ -38,7 +38,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
     private final int MAX_FILME_THEMA = 5;
 
     public MediathekSrf(MSearchFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 1000, startPrio);
+        super(ssearch, /* name */ SENDER, /* threads */ 3, /* urlWarten */ 1000, startPrio);
     }
 
     /**
@@ -158,7 +158,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             // oder <link>http://www.srf.ch/player/tv/dok-panamericana/video/panamericana-vom-machu-piccu-in-peru-nach-bolivien-67?id=09f2cb4d-c5be-4809-9c9c-2d4cc703ad00</link>
             final String MUSTER_TITEL = "&gt;"; //bis zum &
             final String MUSTER_URL = "href=\"/player/tv"; //bis zum ;
-            final String MUSTER_URL_NEU = "<link>http://www.srf.ch/player/tv"; //bis zum <
+            final String MUSTER_URL_NEU = "<link>/player/tv"; //bis zum <
             final String MUSTER_ID = "?id=";
             final String MUSTER_ITEM_1 = "<item>";
             final String MUSTER_ITEM_2 = "</item>";
@@ -267,7 +267,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 if (!url_small.isEmpty()) {
                     film.addUrlKlein(url_small, "");
                 } else {
-                    MSearchLog.fehlerMeldung(-159873540, MSearchLog.FEHLER_ART_MREADER, "MediathekArd.SRF", "keine kleine Url für: " + urlWebsite + " : " + url_normal);
+                    MSearchLog.fehlerMeldung(-915263975, MSearchLog.FEHLER_ART_MREADER, "MediathekArd.SRF", "keine kleine Url für: " + urlWebsite + " : " + url_normal);
                 }
                 if (!urlHd.isEmpty()) {
                     film.addUrlHd(urlHd, "");
