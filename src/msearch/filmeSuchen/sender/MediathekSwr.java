@@ -19,11 +19,11 @@
  */
 package msearch.filmeSuchen.sender;
 
-import msearch.filmeSuchen.MSearchFilmeSuchen;
 import java.util.LinkedList;
-import msearch.io.MSearchGetUrl;
-import msearch.daten.MSearchConfig;
 import msearch.daten.DatenFilm;
+import msearch.daten.MSearchConfig;
+import msearch.filmeSuchen.MSearchFilmeSuchen;
+import msearch.io.MSearchGetUrl;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchStringBuilder;
@@ -45,7 +45,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         meldungStart();
         //Theman suchen
         listeThemen.clear();
-        addToList__("http://www.swrmediathek.de/tvlist.htm");
+        addToList__("http://swrmediathek.de/tvlist.htm");
         if (MSearchConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {

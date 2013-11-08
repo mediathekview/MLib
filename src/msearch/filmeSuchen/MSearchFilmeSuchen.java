@@ -25,9 +25,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import javax.swing.event.EventListenerList;
-import msearch.io.MSearchGetUrl;
-import msearch.daten.MSearchConfig;
 import msearch.daten.ListeFilme;
+import msearch.daten.MSearchConfig;
 import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekArdPodcast;
@@ -46,6 +45,7 @@ import msearch.filmeSuchen.sender.MediathekSrfPod;
 import msearch.filmeSuchen.sender.MediathekSwr;
 import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
+import msearch.io.MSearchGetUrl;
 import msearch.tool.DatumZeit;
 import msearch.tool.GuiFunktionen;
 import msearch.tool.MSearchLog;
@@ -64,7 +64,7 @@ public class MSearchFilmeSuchen {
     private ArrayList<String> runde1 = new ArrayList<>();
     private ArrayList<String> runde2 = new ArrayList<>();
     private ArrayList<String> runde3 = new ArrayList<>();
-    private String[] titel1 = {"Sender       ", "[min]", "Seiten", "Filme", "Fehler", "FVersuche", "FZeit[s]"};
+    private String[] titel1 = {"Sender       ", "[min]", "Seiten", "Filme", "Fehler", "FVersuche", "FZeit[s]", "Anz-Proxy"};
     private String[] titel3 = {"Sender       ", "Geladen[MB]", "Nix", "Deflaet", "Gzip", "AnzGroesse", "Anz-403", "Anz-Proxy"};
     private final String TRENNER = " | ";
     private final String TTRENNER = " || ";
@@ -209,6 +209,7 @@ public class MSearchFilmeSuchen {
             zeile += textLaenge(titel1[4].length(), String.valueOf(MSearchGetUrl.getSeitenZaehler(MSearchGetUrl.LISTE_SEITEN_ZAEHLER_FEHlER, run.sender))) + TRENNER;
             zeile += textLaenge(titel1[5].length(), String.valueOf(MSearchGetUrl.getSeitenZaehler(MSearchGetUrl.LISTE_SEITEN_ZAEHLER_FEHLERVERSUCHE, run.sender))) + TRENNER;
             zeile += textLaenge(titel1[6].length(), String.valueOf(MSearchGetUrl.getSeitenZaehler(MSearchGetUrl.LISTE_SEITEN_ZAEHLER_WARTEZEIT_FEHLVERSUCHE, run.sender))) + TRENNER;
+            zeile += textLaenge(titel1[7].length(), String.valueOf(MSearchGetUrl.getSeitenZaehler(MSearchGetUrl.LISTE_SEITEN_PROXY, run.sender))) + TRENNER;
             runde1.add(zeile);
             // =================================
             // Zeile3
@@ -278,7 +279,7 @@ public class MSearchFilmeSuchen {
         MSearchLog.systemMeldung("==  Sender  =====================================================================");
         MSearchLog.systemMeldung("");
         // Zeile 1 =============================================
-        zeile = titel1[0] + TTRENNER + titel1[1] + TRENNER + titel1[2] + TRENNER + titel1[3] + TRENNER + titel1[4] + TRENNER + titel1[5] + TRENNER + titel1[6];
+        zeile = titel1[0] + TTRENNER + titel1[1] + TRENNER + titel1[2] + TRENNER + titel1[3] + TRENNER + titel1[4] + TRENNER + titel1[5] + TRENNER + titel1[6] + TRENNER + titel1[7];
         MSearchLog.systemMeldung(zeile);
         MSearchLog.systemMeldung("---------------------------------------------------------------------------------");
         for (String s : runde1) {

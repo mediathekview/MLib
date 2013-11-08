@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
@@ -34,7 +35,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 import msearch.daten.MSearchConfig;
-import msearch.filmeSuchen.MSearchFilmeSuchen;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchStringBuilder;
@@ -46,6 +46,7 @@ public class MSearchGetUrl {
     public static final int LISTE_SEITEN_ZAEHLER_FEHLERVERSUCHE = 3;
     public static final int LISTE_SEITEN_ZAEHLER_WARTEZEIT_FEHLVERSUCHE = 4;
     public static final int LISTE_SUMME_BYTE = 5;
+    public static final int LISTE_SEITEN_PROXY = 6;
     public static final int LISTE_LADEART = 6;
     private static final long UrlWartenBasis = 500;//ms, Basiswert zu dem dann der Faktor multipliziert wird
     private int faktorWarten = 1;
@@ -56,6 +57,7 @@ public class MSearchGetUrl {
     private static LinkedList<Seitenzaehler> listeSeitenZaehlerFehlerVersuche = new LinkedList<>();
     private static LinkedList<Seitenzaehler> listeSeitenZaehlerWartezeitFehlerVersuche = new LinkedList<>(); // Wartezeit für Wiederholungen [s]
     private static LinkedList<Seitenzaehler> listeSummeByte = new LinkedList<>(); // Summe Daten in Byte für jeden Sender
+    private static LinkedList<Seitenzaehler> listeSeitenProxy = new LinkedList<>(); // Anzahl Seiten über Proxy geladen
     private static final int LADE_ART_UNBEKANNT = 0;
     private static final int LADE_ART_NIX = 1;
     private static final int LADE_ART_DEFLATE = 2;
@@ -70,6 +72,7 @@ public class MSearchGetUrl {
         long ladeArtNix = 0;
         long ladeArtDeflate = 0;
         long ladeArtGzip = 0;
+        long proxy = 0;
 
         public Seitenzaehler(String ssenderName, long sseitenAnzahl) {
             senderName = ssenderName;
@@ -239,6 +242,7 @@ public class MSearchGetUrl {
         listeSeitenZaehlerFehlerVersuche.clear();
         listeSeitenZaehlerWartezeitFehlerVersuche.clear();
         listeSummeByte.clear();
+        listeSeitenProxy.clear();
         summeByte = 0;
     }
 
@@ -257,6 +261,8 @@ public class MSearchGetUrl {
                 return listeSeitenZaehlerWartezeitFehlerVersuche;
             case LISTE_SUMME_BYTE:
                 return listeSummeByte;
+            case LISTE_SEITEN_PROXY:
+                return listeSeitenProxy;
             default:
                 return null;
         }
@@ -298,9 +304,10 @@ public class MSearchGetUrl {
         int code = 0;
         InputStream in = null;
         InputStreamReader inReader = null;
-        Proxy proxy = null;
-        SocketAddress saddr = null;
+        int retCode;
         int ladeArt = LADE_ART_UNBEKANNT;
+        MVInputStream mvIn = null;
+        String encoding = "";
         // immer etwas bremsen
         try {
             long w = wartenBasis * faktorWarten;
@@ -318,40 +325,45 @@ public class MSearchGetUrl {
                 conn.setConnectTimeout(timeout);
             }
             // the encoding returned by the server
-            String encoding = conn.getContentEncoding();
-//            if (conn instanceof HttpURLConnection) {
-//                HttpURLConnection httpConnection = (HttpURLConnection) conn;
-//                code = httpConnection.getResponseCode();
-//                if (code >= 400) {
-//                    if (true) {
-//                        // wenn möglich, einen Proxy einrichten
-//                        Log.fehlerMeldung(236597125, Log.FEHLER_ART_GETURL, GetUrl.class.getName() + ".getUri", "---Proxy---");
-//                        proxyB = true;
-//                        saddr = new InetSocketAddress("localhost", 9050);
-//                        proxy = new Proxy(Proxy.Type.SOCKS, saddr);
-//                        conn = url.openConnection(proxy);
-//                        conn.setRequestProperty("User-Agent", Daten.getUserAgent());
-//                        if (timeout > 0) {
-//                            conn.setReadTimeout(timeout);
-//                            conn.setConnectTimeout(timeout);
-//                        }
-//                    } else {
-//                        Log.fehlerMeldung(864123698, Log.FEHLER_ART_GETURL, GetUrl.class.getName() + ".getUri", "returncode >= 400");
-//                    }
-//                }
-//            } else {
-//                Log.fehlerMeldung(949697315, Log.FEHLER_ART_GETURL, GetUrl.class.getName() + ".getUri", "keine HTTPcon");
-//            }
-            //in = conn.getInputStream();
+            encoding = conn.getContentEncoding();
+            if ((retCode = conn.getResponseCode()) < 400) {
+                mvIn = new MVInputStream(conn);
+            } else {
+                if (retCode == 403 || retCode == 408) {
+                    if (!MSearchConfig.proxyUrl.isEmpty() && MSearchConfig.proxyPort > 0) {
+                        // nur dann verwenden
+                        // ein anderer Versuch
+                        // wenn möglich, einen Proxy einrichten
+                        //SocketAddress saddr = new InetSocketAddress("localhost", 9050);
+                        SocketAddress saddr = new InetSocketAddress(MSearchConfig.proxyUrl, MSearchConfig.proxyPort);
+                        Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
 
-            MVInputStream mvIn = new MVInputStream(conn);
+                        conn = (HttpURLConnection) new URL(addr).openConnection(proxy);
+                        conn.setRequestProperty("User-Agent", MSearchConfig.getUserAgent());
+                        conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
+                        if (timeout > 0) {
+                            conn.setReadTimeout(timeout);
+                            conn.setConnectTimeout(timeout);
+                        }
+                        encoding = conn.getContentEncoding();
+                        mvIn = new MVInputStream(conn);
+                        incSeitenZaehler(LISTE_SEITEN_PROXY, sender, 1, ladeArt);
+                    }
+                }
+            }
+            if (mvIn == null) {
+                return seite;
+            }
             if (mvIn.getInputStream() == null) {
                 return seite;
             }
-            if (encoding != null && encoding.equalsIgnoreCase("gzip")) {
+            if (encoding == null) {
+                ladeArt = LADE_ART_NIX;
+                in = mvIn;
+            } else if (encoding.equalsIgnoreCase("gzip")) {
                 ladeArt = LADE_ART_GZIP;
                 in = new GZIPInputStream(mvIn);
-            } else if (encoding != null && encoding.equalsIgnoreCase("deflate")) {
+            } else if (encoding.equalsIgnoreCase("deflate")) {
                 ladeArt = LADE_ART_DEFLATE;
                 in = new InflaterInputStream(mvIn, new Inflater(true));
             } else {
