@@ -200,8 +200,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // zum Debuggen: URLs die doppelt sind, in die History eintragen
         // damit sie markiert werden
         DatenFilm film;
-        HashSet<String> hashDoppelt = new HashSet<String>();
-        HashSet<String> hash = new HashSet<String>();
+        HashSet<String> hashDoppelt = new HashSet<>();
+        HashSet<String> hash = new HashSet<>();
         Iterator<DatenFilm> it = this.iterator();
         while (it.hasNext()) {
             film = it.next();
