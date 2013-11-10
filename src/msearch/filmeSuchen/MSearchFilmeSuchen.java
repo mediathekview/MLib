@@ -370,6 +370,11 @@ public class MSearchFilmeSuchen {
         int progress = listeSenderLaufen.getProgress();
         int proz = 0;
         String text;
+        int sekunden = 0;
+        try {
+            sekunden = Math.round((new Date(System.currentTimeMillis()).getTime() - startZeit.getTime()) / (1000));
+        } catch (Exception ex) {
+        }
         if (max != 0) {
             if (progress != 0) {
                 proz = progress * 100 / max;
@@ -385,7 +390,9 @@ public class MSearchFilmeSuchen {
             for (int i = 0; i < (10 - a); ++i) {
                 text += "-";
             }
-            text += " ]  " + MSearchGetUrl.getSeitenZaehler(MSearchGetUrl.LISTE_SEITEN_ZAEHLER) + " Seiten  /  " + proz + "% von " + max + " Themen  /  Filme: " + listeFilmeNeu.size();
+            text += " ]  " + MSearchGetUrl.getSeitenZaehler(MSearchGetUrl.LISTE_SEITEN_ZAEHLER) + " Seiten  /  "
+                    + proz + "% von " + max + " Themen  /  Filme: " + listeFilmeNeu.size()
+                    + "  /  Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60);
             MSearchLog.progress(text);
         }
     }
