@@ -73,22 +73,22 @@ public class MSearchLog {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         MSearchLog.systemMeldung("");
         MSearchLog.systemMeldung("");
-        MSearchLog.systemMeldung("###########################################################");
-        MSearchLog.systemMeldung("###########################################################");
+        MSearchLog.systemMeldung("##################################################################################");
+        MSearchLog.systemMeldung("##################################################################################");
         MSearchLog.systemMeldung("Programmstart: " + sdf.format(startZeit));
-        MSearchLog.systemMeldung("###########################################################");
-        MSearchLog.systemMeldung("###########################################################");
+        MSearchLog.systemMeldung("##################################################################################");
+        MSearchLog.systemMeldung("##################################################################################");
         long totalMem = Runtime.getRuntime().totalMemory();
         MSearchLog.systemMeldung("totalMemory: " + totalMem / (1024L * 1024L) + " MiB");
         long maxMem = Runtime.getRuntime().maxMemory();
         MSearchLog.systemMeldung("maxMemory: " + maxMem / (1024L * 1024L) + " MiB");
         long freeMem = Runtime.getRuntime().freeMemory();
         MSearchLog.systemMeldung("freeMemory: " + freeMem / (1024L * 1024L) + " MiB");
-        MSearchLog.systemMeldung("###########################################################");
+        MSearchLog.systemMeldung("##################################################################################");
         //Version
         MSearchLog.systemMeldung(Funktionen.getProgVersionString());
         MSearchLog.systemMeldung("Compiled: " + Funktionen.getCompileDate());
-        MSearchLog.systemMeldung("###########################################################");
+        MSearchLog.systemMeldung("##################################################################################");
         MSearchLog.systemMeldung("Java");
         MSearchLog.systemMeldung("Classname: " + classname);
         String[] java = Funktionen.getJavaVersion();
@@ -101,11 +101,11 @@ public class MSearchLog {
 
     public static synchronized void startMeldungen(String classname) {
         versionsMeldungen(classname);
-        MSearchLog.systemMeldung("###########################################################");
+        MSearchLog.systemMeldung("##################################################################################");
         MSearchLog.systemMeldung("Programmpfad: " + Funktionen.getPathJar());
         MSearchLog.systemMeldung("Filmliste: " + MSearchConfig.dateiFilmliste);
         MSearchLog.systemMeldung("Useragent: " + MSearchConfig.getUserAgent());
-        MSearchLog.systemMeldung("###########################################################");
+        MSearchLog.systemMeldung("##################################################################################");
         MSearchLog.systemMeldung("");
         MSearchLog.systemMeldung("");
         if (MSearchConfig.senderAllesLaden) {
@@ -125,7 +125,7 @@ public class MSearchLog {
         if (MSearchConfig.nurSenderLaden != null) {
             MSearchLog.systemMeldung("Nur Sender laden:  " + StringUtils.join(MSearchConfig.nurSenderLaden, ','));
         }
-        MSearchLog.systemMeldung("###########################################################");
+        MSearchLog.systemMeldung("##################################################################################");
     }
 
     public static synchronized void debugMeldung(String text) {
@@ -190,7 +190,7 @@ public class MSearchLog {
         systemMeldung("");
         systemMeldung("");
         systemMeldung("");
-        systemMeldung("###########################################################");
+        systemMeldung("##################################################################################");
         if (fehlerListe.size() == 0) {
             systemMeldung(" Keine Fehler :)");
         } else {
@@ -243,7 +243,7 @@ public class MSearchLog {
                 }
             }
         }
-        systemMeldung("###########################################################");
+        systemMeldung("##################################################################################");
         // Laufzeit ausgeben
         stopZeit = new Date(System.currentTimeMillis());
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
@@ -255,16 +255,16 @@ public class MSearchLog {
         }
         systemMeldung("");
         systemMeldung("");
-        systemMeldung("###########################################################");
+        systemMeldung("##################################################################################");
         systemMeldung("   --> Beginn: " + sdf.format(startZeit));
         systemMeldung("   --> Fertig: " + sdf.format(stopZeit));
         systemMeldung("   --> Dauer[Min]: " + (minuten == 0 ? "<1" : minuten));
-        systemMeldung("###########################################################");
+        systemMeldung("##################################################################################");
         systemMeldung("");
         systemMeldung("   und Tschuess");
         systemMeldung("");
         systemMeldung("");
-        systemMeldung("###########################################################");
+        systemMeldung("##################################################################################");
     }
 
     private static void addFehlerNummer(int nr, int art, boolean exception) {
@@ -295,7 +295,7 @@ public class MSearchLog {
             // Exceptions immer ausgeben
             if (progress) {
                 // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
-                System.out.print("                                                                            \r");
+                System.out.print("                                                                                          \r");
             }
             final String FEHLER = "Fehler(" + MSearchConst.PROGRAMMNAME + "): ";
             String x, z;

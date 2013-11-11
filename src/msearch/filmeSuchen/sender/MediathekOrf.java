@@ -23,16 +23,16 @@
  */
 package msearch.filmeSuchen.sender;
 
-import msearch.filmeSuchen.MSearchFilmeSuchen;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLDecoder;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import msearch.io.MSearchGetUrl;
-import msearch.daten.MSearchConfig;
 import msearch.daten.DatenFilm;
+import msearch.daten.MSearchConfig;
+import msearch.filmeSuchen.MSearchFilmeSuchen;
+import msearch.io.MSearchGetUrl;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchStringBuilder;
@@ -70,7 +70,6 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         listeThemen.clear();
         meldungStart();
         bearbeiteAdresse(TOPICURL, seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/archiv", seite);
         bearbeiteAdresse("http://tvthek.orf.at/schedule/last/monday", seite);
         bearbeiteAdresse("http://tvthek.orf.at/schedule/last/tuesday", seite);
         bearbeiteAdresse("http://tvthek.orf.at/schedule/last/wednesday", seite);
@@ -78,13 +77,16 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         bearbeiteAdresse("http://tvthek.orf.at/schedule/last/friday", seite);
         bearbeiteAdresse("http://tvthek.orf.at/schedule/last/saturday", seite);
         bearbeiteAdresse("http://tvthek.orf.at/schedule/last/sunday", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/monday_prev", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/tuesday_prev", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/wednesday_prev", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/thursday_prev", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/friday_prev", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/saturday_prev", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/sunday_prev", seite);
+        if (MSearchConfig.senderAllesLaden) {
+            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/archiv", seite);
+            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/monday_prev", seite);
+            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/tuesday_prev", seite);
+            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/wednesday_prev", seite);
+            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/thursday_prev", seite);
+            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/friday_prev", seite);
+            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/saturday_prev", seite);
+            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/sunday_prev", seite);
+        }
         if (MSearchConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
