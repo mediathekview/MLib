@@ -72,49 +72,49 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_BESCHREIBUNG = "Beschreibung";
     public static final String FILM_BESCHREIBUNG_ = "n";
     public static final int FILM_BESCHREIBUNG_NR = 10;
-    public static final String FILM_KEYWORDS = "Keywords";
-    public static final String FILM_KEYWORDS_ = "q";
-    public static final int FILM_KEYWORDS_NR = 11;
+//    public static final String FILM_KEYWORDS = "Keywords";
+//    public static final String FILM_KEYWORDS_ = "q";
+//    public static final int FILM_KEYWORDS_NR = 11;
     public static final String FILM_URL = "Url";
     public static final String FILM_URL_ = "g";
-    public static final int FILM_URL_NR = 12;
+    public static final int FILM_URL_NR = 11;
     public static final String FILM_WEBSEITE = "Website"; //URL der Website des Films beim Sender
     public static final String FILM_WEBSEITE_ = "k";
-    public static final int FILM_WEBSEITE_NR = 13;
+    public static final int FILM_WEBSEITE_NR = 12;
     public static final String FILM_ABO_NAME = "Aboname";// wird vor dem Speichern gelöscht!
     public static final String FILM_ABO_NAME_ = "l";
-    public static final int FILM_ABO_NAME_NR = 14;
+    public static final int FILM_ABO_NAME_NR = 13;
     public static final String FILM_IMAGE_URL = "Bild";
     public static final String FILM_IMAGE_URL_ = "o";
-    public static final int FILM_IMAGE_URL_NR = 15;
+    public static final int FILM_IMAGE_URL_NR = 14;
     public static final String FILM_URL_RTMP = "UrlRTMP";
     public static final String FILM_URL_RTMP_ = "i";
-    public static final int FILM_URL_RTMP_NR = 16;
+    public static final int FILM_URL_RTMP_NR = 15;
     public static final String FILM_URL_AUTH = "UrlAuth";
     public static final String FILM_URL_AUTH_ = "j";
-    public static final int FILM_URL_AUTH_NR = 17;
+    public static final int FILM_URL_AUTH_NR = 16;
     public static final String FILM_URL_KLEIN = "Url_Klein";
     public static final String FILM_URL_KLEIN_ = "r";
-    public static final int FILM_URL_KLEIN_NR = 18;
+    public static final int FILM_URL_KLEIN_NR = 17;
     public static final String FILM_URL_RTMP_KLEIN = "UrlRTMP_Klein";
     public static final String FILM_URL_RTMP_KLEIN_ = "s";
-    public static final int FILM_URL_RTMP_KLEIN_NR = 19;
+    public static final int FILM_URL_RTMP_KLEIN_NR = 18;
     public static final String FILM_URL_HD = "Url_HD";
     public static final String FILM_URL_HD_ = "t";
-    public static final int FILM_URL_HD_NR = 20;
+    public static final int FILM_URL_HD_NR = 19;
     public static final String FILM_URL_RTMP_HD = "UrlRTMP_HD";
     public static final String FILM_URL_RTMP_HD_ = "u";
-    public static final int FILM_URL_RTMP_HD_NR = 21;
-    public static final int MAX_ELEM = 22;
+    public static final int FILM_URL_RTMP_HD_NR = 20;
+    public static final int MAX_ELEM = 21;
     public static final String[] COLUMN_NAMES = {FILM_NR, FILM_SENDER, FILM_THEMA, FILM_TITEL,
         FILM_ABSPIELEN, FILM_AUFZEICHNEN,
         FILM_DATUM, FILM_ZEIT, FILM_DAUER, FILM_GROESSE,
-        FILM_BESCHREIBUNG, FILM_KEYWORDS, FILM_URL, FILM_WEBSEITE, FILM_ABO_NAME,
+        FILM_BESCHREIBUNG, /*FILM_KEYWORDS,*/ FILM_URL, FILM_WEBSEITE, FILM_ABO_NAME,
         FILM_IMAGE_URL, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD};
     public static final String[] COLUMN_NAMES_ = {FILM_NR_, FILM_SENDER_, FILM_THEMA_, FILM_TITEL_,
         FILM_ABSPIELEN_, FILM_AUFZEICHNEN_,
         FILM_DATUM_, FILM_ZEIT_, FILM_DAUER_, FILM_GROESSE_,
-        FILM_BESCHREIBUNG_, FILM_KEYWORDS_, FILM_URL_, FILM_WEBSEITE_, FILM_ABO_NAME_,
+        FILM_BESCHREIBUNG_, /*FILM_KEYWORDS_,*/ FILM_URL_, FILM_WEBSEITE_, FILM_ABO_NAME_,
         FILM_IMAGE_URL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_};
     public Datum datumFilm = new Datum(0);
     public long dauerL = 0; // Sekunden
@@ -141,8 +141,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         arr[FILM_ZEIT_NR] = checkZeit(arr[FILM_DATUM_NR], zeit, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
         arr[FILM_BESCHREIBUNG_NR] = beschreibung(description, tthema, ttitel);
         arr[FILM_IMAGE_URL_NR] = imageUrl;
-        // Schlüsselwörter
-        arr[FILM_KEYWORDS_NR] = keywordsToString(keywords);
+//        // Schlüsselwörter
+//        arr[FILM_KEYWORDS_NR] = keywordsToString(keywords);
         // Filmlänge
         if (dauerSekunden <= 0 || dauerSekunden > 3600 * 5 /* Werte über 5 Stunden */) {
             arr[FILM_DAUER_NR] = "";

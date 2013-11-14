@@ -266,9 +266,9 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         }
         film.arr[DatenFilm.FILM_DATUM_NR] = film.arr[DatenFilm.FILM_DATUM_NR].intern();
         film.arr[DatenFilm.FILM_ZEIT_NR] = film.arr[DatenFilm.FILM_ZEIT_NR].intern();
-        if (film.arr[DatenFilm.FILM_KEYWORDS_NR].equals("video")) {
-            film.arr[DatenFilm.FILM_KEYWORDS_NR] = "";
-        }
+//        if (film.arr[DatenFilm.FILM_KEYWORDS_NR].equals("video")) {
+//            film.arr[DatenFilm.FILM_KEYWORDS_NR] = "";
+//        }
         return super.add(film);
     }
 
