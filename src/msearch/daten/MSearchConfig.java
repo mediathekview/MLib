@@ -57,6 +57,16 @@ public class MSearchConfig {
         }
     }
 
+    public static String getUserAgent_dynamic() {
+        int zufall = 1 + (int) (Math.random() * 10000); // 1 - 10000
+        //String user = " user-" + zufall;
+        if (userAgent == null) {
+            return MSearchConst.USER_AGENT_DEFAULT + " user-" + zufall;
+        } else {
+            return userAgent + " user-" + zufall;
+        }
+    }
+
     /**
      * Damit kann das Suchen abgebrochen werden
      */

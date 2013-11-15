@@ -256,7 +256,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             // <a href="/mediathek/video/sendungen/abendschau/der-grosse-max-spionageabwehr-100.html" class="teaser link_video contenttype_podcast der-grosse-max-spionageabwehr-100" title="zur Detailseite">
             int pos1 = 0;
             int count = 0;
-            int max = (MSearchConfig.senderAllesLaden ? 20 : 4);
+            int max = (MSearchConfig.senderAllesLaden ? 20 : 3);
             final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
             if ((pos1 = seite.indexOf("<h3>Mehr von <strong>")) != -1) {
                 while ((pos1 = seite.indexOf(MUSTER_URL, pos1)) != -1) {

@@ -49,7 +49,7 @@ public class MSearchGetUrl {
     public static final int LISTE_SEITEN_PROXY = 6;
     public static final int LISTE_LADEART = 6;
     private static final long UrlWartenBasis = 500;//ms, Basiswert zu dem dann der Faktor multipliziert wird
-    private int faktorWarten = 1;
+//    private int faktorWarten = 1;
     private int timeout = 10000;
     private long wartenBasis = UrlWartenBasis;
     private static LinkedList<Seitenzaehler> listeSeitenZaehler = new LinkedList<>();
@@ -310,7 +310,7 @@ public class MSearchGetUrl {
         String encoding = "";
         // immer etwas bremsen
         try {
-            long w = wartenBasis * faktorWarten;
+            long w = wartenBasis;// * faktorWarten;
             this.wait(w);
         } catch (Exception ex) {
             MSearchLog.fehlerMeldung(976120379, MSearchLog.FEHLER_ART_GETURL, MSearchGetUrl.class.getName() + ".getUri", ex, sender);
@@ -339,7 +339,7 @@ public class MSearchGetUrl {
                         Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
 
                         conn = (HttpURLConnection) new URL(addr).openConnection(proxy);
-                        conn.setRequestProperty("User-Agent", MSearchConfig.getUserAgent());
+                        conn.setRequestProperty("User-Agent", MSearchConfig.getUserAgent_dynamic());
                         conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
                         if (timeout > 0) {
                             conn.setReadTimeout(timeout);

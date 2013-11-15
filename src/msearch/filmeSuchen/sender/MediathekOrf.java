@@ -26,6 +26,9 @@ package msearch.filmeSuchen.sender;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -54,7 +57,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
     public static final String SENDER = "ORF";
     private final String ROOTURL = "http://tvthek.orf.at";
-    private final String TOPICURL = "http://tvthek.orf.at/topics";
+    private final String TOPICURL = "http://tvthek.orf.at/programs"; //"http://tvthek.orf.at/topics";
 
     /**
      *
@@ -69,23 +72,29 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
         listeThemen.clear();
         meldungStart();
-        bearbeiteAdresse(TOPICURL, seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/monday", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/tuesday", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/wednesday", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/thursday", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/friday", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/saturday", seite);
-        bearbeiteAdresse("http://tvthek.orf.at/schedule/last/sunday", seite);
-        if (MSearchConfig.senderAllesLaden) {
-            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/archiv", seite);
-            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/monday_prev", seite);
-            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/tuesday_prev", seite);
-            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/wednesday_prev", seite);
-            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/thursday_prev", seite);
-            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/friday_prev", seite);
-            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/saturday_prev", seite);
-            bearbeiteAdresse("http://tvthek.orf.at/schedule/last/sunday_prev", seite);
+        if (!MSearchConfig.senderAllesLaden) {
+            for (int i = 0; i < 5; ++i) {
+                // 4 Tage zurück
+                String vorTagen = getGestern(i).toLowerCase();
+                bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/" + vorTagen, seite);
+            }
+        } else {
+            bearbeiteAdresse(TOPICURL, seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/monday", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/tuesday", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/wednesday", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/thursday", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/friday", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/saturday", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/sunday", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/archiv", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/monday_prev", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/tuesday_prev", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/wednesday_prev", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/thursday_prev", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/friday_prev", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/saturday_prev", seite);
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/sunday_prev", seite);
         }
         if (MSearchConfig.getStop()) {
             meldungThreadUndFertig();
@@ -189,6 +198,36 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 } catch (Exception ex) {
                     MSearchLog.fehlerMeldung(-468320478, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.addToList", ex);
                 }
+            }
+        }
+    }
+
+    private void bearbeiteAdresseTag(String adresse, MSearchStringBuilder seite) {
+        //<td class="episode"><div><a href="/programs/4660163-heute-oesterreich/episodes/7103017-heute-oesterreich" title="heute österreich ansehen...">
+        final String MUSTER_URL = "<td class=\"episode\"><div><a href=\"";
+        seite = getUrlIo.getUri(nameSenderMReader, adresse, MSearchConst.KODIERUNG_UTF, 3, seite, "");
+        int pos = 0;
+        String url, thema;
+        while ((pos = seite.indexOf(MUSTER_URL, pos)) != -1) {
+            try {
+                pos += MUSTER_URL.length();
+                url = seite.extract("/programs/", "\"", pos);
+                thema = seite.extract("title=\"", "\"", pos);
+                if (thema.endsWith(" aufrufen...")) {
+                    thema = thema.replace(" aufrufen...", "").trim();
+                }
+                if (thema.endsWith(" ansehen...")) {
+                    thema = thema.replace(" ansehen...", "").trim();
+                }
+                if (url.equals("")) {
+                    continue;
+                }
+                String[] add = new String[]{"http://tvthek.orf.at/programs/" + url, thema};
+                if (!istInListe(listeThemen, add[0], 0)) {
+                    listeThemen.add(add);
+                }
+            } catch (Exception ex) {
+                MSearchLog.fehlerMeldung(-896234580, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.addToList", ex);
             }
         }
     }
@@ -396,6 +435,15 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 }
             }
 
+            return "";
+        }
+    }
+
+    public static String getGestern(int tage) {
+        try {
+            SimpleDateFormat sdfOut = new SimpleDateFormat("EEEE", Locale.US);
+            return sdfOut.format(new Date(new Date().getTime() - tage * (1000 * 60 * 60 * 24)));
+        } catch (Exception ex) {
             return "";
         }
     }

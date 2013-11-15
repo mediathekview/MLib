@@ -34,7 +34,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
     public static final String SENDER = "SWR";
 
     public MediathekSwr(MSearchFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 1000, startPrio);
+        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 2000, startPrio);
     }
 
     //===================================
@@ -127,7 +127,8 @@ public class MediathekSwr extends MediathekReader implements Runnable {
 
         private void themenSeitenSuchen(String strUrlFeed, String thema) {
             final String MUSTER_URL = "<li><a class=\"plLink\" href=\"player.htm?show=";
-            strSeite1 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, strSeite1, thema);
+            //strSeite1 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, strSeite1, thema);
+            strSeite1 = getUrl.getUri(nameSenderMReader, strUrlFeed, MSearchConst.KODIERUNG_UTF, 2 /* versuche */, strSeite1, thema);
             meldung(strUrlFeed);
             int pos1 = 0;
             int pos2;
@@ -136,7 +137,12 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             while (!MSearchConfig.getStop() && (pos1 = strSeite1.indexOf(MUSTER_URL, pos1)) != -1) {
                 if (!MSearchConfig.senderAllesLaden) {
                     ++max;
-                    if (max > 5) {
+                    if (max > 2) {
+                        break;
+                    }
+                } else {
+                    ++max;
+                    if (max > 20) {
                         break;
                     }
                 }
@@ -419,7 +425,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             final String MUSTER_KEYWORD_START = "{\"name\":\"entry_keywd\",\"attr\":{\"val\":\"";
             final String MUSTER_KEYWORD_END = "\"},\"sub\":[]}";
 
-            LinkedList<String> keywords = new LinkedList<String>();
+            LinkedList<String> keywords = new LinkedList<>();
             int pos = 0;
             while ((pos = strSeite2.indexOf(MUSTER_KEYWORD_START, pos)) != -1) {
                 pos += MUSTER_KEYWORD_START.length();

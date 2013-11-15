@@ -295,7 +295,7 @@ public class MSearchLog {
             // Exceptions immer ausgeben
             if (progress) {
                 // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
-                System.out.print("                                                                                          \r");
+                System.out.print("                                                                                           \r");
             }
             final String FEHLER = "Fehler(" + MSearchConst.PROGRAMMNAME + "): ";
             String x, z;
@@ -340,7 +340,7 @@ public class MSearchLog {
     private static void debugmeldung(String texte) {
         if (progress) {
             // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
-            System.out.print("                                                                            \r");
+            System.out.print("                                                                                           \r");
         }
         System.out.println("|||| " + texte);
         if (progress) {
@@ -352,7 +352,7 @@ public class MSearchLog {
     private static void systemmeldung(String[] texte) {
         if (progress) {
             // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
-            System.out.print("                                                                            \r");
+            System.out.print("                                                                                           \r");
         }
         final String z = ". ";
         if (texte.length <= 1) {
@@ -412,7 +412,7 @@ public class MSearchLog {
     private static void playermeldung(String[] texte) {
         if (progress) {
             // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
-            System.out.print("                                                                            \r");
+            System.out.print("                                                                                           \r");
         }
         final String z = "  >>";
         System.out.println(z + " " + texte[0]);
