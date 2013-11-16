@@ -381,7 +381,11 @@ public class MSearchFilmlisteLesen {
                     count = 0;
                 }
             }
-            ret = true;
+            if (MSearchConfig.getStop()) {
+                ret = false;
+            } else {
+                ret = true;
+            }
             try {
                 fOut.close();
                 in.close();
@@ -423,7 +427,11 @@ public class MSearchFilmlisteLesen {
                     count = 0;
                 }
             }
-            ret = true;
+            if (MSearchConfig.getStop()) {
+                ret = false;
+            } else {
+                ret = true;
+            }
             try {
                 fOut.close();
                 in.close();

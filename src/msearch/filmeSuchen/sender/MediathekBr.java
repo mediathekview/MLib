@@ -267,7 +267,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                         ++count;
                         laden(urlWeiter, seite2, false);
                         if (count > max) {
-                            MSearchLog.debugMeldung("MediathekBr.laden" + " count max erreicht" + urlThema);
+//                            MSearchLog.debugMeldung("MediathekBr.laden" + " count max erreicht" + urlThema);
                             break;
                         }
                     }

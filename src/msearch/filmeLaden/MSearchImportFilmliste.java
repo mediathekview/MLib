@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.event.EventListenerList;
 import msearch.daten.ListeFilme;
+import msearch.daten.MSearchConfig;
 import msearch.filmeSuchen.MSearchListenerFilmeLaden;
 import msearch.filmeSuchen.MSearchListenerFilmeLadenEvent;
 import msearch.io.MSearchFilmlisteLesen;
@@ -81,6 +82,7 @@ public class MSearchImportFilmliste {
     // Filmeliste importieren, URL automatisch wählen
     // #########################################################
     public void filmeImportierenAuto(String dateiZiel, ListeFilme listeFilme) {
+        MSearchConfig.setStop(false);
         new Thread(new FilmeImportierenAutoThread(dateiZiel, listeFilme)).start();
     }
 
@@ -112,6 +114,11 @@ public class MSearchImportFilmliste {
                             // 3 Versuche mit einer alten Liste sind genug
                             break;
                         }
+                    } else {
+                        // nur wenn nicht abgebrochen, weitermachen
+                        if (MSearchConfig.getStop()) {
+                            break;
+                        }
                     }
                     updateUrl = filmlistenSuchen.listeDownloadUrlsFilmlisten.getRand(versuchteUrls, i); //nächste Adresse in der Liste wählen
                     versuchteUrls.add(updateUrl);
@@ -129,6 +136,7 @@ public class MSearchImportFilmliste {
     // Filmeliste importieren, mit fester URL/Pfad
     // #######################################
     public void filmeImportierenDatei(String pfad, String dateiZiel, ListeFilme listeFilme) {
+        MSearchConfig.setStop(false);
         new Thread(new FilmeImportierenDateiThread(pfad, dateiZiel, listeFilme)).start();
     }
 
