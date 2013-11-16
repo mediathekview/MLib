@@ -314,13 +314,8 @@ public class MSearchFilmlisteLesen {
             while (jp.nextToken() != JsonToken.END_OBJECT) {
                 if (jp.isExpectedStartArrayToken()) {
                     DatenFilm datenFilm = new DatenFilm();
-                    for (int i = 0; i < DatenFilm.MAX_ELEM; ++i) {
-                        if (i == DatenFilm.FILM_ABSPIELEN_NR
-                                || i == DatenFilm.FILM_AUFZEICHNEN_NR) {
-                            // Felder werden nicht in die Liste geschrieben/gelesen
-                            continue;
-                        }
-                        datenFilm.arr[i] = jp.nextTextValue();
+                    for (int i = 0; i < DatenFilm.COLUMN_NAMES_JSON.length; ++i) {
+                        datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] = jp.nextTextValue();
                     }
                     if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals("")) {
                         datenFilm.arr[DatenFilm.FILM_SENDER_NR] = sender;
@@ -447,7 +442,7 @@ public class MSearchFilmlisteLesen {
         String sender = "", thema = "";
         int event_;
         String filmTag = DatenFilm.FILME_;
-        String[] namen = DatenFilm.COLUMN_NAMES_;
+        String[] namen = DatenFilm.COLUMN_NAMES_XML;
         while (!MSearchConfig.getStop() && parser.hasNext()) {
             event_ = parser.next();
             //Filme

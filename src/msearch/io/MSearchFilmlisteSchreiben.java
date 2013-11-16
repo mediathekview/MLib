@@ -87,8 +87,8 @@ public class MSearchFilmlisteSchreiben {
             jg.writeEndArray();
             // Infos der Felder in der Filmliste
             jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
-            for (int i = 0; i < DatenFilm.MAX_ELEM; ++i) {
-                jg.writeString(DatenFilm.COLUMN_NAMES[i]);
+            for (int i = 0; i < DatenFilm.COLUMN_NAMES_JSON.length; ++i) {
+                jg.writeString(DatenFilm.COLUMN_NAMES[DatenFilm.COLUMN_NAMES_JSON[i]]);
             }
             jg.writeEndArray();
             //Filme schreiben
@@ -98,32 +98,24 @@ public class MSearchFilmlisteSchreiben {
             while (iterator.hasNext()) {
                 datenFilm = iterator.next();
                 jg.writeArrayFieldStart(DatenFilm.FILME_);
-                for (int i = 0; i < DatenFilm.MAX_ELEM; ++i) {
-                    if (i == DatenFilm.FILM_ABSPIELEN_NR
-                            || i == DatenFilm.FILM_AUFZEICHNEN_NR) {
-                        // Felder werden nicht in die Liste geschrieben/gelesen
-                        continue;
-                    }
-                    if (i == DatenFilm.FILM_NR_NR) {
-                        jg.writeString("");
-                    } else if (i == DatenFilm.FILM_ABO_NAME_NR) {
-                        jg.writeString("");
-                    } else if (i == DatenFilm.FILM_SENDER_NR) {
-                        if (datenFilm.arr[i].equals(sender)) {
+                for (int i = 0; i < DatenFilm.COLUMN_NAMES_JSON.length; ++i) {
+                    int m = DatenFilm.COLUMN_NAMES_JSON[i];
+                    if (m == DatenFilm.FILM_SENDER_NR) {
+                        if (datenFilm.arr[m].equals(sender)) {
                             jg.writeString("");
                         } else {
-                            sender = datenFilm.arr[i];
-                            jg.writeString(datenFilm.arr[i]);
+                            sender = datenFilm.arr[m];
+                            jg.writeString(datenFilm.arr[m]);
                         }
-                    } else if (i == DatenFilm.FILM_THEMA_NR) {
-                        if (datenFilm.arr[i].equals(thema)) {
+                    } else if (m == DatenFilm.FILM_THEMA_NR) {
+                        if (datenFilm.arr[m].equals(thema)) {
                             jg.writeString("");
                         } else {
-                            thema = datenFilm.arr[i];
-                            jg.writeString(datenFilm.arr[i]);
+                            thema = datenFilm.arr[m];
+                            jg.writeString(datenFilm.arr[m]);
                         }
                     } else {
-                        jg.writeString(datenFilm.arr[i]);
+                        jg.writeString(datenFilm.arr[m]);
                     }
                 }
                 jg.writeEndArray();
@@ -185,7 +177,7 @@ public class MSearchFilmlisteSchreiben {
             writer.writeStartElement(DatenFilm.FELD_INFO);
             writer.writeCharacters("\n");//neue Zeile
             for (int i = 0; i < xmlMax; ++i) {
-                writer.writeStartElement(DatenFilm.COLUMN_NAMES_[i]);
+                writer.writeStartElement(DatenFilm.COLUMN_NAMES_XML[i]);
                 writer.writeCharacters(DatenFilm.COLUMN_NAMES[i]);
                 writer.writeEndElement();
                 writer.writeCharacters("\n");//neue Zeile
@@ -217,7 +209,7 @@ public class MSearchFilmlisteSchreiben {
                 thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
             }
             datenFilmSchreiben.clean();
-            xmlSchreibenDaten(DatenFilm.FILME_, DatenFilm.COLUMN_NAMES_, datenFilmSchreiben.arr);
+            xmlSchreibenDaten(DatenFilm.FILME_, DatenFilm.COLUMN_NAMES_XML, datenFilmSchreiben.arr);
         }
     }
 
