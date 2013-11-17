@@ -163,7 +163,7 @@ public class MSearchFilmeSuchen {
 
     public String[] getNamenSender() {
         // liefert eine Array mit allen Sendernamen
-        LinkedList<String> liste = new LinkedList<String>();
+        LinkedList<String> liste = new LinkedList<>();
         Iterator<MediathekReader> it = mediathekListe.iterator();
         while (it.hasNext()) {
             liste.add(it.next().getNameSender());

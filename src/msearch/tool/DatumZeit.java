@@ -23,12 +23,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import msearch.daten.DatenFilm;
 
 public class DatumZeit {
 
-    private static SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyyHH:mm:ss");
-    private static SimpleDateFormat sdf_datum = new SimpleDateFormat("dd.MM.yyyy");
+//    private static SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyyHH:mm:ss");
+//    private static SimpleDateFormat sdf_datum = new SimpleDateFormat("dd.MM.yyyy");
 
     public static String getJetzt_ddMMyyyy_HHmm() {
         Date today;
@@ -163,35 +162,35 @@ public class DatumZeit {
 //        ret = ret.replace(".", "");
 //        return ret;
 //    }
-    public static Datum getDatumForObject(String datum) {
-        Datum tmp = new Datum(0);
-        if (!datum.equals("")) {
-            try {
-                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-                tmp.setTime(sdf.parse(datum).getTime());
-            } catch (ParseException ex) {
-            }
-        }
-        return tmp;
-    }
+//    public static Datum getDatumForObject(String datum) {
+//        Datum tmp = new Datum(0);
+//        if (!datum.equals("")) {
+//            try {
+//                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+//                tmp.setTime(sdf.parse(datum).getTime());
+//            } catch (ParseException ex) {
+//            }
+//        }
+//        return tmp;
+//    }
 
-    public static Datum getDatumForObject(DatenFilm film) {
-//        SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyyHH:mm:ss");
-//        SimpleDateFormat sdf_datum = new SimpleDateFormat("dd.MM.yyyy");
-        Datum tmp = new Datum(0);
-        if (!film.arr[DatenFilm.FILM_DATUM_NR].equals("")) {
-            try {
-                if (!film.arr[DatenFilm.FILM_ZEIT_NR].equals("")) {
-                    tmp.setTime(sdf_datum_zeit.parse(film.arr[DatenFilm.FILM_DATUM_NR] + film.arr[DatenFilm.FILM_ZEIT_NR]).getTime());
-                } else {
-                    tmp.setTime(sdf_datum.parse(film.arr[DatenFilm.FILM_DATUM_NR]).getTime());
-                }
-            } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(649897321, MSearchLog.FEHLER_ART_PROG, "DatumZeit.getDatumForObject", ex,
-                        new String[]{"Datum: " + film.arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + film.arr[DatenFilm.FILM_ZEIT_NR]});
-            }
-        }
-        return tmp;
-    }
+//    public static Datum getDatumForObject(DatenFilm film) {
+////        SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyyHH:mm:ss");
+////        SimpleDateFormat sdf_datum = new SimpleDateFormat("dd.MM.yyyy");
+//        Datum tmp = new Datum(0);
+//        if (!film.arr[DatenFilm.FILM_DATUM_NR].equals("")) {
+//            try {
+//                if (!film.arr[DatenFilm.FILM_ZEIT_NR].equals("")) {
+//                    tmp.setTime(sdf_datum_zeit.parse(film.arr[DatenFilm.FILM_DATUM_NR] + film.arr[DatenFilm.FILM_ZEIT_NR]).getTime());
+//                } else {
+//                    tmp.setTime(sdf_datum.parse(film.arr[DatenFilm.FILM_DATUM_NR]).getTime());
+//                }
+//            } catch (Exception ex) {
+//                MSearchLog.fehlerMeldung(649897321, MSearchLog.FEHLER_ART_PROG, "DatumZeit.getDatumForObject", ex,
+//                        new String[]{"Datum: " + film.arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + film.arr[DatenFilm.FILM_ZEIT_NR]});
+//            }
+//        }
+//        return tmp;
+//    }
 
 }

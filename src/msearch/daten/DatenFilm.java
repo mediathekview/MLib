@@ -22,7 +22,6 @@ package msearch.daten;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import msearch.tool.Datum;
-import msearch.tool.DatumZeit;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
@@ -31,6 +30,8 @@ import msearch.tool.MSearchUrlDateiGroesse;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 
+    private static SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyyHH:mm:ss");
+    private static SimpleDateFormat sdf_datum = new SimpleDateFormat("dd.MM.yyyy");
     public static final String AUFLOESUNG_NORMAL = "normal";
     public static final String AUFLOESUNG_HD = "hd";
     public static final String AUFLOESUNG_KLEIN = "klein";
@@ -428,9 +429,25 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 MSearchLog.fehlerMeldung(468912049, MSearchLog.FEHLER_ART_PROG, "DatenFilm.init", "Dauer: " + this.arr[DatenFilm.FILM_DAUER_NR]);
             }
             // Datum
-            datumFilm = DatumZeit.getDatumForObject(this);
+            setDatum();
         } catch (Exception ex) {
             MSearchLog.fehlerMeldung(715263987, MSearchLog.FEHLER_ART_PROG, DatenFilm.class.getName() + ".init()", ex);
+        }
+    }
+
+    private void setDatum() {
+        if (!arr[DatenFilm.FILM_DATUM_NR].isEmpty()) {
+            try {
+                if (arr[DatenFilm.FILM_ZEIT_NR].isEmpty()) {
+                    datumFilm = new Datum(sdf_datum.parse(arr[DatenFilm.FILM_DATUM_NR]));
+                } else {
+                    datumFilm = new Datum(sdf_datum_zeit.parse(arr[DatenFilm.FILM_DATUM_NR] + arr[DatenFilm.FILM_ZEIT_NR]));
+                }
+            } catch (Exception ex) {
+                MSearchLog.fehlerMeldung(649897321, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getDatumForObject", ex,
+                        new String[]{"Datum: " + arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + arr[DatenFilm.FILM_ZEIT_NR]});
+                datumFilm = new Datum(0);
+            }
         }
     }
 

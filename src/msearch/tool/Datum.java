@@ -31,6 +31,10 @@ public class Datum extends Date {
         super();
     }
 
+    public Datum(Date date) {
+        super(date.getTime());
+    }
+
     public Datum(long l) {
         super(l);
     }

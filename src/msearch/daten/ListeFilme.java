@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.SimpleTimeZone;
+import java.util.TreeSet;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekKika;
 import msearch.filmeSuchen.sender.MediathekNdr;
@@ -59,10 +60,13 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public int nr = 0;
     public boolean listeClean = false;
     public String[] metaDaten = new String[]{"", "", "", ""};
-    public HashSet<String> hashSet = new HashSet<>();
     final String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
     final String DATUM_ZEIT_FORMAT_REV = "yyyy.MM.dd__HH:mm";
     SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+    public String[] sender = {""};
+    public String[][] themenPerSender = {{""}};
+    public TreeSet<String> treeSet = new TreeSet<>(msearch.tool.GermanStringSorter.getInstance());
+    public HashSet<String> hashSet = new HashSet<>();
 
     public ListeFilme() {
     }
@@ -538,5 +542,69 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         formatter.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
         return formatter.format(new Date());
+    }
+
+    public void themenLaden() {
+        // der erste Sender ist ""
+        sender = getModelOfFieldSender();
+        //für den Sender "" sind alle Themen im themenPerSender[0]
+        themenPerSender = new String[sender.length][];
+        for (int i = 0; i < sender.length; ++i) {
+            themenPerSender[i] = getModelOfFieldThema(sender[i]);
+        }
+    }
+
+    public synchronized String[] getModelOfFieldThema(String sender) {
+        // erstellt ein StringArray der Themen eines Senders oder wenn "sender" leer, aller Sender
+        // ist für die Filterfelder im GuiFilme
+        // doppelte Einträge (bei der Groß- und Kleinschribung) werden entfernt
+        String str, s;
+        treeSet.add("");
+        DatenFilm film;
+        Iterator<DatenFilm> it = iterator();
+        if (sender.equals("")) {
+            //alle Theman
+            while (it.hasNext()) {
+                str = it.next().arr[DatenFilm.FILM_THEMA_NR];
+                //hinzufügen
+                s = str.toLowerCase();
+                if (!hashSet.contains(s)) {
+                    hashSet.add(s);
+                    treeSet.add(str);
+                }
+            }
+        } else {
+            //nur Theman des Senders
+            while (it.hasNext()) {
+                film = it.next();
+                if (film.arr[DatenFilm.FILM_SENDER_NR].equals(sender)) { // Filterstring ist immer "Sender"
+                    //hinzufügen
+                    str = film.arr[DatenFilm.FILM_THEMA_NR];
+                    s = str.toLowerCase();
+                    if (!hashSet.contains(s)) {
+                        hashSet.add(s);
+                        treeSet.add(str);
+                    }
+                }
+            }
+        }
+        hashSet.clear();
+        String[] a = treeSet.toArray(new String[]{});
+        treeSet.clear();
+        return a;
+    }
+
+    public synchronized String[] getModelOfFieldSender() {
+        treeSet.add("");
+        // Sendernamen gibts nur in einer Schreibweise
+        for (DatenFilm film : this) {
+            String str = film.arr[DatenFilm.FILM_SENDER_NR];
+            if (!treeSet.contains(str)) {
+                treeSet.add(str);
+            }
+        }
+        String[] a = treeSet.toArray(new String[]{});
+        treeSet.clear();
+        return a;
     }
 }
