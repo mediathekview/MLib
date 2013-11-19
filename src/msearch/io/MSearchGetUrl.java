@@ -373,6 +373,7 @@ public class MSearchGetUrl {
             inReader = new InputStreamReader(in, kodierung);
             while (!MSearchConfig.getStop() && inReader.read(zeichen) != -1) {
                 seite.append(zeichen);
+                /// genau angeben-> GZIP!!
                 incSeitenZaehler(LISTE_SUMME_BYTE, sender, 1, ladeArt);
             }
         } catch (IOException ex) {
@@ -419,7 +420,7 @@ public class MSearchGetUrl {
     private class MVInputStream extends InputStream {
 
         InputStream in = null;
-        long summe = 0;
+//        long summe = 0;
         int nr = 0;
 
         public MVInputStream(HttpURLConnection con) {
@@ -435,15 +436,14 @@ public class MSearchGetUrl {
             return in;
         }
 
-        public long getSumme() {
-            return summe;
-        }
-
+//        public long getSumme() {
+//            return summe;
+//        }
         @Override
         public int read(byte[] b) throws IOException {
             nr = in.read(b);
             if (nr != -  1) {
-                summe += nr;
+//                summe += nr;
                 summeByte += nr;
             }
             return nr;
@@ -453,7 +453,7 @@ public class MSearchGetUrl {
         public int read() throws IOException {
             nr = in.read();
             if (nr != -  1) {
-                ++summe;
+//                ++summe;
                 ++summeByte;
             }
             return nr;
@@ -463,7 +463,7 @@ public class MSearchGetUrl {
         public int read(byte b[], int off, int len) throws IOException {
             nr = in.read(b, off, len);
             if (nr != -1) {
-                summe += nr;
+//                summe += nr;
                 summeByte += nr;
             }
             return nr;

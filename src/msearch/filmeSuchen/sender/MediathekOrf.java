@@ -26,7 +26,6 @@ package msearch.filmeSuchen.sender;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 import msearch.daten.DatenFilm;
 import msearch.daten.MSearchConfig;
 import msearch.filmeSuchen.MSearchFilmeSuchen;
@@ -56,31 +55,12 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
         listeThemen.clear();
         meldungStart();
-//        if (!MSearchConfig.senderAllesLaden) {
-//            for (int i = 0; i < 5; ++i) {
-//                // 4 Tage zurück
-//                String vorTagen = getGestern(i).toLowerCase();
-//                bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/" + vorTagen, seite);
-//            }
-//        } else {
-//            bearbeiteAdresse(TOPICURL, seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/monday", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/tuesday", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/wednesday", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/thursday", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/friday", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/saturday", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/sunday", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/archiv", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/monday_prev", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/tuesday_prev", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/wednesday_prev", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/thursday_prev", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/friday_prev", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/saturday_prev", seite);
-//            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/last/sunday_prev", seite);
-//        }
-        bearbeiteAdresseKey(seite);
+//////        bearbeiteAdresseThemen(seite);
+        for (int i = 0; i < 5; ++i) {
+            // 4 Tage zurück
+            String vorTagen = getGestern(i).toLowerCase();
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/" + vorTagen, seite);
+        }
         if (MSearchConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
@@ -97,132 +77,35 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         }
     }
 
-//    /**
-//     * @param adresse Starter-URL von dem aus Sendungen gefunden werden
-//     */
-//    private void bearbeiteAdresse(String adresse, MSearchStringBuilder seite) {
-//        //System.out.println("bearbeiteAdresse: " + adresse);
-//        final String MUSTER_URL1 = "<a href=\""; //TH
-//        final String MUSTER_URL2 = "/programs/";
-//        final String MUSTER_URL2b = "/topics/"; //TH
-//        seite = getUrlIo.getUri(nameSenderMReader, adresse, MSearchConst.KODIERUNG_UTF, 3, seite, "");
-//        int pos = 0;
-//        int pos1;
-//        int pos2;
-//        String url = "";
-//        String thema = "";
-//        //Podcasts auslesen
-//        while ((pos = seite.indexOf(MUSTER_URL1, pos)) != -1) {
-//            try {
-//                pos += MUSTER_URL1.length();
-//                //TH
-//                String m = MUSTER_URL2;
-//                int p = seite.indexOf(m, pos);
-//                if (p == -1) {
-//                    // Plan B
-//                    m = MUSTER_URL2b;
-//                    p = seite.indexOf(m, pos);
-//                }
-//                pos = p;
-//                //TH ende
-//                if (pos != -1) {
-//                    pos += m.length(); //TH
-//                    pos1 = pos;
-//                    pos2 = seite.indexOf("\"", pos);
-//                    if (pos1 != -1 && pos2 != -1) {
-//                        url = seite.substring(pos1, pos2);
-//                    }
-//                    //TH neu: " title="ZIB 24: Spott aus Litauen">
-//                    pos1 = seite.indexOf("title=\"", pos) + 6; //TH
-//                    pos2 = seite.indexOf("\">", pos); //TH
-//                    if (pos1 != -1 && pos2 != -1 && pos1 < pos2) {
-//                        thema = seite.substring(pos1 + 1, pos2);
-//                        //TH
-//                        if (thema.endsWith(" aufrufen...")) {
-//                            thema = thema.replace(" aufrufen...", "");
-//                        }
-//                        //TH 31.7.2012
-//                        if (thema.endsWith(" ansehen...")) {
-//                            thema = thema.replace(" ansehen...", "");
-//                        }
-//                    }
-//                    if (url.equals("")) {
-//                        continue;
-//                    }
-//                    String[] add = new String[]{
-//                        ROOTURL + m + url, thema //TH
-//                    };
-//                    if (!istInListe(listeThemen, add[0], 0)) {
-//                        //System.out.println ("URL: " + add[0] + ", Thema: " + add[1]);
-//                        listeThemen.add(add);
-//                    }
-//                } else {
-//                    break; //TH muss sein da muster 2 manchmal nicht fündig - dann Endlosschleife
-//                }
-//            } catch (Exception ex) {
-//                MSearchLog.fehlerMeldung(-896234580, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.addToList", ex);
-//            }
-//        }
-//
-//        //TH 31.7.2012 Rekursive Sonderrunde für weitere topics ("alle Anzeigen")
-//        if (adresse.equals(TOPICURL)) {
-//            final String MUSTERURL_MORE = "<a class=\"more\" href=\"";
-//            pos = 0;
-//            MSearchStringBuilder s2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER); // zum Reduzieren der MVStringBuilder
-//            while ((pos = seite.indexOf(MUSTERURL_MORE, pos)) != -1) {
-//                try {
-//                    pos += MUSTERURL_MORE.length();
-//                    pos1 = pos;
-//                    pos2 = seite.indexOf("\"", pos);
-//                    if (pos1 != -1 && pos2 != -1) {
-//                        url = ROOTURL + seite.substring(pos1, pos2);
-//                        if (!url.equals(adresse)) {
-//                            bearbeiteAdresse(url, s2);
-//                        }
-//                    }
-//                } catch (Exception ex) {
-//                    MSearchLog.fehlerMeldung(-468320478, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.addToList", ex);
-//                }
-//            }
-//        }
-//    }
-//    private void bearbeiteAdresseTag(String adresse, MSearchStringBuilder seite) {
-//        //<td class="episode"><div><a href="/programs/4660163-heute-oesterreich/episodes/7103017-heute-oesterreich" title="heute österreich ansehen...">
-//        final String MUSTER_URL = "<td class=\"episode\"><div><a href=\"";
-//        seite = getUrlIo.getUri(nameSenderMReader, adresse, MSearchConst.KODIERUNG_UTF, 3, seite, "");
-//        int pos = 0;
-//        String url, thema;
-//        while ((pos = seite.indexOf(MUSTER_URL, pos)) != -1) {
-//            try {
-//                pos += MUSTER_URL.length();
-//                url = seite.extract("/programs/", "\"", pos);
-//                thema = seite.extract("title=\"", "\"", pos);
-//                if (thema.endsWith(" aufrufen...")) {
-//                    thema = thema.replace(" aufrufen...", "").trim();
-//                }
-//                if (thema.endsWith(" ansehen...")) {
-//                    thema = thema.replace(" ansehen...", "").trim();
-//                }
-//                if (url.equals("")) {
-//                    continue;
-//                }
-//                String[] add = new String[]{"http://tvthek.orf.at/programs/" + url, thema};
-//                if (!istInListe(listeThemen, add[0], 0)) {
-//                    listeThemen.add(add);
-//                }
-//            } catch (Exception ex) {
-//                MSearchLog.fehlerMeldung(-896234580, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.addToList", ex);
-//            }
-//        }
-//    }
-    private void bearbeiteAdresseKey(MSearchStringBuilder seite) {
-        // <a class="base_list_item_inner" href="http://tvthek.orf.at/programs/letter/R">
+    private void bearbeiteAdresseTag(String adresse, MSearchStringBuilder seite) {
+        // <a href="http://tvthek.orf.at/program/Kultur-heute/3078759/Kultur-Heute/7152535" class="item_inner clearfix">
+        seite = getUrlIo.getUri(nameSenderMReader, adresse, MSearchConst.KODIERUNG_UTF, 2, seite, "");
+        ArrayList<String> al = new ArrayList<>();
+        seite.extractList("<a href=\"http://tvthek.orf.at/program/", "\"", 0, "http://tvthek.orf.at/program/", al);
+        for (String s : al) {
+            String[] add = new String[]{s, "-1"}; // werden extra behandelt
+            if (!istInListe(listeThemen, add[0], 0)) {
+                listeThemen.add(add);
+            }
+        }
+    }
+
+    private void bearbeiteAdresseThemen(MSearchStringBuilder seite) {
+        // <a class="base_list_item_inner icon_align" href="http://tvthek.orf.at/programs/genre/Parlament/3309521">     
         seite = getUrlIo.getUri(nameSenderMReader, "http://tvthek.orf.at/programs", MSearchConst.KODIERUNG_UTF, 3, seite, "");
         ArrayList<String> al = new ArrayList<>();
+        String thema;
         try {
-            seite.extractList("href=\"http://tvthek.orf.at/programs/letter/", "\"", 0, "http://tvthek.orf.at/programs/letter/", al);
+            seite.extractList("<a class=\"base_list_item_inner icon_align\" href=\"http://tvthek.orf.at/programs/genre/", "\"", 0, "", al);
             for (String s : al) {
-                String[] add = new String[]{s, ""};
+                thema = "";
+                if (s.contains("/")) {
+                    thema = s.substring(0, s.indexOf("/"));
+                    if (thema.isEmpty()) {
+                        thema = nameSenderMReader;
+                    }
+                }
+                String[] add = new String[]{"http://tvthek.orf.at/programs/genre/" + s, thema};
                 if (!istInListe(listeThemen, add[0], 0)) {
                     listeThemen.add(add);
                 }
@@ -232,6 +115,22 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         }
     }
 
+//    private void bearbeiteAdresseKey(MSearchStringBuilder seite) {
+//        // <a class="base_list_item_inner" href="http://tvthek.orf.at/programs/letter/R">
+//        seite = getUrlIo.getUri(nameSenderMReader, "http://tvthek.orf.at/programs", MSearchConst.KODIERUNG_UTF, 3, seite, "");
+//        ArrayList<String> al = new ArrayList<>();
+//        try {
+//            seite.extractList("href=\"http://tvthek.orf.at/programs/letter/", "\"", 0, "http://tvthek.orf.at/programs/letter/", al);
+//            for (String s : al) {
+//                String[] add = new String[]{s, ""};
+//                if (!istInListe(listeThemen, add[0], 0)) {
+//                    listeThemen.add(add);
+//                }
+//            }
+//        } catch (Exception ex) {
+//            MSearchLog.fehlerMeldung(-826341789, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.bearbeiteAdresseKey", ex);
+//        }
+//    }
     private class ThemaLaden implements Runnable {
 
         MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
@@ -247,7 +146,12 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 while (!MSearchConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     try {
                         meldungProgress(link[0]);
-                        sendungen(link[0] /* url */);
+                        if (link[1].endsWith("-1")) {
+                            // dann ist von "Tage zurück"
+                            feedEinerSeiteSuchen(link[0], nameSenderMReader);
+                        } else {
+                            sendungen(link[0] /* url */, link[1]);
+                        }
                     } catch (Exception ex) {
                         MSearchLog.fehlerMeldung(-795633581, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.OrfThemaLaden.run", ex);
                     }
@@ -258,7 +162,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         }
 
-        private void sendungen(String url) {
+        private void sendungen(String url, String thema) {
             // <a class="base_list_item_inner" href="http://tvthek.orf.at/programs/letter/R">
             // <a href="http://tvthek.orf.at/program/ZIB-13/71280/ZIB-13/7151714" class="base_list_item_inner icon_align">
             seite1 = getUrlIo.getUri(nameSenderMReader, url, MSearchConst.KODIERUNG_UTF, 2, seite1, "");
@@ -276,11 +180,11 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                     pos1 = pos;
                     while ((pos1 = seite1.indexOf("<a href=\"http://tvthek.orf.at/program/", pos1)) != -1) {
                         // über die eine jeweilige Sendung
-                        if (!MSearchConfig.senderAllesLaden) {
-                            if (count > 3) {
-                                break;
-                            }
-                        }
+//                        if (!MSearchConfig.senderAllesLaden) {
+//                            if (count > 1) {
+//                                break;
+//                            }
+//                        }
                         if (pos1 >= stop) {
                             break;
                         }
@@ -291,7 +195,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                             if (urlFeed.isEmpty()) {
                                 MSearchLog.fehlerMeldung(-915263654, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.sendungen", "keine Url: " + url);
                             } else {
-                                feedEinerSeiteSuchen("http://tvthek.orf.at/program/" + urlFeed);
+                                feedEinerSeiteSuchen("http://tvthek.orf.at/program/" + urlFeed, thema);
                             }
                         }
 
@@ -313,7 +217,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 //                }
 //            }
 //        }
-        private void feedEinerSeiteSuchen(String strUrlFeed) {
+        private void feedEinerSeiteSuchen(String strUrlFeed, String thema) {
             //<title> ORF TVthek: a.viso - 28.11.2010 09:05 Uhr</title>
             seite2 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, seite2, "");
             String datum = "";
@@ -323,13 +227,13 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             String thumbnail = "";
             String tmp;
             String urlRtmpKlein = "", urlRtmp = "", url, urlKlein;
-            String titel = "", thema = "";
+            String titel = "";
             meldung(strUrlFeed);
             thumbnail = seite2.extract("<meta property=\"og:image\" content=\"", "\"");
             thumbnail = thumbnail.replace("&amp;", "&");
-            thema = seite2.extract("<title>", "vom"); //<title>ABC Bär vom 17.11.2013 um 07.35 Uhr / ORF TVthek</title>
-            if (thema.isEmpty()) {
-                thema = nameSenderMReader;
+            titel = seite2.extract("<title>", "vom"); //<title>ABC Bär vom 17.11.2013 um 07.35 Uhr / ORF TVthek</title>
+            if (titel.isEmpty()) {
+                titel = nameSenderMReader;
             }
             datum = seite2.extract("<span class=\"meta meta_date\">", "<");
             if (datum.contains(",")) {
@@ -515,12 +419,12 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
 
         }
-
     }
 
     public static String getGestern(int tage) {
         try {
-            SimpleDateFormat sdfOut = new SimpleDateFormat("EEEE", Locale.US);
+            //SimpleDateFormat sdfOut = new SimpleDateFormat("EEEE", Locale.US);
+            SimpleDateFormat sdfOut = new SimpleDateFormat("dd.MM.yyyy");
             return sdfOut.format(new Date(new Date().getTime() - tage * (1000 * 60 * 60 * 24)));
         } catch (Exception ex) {
             return "";

@@ -286,16 +286,16 @@ public class MSearchLog {
     private static void fehlermeldung_(int fehlerNummer, int art, String klasse, Exception ex, String[] texte) {
         addFehlerNummer(fehlerNummer, art, ex != null);
         if (ex != null || MSearchConfig.debug) {
+            // Exceptions immer ausgeben
+            if (progress) {
+                // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
+                System.out.print("                                                                                           \r");
+            }
             try {
                 String s = getStackTrace(ex);
                 System.out.println(s);
                 logFileSchreiben(new String[]{s});
             } catch (Exception nix) {
-            }
-            // Exceptions immer ausgeben
-            if (progress) {
-                // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
-                System.out.print("                                                                                           \r");
             }
             final String FEHLER = "Fehler(" + MSearchConst.PROGRAMMNAME + "): ";
             String x, z;
