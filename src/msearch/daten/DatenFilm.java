@@ -436,6 +436,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     private void setDatum() {
+//        try {
+//            long l = Long.parseLong("56487956");
+//            datumFilm = new Datum(l);
+//            arr[DatenFilm.FILM_DATUM_NR] = new SimpleDateFormat("dd.MM.yyyy").format(datumFilm);
+//            arr[DatenFilm.FILM_ZEIT_NR] = new SimpleDateFormat("dd.MM.yyyy").format(datumFilm);
+//        } catch (Exception ex) {
+//            datumFilm = new Datum(0);
+//        }
         if (!arr[DatenFilm.FILM_DATUM_NR].isEmpty()) {
             try {
                 if (arr[DatenFilm.FILM_ZEIT_NR].isEmpty()) {

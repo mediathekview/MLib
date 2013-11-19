@@ -19,6 +19,8 @@
  */
 package msearch.tool;
 
+import java.util.ArrayList;
+
 public class MSearchStringBuilder {
 
     private StringBuilder cont;
@@ -76,6 +78,16 @@ public class MSearchStringBuilder {
             }
         }
         return "";
+    }
+
+    public void extractList(String musterStart, String musterEnde, int abPos, String addUrl, ArrayList<String> result) {
+        pos1 = abPos;
+        while ((pos1 = cont.indexOf(musterStart, pos1)) != -1) {
+            pos1 += musterStart.length();
+            if ((pos2 = cont.indexOf(musterEnde, pos1)) != -1) {
+                result.add(addUrl + cont.substring(pos1, pos2));
+            }
+        }
     }
 
     public String extractLast(String musterStart, String musterEnde) {
