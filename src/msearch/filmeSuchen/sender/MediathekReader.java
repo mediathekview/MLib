@@ -19,12 +19,11 @@
  */
 package msearch.filmeSuchen.sender;
 
-import msearch.filmeSuchen.MSearchFilmeSuchen;
 import java.util.Iterator;
 import java.util.LinkedList;
-import msearch.daten.MSearchConfig;
-import msearch.io.MSearchGetUrl;
 import msearch.daten.DatenFilm;
+import msearch.filmeSuchen.MSearchFilmeSuchen;
+import msearch.io.MSearchGetUrl;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSearchLog;
 
@@ -104,12 +103,24 @@ public class MediathekReader implements Runnable {
         //wird überschrieben, hier werden die Filme gesucht
     }
 
-    boolean addFilm(DatenFilm film) {
+    void addFilm(DatenFilm film, boolean nurUrlPruefen) {
+        if (nurUrlPruefen) {
+            if (mSearchFilmeSuchen.listeFilmeNeu.getFilmByUrl(film.arr[DatenFilm.FILM_URL_NR]) == null) {
+                mSearchFilmeSuchen.listeFilmeNeu.addFilmVomSender(film);
+//            } else {
+//                System.out.println("Doppelt");
+            }
+        } else {
+            addFilm(film);
+        }
+    }
+
+    void addFilm(DatenFilm film) {
         if (film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
             //film.arr[DatenFilm.FILM_GROESSE_NR] = MVUrlDateiGroesse.laengeString(film.arr[DatenFilm.FILM_URL_NR]);
             film.arr[DatenFilm.FILM_GROESSE_NR] = mSearchFilmeSuchen.listeFilmeAlt.getDateiGroesse(film.arr[DatenFilm.FILM_URL_NR], film.arr[DatenFilm.FILM_SENDER_NR]);
         }
-        return mSearchFilmeSuchen.listeFilmeNeu.addFilmVomSender(film);
+        mSearchFilmeSuchen.listeFilmeNeu.addFilmVomSender(film);
     }
 
     DatenFilm istInFilmListe(String sender, String thema, String titel) {

@@ -19,10 +19,10 @@
  */
 package msearch.filmeSuchen.sender;
 
+import msearch.daten.DatenFilm;
+import msearch.daten.MSearchConfig;
 import msearch.filmeSuchen.MSearchFilmeSuchen;
 import msearch.io.MSearchGetUrl;
-import msearch.daten.MSearchConfig;
-import msearch.daten.DatenFilm;
 import msearch.tool.DatumZeit;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
@@ -173,8 +173,11 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                             String d = seite.substring(pos5, pos2);
                             if (!d.isEmpty()) {
                                 try {
-                                    // 00:00:10
-                                    if (d.contains(":")) {
+                                    if (d.contains(".")) {
+                                        d = d.replace(".", ""); // sind dann ms
+                                        duration = Long.parseLong(d);
+                                        duration = duration / 1000;
+                                    } else if (d.contains(":")) {
                                         duration = 0;
                                         String[] parts = d.split(":");
                                         long power = 1;

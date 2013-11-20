@@ -3,9 +3,6 @@
  * Copyright (C) 2008 W. Xaver
  * W.Xaver[at]googlemail.com
  *
- * thausherr
- *
- *
  * http://zdfmediathk.sourceforge.net/
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,18 +26,17 @@ import java.util.Date;
 import msearch.daten.DatenFilm;
 import msearch.daten.MSearchConfig;
 import msearch.filmeSuchen.MSearchFilmeSuchen;
+import static msearch.filmeSuchen.sender.MediathekReader.listeSort;
 import msearch.io.MSearchGetUrl;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchStringBuilder;
+import org.apache.commons.lang3.StringEscapeUtils;
 
-/**
- *
- * @author
- */
 public class MediathekOrf extends MediathekReader implements Runnable {
 
     public static final String SENDER = "ORF";
+    private static final String THEMA_TAG = "-1";
 
     /**
      *
@@ -55,9 +51,10 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
         listeThemen.clear();
         meldungStart();
-//////        bearbeiteAdresseThemen(seite);
-        for (int i = 0; i < 5; ++i) {
-            // 4 Tage zurück
+        bearbeiteAdresseThemen(seite);
+        listeSort(listeThemen, 1);
+        int maxTage = MSearchConfig.senderAllesLaden ? 9 : 3;
+        for (int i = 0; i < maxTage; ++i) {
             String vorTagen = getGestern(i).toLowerCase();
             bearbeiteAdresseTag("http://tvthek.orf.at/schedule/" + vorTagen, seite);
         }
@@ -67,7 +64,6 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         } else {
             meldungAddMax(listeThemen.size());
-            listeSort(listeThemen, 1);
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
@@ -83,7 +79,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         ArrayList<String> al = new ArrayList<>();
         seite.extractList("<a href=\"http://tvthek.orf.at/program/", "\"", 0, "http://tvthek.orf.at/program/", al);
         for (String s : al) {
-            String[] add = new String[]{s, "-1"}; // werden extra behandelt
+            String[] add = new String[]{s, THEMA_TAG}; // werden extra behandelt
             if (!istInListe(listeThemen, add[0], 0)) {
                 listeThemen.add(add);
             }
@@ -146,9 +142,9 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 while (!MSearchConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     try {
                         meldungProgress(link[0]);
-                        if (link[1].endsWith("-1")) {
+                        if (link[1].equals(THEMA_TAG)) {
                             // dann ist von "Tage zurück"
-                            feedEinerSeiteSuchen(link[0], nameSenderMReader);
+                            feedEinerSeiteSuchen(link[0], THEMA_TAG);
                         } else {
                             sendungen(link[0] /* url */, link[1]);
                         }
@@ -168,7 +164,8 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             seite1 = getUrlIo.getUri(nameSenderMReader, url, MSearchConst.KODIERUNG_UTF, 2, seite1, "");
             int start = seite1.indexOf("<h3 class=\"subheadline\">Verfügbare Sendungen</h3>");
             int stop;
-            int pos, pos1, pos2, count = 0;
+            int pos, pos1, pos2, count;
+            int maxCount = 3;
             String urlFeed;
             if (start > 0) {
                 pos = start;
@@ -180,11 +177,11 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                     pos1 = pos;
                     while ((pos1 = seite1.indexOf("<a href=\"http://tvthek.orf.at/program/", pos1)) != -1) {
                         // über die eine jeweilige Sendung
-//                        if (!MSearchConfig.senderAllesLaden) {
-//                            if (count > 1) {
-//                                break;
-//                            }
-//                        }
+                        if (!MSearchConfig.senderAllesLaden) {
+                            if (count > maxCount) {
+                                break;
+                            }
+                        }
                         if (pos1 >= stop) {
                             break;
                         }
@@ -204,21 +201,13 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             }
         }
 
-//        private void sendungen(String url) {
-//            // <a class="base_list_item_inner" href="http://tvthek.orf.at/programs/letter/R">
-//            // <a href="http://tvthek.orf.at/program/ZIB-11/71276/ZIB-11/7140823" class="base_list_item_inner icon_align">  
-//            seite1 = getUrlIo.getUri(nameSenderMReader, url, MSearchConst.KODIERUNG_UTF, 2, seite1, "");
-//            seite1.extractList("<a href=\"http://tvthek.orf.at/program/", "\"", 0, "http://tvthek.orf.at/program/", al);
-//            if (al.isEmpty()) {
-//                MSearchLog.fehlerMeldung(-915263654, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.sendungen", "keine Url: " + url);
-//            } else {
-//                for (String s : al) {
-//                    feedEinerSeiteSuchen(s);
-//                }
-//            }
-//        }
         private void feedEinerSeiteSuchen(String strUrlFeed, String thema) {
             //<title> ORF TVthek: a.viso - 28.11.2010 09:05 Uhr</title>
+            boolean nurUrlPruefen = false;
+            if (thema.equals(THEMA_TAG)) {
+                nurUrlPruefen = true;
+                thema = nameSenderMReader;
+            }
             seite2 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, seite2, "");
             String datum = "";
             String zeit = "";
@@ -228,6 +217,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             String tmp;
             String urlRtmpKlein = "", urlRtmp = "", url, urlKlein;
             String titel = "";
+            int posStart, posStop, pos = 0;
             meldung(strUrlFeed);
             thumbnail = seite2.extract("<meta property=\"og:image\" content=\"", "\"");
             thumbnail = thumbnail.replace("&amp;", "&");
@@ -244,180 +234,111 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             if (zeit.length() == 5) {
                 zeit = zeit.replace(".", ":") + ":00";
             }
-            description = seite2.extract("<div class=\"details_description\">", "<");
-            tmp = seite2.extract("\"duration\":\"", "\"");
-            try {
-                duration = Long.parseLong(tmp) / 1000; // time in milliseconds
-            } catch (Exception ex) {
-            }
-            url = seite2.extract("quality\":\"Q6A\",\"quality_string\":\"hoch\",\"src\":\"rtmp", "\"");
-            url = url.replace("\\/", "/");
-            if (!url.isEmpty()) {
-                url = "rtmp" + url;
-                int mpos = url.indexOf("mp4:");
-                if (mpos != -1) {
-                    urlRtmp = "-r " + url + " -y " + url.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
-                }
-            }
-            urlKlein = seite2.extract("quality\":\"Q4A\",\"quality_string\":\"mittel\",\"src\":\"rtmp", "\"");
-            urlKlein = urlKlein.replace("\\/", "/");
-            if (!urlKlein.isEmpty()) {
-                urlKlein = "rtmp" + urlKlein;
-                int mpos = urlKlein.indexOf("mp4:");
-                if (mpos != -1) {
-                    urlRtmpKlein = "-r " + urlKlein + " -y " + urlKlein.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
-                }
-            }
-            //rtmp://apasfw.apa.at/cms-worldwide/mp4:2012-09-09_1305_tl_23_UNGARISCHES-MAGAZIN_Beszelgetes-Szabo-Er__4582591__o__0000214447__s4588253___n__BHiRes_13241400P_13280400P_Q6A.mp4
-            //flvr=WIN11,4,402,265
-            //app=cms-worldwide/
-            //swfUrl=http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf
-            //tcUrl=rtmp://apasfw.apa.at/%app%
-            //play=mp4:1950-01-01_1200_in_00_Ungarnkrise-1956_____3230831__o__0000936285__s3230833___Q6A.mp4
-            //flvstreamer --resume --rtmp %tcUrl% --flashVer %flvr% --app %app% --swfUrl %swfUrl% --playpath %play% --flv %Ziel%
+            if ((posStart = seite2.indexOf("\"is_one_segment_episode\":false")) != -1) {
+                if ((posStop = seite2.indexOf("</script>", posStart)) != -1) {
+                    // =====================================================
+                    // mehrer Episoden
+                    thema = titel;
+                    while ((pos = seite2.indexOf("\"is_episode_one_segment_episode\":false", pos)) != -1) {
+                        if (pos > posStop) {
+                            break;
+                        }
+                        pos += "\"is_episode_one_segment_episode\":false".length();
+                        tmp = seite2.extract("\"duration\":\"", "\"");
+                        try {
+                            duration = Long.parseLong(tmp) / 1000; // time in milliseconds
+                        } catch (Exception ex) {
+                        }
+                        titel = seite2.extract("\"header\":\"", "\",", pos); //"header":"Lehrerdienstrecht beschlossen"
+//                        titel = GuiFunktionen.utf8(titel);
+                        if (!titel.equals(StringEscapeUtils.unescapeJava(titel))) {
+                            titel = StringEscapeUtils.unescapeJava(titel).trim();
+                        }
 
-            //public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
-            //        String datum, String zeit,
-            //        long dauerSekunden, String description, String imageUrl, String[] keywords) {
-
-            if (!url.isEmpty()) {
-                DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, urlRtmp, datum, zeit, duration, description,
-                        thumbnail, new String[]{});
-                if (!urlKlein.isEmpty()) {
-                    film.addUrlKlein(urlKlein, urlRtmpKlein);
+                        description = seite2.extract("\"description\":\"", "\"", pos);
+                        if (!description.equals(StringEscapeUtils.unescapeJava(description))) {
+                            description = StringEscapeUtils.unescapeJava(description).trim();
+                        }
+                        url = seite2.extract("quality\":\"Q6A\",\"quality_string\":\"hoch\",\"src\":\"rtmp", "\"", pos);
+                        url = url.replace("\\/", "/");
+                        if (!url.isEmpty()) {
+                            url = "rtmp" + url;
+                            int mpos = url.indexOf("mp4:");
+                            if (mpos != -1) {
+                                urlRtmp = "-r " + url + " -y " + url.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
+                            }
+                        }
+                        urlKlein = seite2.extract("quality\":\"Q4A\",\"quality_string\":\"mittel\",\"src\":\"rtmp", "\"", pos);
+                        urlKlein = urlKlein.replace("\\/", "/");
+                        if (!urlKlein.isEmpty()) {
+                            urlKlein = "rtmp" + urlKlein;
+                            int mpos = urlKlein.indexOf("mp4:");
+                            if (mpos != -1) {
+                                urlRtmpKlein = "-r " + urlKlein + " -y " + urlKlein.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
+                            }
+                        }
+                        if (!url.isEmpty()) {
+                            DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, urlRtmp, datum, zeit, duration, description,
+                                    thumbnail, new String[]{});
+                            if (!urlKlein.isEmpty()) {
+                                film.addUrlKlein(urlKlein, urlRtmpKlein);
+                            }
+                            addFilm(film, nurUrlPruefen);
+                        } else {
+                            MSearchLog.fehlerMeldung(-989532147, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.feedEinerSeiteSuchen", "keine Url: " + strUrlFeed);
+                        }
+                    }
                 }
-                addFilm(film);
             } else {
-                MSearchLog.fehlerMeldung(-102365478, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.feedEinerSeiteSuchen", "keine Url: " + strUrlFeed);
+                // =====================================================
+                // dann gibts nur einen Film
+                description = seite2.extract("<div class=\"details_description\">", "<");
+                tmp = seite2.extract("\"duration\":\"", "\"");
+                try {
+                    duration = Long.parseLong(tmp) / 1000; // time in milliseconds
+                } catch (Exception ex) {
+                }
+                url = seite2.extract("quality\":\"Q6A\",\"quality_string\":\"hoch\",\"src\":\"rtmp", "\"");
+                url = url.replace("\\/", "/");
+                if (!url.isEmpty()) {
+                    url = "rtmp" + url;
+                    int mpos = url.indexOf("mp4:");
+                    if (mpos != -1) {
+                        urlRtmp = "-r " + url + " -y " + url.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
+                    }
+                }
+                urlKlein = seite2.extract("quality\":\"Q4A\",\"quality_string\":\"mittel\",\"src\":\"rtmp", "\"");
+                urlKlein = urlKlein.replace("\\/", "/");
+                if (!urlKlein.isEmpty()) {
+                    urlKlein = "rtmp" + urlKlein;
+                    int mpos = urlKlein.indexOf("mp4:");
+                    if (mpos != -1) {
+                        urlRtmpKlein = "-r " + urlKlein + " -y " + urlKlein.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
+                    }
+                }
+                //rtmp://apasfw.apa.at/cms-worldwide/mp4:2012-09-09_1305_tl_23_UNGARISCHES-MAGAZIN_Beszelgetes-Szabo-Er__4582591__o__0000214447__s4588253___n__BHiRes_13241400P_13280400P_Q6A.mp4
+                //flvr=WIN11,4,402,265
+                //app=cms-worldwide/
+                //swfUrl=http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf
+                //tcUrl=rtmp://apasfw.apa.at/%app%
+                //play=mp4:1950-01-01_1200_in_00_Ungarnkrise-1956_____3230831__o__0000936285__s3230833___Q6A.mp4
+                //flvstreamer --resume --rtmp %tcUrl% --flashVer %flvr% --app %app% --swfUrl %swfUrl% --playpath %play% --flv %Ziel%
+
+                //public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
+                //        String datum, String zeit,
+                //        long dauerSekunden, String description, String imageUrl, String[] keywords) {
+
+                if (!url.isEmpty()) {
+                    DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, urlRtmp, datum, zeit, duration, description,
+                            thumbnail, new String[]{});
+                    if (!urlKlein.isEmpty()) {
+                        film.addUrlKlein(urlKlein, urlRtmpKlein);
+                    }
+                    addFilm(film, nurUrlPruefen);
+                } else {
+                    MSearchLog.fehlerMeldung(-102365478, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.feedEinerSeiteSuchen", "keine Url: " + strUrlFeed);
+                }
             }
-
-
-//            //TH ggf. Trennen in Thema und Titel
-//            int dp = thema.indexOf(": ");
-//            if (dp != -1) {
-//                thema = thema.substring(0, dp);
-//            }//TH titel und thema getrennt
-//
-//            //TH 27.8.2012 JS XML Variable auswerten
-//            final String MUSTER_FLASH = "ORF.flashXML = '";
-//            if ((pos = seite2.indexOf(MUSTER_FLASH)) != -1) {
-//                if ((pos2 = seite2.indexOf("'", pos + MUSTER_FLASH.length())) != -1) {
-//                    String xml = seite2.substring(pos + MUSTER_FLASH.length(), pos2);
-//                    try {
-//                        xml = URLDecoder.decode(xml, "UTF-8");
-//                        DocumentBuilder docBuilder = null;
-//                        docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-//                        Document doc = docBuilder.parse(new InputSource(new StringReader(xml)));
-//                        Node rootNode = doc.getDocumentElement();
-//                        String alternateDescription = extractAlternateDescriptionText(rootNode);
-//                        NodeList nodeList = rootNode.getChildNodes();
-//                        for (int i = 0; i < nodeList.getLength(); ++i) {
-//                            Node Item = nodeList.item(i);
-//                            if ("Playlist".equals(Item.getNodeName())) {
-//                                NodeList childNodeList = Item.getChildNodes();
-//                                for (int j = 0; j < childNodeList.getLength(); ++j) {
-//                                    Node childItem = childNodeList.item(j);
-//                                    if ("Items".equals(childItem.getNodeName())) {
-//                                        NodeList childNodeList2 = childItem.getChildNodes();
-//                                        for (int k = 0; k < childNodeList2.getLength(); ++k) {
-//                                            Node childItem2 = childNodeList2.item(k);
-//                                            if ("Item".equals(childItem2.getNodeName())) {
-//                                                String url = "", url_klein = "";
-//                                                String titel = "";
-//                                                duration = 0;
-//                                                description = "";
-//                                                descriptionParsed = false;
-//                                                NodeList childNodeList3 = childItem2.getChildNodes();
-//                                                for (int l = 0; l < childNodeList3.getLength(); ++l) {
-//                                                    Node childItem3 = childNodeList3.item(l);
-//                                                    if ("Title".equals(childItem3.getNodeName())) {
-//                                                        titel = childItem3.getTextContent();
-//                                                    }
-//                                                    if ("VideoUrl".equals(childItem3.getNodeName())) {
-//                                                        String quality = null;
-//                                                        NamedNodeMap namedNodeMap = childItem3.getAttributes();
-//                                                        if (namedNodeMap != null) {
-//                                                            Node node = namedNodeMap.getNamedItem("quality");
-//                                                            if (node != null) {
-//                                                                quality = node.getNodeValue();
-//                                                            }
-//                                                        }
-//                                                        // "Q1A"-Qualität nehmen
-//                                                        if ("Q1A".equals(quality)) {
-//                                                            url_klein = childItem3.getTextContent();
-//                                                        }
-//                                                        // "SMIL"-Qualität nehmen, oder "keine Qualität"
-//                                                        if ((quality == null && titel.isEmpty()) || "SMIL".equals(quality)) {
-//                                                            url = childItem3.getTextContent();
-//                                                        }
-//                                                    }
-//                                                    if (("Duration").equals(childItem3.getNodeName())) {
-//                                                        String d = childItem3.getTextContent();
-//                                                        try {
-//                                                            if (!d.equals("")) {
-//                                                                duration = Long.parseLong(d) / 1000; // time in milliseconds
-//                                                            }
-//                                                        } catch (Exception ex) {
-//                                                            MSearchLog.fehlerMeldung(-918593079, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.feedEinerSeiteSuchen", ex);
-//                                                        }
-//                                                    }
-//
-//                                                    if ("Description".equals(childItem3.getNodeName())) {
-//                                                        description = childItem3.getTextContent();
-//                                                        description = StringEscapeUtils.unescapeJava(description).trim();
-//
-//                                                        // Some items do not contain a description (the Description tag is
-//                                                        // empty but their normally contain a description in the Text tag in
-//                                                        // embeded inside the AdditionalInfo tag in the root element.
-//                                                        if (description.length() == 0) {
-//                                                            description = alternateDescription;
-//                                                        }
-//                                                    }
-//                                                }
-//                                                if (!url.isEmpty() && !titel.isEmpty()) {
-//                                                    String urlRtmp = "", urlRtmp_klein = "";
-//                                                    int mpos = url.indexOf("mp4:");
-//                                                    if (mpos != -1) {
-//                                                        urlRtmp = "-r " + url + " -y " + url.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
-//                                                    }
-//                                                    if (!url_klein.isEmpty()) {
-//                                                        mpos = url_klein.indexOf("mp4:");
-//                                                        if (mpos != -1) {
-//                                                            urlRtmp_klein = "-r " + url_klein + " -y " + url_klein.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
-//                                                        }
-//
-//                                                    }
-//                                                    //rtmp://apasfw.apa.at/cms-worldwide/mp4:2012-09-09_1305_tl_23_UNGARISCHES-MAGAZIN_Beszelgetes-Szabo-Er__4582591__o__0000214447__s4588253___n__BHiRes_13241400P_13280400P_Q6A.mp4
-//                                                    //flvr=WIN11,4,402,265
-//                                                    //app=cms-worldwide/
-//                                                    //swfUrl=http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf
-//                                                    //tcUrl=rtmp://apasfw.apa.at/%app%
-//                                                    //play=mp4:1950-01-01_1200_in_00_Ungarnkrise-1956_____3230831__o__0000936285__s3230833___Q6A.mp4
-//                                                    //flvstreamer --resume --rtmp %tcUrl% --flashVer %flvr% --app %app% --swfUrl %swfUrl% --playpath %play% --flv %Ziel%
-//
-//                                                    //addFilm(new DatenFilm(senderName, thema, strUrlFeed, titel, url, datum, zeit));
-////                                                    addFilm(new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, urlRtmp, datum, zeit));
-//                                                    DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, urlRtmp, datum, zeit, duration, description,
-//                                                            thumbnail, new String[]{});
-//                                                    film.addUrlKlein(url_klein, urlRtmp_klein);
-//                                                    addFilm(film);
-//
-//                                                }
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    } catch (SAXException ex) {
-//                        MSearchLog.fehlerMeldung(-643206531, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.feedEinerSeiteSuchen", ex);
-//                    } catch (IOException ex) {
-//                        MSearchLog.fehlerMeldung(-201456987, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.feedEinerSeiteSuchen", ex);
-//                    } catch (ParserConfigurationException ex) {
-//                        MSearchLog.fehlerMeldung(-121036907, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.feedEinerSeiteSuchen", ex);
-//                    }
-
-
         }
     }
 

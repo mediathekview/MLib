@@ -291,12 +291,6 @@ public class MSearchLog {
                 // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
                 System.out.print("                                                                                           \r");
             }
-            try {
-                String s = getStackTrace(ex);
-                System.out.println(s);
-                logFileSchreiben(new String[]{s});
-            } catch (Exception nix) {
-            }
             final String FEHLER = "Fehler(" + MSearchConst.PROGRAMMNAME + "): ";
             String x, z;
             if (ex != null) {
@@ -319,6 +313,13 @@ public class MSearchLog {
                     z = "*";
             }
             System.out.println(x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x);
+            try {
+                String s = getStackTrace(ex);
+                System.out.println(s);
+                logFileSchreiben(new String[]{s});
+            } catch (Exception nix) {
+            }
+            //System.out.println(x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x);
             System.out.println(z + " Fehlernr: " + fehlerNummer);
             if (ex != null) {
                 System.out.println(z + " Exception: " + ex.getMessage());

@@ -116,8 +116,6 @@ public class MSearchUrlDateiGroesse {
                             //ret = conn.getContentLength();
                             conn.disconnect();
                             if (ret > 0) {
-                                ///
-                                MSearchLog.fehlerMeldung(698965431, MSearchLog.FEHLER_ART_GETURL, MSearchUrlDateiGroesse.class.getName(), "--->Proxy: OK");
                                 countArray(anzProxy, ssender);
                             }
                         } catch (Exception ex) {
@@ -129,7 +127,11 @@ public class MSearchUrlDateiGroesse {
             }
         } catch (Exception ex) {
             ret = -1;
-            MSearchLog.fehlerMeldung(643298301, MSearchLog.FEHLER_ART_PROG, "StarterClass.StartenDownload.laenge", ex);
+            if (ex.getMessage().equals("Read timed out")) {
+                MSearchLog.fehlerMeldung(825141452, MSearchLog.FEHLER_ART_PROG, "StarterClass.StartenDownload.laenge", "Read timed out: " + ssender);
+            } else {
+                MSearchLog.fehlerMeldung(643298301, MSearchLog.FEHLER_ART_PROG, "StarterClass.StartenDownload.laenge", ex);
+            }
         }
         if (ret < 300 * 1024) {
             // alles unter 300k sind Playlisten, ...
