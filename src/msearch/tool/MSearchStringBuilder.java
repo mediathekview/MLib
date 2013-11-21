@@ -54,6 +54,10 @@ public class MSearchStringBuilder {
         cont.append(str);
     }
 
+    public synchronized void append(char[] str, int offset, int len) {
+        cont.append(str, offset, len);
+    }
+
     public synchronized void setLength(int newLength) {
         cont.setLength(newLength);
     }

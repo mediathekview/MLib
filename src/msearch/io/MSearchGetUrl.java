@@ -297,11 +297,8 @@ public class MSearchGetUrl {
 
     private synchronized MSearchStringBuilder getUri(String sender, String addr, MSearchStringBuilder seite, String kodierung, int timeout, String meldung, int versuch, boolean lVersuch) {
         int timeo = timeout;
-        boolean proxyB = false;
-        char[] zeichen = new char[1];
         seite.setLength(0);
         HttpURLConnection conn = null;
-        int code = 0;
         InputStream in = null;
         InputStreamReader inReader = null;
         int retCode;
@@ -371,11 +368,18 @@ public class MSearchGetUrl {
                 in = mvIn;
             }
             inReader = new InputStreamReader(in, kodierung);
-            while (!MSearchConfig.getStop() && inReader.read(zeichen) != -1) {
-                seite.append(zeichen);
-                /// genau angeben-> GZIP!!
-                incSeitenZaehler(LISTE_SUMME_BYTE, sender, 1, ladeArt);
+//            char[] zeichen = new char[1];
+//            while (!MSearchConfig.getStop() && inReader.read(zeichen) != -1) {
+//                // hier wird andlich geladen
+//                seite.append(zeichen);
+//            }
+            char[] buffer = new char[1024];
+            int n = 0;
+            while (!MSearchConfig.getStop() && (n = inReader.read(buffer)) != -1) {
+                // hier wird andlich geladen
+                seite.append(buffer, 0, n);
             }
+            incSeitenZaehler(LISTE_SUMME_BYTE, sender, mvIn.summe, ladeArt);
         } catch (IOException ex) {
             if (conn != null) {
                 try {
@@ -420,7 +424,7 @@ public class MSearchGetUrl {
     private class MVInputStream extends InputStream {
 
         InputStream in = null;
-//        long summe = 0;
+        long summe = 0;
         int nr = 0;
 
         public MVInputStream(HttpURLConnection con) {
@@ -436,25 +440,26 @@ public class MSearchGetUrl {
             return in;
         }
 
-//        public long getSumme() {
-//            return summe;
-//        }
-        @Override
-        public int read(byte[] b) throws IOException {
-            nr = in.read(b);
-            if (nr != -  1) {
-//                summe += nr;
-                summeByte += nr;
-            }
-            return nr;
+        public long getSumme() {
+            return summe;
         }
 
         @Override
         public int read() throws IOException {
             nr = in.read();
             if (nr != -  1) {
-//                ++summe;
+                ++summe;
                 ++summeByte;
+            }
+            return nr;
+        }
+
+        @Override
+        public int read(byte[] b) throws IOException {
+            nr = in.read(b);
+            if (nr != -  1) {
+                summe += nr;
+                summeByte += nr;
             }
             return nr;
         }
@@ -463,7 +468,7 @@ public class MSearchGetUrl {
         public int read(byte b[], int off, int len) throws IOException {
             nr = in.read(b, off, len);
             if (nr != -1) {
-//                summe += nr;
+                summe += nr;
                 summeByte += nr;
             }
             return nr;
