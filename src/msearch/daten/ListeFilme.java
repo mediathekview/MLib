@@ -57,7 +57,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public static final int FILMLISTE_PRGRAMM_NR = 3;
     public static final int MAX_ELEM = 4;
     public static final String[] COLUMN_NAMES = {FILMLISTE_DATUM, FILMLISTE_DATUM_GMT, FILMLISTE_VERSION, FILMLISTE_PROGRAMM};
-    public int nr = 0;
+    public int nr = 1;
     public boolean listeClean = false;
     public String[] metaDaten = new String[]{"", "", "", ""};
     final String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
@@ -77,7 +77,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     @Override
     public synchronized void clear() {
         hashSet.clear();
-        nr = 0;
+        nr = 1;
         super.clear();
     }
 
@@ -99,13 +99,28 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // und jetzt noch die Nummerierung in Ordnung bringen
         Iterator<DatenFilm> it = this.iterator();
         DatenFilm film;
-        int i = 0;
+        int i = 1;
         while (it.hasNext()) {
             film = it.next();
-            film.arr[DatenFilm.FILM_NR_NR] = getNr(i++);
+            film.nr = i++;
         }
     }
 
+    public synchronized boolean addWithNr(DatenFilm film) {
+        // hier nur beim Laden von der Filmliste
+        film.nr = nr++;
+        return addInit(film);
+    }
+
+//    private String getNr(int nr) {
+//        final int MAX_STELLEN = 5;
+//        final String FUELL_ZEICHEN = "0";
+//        String str = String.valueOf(nr);
+//        while (str.length() < MAX_STELLEN) {
+//            str = FUELL_ZEICHEN + str;
+//        }
+//        return str;
+//    }
     public synchronized void setMeta(String[] mmeta) {
         for (int i = 0; i < MAX_ELEM; ++i) {
             metaDaten[i] = mmeta[i].toString();
@@ -274,22 +289,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 //            film.arr[DatenFilm.FILM_KEYWORDS_NR] = "";
 //        }
         return super.add(film);
-    }
-
-    public synchronized boolean addWithNr(DatenFilm film) {
-        // hier nur beim Laden von der Filmliste
-        film.arr[DatenFilm.FILM_NR_NR] = getNr(nr++);
-        return addInit(film);
-    }
-
-    private String getNr(int nr) {
-        final int MAX_STELLEN = 5;
-        final String FUELL_ZEICHEN = "0";
-        String str = String.valueOf(nr);
-        while (str.length() < MAX_STELLEN) {
-            str = FUELL_ZEICHEN + str;
-        }
-        return str;
     }
 
     public synchronized int countSender(String sender) {
