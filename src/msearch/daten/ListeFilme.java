@@ -395,6 +395,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
     public synchronized DatenFilm getFilmByNr(String nr) {
+        // die Zählung beginnt bei 1 !!!!!
         int n = 0;
         try {
             n = Integer.parseInt(nr);
@@ -403,7 +404,17 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             return null;
         }
         try {
-            return this.get(n);
+            return this.get(--n);
+        } catch (Exception ex) {
+            MSearchLog.fehlerMeldung(203647098, MSearchLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
+            return new DatenFilm();
+        }
+    }
+
+    public synchronized DatenFilm getFilmByNr(int nr) {
+        // die Zählung beginnt bei 1 !!!!!
+        try {
+            return this.get(--nr);
         } catch (Exception ex) {
             MSearchLog.fehlerMeldung(203647098, MSearchLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
             return new DatenFilm();

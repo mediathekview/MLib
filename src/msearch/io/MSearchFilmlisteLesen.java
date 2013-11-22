@@ -316,6 +316,10 @@ public class MSearchFilmlisteLesen {
                     DatenFilm datenFilm = new DatenFilm();
                     for (int i = 0; i < DatenFilm.COLUMN_NAMES_JSON.length; ++i) {
                         datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] = jp.nextTextValue();
+                        /// für die Entwicklungszeit
+                        if (datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] == null) {
+                            datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] = "";
+                        }
                     }
                     if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals("")) {
                         datenFilm.arr[DatenFilm.FILM_SENDER_NR] = sender;

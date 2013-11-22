@@ -145,7 +145,7 @@ public class Search implements Runnable {
         });
         // laden was es schon gibt
         //Daten.ioXmlFilmlisteLesen.filmlisteLesen(Daten.getBasisVerzeichnis() + Konstanten.XML_DATEI_FILME, false /* istUrl */, Daten.listeFilme);
-        new MSearchFilmlisteLesen().filmlisteLesenXml(MSearchConfig.dateiFilmliste, listeFilme);
+        new MSearchFilmlisteLesen().filmlisteLesenJson(MSearchConfig.dateiFilmliste, "", listeFilme);
         // das eigentliche Suchen der Filme bei den Sendern starten
         if (MSearchConfig.nurSenderLaden == null) {
             mSearchFilmeSuchen.filmeBeimSenderLaden(listeFilme);
@@ -187,7 +187,7 @@ public class Search implements Runnable {
             tmpListe.sort(); // jetzt sollte alles passen
             listeFilme = tmpListe;
         }
-        new MSearchFilmlisteSchreiben().filmlisteSchreibenXml(MSearchConfig.dateiFilmliste, listeFilme);
+        new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.dateiFilmliste, listeFilme);
         if (!MSearchConfig.exportFilmlisteXml.equals("")) {
             //datei schreiben
             new MSearchFilmlisteSchreiben().filmlisteSchreibenXml(MSearchConfig.exportFilmlisteXml, listeFilme);

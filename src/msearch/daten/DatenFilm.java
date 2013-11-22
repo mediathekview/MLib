@@ -106,21 +106,24 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_URL_RTMP_HD = "UrlRTMP_HD";
     public static final String FILM_URL_RTMP_HD_ = "u";
     public static final int FILM_URL_RTMP_HD_NR = 20;
-    public static final int MAX_ELEM = 21;
+    public static final String FILM_DATUM_LONG = "DatumL"; // Datum als Long ABER Sekunden!!
+    public static final String FILM_DATUM_LONG_ = "y";
+    public static final int FILM_DATUM_LONG_NR = 21;
+    public static final int MAX_ELEM = 22;
     public static final String[] COLUMN_NAMES = {FILM_NR, FILM_SENDER, FILM_THEMA, FILM_TITEL,
         FILM_ABSPIELEN, FILM_AUFZEICHNEN,
         FILM_DATUM, FILM_ZEIT, FILM_DAUER, FILM_GROESSE,
         FILM_BESCHREIBUNG, /*FILM_KEYWORDS,*/ FILM_URL, FILM_WEBSEITE, FILM_ABO_NAME,
-        FILM_IMAGE_URL, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD};
+        FILM_IMAGE_URL, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_DATUM_LONG};
     public static final String[] COLUMN_NAMES_XML = {FILM_NR_, FILM_SENDER_, FILM_THEMA_, FILM_TITEL_,
         FILM_ABSPIELEN_, FILM_AUFZEICHNEN_,
         FILM_DATUM_, FILM_ZEIT_, FILM_DAUER_, FILM_GROESSE_,
         FILM_BESCHREIBUNG_, /*FILM_KEYWORDS_,*/ FILM_URL_, FILM_WEBSEITE_, FILM_ABO_NAME_,
-        FILM_IMAGE_URL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_};
+        FILM_IMAGE_URL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_, FILM_DATUM_LONG_};
     public static final int[] COLUMN_NAMES_JSON = {FILM_SENDER_NR, FILM_THEMA_NR, FILM_TITEL_NR,
         FILM_DATUM_NR, FILM_ZEIT_NR, FILM_DAUER_NR, FILM_GROESSE_NR,
         FILM_BESCHREIBUNG_NR, FILM_URL_NR, FILM_WEBSEITE_NR,
-        FILM_IMAGE_URL_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR};
+        FILM_IMAGE_URL_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR};
     public Datum datumFilm = new Datum(0);
     public long dauerL = 0; // Sekunden
     public Object abo = null;
@@ -143,8 +146,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         arr[FILM_URL_NR] = uurl;
         arr[FILM_URL_RTMP_NR] = uurlRtmp;
         arr[FILM_WEBSEITE_NR] = filmWebsite;
-        arr[FILM_DATUM_NR] = checkDatum(datum, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
-        arr[FILM_ZEIT_NR] = checkZeit(arr[FILM_DATUM_NR], zeit, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
+        checkDatum(datum, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
+        checkZeit(arr[FILM_DATUM_NR], zeit, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
         arr[FILM_BESCHREIBUNG_NR] = beschreibung(description, tthema, ttitel);
         arr[FILM_IMAGE_URL_NR] = imageUrl;
 //        // Schlüsselwörter
@@ -437,85 +440,63 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     private void setDatum() {
-//        try {
-//            long l = Long.parseLong("56487956");
-//            datumFilm = new Datum(l);
-//            arr[DatenFilm.FILM_DATUM_NR] = new SimpleDateFormat("dd.MM.yyyy").format(datumFilm);
-//            arr[DatenFilm.FILM_ZEIT_NR] = new SimpleDateFormat("dd.MM.yyyy").format(datumFilm);
-//        } catch (Exception ex) {
-//            datumFilm = new Datum(0);
-//        }
-        if (!arr[DatenFilm.FILM_DATUM_NR].isEmpty()) {
-            try {
-                if (arr[DatenFilm.FILM_ZEIT_NR].isEmpty()) {
-                    datumFilm = new Datum(sdf_datum.parse(arr[DatenFilm.FILM_DATUM_NR]));
-                } else {
-                    datumFilm = new Datum(sdf_datum_zeit.parse(arr[DatenFilm.FILM_DATUM_NR] + arr[DatenFilm.FILM_ZEIT_NR]));
-                }
-            } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(649897321, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getDatumForObject", ex,
-                        new String[]{"Datum: " + arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + arr[DatenFilm.FILM_ZEIT_NR]});
-                datumFilm = new Datum(0);
-            }
-        }
-    }
-
-    public static String checkDatum(String datum, String fehlermeldung) {
-        //Datum max. 100 Tage in der Zukunft
-        final long MAX = 1000L * 60L * 60L * 24L * 100L;
-        String ret = datum.trim();
-        if (ret.equals("")) {
-            return "";
-        }
-        if (!ret.contains(".")) {
-            MSearchLog.debugMeldung("DatenFilm.CheckDatum-1 [" + datum + "] " + fehlermeldung);
-            return "";
-        }
-        if (ret.length() != 10) {
-            MSearchLog.debugMeldung("DatenFilm.CheckDatum-2 [" + datum + "] " + fehlermeldung);
-            return "";
-        }
         try {
-            SimpleDateFormat sdfIn = new SimpleDateFormat("dd.MM.yyyy");
-            Date filmDate = sdfIn.parse(ret);
-            if (filmDate.getTime() < 0) {
-                //Datum vor 1970
-                MSearchLog.debugMeldung("DatenFilm.CheckDatum-3 - " + "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
-                ret = "";
-            }
-            if ((new Date().getTime() + MAX) < filmDate.getTime()) {
-                MSearchLog.debugMeldung("DatenFilm.CheckDatum-4 - " + "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
-                ret = "";
+            if (arr[DatenFilm.FILM_DATUM_LONG_NR].isEmpty()) {
+                datumFilm = new Datum(0);
+            } else {
+                long l = Long.parseLong(arr[DatenFilm.FILM_DATUM_LONG_NR]);
+                datumFilm = new Datum(l * 1000 /* sind SEKUNDEN!!*/);
             }
         } catch (Exception ex) {
-            ret = "";
-            MSearchLog.fehlerMeldung(794630593, MSearchLog.FEHLER_ART_PROG, "DatenFilm.checkDatum-5", ex);
-            MSearchLog.fehlerMeldung(946301596, MSearchLog.FEHLER_ART_PROG, "DatenFilm.CheckDatum-6 [", datum + "] " + fehlermeldung);
+            datumFilm = new Datum(0);
         }
-        if (ret.equals("")) {
-        }
-        return ret;
+//        if (!arr[DatenFilm.FILM_DATUM_NR].isEmpty()) {
+//            try {
+//                if (arr[DatenFilm.FILM_ZEIT_NR].isEmpty()) {
+//                    datumFilm = new Datum(sdf_datum.parse(arr[DatenFilm.FILM_DATUM_NR]));
+//                } else {
+//                    datumFilm = new Datum(sdf_datum_zeit.parse(arr[DatenFilm.FILM_DATUM_NR] + arr[DatenFilm.FILM_ZEIT_NR]));
+//                }
+//            } catch (Exception ex) {
+//                MSearchLog.fehlerMeldung(649897321, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getDatumForObject", ex,
+//                        new String[]{"Datum: " + arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + arr[DatenFilm.FILM_ZEIT_NR]});
+//                datumFilm = new Datum(0);
+//            }
+//        }
     }
 
-    public static String checkZeit(String datum, String zeit, String fehlermeldung) {
-        String ret = zeit.trim();
-        if (datum.equals("")) {
-            //wenn kein Datum, macht die Zeit auch keinen Sinn
-            ret = "";
-        } else {
-            if (!ret.equals("")) {
-                if (!ret.contains(":")) {
-                    ret = "";
+    public final void checkDatum(String datum, String fehlermeldung) {
+        //Datum max. 100 Tage in der Zukunft
+        final long MAX = 1000L * 60L * 60L * 24L * 100L;
+        datum = datum.trim();
+        if (datum.contains(".") && datum.length() == 10) {
+            try {
+                SimpleDateFormat sdfIn = new SimpleDateFormat("dd.MM.yyyy");
+                Date filmDate = sdfIn.parse(datum);
+                if (filmDate.getTime() < 0) {
+                    //Datum vor 1970
+                    MSearchLog.debugMeldung("DatenFilm.CheckDatum-3 - " + "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
+                } else if ((new Date().getTime() + MAX) < filmDate.getTime()) {
+                    MSearchLog.debugMeldung("DatenFilm.CheckDatum-4 - " + "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
+                } else {
+                    arr[FILM_DATUM_NR] = datum;
+                    arr[FILM_DATUM_LONG_NR] = String.valueOf(filmDate.getTime() / 1000);
                 }
-                if (ret.length() != 8) {
-                    ret = "";
-                }
-                if (ret.equals("")) {
-                    MSearchLog.debugMeldung("DatenFilm.CheckZeit [" + zeit + "] " + fehlermeldung);
-                }
+            } catch (Exception ex) {
+                MSearchLog.fehlerMeldung(794630593, MSearchLog.FEHLER_ART_PROG, "DatenFilm.checkDatum-5", ex);
+                MSearchLog.fehlerMeldung(946301596, MSearchLog.FEHLER_ART_PROG, "DatenFilm.CheckDatum-6 [", datum + "] " + fehlermeldung);
             }
         }
-        return ret;
+    }
+
+    public final void checkZeit(String datum, String zeit, String fehlermeldung) {
+        zeit = zeit.trim();
+        if (!datum.isEmpty()) {
+            //wenn kein Datum, macht die Zeit auch keinen Sinn
+            if (zeit.contains(":") && zeit.length() == 8) {
+                arr[FILM_ZEIT_NR] = zeit;
+            }
+        }
     }
 
     private String fuellen(int anz, String s) {
