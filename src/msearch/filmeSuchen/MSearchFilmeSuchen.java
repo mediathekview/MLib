@@ -21,6 +21,7 @@ package msearch.filmeSuchen;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -47,7 +48,7 @@ import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.io.MSearchGetUrl;
 import msearch.tool.DatumZeit;
-import msearch.tool.GuiFunktionen;
+import msearch.tool.GermanStringSorter;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchUrlDateiGroesse;
 
@@ -168,7 +169,8 @@ public class MSearchFilmeSuchen {
         while (it.hasNext()) {
             liste.add(it.next().getNameSender());
         }
-        GuiFunktionen.listeSort(liste);
+        GermanStringSorter sorter = GermanStringSorter.getInstance();
+        Collections.sort(liste, sorter);
         return liste.toArray(new String[]{});
     }
 

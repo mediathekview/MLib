@@ -20,9 +20,6 @@
 package msearch.tool;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.LinkedList;
-import msearch.daten.MSearchConfig;
 
 public class GuiFunktionen extends Funktionen {
 
@@ -216,12 +213,6 @@ public class GuiFunktionen extends Funktionen {
             MSearchLog.fehlerMeldung(821397046, MSearchLog.FEHLER_ART_PROG, "GuiFunktionen.getDateiSuffix", pfad);
         }
         return ret;
-    }
-
-    public static void listeSort(LinkedList<String> liste) {
-        //Stringliste alphabetisch sortieren
-        GermanStringSorter sorter = GermanStringSorter.getInstance();
-        Collections.sort(liste, sorter);
     }
 
     public static String getHomePath() {

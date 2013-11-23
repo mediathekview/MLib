@@ -65,8 +65,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
     public String[] sender = {""};
     public String[][] themenPerSender = {{""}};
-    public TreeSet<String> treeSet = new TreeSet<>(msearch.tool.GermanStringSorter.getInstance());
-    public HashSet<String> hashSet = new HashSet<>();
+//    public TreeSet<String> treeSet = new TreeSet<>(msearch.tool.GermanStringSorter.getInstance());
+//    public HashSet<String> hashSet = new HashSet<>();
 
     public ListeFilme() {
     }
@@ -74,90 +74,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     //===================================
     // public
     //===================================
-    @Override
-    public synchronized void clear() {
-        hashSet.clear();
-        nr = 1;
-        super.clear();
-    }
-
-    public void check() {
-        Iterator<DatenFilm> it = this.iterator();
-        DatenFilm film;
-        while (it.hasNext()) {
-            film = it.next();
-            film.arr[DatenFilm.FILM_THEMA_NR] = GuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
-            film.arr[DatenFilm.FILM_TITEL_NR] = GuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
-            if (film.arr[DatenFilm.FILM_URL_NR].contains(" ")) {
-                System.out.println(film.arr[DatenFilm.FILM_URL_NR]);
-            }
-        }
-    }
-
-    public void sort() {
-        Collections.<DatenFilm>sort(this);
-        // und jetzt noch die Nummerierung in Ordnung bringen
-        Iterator<DatenFilm> it = this.iterator();
-        DatenFilm film;
-        int i = 1;
-        while (it.hasNext()) {
-            film = it.next();
-            film.nr = i++;
-        }
-    }
-
-    public synchronized boolean addWithNr(DatenFilm film) {
-        // hier nur beim Laden von der Filmliste
-        film.nr = nr++;
-        return addInit(film);
-    }
-
-//    private String getNr(int nr) {
-//        final int MAX_STELLEN = 5;
-//        final String FUELL_ZEICHEN = "0";
-//        String str = String.valueOf(nr);
-//        while (str.length() < MAX_STELLEN) {
-//            str = FUELL_ZEICHEN + str;
-//        }
-//        return str;
-//    }
-    public synchronized void setMeta(String[] mmeta) {
-        for (int i = 0; i < MAX_ELEM; ++i) {
-            metaDaten[i] = mmeta[i].toString();
-        }
-    }
-
-    public synchronized DatenFilm istInFilmListe(String sender, String thema, String titel) {
-        Iterator<DatenFilm> it = listIterator();
-        while (it.hasNext()) {
-            DatenFilm film = it.next();
-            if (film.arr[DatenFilm.FILM_SENDER_NR].equals(sender)
-                    && film.arr[DatenFilm.FILM_THEMA_NR].equalsIgnoreCase(thema)
-                    && film.arr[DatenFilm.FILM_TITEL_NR].equalsIgnoreCase(titel)) {
-                return film;
-            }
-        }
-        return null;
-    }
-
-    public String getDateiGroesse(String url, String sender) {
-        // sucht in der Liste nach der URL und gibt die Dateigröße zurück
-        // oder versucht sie übers Web zu ermitteln
-        Iterator<DatenFilm> it = listIterator();
-        while (it.hasNext()) {
-            DatenFilm film = it.next();
-            if (film.arr[DatenFilm.FILM_URL_NR].equals(url)) {
-                if (!film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
-                    return film.arr[DatenFilm.FILM_GROESSE_NR];
-                } else {
-                    return MSearchUrlDateiGroesse.laengeString(url, sender);
-                }
-            }
-        }
-        // dann ist der Film nicht in der Liste
-        return MSearchUrlDateiGroesse.laengeString(url, sender);
-    }
-
     public synchronized boolean addFilmVomSender(DatenFilm film) {
         // Filme die beim Sender gesucht wurden (und nur die) hier eintragen
         // nur für die MediathekReader
@@ -215,6 +131,113 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         hash.clear();
     }
 
+    public synchronized boolean importFilmliste(DatenFilm film) {
+        // hier nur beim Laden aus einer fertigen Filmliste 
+        // die Filme einsortieren, es werden alle Filme einsortiert
+        film.nr = nr++;
+        return addInit(film);
+    }
+
+    private boolean addInit(DatenFilm film) {
+        if (film.arr[DatenFilm.FILM_GROESSE_NR].length() < 3) {
+            film.arr[DatenFilm.FILM_GROESSE_NR] = film.arr[DatenFilm.FILM_GROESSE_NR].intern();
+        }
+        film.init();
+        return add(film);
+    }
+
+    @Override
+    public boolean add(DatenFilm film) {
+        if (film.arr[DatenFilm.FILM_URL_KLEIN_NR].length() < 15) {
+            film.arr[DatenFilm.FILM_URL_KLEIN_NR] = film.arr[DatenFilm.FILM_URL_KLEIN_NR].intern();
+        }
+        film.arr[DatenFilm.FILM_DATUM_NR] = film.arr[DatenFilm.FILM_DATUM_NR].intern();
+        film.arr[DatenFilm.FILM_ZEIT_NR] = film.arr[DatenFilm.FILM_ZEIT_NR].intern();
+//        if (film.arr[DatenFilm.FILM_KEYWORDS_NR].equals("video")) {
+//            film.arr[DatenFilm.FILM_KEYWORDS_NR] = "";
+//        }
+        return super.add(film);
+    }
+
+//    private String getNr(int nr) {
+//        final int MAX_STELLEN = 5;
+//        final String FUELL_ZEICHEN = "0";
+//        String str = String.valueOf(nr);
+//        while (str.length() < MAX_STELLEN) {
+//            str = FUELL_ZEICHEN + str;
+//        }
+//        return str;
+//    }
+    @Override
+    public synchronized void clear() {
+        nr = 1;
+        super.clear();
+    }
+
+    public void check() {
+        Iterator<DatenFilm> it = this.iterator();
+        DatenFilm film;
+        while (it.hasNext()) {
+            film = it.next();
+            film.arr[DatenFilm.FILM_THEMA_NR] = GuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
+            film.arr[DatenFilm.FILM_TITEL_NR] = GuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
+            if (film.arr[DatenFilm.FILM_URL_NR].contains(" ")) {
+                System.out.println(film.arr[DatenFilm.FILM_URL_NR]);
+            }
+        }
+    }
+
+    public void sort() {
+        Collections.<DatenFilm>sort(this);
+        // und jetzt noch die Nummerierung in Ordnung bringen
+        Iterator<DatenFilm> it = this.iterator();
+        DatenFilm film;
+        int i = 1;
+        while (it.hasNext()) {
+            film = it.next();
+            film.nr = i++;
+        }
+    }
+
+    public synchronized void setMeta(ListeFilme listeFilme) {
+        for (int i = 0; i < MAX_ELEM; ++i) {
+            metaDaten[i] = listeFilme.metaDaten[i].toString();
+        }
+    }
+
+    public synchronized DatenFilm istInFilmListe(String sender, String thema, String titel) {
+        // prüfen ob es den Film schon gibt
+        // und sich evtl. nur die URL geändert hat
+        Iterator<DatenFilm> it = listIterator();
+        while (it.hasNext()) {
+            DatenFilm film = it.next();
+            if (film.arr[DatenFilm.FILM_SENDER_NR].equals(sender)
+                    && film.arr[DatenFilm.FILM_THEMA_NR].equalsIgnoreCase(thema)
+                    && film.arr[DatenFilm.FILM_TITEL_NR].equalsIgnoreCase(titel)) {
+                return film;
+            }
+        }
+        return null;
+    }
+
+    public String getDateiGroesse(String url, String sender) {
+        // sucht in der Liste nach der URL und gibt die Dateigröße zurück
+        // oder versucht sie übers Web zu ermitteln
+        Iterator<DatenFilm> it = listIterator();
+        while (it.hasNext()) {
+            DatenFilm film = it.next();
+            if (film.arr[DatenFilm.FILM_URL_NR].equals(url)) {
+                if (!film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
+                    return film.arr[DatenFilm.FILM_GROESSE_NR];
+                } else {
+                    return MSearchUrlDateiGroesse.laengeString(url, sender);
+                }
+            }
+        }
+        // dann ist der Film nicht in der Liste
+        return MSearchUrlDateiGroesse.laengeString(url, sender);
+    }
+
     public synchronized void nurDoppelteAnzeigen(boolean index) {
         // zum Debuggen: URLs die doppelt sind, in die History eintragen
         // damit sie markiert werden
@@ -250,47 +273,24 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         hashDoppelt.clear();
     }
 
-    private boolean addInit(DatenFilm film) {
-        if (film.arr[DatenFilm.FILM_GROESSE_NR].length() < 3) {
-            film.arr[DatenFilm.FILM_GROESSE_NR] = film.arr[DatenFilm.FILM_GROESSE_NR].intern();
-        }
-        film.init();
-        return add(film);
-    }
-
-    public void init() {
-        // es werden die gelöschten Felder nach "clean" wieder
-        // erstellt
-        Iterator<DatenFilm> it = iterator();
-        while (it.hasNext()) {
-            it.next().init();
-        }
-        listeClean = false;
-    }
-
-    public void clean() {
-        // zum Speichern werden alle nicht notwendigen Felder
-        // gelöscht
-        ListIterator<DatenFilm> it = this.listIterator(0);
-        while (it.hasNext()) {
-            it.next().clean();
-        }
-        listeClean = true;
-    }
-
-    @Override
-    public boolean add(DatenFilm film) {
-        if (film.arr[DatenFilm.FILM_URL_KLEIN_NR].length() < 15) {
-            film.arr[DatenFilm.FILM_URL_KLEIN_NR] = film.arr[DatenFilm.FILM_URL_KLEIN_NR].intern();
-        }
-        film.arr[DatenFilm.FILM_DATUM_NR] = film.arr[DatenFilm.FILM_DATUM_NR].intern();
-        film.arr[DatenFilm.FILM_ZEIT_NR] = film.arr[DatenFilm.FILM_ZEIT_NR].intern();
-//        if (film.arr[DatenFilm.FILM_KEYWORDS_NR].equals("video")) {
-//            film.arr[DatenFilm.FILM_KEYWORDS_NR] = "";
+//    public void init() {
+//        // es werden die gelöschten Felder nach "clean" wieder
+//        // erstellt
+//        Iterator<DatenFilm> it = iterator();
+//        while (it.hasNext()) {
+//            it.next().init();
 //        }
-        return super.add(film);
-    }
-
+//        listeClean = false;
+//    }
+//    public void clean() {
+//        // zum Speichern werden alle nicht notwendigen Felder
+//        // gelöscht
+//        ListIterator<DatenFilm> it = this.listIterator(0);
+//        while (it.hasNext()) {
+//            it.next().clean();
+//        }
+//        listeClean = true;
+//    }
     public synchronized int countSender(String sender) {
         int ret = 0;
         ListIterator<DatenFilm> it = this.listIterator(0);
@@ -394,7 +394,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    public synchronized DatenFilm getFilmByNr(String nr) {
+    public synchronized DatenFilm getFilmByNr(String nr) {//////////////////////
         // die Zählung beginnt bei 1 !!!!!
         int n = 0;
         try {
@@ -543,68 +543,32 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = Funktionen.getProgVersionString() + " - Compiled: " + Funktionen.getCompileDate();
     }
 
-    String getJetzt_ddMMyyyy_HHmm() {
+    private String getJetzt_ddMMyyyy_HHmm() {
         SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         return formatter.format(new Date());
     }
 
-    String getJetzt_ddMMyyyy_HHmm_gmt() {
+    private String getJetzt_ddMMyyyy_HHmm_gmt() {
         SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         formatter.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
         return formatter.format(new Date());
     }
 
-    public void themenLaden() {
-        // der erste Sender ist ""
-        sender = getModelOfFieldSender();
-        //für den Sender "" sind alle Themen im themenPerSender[0]
-        themenPerSender = new String[sender.length][];
-        for (int i = 0; i < sender.length; ++i) {
-            themenPerSender[i] = getModelOfFieldThema(sender[i]);
-        }
-    }
-
-    public synchronized String[] getModelOfFieldThema(String sender) {
+//    public synchronized void themenLaden_() {
+//        // der erste Sender ist ""
+//        sender = getModelOfFieldSender();
+//        //für den Sender "" sind alle Themen im themenPerSender[0]
+//        themenPerSender = new String[sender.length][];
+//        for (int i = 0; i < sender.length; ++i) {
+//            themenPerSender[i] = getModelOfFieldThema(sender[i]);
+//        }
+//    }
+    public synchronized void themenLaden() {
         // erstellt ein StringArray der Themen eines Senders oder wenn "sender" leer, aller Sender
         // ist für die Filterfelder im GuiFilme
         // doppelte Einträge (bei der Groß- und Kleinschribung) werden entfernt
-        String str, s;
-        treeSet.add("");
-        DatenFilm film;
-        Iterator<DatenFilm> it = iterator();
-        if (sender.equals("")) {
-            //alle Theman
-            while (it.hasNext()) {
-                str = it.next().arr[DatenFilm.FILM_THEMA_NR];
-                //hinzufügen
-                s = str.toLowerCase();
-                if (!hashSet.contains(s)) {
-                    hashSet.add(s);
-                    treeSet.add(str);
-                }
-            }
-        } else {
-            //nur Theman des Senders
-            while (it.hasNext()) {
-                film = it.next();
-                if (film.arr[DatenFilm.FILM_SENDER_NR].equals(sender)) { // Filterstring ist immer "Sender"
-                    //hinzufügen
-                    str = film.arr[DatenFilm.FILM_THEMA_NR];
-                    s = str.toLowerCase();
-                    if (!hashSet.contains(s)) {
-                        hashSet.add(s);
-                        treeSet.add(str);
-                    }
-                }
-            }
-        }
-        hashSet.clear();
-        String[] a = treeSet.toArray(new String[]{});
-        treeSet.clear();
-        return a;
-    }
-
-    public synchronized String[] getModelOfFieldSender() {
+        // der erste Sender ist ""
+        TreeSet<String> treeSet = new TreeSet<>();
         treeSet.add("");
         // Sendernamen gibts nur in einer Schreibweise
         for (DatenFilm film : this) {
@@ -613,8 +577,105 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 treeSet.add(str);
             }
         }
-        String[] a = treeSet.toArray(new String[]{});
+        sender = treeSet.toArray(new String[]{});
         treeSet.clear();
-        return a;
+        //für den Sender "" sind alle Themen im themenPerSender[0]
+        themenPerSender = new String[sender.length][];
+        String filmThema, filmSender;
+        TreeSet<String>[] tree = new TreeSet[sender.length];
+        HashSet<String>[] hashSet = new HashSet[sender.length];
+        for (int i = 0; i < tree.length; ++i) {
+            tree[i] = new TreeSet<String>(msearch.tool.GermanStringSorter.getInstance());
+            tree[i].add("");
+            hashSet[i] = new HashSet<>();
+        }
+        DatenFilm film;
+        Iterator<DatenFilm> it = iterator();
+        //alle Theman
+        while (it.hasNext()) {
+            film = it.next();
+            filmSender = film.arr[DatenFilm.FILM_SENDER_NR];
+            filmThema = film.arr[DatenFilm.FILM_THEMA_NR];
+            //hinzufügen
+            if (!hashSet[0].contains(filmThema)) {
+                hashSet[0].add(filmThema);
+                tree[0].add(filmThema);
+            }
+            for (int i = 1; i < sender.length; ++i) {
+                if (filmSender.equals(sender[i])) {
+                    if (!hashSet[i].contains(filmThema)) {
+                        hashSet[i].add(filmThema);
+                        tree[i].add(filmThema);
+                    }
+                }
+            }
+//            if (!tree[0].contains(filmThema)) {
+//                tree[0].add(filmThema);
+//            }
+//            for (int i = 1; i < sender.length; ++i) {
+//                if (filmSender.equals(sender[i])) {
+//                    if (!tree[i].contains(filmThema)) {
+//                        tree[i].add(filmThema);
+//                    }
+//                }
+//            }
+        }
+        for (int i = 0; i < themenPerSender.length; ++i) {
+            themenPerSender[i] = tree[i].toArray(new String[]{});
+            tree[i].clear();
+            hashSet[i].clear();
+        }
     }
+//    private String[] getModelOfFieldThema(String sender) {
+//        // erstellt ein StringArray der Themen eines Senders oder wenn "sender" leer, aller Sender
+//        // ist für die Filterfelder im GuiFilme
+//        // doppelte Einträge (bei der Groß- und Kleinschribung) werden entfernt
+//        String str, s;
+//        treeSet.add("");
+//        DatenFilm film;
+//        Iterator<DatenFilm> it = iterator();
+//        if (sender.equals("")) {
+//            //alle Theman
+//            while (it.hasNext()) {
+//                str = it.next().arr[DatenFilm.FILM_THEMA_NR];
+//                //hinzufügen
+//                s = str.toLowerCase();
+//                if (!hashSet.contains(s)) {
+//                    hashSet.add(s);
+//                    treeSet.add(str);
+//                }
+//            }
+//        } else {
+//            //nur Theman des Senders
+//            while (it.hasNext()) {
+//                film = it.next();
+//                if (film.arr[DatenFilm.FILM_SENDER_NR].equals(sender)) { // Filterstring ist immer "Sender"
+//                    //hinzufügen
+//                    str = film.arr[DatenFilm.FILM_THEMA_NR];
+//                    s = str.toLowerCase();
+//                    if (!hashSet.contains(s)) {
+//                        hashSet.add(s);
+//                        treeSet.add(str);
+//                    }
+//                }
+//            }
+//        }
+//        hashSet.clear();
+//        String[] a = treeSet.toArray(new String[]{});
+//        treeSet.clear();
+//        return a;
+//    }
+//    private String[] getModelOfFieldSender() {
+//        treeSet.add("");
+//        // Sendernamen gibts nur in einer Schreibweise
+//        for (DatenFilm film : this) {
+//            String str = film.arr[DatenFilm.FILM_SENDER_NR];
+//            if (!treeSet.contains(str)) {
+//                treeSet.add(str);
+//            }
+//        }
+//        String[] a = treeSet.toArray(new String[]{});
+//        treeSet.clear();
+//        return a;
+//    }
 }

@@ -331,7 +331,7 @@ public class MSearchFilmlisteLesen {
                     } else {
                         thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
                     }
-                    listeFilme.addWithNr(datenFilm);
+                    listeFilme.importFilmliste(datenFilm);
                 }
             }
             jp.close();
@@ -477,7 +477,7 @@ public class MSearchFilmlisteLesen {
                         count = 0;
                         this.notifyProgress(text);
                     }
-                    listeFilme.addWithNr(datenFilm);
+                    listeFilme.importFilmliste(datenFilm);
                     continue;
                 }
             }
