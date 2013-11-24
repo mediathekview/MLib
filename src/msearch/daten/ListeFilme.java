@@ -65,6 +65,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
     public String[] sender = {""};
     public String[][] themenPerSender = {{""}};
+    public boolean neueFilme = false;
 //    public TreeSet<String> treeSet = new TreeSet<>(msearch.tool.GermanStringSorter.getInstance());
 //    public HashSet<String> hashSet = new HashSet<>();
 
@@ -171,6 +172,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     @Override
     public synchronized void clear() {
         nr = 1;
+        neueFilme = false;
         super.clear();
     }
 
