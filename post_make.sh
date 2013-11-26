@@ -4,27 +4,33 @@ if [ $(hostname) = "beta" ]
 then
 # nur für den Entwicklungsrechner sinnvoll
 
-cp -r /mnt/daten/software/Mediathek/MSearch/res/* /mnt/daten/software/Mediathek/MSearch/dist
-cp -r /mnt/daten/software/Mediathek/MSearch/dist/lib/* /mnt/daten/software/Mediathek/MSearch/libs
+dir=`dirname "$0"`
+cd "$dir"
+
+
+cp -r res/* dist
+cp -r dist/lib/* libs
 
 # Aufräumen
-rm /mnt/daten/software/Mediathek/MSearch/dist/README.TXT
+rm dist/README.TXT
 
 # Anlegen
-mkdir /mnt/daten/software/Mediathek/MSearch/dist/info
+mkdir dist/info
 
 # release
-relNr=$(cat /mnt/daten/software/Mediathek/MSearch/src/version.properties | grep BUILD | sed 's#BUILD=##g')
+relNr=$(cat src/version.properties | grep BUILD | sed 's#BUILD=##g')
 datum=$(date +%d.%m.%Y )
-echo Datum: $datum >> /mnt/daten/software/Mediathek/MSearch/dist/info/$relNr.build
-echo MSearch Buildnummer: $relNr >> /mnt/daten/software/Mediathek/MSearch/dist/info/$relNr.build
+echo Datum: $datum >> dist/info/$relNr.build
+echo MSearch Buildnummer: $relNr >> dist/info/$relNr.build
 
 # zip erstellen
-cd /mnt/daten/software/Mediathek/MSearch/dist/
+cd dist/
 datum=$(date +%Y.%m.%d )
 zip -r MSearch_$datum.zip .
 
 # Dateien ins share-Verzeichnis von VmWare kopieren
-cp -r /mnt/daten/software/Mediathek/MSearch/dist/* /mnt/daten/virtualbox/share/MSearch
+cp -r dist/* /mnt/daten/virtualbox/share/MSearch
+
+cd $OLDPWD
 
 fi
