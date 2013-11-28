@@ -133,7 +133,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public Object abo = null;
     public MSearchLong dateigroesseL; // Dateigröße in MByte
     public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
-    public String[] arr = new String[]{"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""};
+    public String[] arr = new String[]{"", "", "", "", "", "", "", "", "", "", "",
+        "", "", "", "", "", "", "", "", "", "",
+        "", ""};
     public int nr;
     public boolean neuerFilm = false;
 
