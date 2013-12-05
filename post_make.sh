@@ -28,9 +28,6 @@ cd dist/
 datum=$(date +%Y.%m.%d )
 zip -r MSearch_$datum.zip .
 
-# Dateien ins share-Verzeichnis von VmWare kopieren
-cp -r dist/* /mnt/daten/virtualbox/share/MSearch
-
 cd $OLDPWD
 
 fi

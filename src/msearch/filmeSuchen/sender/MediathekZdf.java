@@ -278,70 +278,8 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             return listeThemen.pollFirst();
         }
 
-        private long extractDurationZDF(MSearchStringBuilder page) {
-            long durationInSeconds = 0;
-            String duration = extractString(page, "<p class=\"datum\">VIDEO, ", "</p>");
-            if (duration == null) {
-                return 0;
-            }
-            try {
-                String[] parts = duration.split(":");
-                long power = 1;
-                for (int i = parts.length - 1; i >= 0; i--) {
-                    durationInSeconds += Long.parseLong(parts[i]) * power;
-                    power *= 60;
-                }
-            } catch (Exception ex) {
-                return 0;
-            }
-            return durationInSeconds;
-        }
-
-        private String extractDescription(MSearchStringBuilder page) {
-            String desc = extractString(page, "<meta name=\"description\" content=\"", "\"");
-            if (desc == null) {
-                return "";
-            }
-
-            return desc;
-        }
-
-        private String[] extractKeywords(MSearchStringBuilder page) {
-            String keywords = extractString(page, "<meta name=\"keywords\" content=\"", "\"");
-            if (keywords == null) {
-                return new String[]{""};
-            }
-
-            return keywords.split("; ");
-        }
-
-        private String extractImageURL(MSearchStringBuilder page) {
-            String imageUrl = extractString(page, "background-image: url(/ZDFmediathek", ")");
-            if (imageUrl == null) {
-                return "";
-            }
-
-            return "http://www.zdf.de/ZDFmediathek" + imageUrl;
-        }
-
-        private String extractString(MSearchStringBuilder source, String startMarker, String endMarker) {
-            int start = source.indexOf(startMarker);
-            if (start == -1) {
-                return null;
-            }
-
-            start = start + startMarker.length();
-
-            int end = source.indexOf(endMarker, start);
-            if (end == -1) {
-                return null;
-            }
-
-            return source.substring(start, end);
-        }
     }
 
-    //public static DatenFilm flash(GetUrl getUrl, MVStringBuilder seiteFlash, String senderName, String thema, String titel, String urlThema, String urlFilm, String datum, String zeit) {
     public static DatenFilm flash(MSearchGetUrl getUrl, MSearchStringBuilder seiteFlash, String senderName, String thema, String titel,
             String filmWebsite, String urlFilm, String datum, String zeit, long durationInSeconds, String description,
             String imageUrl, String[] keywords) {
@@ -467,6 +405,105 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             }
         } catch (Exception ex) {
             MSearchLog.fehlerMeldung(-265847128, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash" + senderName, ex, urlFilm);
+        }
+        return ret;
+    }
+
+    public static String[] flash(MSearchGetUrl getUrl, MSearchStringBuilder seiteFlash, String urlFilm, String sender) {
+        //<param name="app" value="ondemand" />
+        //<param name="host" value="cp125301.edgefcs.net" />
+        //<param name="protocols" value="rtmp,rtmpt" />
+        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_l.mp4" system-bitrate="62000">
+        //<param name="quality" value="low" />
+        //</video>
+        //
+        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_h.mp4" system-bitrate="700000">
+        //<param name="quality" value="high" />
+        //</video>
+        //
+        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_vh.mp4" system-bitrate="1700000">
+        //<param name="quality" value="veryhigh" />
+        //</video>
+
+        //http://wstreaming.zdf.de/3sat/veryhigh/ ... _hitec.asx
+        //http://fstreaming.zdf.de/3sat/veryhigh/ ... hitec.smil
+        //rtmpt://cp125301.edgefcs.net/ondemand/mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_vh.mp4
+        final String MUSTER_HOST = "<param name=\"host\" value=\"";
+        final String MUSTER_APP = "<param name=\"app\" value=\"";
+        final String MUSTER_URL = "src=\"";
+        final String MUSTER_URL_L = "l.mp4";
+        final String MUSTER_URL_H = "h.mp4";
+        final String MUSTER_URL_VH = "vh.mp4";
+        String[] ret = new String[]{"", "", ""};
+        String orgUrl = urlFilm;
+        String host = "";
+        String app = "";
+        String url = "", urlLow = "", urlHd = "", tmpUrl = "";
+        int pos1;
+        int pos2;
+        try {
+            orgUrl = orgUrl.replace("http://wstreaming.zdf.de", "http://fstreaming.zdf.de");
+            orgUrl = orgUrl.replace("http://wgeostreaming.zdf.de", "http://fgeostreaming.zdf.de");
+            orgUrl = orgUrl.replace(".asx", ".smil");
+            seiteFlash = getUrl.getUri_Utf(sender, orgUrl, seiteFlash, "");
+            String strSeiteFlash = seiteFlash.toString();
+            if ((pos1 = strSeiteFlash.indexOf(MUSTER_HOST, 0)) != -1) {
+                pos1 += MUSTER_HOST.length();
+                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
+                    host = strSeiteFlash.substring(pos1, pos2);
+                }
+            }
+            if ((pos1 = strSeiteFlash.indexOf(MUSTER_APP, 0)) != -1) {
+                pos1 += MUSTER_APP.length();
+                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
+                    app = strSeiteFlash.substring(pos1, pos2);
+                }
+            }
+            pos1 = 0;
+            boolean gefunden = false;
+            while ((pos1 = strSeiteFlash.indexOf(MUSTER_URL, pos1)) != -1) {
+                pos1 += MUSTER_URL.length();
+                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
+                    tmpUrl = strSeiteFlash.substring(pos1, pos2);
+                }
+                if (tmpUrl.contains("hd")) {
+                    urlHd = tmpUrl;
+                    tmpUrl = "";
+                }
+                if (url.equals("")) {
+                    url = tmpUrl;
+                }
+                if (!url.contains(MUSTER_URL_VH) && tmpUrl.contains(MUSTER_URL_H)) {
+                    if (urlLow.isEmpty()) {
+                        urlLow = url;
+                    }
+                    url = tmpUrl;
+                    gefunden = true;
+                }
+                if (tmpUrl.contains(MUSTER_URL_VH)) {
+                    if (urlLow.isEmpty()) {
+                        urlLow = url;
+                    }
+                    url = tmpUrl;
+                    gefunden = true;
+                }
+            }
+            if (!gefunden) {
+                MSearchLog.fehlerMeldung(-945236478, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-1 " + sender, "!gefunden: " + urlFilm);
+            }
+            if (url.equals("")) {
+                ret = null;
+                MSearchLog.fehlerMeldung(-714253698, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-2 " + sender, "keine URL: " + urlFilm);
+            } else if (host.equals("")) {
+                ret = null;
+                MSearchLog.fehlerMeldung(-978451236, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-3 " + sender, "kein Host: " + urlFilm);
+            } else {
+                ret[0] = "rtmpt://" + host + "/" + app + "/" + urlLow;
+                ret[1] = "rtmpt://" + host + "/" + app + "/" + url;
+                ret[2] = "rtmpt://" + host + "/" + app + "/" + urlHd;
+            }
+        } catch (Exception ex) {
+            MSearchLog.fehlerMeldung(-802030478, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash" + sender, ex, urlFilm);
         }
         return ret;
     }
@@ -667,6 +704,25 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             String u = f4mUrlHolen(getUrl, sender, strBuffer, urlF4m);
             if (!u.isEmpty()) {
                 url = u;
+            }
+        }
+        if (urlHd.endsWith("asx")) {
+            if (!url.isEmpty() && url.endsWith("vh.mp4")) {
+                urlHd = url.replace("vh.mp4", "hd.mp4");
+                if (urlHd.startsWith("http://nrodl.zdf.de")) {
+                    urlHd = urlHd.replaceFirst("http://nrodl.zdf.de", "http://rodl.zdf.de");
+                }
+            } else {
+                MSearchLog.fehlerMeldung(-915230647, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.filmHolen", "asx: " + filmWebsite);
+                // "http://rodl.zdf.de/none/zdf/10/06/100601_dvoteil3_tex_vh.mp4"
+                // wird
+                // "http://rodl.zdf.de/none/zdf/10/06/100601_dvoteil3_tex_hd.mp4"
+//                String[] u = flash(getUrl, strBuffer, urlHd, sender);
+//                if (u != null) {
+//                    if (!u[2].isEmpty()) {
+//                        urlHd = u[2];
+//                    }
+//                }
             }
         }
         if (url.isEmpty()) {
