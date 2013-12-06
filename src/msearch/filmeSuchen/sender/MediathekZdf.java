@@ -256,6 +256,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                         }
                         if (!id.isEmpty()) {
                             id = "http://www.zdf.de/ZDFmediathek/xmlservice/web/beitragsDetails?ak=web&id=" + id;
+                            meldungProgress(id);
                             DatenFilm film = filmHolenId(getUrl, seite2, nameSenderMReader, thema, titel, urlFilm, id);
                             if (film != null) {
                                 // dann wars gut
