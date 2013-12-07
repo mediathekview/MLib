@@ -336,7 +336,10 @@ public class MSearchGetUrl {
                         Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
 
                         conn = (HttpURLConnection) new URL(addr).openConnection(proxy);
-                        conn.setRequestProperty("User-Agent", MSearchConfig.getUserAgent_dynamic());
+                        // dafür gibts den:
+                        // Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0
+                        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0");
+                        //conn.setRequestProperty("User-Agent", MSearchConfig.getUserAgent_dynamic());
                         conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
                         if (timeout > 0) {
                             conn.setReadTimeout(timeout);

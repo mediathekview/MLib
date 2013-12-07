@@ -23,7 +23,9 @@ package msearch.filmeSuchen.sender;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.ListIterator;
 import msearch.daten.DatenFilm;
+import msearch.daten.ListeFilme;
 import msearch.daten.MSearchConfig;
 import msearch.filmeSuchen.MSearchFilmeSuchen;
 import static msearch.filmeSuchen.sender.MediathekReader.listeSort;
@@ -347,95 +349,18 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                     }
                 }
             }
-//            } else {
-//                // =====================================================
-//                // dann gibts nur einen Film
-//                description = seite2.extract("<div class=\"details_description\">", "<");
-//                tmp = seite2.extract("\"duration\":\"", "\"");
-//                try {
-//                    duration = Long.parseLong(tmp) / 1000; // time in milliseconds
-//                } catch (Exception ex) {
-//                }
-//                // =======================================================
-//                // url
-//                url = "";
-//                urlKlein = "";
-//                tmpPos1 = pos;
-//                final String MUSTER_URL = "quality\":\"Q6A\",\"quality_string\":\"hoch\",\"src\":\"http";
-//                while ((tmpPos1 = seite2.indexOf(MUSTER_URL, tmpPos1)) != -1) {
-//                    tmpPos1 += MUSTER_URL.length();
-//                    if ((tmpPos2 = seite2.indexOf("\"", tmpPos1)) != -1) {
-//                        url = seite2.substring(tmpPos1, tmpPos2);
-//                        if (url.endsWith(".mp4")) {
-//                            break;
-//                        }
-//                    }
-//                }
-//                if (!url.isEmpty()) {
-//                    url = url.replace("\\/", "/");
-//                    url = "http" + url;
-//                } else {
-//                    url = seite2.extract("quality\":\"Q6A\",\"quality_string\":\"hoch\",\"src\":\"rtmp", "\"");
-//                    url = url.replace("\\/", "/");
-//                    if (!url.isEmpty()) {
-//                        url = "rtmp" + url;
-//                        int mpos = url.indexOf("mp4:");
-//                        if (mpos != -1) {
-//                            urlRtmp = "-r " + url + " -y " + url.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
-//                        }
-//                    }
-//                }
-//                // =======================================================
-//                // urlKlein
-//                tmpPos1 = pos;
-//                final String MUSTER_URL_KLEIN = "quality\":\"Q4A\",\"quality_string\":\"mittel\",\"src\":\"http";
-//                while ((tmpPos1 = seite2.indexOf(MUSTER_URL_KLEIN, tmpPos1)) != -1) {
-//                    tmpPos1 += MUSTER_URL_KLEIN.length();
-//                    if ((tmpPos2 = seite2.indexOf("\"", tmpPos1)) != -1) {
-//                        urlKlein = seite2.substring(tmpPos1, tmpPos2);
-//                        if (urlKlein.endsWith(".mp4")) {
-//                            break;
-//                        }
-//                    }
-//                }
-//                if (!urlKlein.isEmpty()) {
-//                    urlKlein = urlKlein.replace("\\/", "/");
-//                    urlKlein = "http" + urlKlein;
-//                } else {
-//                    urlKlein = seite2.extract("quality\":\"Q4A\",\"quality_string\":\"mittel\",\"src\":\"rtmp", "\"");
-//                    urlKlein = urlKlein.replace("\\/", "/");
-//                    if (!urlKlein.isEmpty()) {
-//                        urlKlein = "rtmp" + urlKlein;
-//                        int mpos = urlKlein.indexOf("mp4:");
-//                        if (mpos != -1) {
-//                            urlRtmpKlein = "-r " + urlKlein + " -y " + urlKlein.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
-//                        }
-//                    }
-//                }
-//                //rtmp://apasfw.apa.at/cms-worldwide/mp4:2012-09-09_1305_tl_23_UNGARISCHES-MAGAZIN_Beszelgetes-Szabo-Er__4582591__o__0000214447__s4588253___n__BHiRes_13241400P_13280400P_Q6A.mp4
-//                //flvr=WIN11,4,402,265
-//                //app=cms-worldwide/
-//                //swfUrl=http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf
-//                //tcUrl=rtmp://apasfw.apa.at/%app%
-//                //play=mp4:1950-01-01_1200_in_00_Ungarnkrise-1956_____3230831__o__0000936285__s3230833___Q6A.mp4
-//                //flvstreamer --resume --rtmp %tcUrl% --flashVer %flvr% --app %app% --swfUrl %swfUrl% --playpath %play% --flv %Ziel%
-//
-//                //public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
-//                //        String datum, String zeit,
-//                //        long dauerSekunden, String description, String imageUrl, String[] keywords) {
-//                if (!url.isEmpty()) {
-//                    DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, urlRtmp, datum, zeit, duration, description,
-//                            thumbnail, new String[]{});
-//                    if (!urlKlein.isEmpty()) {
-//                        film.addUrlKlein(urlKlein, urlRtmpKlein);
-//                    }
-//                    addFilm(film, nurUrlPruefen);
-//                } else {
-//                    MSearchLog.fehlerMeldung(-102365478, MSearchLog.FEHLER_ART_MREADER, "MediathekOrf.feedEinerSeiteSuchen", "keine Url: " + strUrlFeed);
-//                }
-//            }
         }
     }
+
+//    void addFilm(DatenFilm film, boolean nurUrlPruefen) {
+//        // http://apasfpd.apa.at/cms-worldwide/online/30e56502951a39b3dcc07cbd42b93dd8/1386353983/2013-12-06_1830_tl_02_heute-konkret_-3--Beschwerden__7210188__o__0000942829__s7210191___en_ORF2HiRes_18322601P_18362214P_Q6A.mp4
+//        // http://apasfpd.apa.at/cms-worldwide/online/3b0619925919951eede27b73836e05f7/1386353969/2013-12-06_1830_tl_02_heute-konkret_-3--Beschwerden__7210188__o__0000942829__s7210191___en_ORF2HiRes_18322601P_18362214P_Q6A.mp4
+//        // die 2 Nummer nach "/online/" werden nicht verglichen
+//        if (mSearchFilmeSuchen.listeFilmeNeu.filmExists_Orf(film)) {
+//            return;
+//        }
+//        super.addFilm(film, nurUrlPruefen);
+//    }
 
     public static String getGestern(int tage) {
         try {

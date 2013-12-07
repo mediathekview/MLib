@@ -31,10 +31,13 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekSwr extends MediathekReader implements Runnable {
 
+    private static final int wartenKurz = 2000;
+    private static final int wartenLang = 4000;
+
     public static final String SENDER = "SWR";
 
     public MediathekSwr(MSearchFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 2000, startPrio);
+        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ wartenLang, startPrio);
     }
 
     //===================================
@@ -103,7 +106,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
+        MSearchGetUrl getUrlThemaLaden = new MSearchGetUrl(MSearchConfig.senderAllesLaden ? wartenLang : wartenKurz);
         private MSearchStringBuilder strSeite1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
         private MSearchStringBuilder strSeite2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
 
@@ -128,7 +131,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         private void themenSeitenSuchen(String strUrlFeed, String thema) {
             final String MUSTER_URL = "<li><a class=\"plLink\" href=\"player.htm?show=";
             //strSeite1 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, strSeite1, thema);
-            strSeite1 = getUrl.getUri(nameSenderMReader, strUrlFeed, MSearchConst.KODIERUNG_UTF, 2 /* versuche */, strSeite1, thema);
+            strSeite1 = getUrlThemaLaden.getUri(nameSenderMReader, strUrlFeed, MSearchConst.KODIERUNG_UTF, 2 /* versuche */, strSeite1, thema);
             meldung(strUrlFeed);
             int pos1 = 0;
             int pos2;
@@ -169,7 +172,6 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             // :"entry_media","attr":{"val0":"flashmedia","val1":"1","val2":"rtmp://fc-ondemand.swr.de/a4332/e6/swr-fernsehen/eisenbahn-romantik/381104.s.flv","val3":"rtmp://fc-ondemand.swr.de/a4332/e6/"},"sub":[]},{"name":"entry_media","attr":{"val0":"flashmedia","val1":"2","val2":"rtmp://fc-ondemand.swr.de/a4332/e6/swr-fernsehen/eisenbahn-romantik/381104.m.flv","val3":"rtmp://fc-ondemand.swr.de/a4332/e6/"},"sub":[]
 
             // "entry_title":"\"Troika-Tragödie - Verspielt die Regierung unser Steuergeld?\"
-
             final String MUSTER_TITEL_1 = "\"entry_title\":\"";
             final String MUSTER_TITEL_2 = "\"entry_title\":\"\\\"";
             final String MUSTER_DATUM = "\"entry_pdatehd\":\"";
@@ -199,7 +201,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             String[] keywords = null;
             String tmp;
             try {
-                strSeite2 = getUrl.getUri_Utf(nameSenderMReader, urlJson, strSeite2, "");
+                strSeite2 = getUrlThemaLaden.getUri_Utf(nameSenderMReader, urlJson, strSeite2, "");
                 if ((pos1 = strSeite2.indexOf(MUSTER_TITEL_1)) != -1) {
                     pos1 += MUSTER_TITEL_1.length();
 

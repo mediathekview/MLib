@@ -113,7 +113,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             if (index) {
                 hash.add(it.next().getIndex());
             } else {
-                hash.add(it.next().arr[DatenFilm.FILM_URL_NR]);
+                hash.add(DatenFilm.getUrl(it.next()));
             }
         }
         it = listeEinsortieren.iterator();
@@ -124,7 +124,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                     addInit(film);
                 }
             } else {
-                if (!hash.contains(film.arr[DatenFilm.FILM_URL_NR])) {
+                if (!hash.contains(DatenFilm.getUrl(film))) {
                     addInit(film);
                 }
             }

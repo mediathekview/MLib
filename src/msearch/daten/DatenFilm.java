@@ -21,12 +21,15 @@ package msearch.daten;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.ListIterator;
+import msearch.filmeSuchen.sender.MediathekOrf;
 import msearch.tool.Datum;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchLong;
 import msearch.tool.MSearchUrlDateiGroesse;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 
@@ -216,7 +219,37 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     public String getIndex() {
         // liefert einen eindeutigen Index für die Filmliste
-        return arr[FILM_SENDER_NR].toLowerCase() + arr[FILM_THEMA_NR].toLowerCase() + arr[FILM_URL_NR];
+        return arr[FILM_SENDER_NR].toLowerCase() + arr[FILM_THEMA_NR].toLowerCase() + DatenFilm.getUrl(this);
+    }
+
+    public static String getUrl(DatenFilm film) {
+        // liefert die URL zum VERGLEICHEN!!
+        String url = "";
+        if (film.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekOrf.SENDER)) {
+            try {
+                url = film.arr[DatenFilm.FILM_URL_NR].substring(film.arr[DatenFilm.FILM_URL_NR].indexOf("/online/") + "/online/".length());
+                if (!url.contains("/")) {
+                    MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-1", "Url: " + film.arr[DatenFilm.FILM_URL_NR]);
+                    return "";
+                }
+                url = url.substring(url.indexOf("/") + 1);
+                if (!url.contains("/")) {
+                    MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-2", "Url: " + film.arr[DatenFilm.FILM_URL_NR]);
+                    return "";
+                }
+                url = url.substring(url.indexOf("/") + 1);
+                if (url.isEmpty()) {
+                    MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-3", "Url: " + film.arr[DatenFilm.FILM_URL_NR]);
+                    return "";
+                }
+            } catch (Exception ex) {
+                MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-4", "Url: " + film.arr[DatenFilm.FILM_URL_NR]);
+            }
+            return url;
+        } else {
+            return film.arr[DatenFilm.FILM_URL_NR];
+        }
+
     }
 
     public DatenFilm getCopy() {
@@ -508,4 +541,35 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
         return s;
     }
+
+////    public boolean filmEquals_Orf(DatenFilm film) {
+////        // http://apasfpd.apa.at/cms-worldwide/online/30e56502951a39b3dcc07cbd42b93dd8/1386353983/2013-12-06_1830_tl_02_heute-konkret_-3--Beschwerden__7210188__o__0000942829__s7210191___en_ORF2HiRes_18322601P_18362214P_Q6A.mp4
+////        // http://apasfpd.apa.at/cms-worldwide/online/3b0619925919951eede27b73836e05f7/1386353969/2013-12-06_1830_tl_02_heute-konkret_-3--Beschwerden__7210188__o__0000942829__s7210191___en_ORF2HiRes_18322601P_18362214P_Q6A.mp4
+////        // die 2 Nummer nach "/online/" werden nicht verglichen
+////        // Problem wegen gleicher URLs
+////        try {
+////            String tmp = film.arr[DatenFilm.FILM_URL_NR].substring(film.arr[DatenFilm.FILM_URL_NR].indexOf("/online/") + "/online/".length());
+////            if (!tmp.contains("/")) {
+////                return false;
+////            }
+////            tmp = tmp.substring(tmp.indexOf("/") + 1);
+////            if (!tmp.contains("/")) {
+////                return false;
+////            }
+////            tmp = tmp.substring(tmp.indexOf("/") + 1);
+////            if (tmp.isEmpty()) {
+////                return false;
+////            }
+////            if (this.arr[DatenFilm.FILM_URL_NR].endsWith(tmp)) {
+////                if (this.arr[DatenFilm.FILM_THEMA_NR].equals(film.arr[DatenFilm.FILM_THEMA_NR])
+////                        && this.arr[DatenFilm.FILM_TITEL_NR].equals(film.arr[DatenFilm.FILM_TITEL_NR])) {
+////                    // nur wenn auch Thema und Titel gleich sind
+////                    return true;
+////                }
+////            }
+////        } catch (Exception ex) {
+////            MSearchLog.fehlerMeldung(945630124, MSearchLog.FEHLER_ART_PROG, "ListeFilme.getFilmByUrlOrf", "Url: " + film.arr[DatenFilm.FILM_URL_NR]);
+////        }
+////        return false;
+////    }
 }
