@@ -21,7 +21,6 @@ package msearch.daten;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.ListIterator;
 import msearch.filmeSuchen.sender.MediathekOrf;
 import msearch.tool.Datum;
 import msearch.tool.GermanStringSorter;
@@ -29,7 +28,6 @@ import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchLong;
 import msearch.tool.MSearchUrlDateiGroesse;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 
