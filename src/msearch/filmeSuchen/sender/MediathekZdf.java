@@ -256,7 +256,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                         }
                         if (!id.isEmpty()) {
                             id = "http://www.zdf.de/ZDFmediathek/xmlservice/web/beitragsDetails?ak=web&id=" + id;
-                            meldungProgress(id);
+                            meldung(id);
                             DatenFilm film = filmHolenId(getUrl, seite2, nameSenderMReader, thema, titel, urlFilm, id);
                             if (film != null) {
                                 // dann wars gut
@@ -657,7 +657,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             }
             if ((pos1 = strBuffer.indexOf("<quality>veryhigh</quality>", posAnfang)) != -1) {
                 if (pos1 < posEnde) {
-                    if (!url.isEmpty() && !url.contains("metafilegenerator")) {
+                    if (!url.isEmpty() && !url.contains("metafilegenerator") && !url.contains("podfiles")) {
                         continue;
                     }
                     if ((pos1 = strBuffer.indexOf(URL, posAnfang)) != -1) {
