@@ -110,16 +110,24 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         HashSet<String> hash = new HashSet<>();
         Iterator<DatenFilm> it = this.iterator();
         while (it.hasNext()) {
-            if (index) {
-                hash.add(it.next().getIndex());
+            DatenFilm f = it.next();
+            if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDER)) {
+                // beim KIKA ändern sich die URLs laufend
+                hash.add(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR]);
+            } else if (index) {
+                hash.add(f.getIndex());
             } else {
-                hash.add(DatenFilm.getUrl(it.next()));
+                hash.add(DatenFilm.getUrl(f));
             }
         }
         it = listeEinsortieren.iterator();
         while (it.hasNext()) {
             film = it.next();
-            if (index) {
+            if (film.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDER)) {
+                if (!hash.contains(film.arr[DatenFilm.FILM_THEMA_NR] + film.arr[DatenFilm.FILM_TITEL_NR])) {
+                    addInit(film);
+                }
+            } else if (index) {
                 if (!hash.contains(film.getIndex())) {
                     addInit(film);
                 }
@@ -148,7 +156,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
     @Override
-    public boolean add(DatenFilm film) {
+    public synchronized boolean add(DatenFilm film) {
         if (film.arr[DatenFilm.FILM_URL_KLEIN_NR].length() < 15) {
             film.arr[DatenFilm.FILM_URL_KLEIN_NR] = film.arr[DatenFilm.FILM_URL_KLEIN_NR].intern();
         }
@@ -176,7 +184,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         super.clear();
     }
 
-    public void check() {
+    public synchronized void check() {
         Iterator<DatenFilm> it = this.iterator();
         DatenFilm film;
         while (it.hasNext()) {
@@ -189,7 +197,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         }
     }
 
-    public void sort() {
+    public synchronized void sort() {
         Collections.<DatenFilm>sort(this);
         // und jetzt noch die Nummerierung in Ordnung bringen
         Iterator<DatenFilm> it = this.iterator();
@@ -222,7 +230,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return null;
     }
 
-    public String getDateiGroesse(String url, String sender) {
+    public synchronized String getDateiGroesse(String url, String sender) {
         // sucht in der Liste nach der URL und gibt die Dateigröße zurück
         // oder versucht sie übers Web zu ermitteln
         Iterator<DatenFilm> it = listIterator();
@@ -316,7 +324,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         }
     }
 
-    public void liveStreamEintragen() {
+    public synchronized void liveStreamEintragen() {
         // Live-Stream eintragen
         //DatenFilm(Daten ddaten, String ssender, String tthema, String urlThema, String ttitel, String uurl, String datum, String zeit) {
         addFilmVomSender(new DatenFilm(MediathekNdr.SENDER, THEMA_LIVE, ""/* urlThema */,
@@ -396,7 +404,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    public synchronized DatenFilm getFilmByNr(String nr) {//////////////////////
+    public synchronized DatenFilm getFilmByNr(String nr) {
+        //////////////////////
         // die Zählung beginnt bei 1 !!!!!
         int n = 0;
         try {
@@ -435,7 +444,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 //        }
 //        return ret;
 //    }
-    public String genDate() {
+    public synchronized String genDate() {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "dd.MM.yyyy, HH:mm"
         String ret;
@@ -462,7 +471,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    public String genDateRev() {
+    public synchronized String genDateRev() {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "yyyy.MM.dd__HH:mm"
         String ret;
@@ -489,7 +498,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    public int alterFilmlisteSek() {
+    public synchronized int alterFilmlisteSek() {
         // Alter der Filmliste in Sekunden
         int ret = 0;
         Date jetzt = new Date(System.currentTimeMillis());
@@ -514,14 +523,14 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    public boolean filmlisteZuAlt() {
+    public synchronized boolean filmlisteZuAlt() {
         if (this.size() == 0) {
             return true;
         }
         return filmlisteIstAelter(MSearchConst.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE);
     }
 
-    public boolean filmlisteIstAelter(int sekunden) {
+    public synchronized boolean filmlisteIstAelter(int sekunden) {
         int ret = alterFilmlisteSek();
         if (ret != 0) {
             MSearchLog.systemMeldung("Die Filmliste ist " + ret / 60 + " Minuten alt");
@@ -529,7 +538,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret > sekunden;
     }
 
-    public void metaDatenSchreiben() {
+    public synchronized void metaDatenSchreiben() {
         // FilmlisteMetaDaten
         for (int i = 0; i < metaDaten.length; ++i) {
             metaDaten[i] = "";

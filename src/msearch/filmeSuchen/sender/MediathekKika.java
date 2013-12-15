@@ -34,6 +34,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
     public static final String SENDER = "KiKA";
     private MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
     LinkedListUrl listeThemenHttp = new LinkedListUrl();
+    LinkedListUrl listeThemenKaninchen = new LinkedListUrl();
 
     public MediathekKika(MSearchFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
@@ -44,9 +45,10 @@ public class MediathekKika extends MediathekReader implements Runnable {
         meldungStart();
         addToListNormal();
         addToListHttp();
+        addToListKaninchen();
         if (MSearchConfig.getStop()) {
             meldungThreadUndFertig();
-        } else if (listeThemen.size() == 0 && listeThemenHttp.size() == 0) {
+        } else if (listeThemen.size() == 0 && listeThemenHttp.size() == 0 && listeThemenKaninchen.size() == 0) {
             meldungThreadUndFertig();
         } else {
             // dann den Sender aus der alten Liste löschen
@@ -54,7 +56,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             delSenderInAlterListe(nameSenderMReader);
             listeSort(listeThemen, 1);
             listeSort(listeThemenHttp, 1);
-            meldungAddMax(listeThemen.size() + listeThemenHttp.size());
+            meldungAddMax(listeThemen.size() + listeThemenHttp.size() + listeThemenKaninchen.size());
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
@@ -184,6 +186,31 @@ public class MediathekKika extends MediathekReader implements Runnable {
         }
     }
 
+    void addToListKaninchen() {
+        // http://www.kikaninchen.de/kikaninchen/filme/filme100-flashXml.xml
+        final String ADRESSE = "http://www.kikaninchen.de/kikaninchen/filme/filme100-flashXml.xml";
+        final String MUSTER_START = "<links id=\"program\">";
+        final String MUSTER_FILM_START = "<multiMediaLink id=\"\">";
+        listeThemenHttp.clear();
+        seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        int start;
+        String jpg, url;
+        seite = getUrlIo.getUri(nameSenderMReader, ADRESSE, MSearchConst.KODIERUNG_UTF, 3, seite, "KiKA: Kaninchen");
+        if ((start = seite.indexOf(MUSTER_START)) != -1) {
+            start += MUSTER_START.length();
+            while ((start = seite.indexOf(MUSTER_FILM_START, start)) != -1) {
+                start += MUSTER_FILM_START.length();
+                jpg = seite.extract("<image>", "<", start);
+                url = seite.extract("<path type=\"intern\" target=\"flashapp\">", "<", start);
+                if (url.isEmpty()) {
+                    continue;
+                }
+                String[] add = new String[]{url, jpg};
+                listeThemenKaninchen.addUrl(add);
+            }
+        }
+    }
+
     private class ThemaLaden implements Runnable {
 
         MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
@@ -201,6 +228,10 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 while (!MSearchConfig.getStop() && (link = listeThemenHttp.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     ladenHttp(link[0] /* url */, link[1] /* Thema */, link[2] /* alter */);
+                }
+                while (!MSearchConfig.getStop() && (link = listeThemenKaninchen.getListeThemen()) != null) {
+                    meldungProgress(link[0]);
+                    ladenKaninchen(link[0] /* url */, link[1] /* jpg */);
                 }
             } catch (Exception ex) {
                 MSearchLog.fehlerMeldung(-915236791, MSearchLog.FEHLER_ART_MREADER, MediathekKika.class.getName() + ".ThemaLaden.run", ex, "");
@@ -272,6 +303,52 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 } else {
                     MSearchLog.fehlerMeldung(-915263078, MSearchLog.FEHLER_ART_MREADER, "MediathekKika", "keine URL: " + filmWebsite);
                 }
+            }
+        }
+
+        void ladenKaninchen(String filmWebsite, String jpg) {
+            // rtmp://85.239.122.166/webl/mp4:1373029372-8f57a3d79fcef2bdd3aa5eac76b69f22.mp4
+            // erst die Nummer suchen
+            // >25420<4<165<23. Die b
+            // <http://www.kikaplus.net/clients/kika/mediathek/previewpic/1355302530-f80b463888fd4602d925b2ef2c861928 9.jpg<
+            final String MUSTER_VIDEO = "<type>Video</type>";
+            seite1 = getUrlIo.getUri(nameSenderMReader, filmWebsite, MSearchConst.KODIERUNG_UTF, 1, seite1, "");
+            String url, titel, datum, zeit = "", thema;
+            int start = 0;
+            meldung(filmWebsite);
+            while ((start = seite1.indexOf(MUSTER_VIDEO, start)) != -1) {
+                start += MUSTER_VIDEO.length();
+                url = seite1.extract("<flashMediaServerURL>", "<", start); // <flashMediaServerURL>/1373029372-8f57a3d79fcef2bdd3aa5eac76b69f22.mp4</flashMediaServerURL>
+                if (!url.isEmpty()) {
+                    if (url.startsWith("/")) {
+                        url = url.substring(1);
+                    }
+                    if (url.endsWith(".flv")) {
+                        url = url.replace(".flv", ".mp4");
+                    }
+                    if (url.endsWith(".wmv")) {
+                        url = url.replace(".wmv", ".mp4");
+                    }
+                    url = "rtmp://85.239.122.166/webl/mp4:" + url;
+                }
+                titel = seite1.extract("<title>", "<", start);
+                thema = seite1.extract("<title>", "<title>", "<", start);
+                datum = seite1.extract("<webTime>", "<", start); // <webTime>21.07.2013 15:00</webTime>
+                if (datum.contains(" ")) {
+                    zeit = datum.substring(datum.indexOf(" ") + 1) + ":00";
+                    datum = datum.substring(0, datum.indexOf(" "));
+                }
+                //    public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
+                //            String datum, String zeit,
+                //            long dauerSekunden, String description, String imageUrl, String[] keywords) {
+                if (!url.isEmpty()) {
+                    addFilm(new DatenFilm(nameSenderMReader, thema, "http://www.kikaninchen.de/kikaninchen/filme/index.html", titel, url, ""/* urlRtmp */,
+                            datum, zeit,
+                            0, "", jpg, new String[]{""}));
+                } else {
+                    MSearchLog.fehlerMeldung(-915263078, MSearchLog.FEHLER_ART_MREADER, "MediathekKika", "keine URL: " + filmWebsite);
+                }
+
             }
         }
     }
