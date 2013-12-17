@@ -26,7 +26,7 @@ import msearch.filmeSuchen.MSearchListenerFilmeLaden;
 import msearch.filmeSuchen.MSearchListenerFilmeLadenEvent;
 import msearch.io.MSearchFilmlisteLesen;
 import msearch.io.MSearchFilmlisteSchreiben;
-import msearch.tool.Funktionen;
+import msearch.tool.MSearchFunktionen;
 import msearch.tool.MSearchLog;
 import static msearch.tool.MSearchLog.versionsMeldungen;
 
@@ -107,7 +107,7 @@ public class Search implements Runnable {
         ListeFilme listeFilme = new ListeFilme();
         versionsMeldungen("Search.senderLoeschenUndExit()");
         MSearchLog.systemMeldung("###########################################################");
-        MSearchLog.systemMeldung("Programmpfad:   " + Funktionen.getPathJar());
+        MSearchLog.systemMeldung("Programmpfad:   " + MSearchFunktionen.getPathJar());
         MSearchLog.systemMeldung("Sender löschen: " + senderLoeschen);
         MSearchLog.systemMeldung("Filmliste:      " + dateiFilmliste);
         MSearchLog.systemMeldung("###########################################################");

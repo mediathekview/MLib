@@ -86,12 +86,12 @@ public class MSearchLog {
         MSearchLog.systemMeldung("freeMemory: " + freeMem / (1024L * 1024L) + " MiB");
         MSearchLog.systemMeldung("##################################################################################");
         //Version
-        MSearchLog.systemMeldung(Funktionen.getProgVersionString());
-        MSearchLog.systemMeldung("Compiled: " + Funktionen.getCompileDate());
+        MSearchLog.systemMeldung(MSearchFunktionen.getProgVersionString());
+        MSearchLog.systemMeldung("Compiled: " + MSearchFunktionen.getCompileDate());
         MSearchLog.systemMeldung("##################################################################################");
         MSearchLog.systemMeldung("Java");
         MSearchLog.systemMeldung("Classname: " + classname);
-        String[] java = Funktionen.getJavaVersion();
+        String[] java = MSearchFunktionen.getJavaVersion();
         for (String ja : java) {
             MSearchLog.systemMeldung(ja);
         }
@@ -102,7 +102,7 @@ public class MSearchLog {
     public static synchronized void startMeldungen(String classname) {
         versionsMeldungen(classname);
         MSearchLog.systemMeldung("##################################################################################");
-        MSearchLog.systemMeldung("Programmpfad: " + Funktionen.getPathJar());
+        MSearchLog.systemMeldung("Programmpfad: " + MSearchFunktionen.getPathJar());
         MSearchLog.systemMeldung("Filmliste: " + MSearchConfig.dateiFilmliste);
         MSearchLog.systemMeldung("Useragent: " + MSearchConfig.getUserAgent());
         MSearchLog.systemMeldung("##################################################################################");

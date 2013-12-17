@@ -72,4 +72,5 @@ public class Datum extends Date {
         ret = ret / 60; // Minuten
         return ret;
     }
+
 }

@@ -25,6 +25,7 @@ import msearch.daten.MSearchConfig;
 import msearch.daten.DatenFilm;
 import msearch.tool.GuiFunktionen;
 import msearch.tool.MSearchConst;
+import msearch.tool.MSearchFunktionen;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -225,13 +226,13 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     meldungProgress(link[0]);
                     laden(link[0] /* url */, link[1] /* Thema */, link[2] /* Titel */, link[3] /*Datum*/);
                 }
-                while (!MSearchConfig.getStop() && (link = listeThemenHttp.getListeThemen()) != null) {
-                    meldungProgress(link[0]);
-                    ladenHttp(link[0] /* url */, link[1] /* Thema */, link[2] /* alter */);
-                }
                 while (!MSearchConfig.getStop() && (link = listeThemenKaninchen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     ladenKaninchen(link[0] /* url */, link[1] /* jpg */);
+                }
+                while (!MSearchConfig.getStop() && (link = listeThemenHttp.getListeThemen()) != null) {
+                    meldungProgress(link[0]);
+                    ladenHttp(link[0] /* url */, link[1] /* Thema */, link[2] /* alter */);
                 }
             } catch (Exception ex) {
                 MSearchLog.fehlerMeldung(-915236791, MSearchLog.FEHLER_ART_MREADER, MediathekKika.class.getName() + ".ThemaLaden.run", ex, "");
@@ -255,9 +256,15 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 urlFilm = seite1.extract(MUSTER_URL_2, "\"");
             }
             if (!urlFilm.equals("")) {
-                meldung(urlFilm);
-                addFilm(new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, urlFilm, "-r " + urlFilm + " --flashVer WIN11,4,402,265"/* urlRtmp */,
-                        datum/*datum*/, ""/*zeit*/, 0, "", "", new String[]{""}));
+                DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, urlFilm, "-r " + urlFilm + " --flashVer WIN11,4,402,265"/* urlRtmp */,
+                        datum/*datum*/, ""/*zeit*/, 0, "", "", new String[]{""});
+                MSearchFunktionen.unescape(film);
+                if (istInFilmListe(nameSenderMReader, film.arr[DatenFilm.FILM_THEMA_NR], film.arr[DatenFilm.FILM_TITEL_NR]) == null) {
+                    meldung(urlFilm);
+                    addFilm(film);
+//                } else {
+//                    System.out.println("Doppelt-1");
+                }
             } else {
                 MSearchLog.fehlerMeldung(-912036789, MSearchLog.FEHLER_ART_MREADER, "MediathekKika", "keine URL: " + filmWebsite);
             }
@@ -342,9 +349,16 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 //            String datum, String zeit,
                 //            long dauerSekunden, String description, String imageUrl, String[] keywords) {
                 if (!url.isEmpty()) {
-                    addFilm(new DatenFilm(nameSenderMReader, thema, "http://www.kikaninchen.de/kikaninchen/filme/index.html", titel, url, ""/* urlRtmp */,
+                    DatenFilm film = new DatenFilm(nameSenderMReader, thema, "http://www.kikaninchen.de/kikaninchen/filme/index.html", titel, url, ""/* urlRtmp */,
                             datum, zeit,
-                            0, "", jpg, new String[]{""}));
+                            0, "", jpg, new String[]{""});
+                    MSearchFunktionen.unescape(film);
+                    if (istInFilmListe(nameSenderMReader, film.arr[DatenFilm.FILM_THEMA_NR], film.arr[DatenFilm.FILM_TITEL_NR]) == null) {
+                        // ansonsten gibt es den Film schon
+                        addFilm(film);
+//                    } else {
+//                        System.out.println("Doppelt-2");
+                    }
                 } else {
                     MSearchLog.fehlerMeldung(-915263078, MSearchLog.FEHLER_ART_MREADER, "MediathekKika", "keine URL: " + filmWebsite);
                 }

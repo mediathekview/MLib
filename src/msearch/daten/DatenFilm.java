@@ -279,10 +279,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     public void init() {
-//        ///////////////////
-//        if (this.nr % 2 == 0) {
-//            this.neuerFilm = true;
-//        }
         try {
             // Dateigröße
             dateigroesseL = new MSearchLong(this);
@@ -514,7 +510,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                     MSearchLog.debugMeldung("DatenFilm.CheckDatum-4 - " + "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
                 } else {
                     arr[FILM_DATUM_NR] = datum;
-                    arr[FILM_DATUM_LONG_NR] = String.valueOf(filmDate.getTime() / 1000);
+//                    arr[FILM_DATUM_LONG_NR] = String.valueOf(filmDate.getTime() / 1000);
                 }
             } catch (Exception ex) {
                 MSearchLog.fehlerMeldung(794630593, MSearchLog.FEHLER_ART_PROG, "DatenFilm.checkDatum-5", ex);

@@ -23,7 +23,7 @@ public class MSearchConst {
 
     public static final String VERSION_FILMLISTE = "3";
     public static final String PROGRAMMNAME = "MSearch";
-    public static final String USER_AGENT_DEFAULT = Funktionen.getProgVersionString();
+    public static final String USER_AGENT_DEFAULT = MSearchFunktionen.getProgVersionString();
     // MediathekView URLs
     public static final String ADRESSE_FILMLISTEN_SERVER_XML = "http://zdfmediathk.sourceforge.net/update.xml";
     public static final String ADRESSE_FILMLISTEN_SERVER_JSON = "http://zdfmediathk.sourceforge.net/update-json.xml";

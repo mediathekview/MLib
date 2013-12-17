@@ -23,8 +23,10 @@ import java.io.File;
 import java.security.CodeSource;
 import java.util.ResourceBundle;
 import msearch.Main;
+import msearch.daten.DatenFilm;
+import org.apache.commons.lang3.StringEscapeUtils;
 
-public class Funktionen {
+public class MSearchFunktionen {
 
     public static final int OS_UNKNOWN = 0;
     public static final int OS_WIN_32BIT = 1;
@@ -116,7 +118,7 @@ public class Funktionen {
             rb = ResourceBundle.getBundle("version");
             msg = rb.getString(propToken);
         } catch (Exception e) {
-            MSearchLog.fehlerMeldung(807293847, MSearchLog.FEHLER_ART_PROG, Funktionen.class.getName(), e);
+            MSearchLog.fehlerMeldung(807293847, MSearchLog.FEHLER_ART_PROG, MSearchFunktionen.class.getName(), e);
         }
         return msg;
     }
@@ -130,8 +132,22 @@ public class Funktionen {
             rb = ResourceBundle.getBundle("version");
             msg = rb.getString(propToken);
         } catch (Exception e) {
-            MSearchLog.fehlerMeldung(134679898, MSearchLog.FEHLER_ART_PROG, Funktionen.class.getName(), e);
+            MSearchLog.fehlerMeldung(134679898, MSearchLog.FEHLER_ART_PROG, MSearchFunktionen.class.getName(), e);
         }
         return msg;
     }
+
+    public static void unescape(DatenFilm film) {
+        film.arr[DatenFilm.FILM_THEMA_NR] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_THEMA_NR].trim());
+        film.arr[DatenFilm.FILM_THEMA_NR] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_THEMA_NR].trim());
+
+        // Beschreibung
+        film.arr[DatenFilm.FILM_BESCHREIBUNG_NR] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR].trim());
+        film.arr[DatenFilm.FILM_BESCHREIBUNG_NR] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR].trim());
+
+        // Titel
+        film.arr[DatenFilm.FILM_TITEL_NR] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_TITEL_NR].trim());
+        film.arr[DatenFilm.FILM_TITEL_NR] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_TITEL_NR].trim());
+    }
+
 }

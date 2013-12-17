@@ -21,7 +21,7 @@ package msearch.tool;
 
 import java.io.File;
 
-public class GuiFunktionen extends Funktionen {
+public class GuiFunktionen extends MSearchFunktionen {
 
     public static String utf8(String ret) {
         ret = ret.replace("\\u0026", "&");

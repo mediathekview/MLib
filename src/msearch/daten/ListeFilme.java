@@ -35,7 +35,7 @@ import msearch.filmeSuchen.sender.MediathekNdr;
 import msearch.filmeSuchen.sender.MediathekRbb;
 import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
-import msearch.tool.Funktionen;
+import msearch.tool.MSearchFunktionen;
 import msearch.tool.GuiFunktionen;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
@@ -80,16 +80,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // nur für die MediathekReader
         // ist eine URL,Sender,Thema,Titel schon vorhanden, wird sie verworfen, 
         // der aktuellste Film (werden von jetzt in die Vergangenheit gesucht) bleibt erhalten
-        film.arr[DatenFilm.FILM_THEMA_NR] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_THEMA_NR].trim());
-        film.arr[DatenFilm.FILM_THEMA_NR] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_THEMA_NR].trim());
-
-        // Beschreibung
-        film.arr[DatenFilm.FILM_BESCHREIBUNG_NR] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR].trim());
-        film.arr[DatenFilm.FILM_BESCHREIBUNG_NR] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR].trim());
-
-        // Titel
-        film.arr[DatenFilm.FILM_TITEL_NR] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_TITEL_NR].trim());
-        film.arr[DatenFilm.FILM_TITEL_NR] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_TITEL_NR].trim());
+        MSearchFunktionen.unescape(film);
         // erst mal schauen obs das schon gibt
         DatenFilm f;
         String idx = film.getIndex();
@@ -551,7 +542,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = "";
         }
         metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
-        metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = Funktionen.getProgVersionString() + " - Compiled: " + Funktionen.getCompileDate();
+        metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = MSearchFunktionen.getProgVersionString() + " - Compiled: " + MSearchFunktionen.getCompileDate();
     }
 
     private String getJetzt_ddMMyyyy_HHmm() {
