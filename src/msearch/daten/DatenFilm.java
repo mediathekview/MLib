@@ -108,27 +108,31 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_URL_RTMP_HD = "UrlRTMP_HD";
     public static final String FILM_URL_RTMP_HD_ = "u";
     public static final int FILM_URL_RTMP_HD_NR = 20;
+    public static final String FILM_URL_HISTORY = "Url_History";
+    public static final String FILM_URL_HISTORY_ = "aa";
+    public static final int FILM_URL_HISTORY_NR = 21;
     public static final String FILM_DATUM_LONG = "DatumL"; // Datum als Long ABER Sekunden!!
     public static final String FILM_DATUM_LONG_ = "y";
-    public static final int FILM_DATUM_LONG_NR = 21;
+    public static final int FILM_DATUM_LONG_NR = 22;
     public static final String FILM_REF = "Ref"; // Referenz auf this
     public static final String FILM_REF_ = "z";
-    public static final int FILM_REF_NR = 22;
-    public static final int MAX_ELEM = 23;
+    public static final int FILM_REF_NR = 23;
+    public static final int MAX_ELEM = 24;
     public static final String[] COLUMN_NAMES = {FILM_NR, FILM_SENDER, FILM_THEMA, FILM_TITEL,
         FILM_ABSPIELEN, FILM_AUFZEICHNEN,
         FILM_DATUM, FILM_ZEIT, FILM_DAUER, FILM_GROESSE,
         FILM_BESCHREIBUNG, /*FILM_KEYWORDS,*/ FILM_URL, FILM_WEBSEITE, FILM_ABO_NAME,
-        FILM_IMAGE_URL, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_DATUM_LONG, FILM_REF};
+        FILM_IMAGE_URL, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_URL_HISTORY, FILM_DATUM_LONG, FILM_REF};
     public static final String[] COLUMN_NAMES_XML = {FILM_NR_, FILM_SENDER_, FILM_THEMA_, FILM_TITEL_,
         FILM_ABSPIELEN_, FILM_AUFZEICHNEN_,
         FILM_DATUM_, FILM_ZEIT_, FILM_DAUER_, FILM_GROESSE_,
         FILM_BESCHREIBUNG_, /*FILM_KEYWORDS_,*/ FILM_URL_, FILM_WEBSEITE_, FILM_ABO_NAME_,
-        FILM_IMAGE_URL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_, FILM_DATUM_LONG_, FILM_REF_};
+        FILM_IMAGE_URL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_, FILM_URL_HISTORY_, FILM_DATUM_LONG_, FILM_REF_};
+    // neue Felder werden HINTEN angefügt!!!!!
     public static final int[] COLUMN_NAMES_JSON = {FILM_SENDER_NR, FILM_THEMA_NR, FILM_TITEL_NR,
         FILM_DATUM_NR, FILM_ZEIT_NR, FILM_DAUER_NR, FILM_GROESSE_NR,
         FILM_BESCHREIBUNG_NR, FILM_URL_NR, FILM_WEBSEITE_NR,
-        FILM_IMAGE_URL_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR};
+        FILM_IMAGE_URL_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR, FILM_URL_HISTORY_NR};
     public Datum datumFilm = new Datum(0);
     public long dauerL = 0; // Sekunden
     public Object abo = null;
@@ -215,37 +219,58 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
+    public void setUrlHistory() {
+        String u = getUrl(this);
+        if (u.equals(arr[DatenFilm.FILM_URL_NR])) {
+            arr[DatenFilm.FILM_URL_HISTORY_NR] = "";
+        } else {
+            arr[DatenFilm.FILM_URL_HISTORY_NR] = u;
+        }
+    }
+
+    public String getUrlHistory() {
+        if (arr[DatenFilm.FILM_URL_HISTORY_NR].isEmpty()) {
+            return arr[DatenFilm.FILM_URL_NR];
+        } else {
+            return arr[DatenFilm.FILM_URL_HISTORY_NR];
+        }
+    }
+
     public String getIndex() {
         // liefert einen eindeutigen Index für die Filmliste
         return arr[FILM_SENDER_NR].toLowerCase() + arr[FILM_THEMA_NR].toLowerCase() + DatenFilm.getUrl(this);
     }
 
     public static String getUrl(DatenFilm film) {
+        return getUrl(film.arr[DatenFilm.FILM_SENDER_NR], film.arr[DatenFilm.FILM_URL_NR]);
+    }
+
+    public static String getUrl(String ssender, String uurl) {
         // liefert die URL zum VERGLEICHEN!!
         String url = "";
-        if (film.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekOrf.SENDER)) {
+        if (ssender.equals(MediathekOrf.SENDER)) {
             try {
-                url = film.arr[DatenFilm.FILM_URL_NR].substring(film.arr[DatenFilm.FILM_URL_NR].indexOf("/online/") + "/online/".length());
+                url = uurl.substring(uurl.indexOf("/online/") + "/online/".length());
                 if (!url.contains("/")) {
-                    MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-1", "Url: " + film.arr[DatenFilm.FILM_URL_NR]);
+                    MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-1", "Url: " + uurl);
                     return "";
                 }
                 url = url.substring(url.indexOf("/") + 1);
                 if (!url.contains("/")) {
-                    MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-2", "Url: " + film.arr[DatenFilm.FILM_URL_NR]);
+                    MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-2", "Url: " + uurl);
                     return "";
                 }
                 url = url.substring(url.indexOf("/") + 1);
                 if (url.isEmpty()) {
-                    MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-3", "Url: " + film.arr[DatenFilm.FILM_URL_NR]);
+                    MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-3", "Url: " + uurl);
                     return "";
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-4", "Url: " + film.arr[DatenFilm.FILM_URL_NR]);
+                MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-4", "Url: " + uurl);
             }
-            return url;
+            return MediathekOrf.SENDER + "----" + url;
         } else {
-            return film.arr[DatenFilm.FILM_URL_NR];
+            return uurl;
         }
 
     }

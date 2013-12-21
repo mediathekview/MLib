@@ -23,9 +23,7 @@ package msearch.filmeSuchen.sender;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.ListIterator;
 import msearch.daten.DatenFilm;
-import msearch.daten.ListeFilme;
 import msearch.daten.MSearchConfig;
 import msearch.filmeSuchen.MSearchFilmeSuchen;
 import static msearch.filmeSuchen.sender.MediathekReader.listeSort;
@@ -172,13 +170,13 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             String urlFeed;
             if (start > 0) {
                 pos = start;
-                while ((pos = seite1.indexOf("<h4 class=\"base_list_item_headline\">", pos)) != -1) {
+                while (!MSearchConfig.getStop() && (pos = seite1.indexOf("<h4 class=\"base_list_item_headline\">", pos)) != -1) {
                     // über alle Sendungen eines Buchstabens
                     count = 0;
                     pos += "<h4 class=\"base_list_item_headline\">".length();
                     stop = seite1.indexOf("<!-- ende latest:", pos);
                     pos1 = pos;
-                    while ((pos1 = seite1.indexOf("<a href=\"http://tvthek.orf.at/program/", pos1)) != -1) {
+                    while (!MSearchConfig.getStop() && (pos1 = seite1.indexOf("<a href=\"http://tvthek.orf.at/program/", pos1)) != -1) {
                         // über die eine jeweilige Sendung
                         if (!MSearchConfig.senderAllesLaden) {
                             if (count > maxCount) {
@@ -361,7 +359,6 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 //        }
 //        super.addFilm(film, nurUrlPruefen);
 //    }
-
     public static String getGestern(int tage) {
         try {
             //SimpleDateFormat sdfOut = new SimpleDateFormat("EEEE", Locale.US);

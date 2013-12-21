@@ -106,9 +106,7 @@ public class MediathekReader implements Runnable {
     void addFilm(DatenFilm film, boolean nurUrlPruefen) {
         if (nurUrlPruefen) {
             if (mSearchFilmeSuchen.listeFilmeNeu.getFilmByUrl(film.arr[DatenFilm.FILM_URL_NR]) == null) {
-                mSearchFilmeSuchen.listeFilmeNeu.addFilmVomSender(film);
-//            } else {
-//                System.out.println("Doppelt");
+                addFilm(film);
             }
         } else {
             addFilm(film);
@@ -117,9 +115,9 @@ public class MediathekReader implements Runnable {
 
     void addFilm(DatenFilm film) {
         if (film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
-            //film.arr[DatenFilm.FILM_GROESSE_NR] = MVUrlDateiGroesse.laengeString(film.arr[DatenFilm.FILM_URL_NR]);
             film.arr[DatenFilm.FILM_GROESSE_NR] = mSearchFilmeSuchen.listeFilmeAlt.getDateiGroesse(film.arr[DatenFilm.FILM_URL_NR], film.arr[DatenFilm.FILM_SENDER_NR]);
         }
+        film.setUrlHistory();
         mSearchFilmeSuchen.listeFilmeNeu.addFilmVomSender(film);
     }
 
