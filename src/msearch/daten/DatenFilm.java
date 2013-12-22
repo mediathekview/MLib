@@ -118,6 +118,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_REF_ = "z";
     public static final int FILM_REF_NR = 23;
     public static final int MAX_ELEM = 24;
+    public String[] arr = new String[]{
+        "", "", "", "", "", "", "", "", "", "",
+        "", "", "", "", "", "", "", "", "", "",
+        "", "", "", ""};
     public static final String[] COLUMN_NAMES = {FILM_NR, FILM_SENDER, FILM_THEMA, FILM_TITEL,
         FILM_ABSPIELEN, FILM_AUFZEICHNEN,
         FILM_DATUM, FILM_ZEIT, FILM_DAUER, FILM_GROESSE,
@@ -138,9 +142,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public Object abo = null;
     public MSearchLong dateigroesseL; // Dateigröße in MByte
     public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
-    public String[] arr = new String[]{"", "", "", "", "", "", "", "", "", "", "",
-        "", "", "", "", "", "", "", "", "", "",
-        "", ""};
     public int nr;
     public boolean neuerFilm = false;
 
