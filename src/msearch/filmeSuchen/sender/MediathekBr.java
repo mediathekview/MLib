@@ -38,7 +38,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
     private final SimpleDateFormat sdfOutDay = new SimpleDateFormat("dd.MM.yyyy");
 
     public MediathekBr(MSearchFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 3, /* urlWarten */ 500, startPrio);
+        super(ssearch, /* name */ SENDER, /* threads */ 3, /* urlWarten */ 100, startPrio);
     }
 
     @Override

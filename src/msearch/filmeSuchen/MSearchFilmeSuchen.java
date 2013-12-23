@@ -181,7 +181,6 @@ public class MSearchFilmeSuchen {
             runSender.progress = progress;
         } else {
             // Sender startet
-            MSearchLog.systemMeldung("Starten[" + ((MSearchConfig.senderAllesLaden) ? "alles" : "update") + "] " + sender + ": " + DatumZeit.getJetzt_HH_MM_SS());
             listeSenderLaufen.add(new MSearchRunSender(sender, max, progress));
             //wird beim Start des Senders aufgerufen, 1x
             if (listeSenderLaufen.size() <= 1 /* erster Aufruf */) {

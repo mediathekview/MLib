@@ -22,8 +22,10 @@ package msearch.filmeSuchen.sender;
 import java.util.Iterator;
 import java.util.LinkedList;
 import msearch.daten.DatenFilm;
+import msearch.daten.MSearchConfig;
 import msearch.filmeSuchen.MSearchFilmeSuchen;
 import msearch.io.MSearchGetUrl;
+import msearch.tool.DatumZeit;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSearchLog;
 
@@ -153,6 +155,11 @@ public class MediathekReader implements Runnable {
     synchronized void meldungStart() {
         max = 0;
         progress = 0;
+        MSearchLog.systemMeldung("===============================================================");
+        MSearchLog.systemMeldung("Starten[" + ((MSearchConfig.senderAllesLaden) ? "alles" : "update") + "] " + nameSenderMReader + ": " + DatumZeit.getJetzt_HH_MM_SS());
+        MSearchLog.systemMeldung("   maxThreadLaufen: " + maxThreadLaufen);
+        MSearchLog.systemMeldung("   wartenSeiteLaden: " + wartenSeiteLaden);
+        MSearchLog.systemMeldung("");
         mSearchFilmeSuchen.melden(nameSenderMReader, max, progress, "" /* text */);
     }
 
