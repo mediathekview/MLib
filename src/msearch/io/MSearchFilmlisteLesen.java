@@ -272,6 +272,7 @@ public class MSearchFilmlisteLesen {
         BZip2CompressorInputStream bZip2CompressorInputStream;
         JsonFactory jsonF = new JsonFactory();
         JsonParser jp = null;
+        JsonToken jsonToken;
         String sender = "", thema = "";
         try {
             // ##########################################################
@@ -296,7 +297,10 @@ public class MSearchFilmlisteLesen {
             if (jp.nextToken() != JsonToken.START_OBJECT) {
                 throw new IOException("Expected data to start with an Object");
             }
-            while (jp.nextToken() != JsonToken.END_OBJECT) {
+            while ((jsonToken = jp.nextToken()) != null) {
+                if (jsonToken == JsonToken.END_OBJECT) {
+                    break;
+                }
                 if (jp.isExpectedStartArrayToken()) {
                     for (int k = 0; k < ListeFilme.MAX_ELEM; ++k) {
                         listeFilme.metaDaten[k] = jp.nextTextValue();
@@ -304,14 +308,20 @@ public class MSearchFilmlisteLesen {
                     break;
                 }
             }
-            while (jp.nextToken() != JsonToken.END_OBJECT) {
+            while ((jsonToken = jp.nextToken()) != null) {
+                if (jsonToken == JsonToken.END_OBJECT) {
+                    break;
+                }
                 if (jp.isExpectedStartArrayToken()) {
                     // sind nur die Feldbeschreibungen, brauch mer nicht
                     jp.nextToken();
                     break;
                 }
             }
-            while (jp.nextToken() != JsonToken.END_OBJECT) {
+            while ((jsonToken = jp.nextToken()) != null) {
+                if (jsonToken == JsonToken.END_OBJECT) {
+                    break;
+                }
                 if (jp.isExpectedStartArrayToken()) {
                     DatenFilm datenFilm = new DatenFilm();
                     for (int i = 0; i < DatenFilm.COLUMN_NAMES_JSON.length; ++i) {
