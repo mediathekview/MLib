@@ -180,7 +180,6 @@ public class MSearchImportFilmliste {
     private synchronized void fertigMelden() {
         for (MSearchListenerFilmeLaden l : listeners.getListeners(MSearchListenerFilmeLaden.class)) {
             l.fertig(new MSearchListenerFilmeLadenEvent("", "", 0, 0));
-
         }
     }
 }
