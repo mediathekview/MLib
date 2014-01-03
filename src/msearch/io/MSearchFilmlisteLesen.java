@@ -406,7 +406,7 @@ public class MSearchFilmlisteLesen {
             } catch (Exception e) {
             }
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(915236765, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteDownload", ex);
+            MSearchLog.fehlerMeldung(915236765, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteEntpackenKopieren", ex);
         }
         return ret;
     }
@@ -452,7 +452,7 @@ public class MSearchFilmlisteLesen {
             } catch (Exception e) {
             }
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(915236765, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteDownload", ex);
+            MSearchLog.fehlerMeldung(952163678, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteDownload", ex);
         }
         return ret;
     }

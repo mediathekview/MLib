@@ -44,6 +44,7 @@ import msearch.tool.MSearchListenerMediathekView;
 import msearch.tool.MSearchLog;
 
 public class MSearchFilmlistenSuchen {
+
     // damit werden die DownloadURLs zum Laden einer Filmliste gesucht
     //
     //Tags FilmUpdateServer Filmliste
@@ -96,12 +97,12 @@ public class MSearchFilmlistenSuchen {
         }
         if (listeDownloadUrlsFilmlisten.size() < 5) {
             // dann gibts ein paar fest hinterlegt URLs
-            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/m1/Filmliste-json_09_00.bz2", "1", "09:40:00", getTag("09:40:00")));
-            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/m1/Filmliste-json_13_00.bz2", "1", "13:40:00", getTag("13:40:00")));
-            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/m1/Filmliste-json_16_00.bz2", "1", "16:40:00", getTag("16:40:00")));
-            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/m1/Filmliste-json_19_00.bz2", "1", "19:40:00", getTag("19:40:00")));
-            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/m1/Filmliste-json_20_00.bz2", "1", "20:40:00", getTag("20:40:00")));
-            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/m1/Filmliste-json_22_00.bz2", "1", "22:40:00", getTag("22:40:00")));
+            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://85.25.49.47/json2/Filmliste-json_16_00.xz", "1", "16:40:00", getTag("09:40:00")));
+            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/json2/Filmliste-json_14_00.xz", "1", "14:40:00", getTag("13:40:00")));
+            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/json2/Filmliste-json_18_00.xz", "1", "18:40:00", getTag("16:40:00")));
+            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://85.25.49.47/json1/Filmliste-json_19_00.xz", "1", "19:40:00", getTag("19:40:00")));
+            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/json2/Filmliste-json_20_00.xz", "1", "20:40:00", getTag("20:40:00")));
+            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/json1/Filmliste-json_22_00.xz", "1", "22:40:00", getTag("22:40:00")));
         }
         listeDownloadUrlsFilmlisten.sort();
         retUrl = listeDownloadUrlsFilmlisten.getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
@@ -142,8 +143,8 @@ public class MSearchFilmlistenSuchen {
 
     private void getDownloadUrlsFilmlisten__backuplisten(ListeDownloadUrlsFilmlisten sListe, String userAgent) {
         // für den Notfall fest hinterlegte Downloadserver
-        getDownloadUrlsFilmlisten(GuiFunktionen.addUrl("http://176.28.8.161/mediathek1", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
-        getDownloadUrlsFilmlisten(GuiFunktionen.addUrl("http://176.28.8.161/mediathek2", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
+        getDownloadUrlsFilmlisten(GuiFunktionen.addUrl("http://176.28.8.161/json1", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
+        getDownloadUrlsFilmlisten(GuiFunktionen.addUrl("http://85.25.49.47/json1", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
         Iterator<DatenFilmlistenServer> it = listeFilmlistenServer.iterator();
         while (it.hasNext()) {
             if (sListe.size() > 100) {
