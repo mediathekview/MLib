@@ -195,7 +195,9 @@ public class MSearchFilmeSuchen {
         //wird ausgeführt wenn Sender beendet ist
         String zeile = "";
         MSearchLog.systemMeldung("-------------------------------------------------------------------------------------");
-        MSearchLog.systemMeldung("Fertig " + sender + ": " + DatumZeit.getJetzt_HH_MM_SS() + ", Filme: " + listeFilmeNeu.countSender(sender));
+        MSearchLog.systemMeldung("Fertig " + sender + ": " + DatumZeit.getJetzt_HH_MM_SS() + " Uhr, Filme: " + listeFilmeNeu.countSender(sender));
+        int sekunden = getDauerSekunden();
+        MSearchLog.systemMeldung("     ->    Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60));
         MSearchLog.systemMeldung("-------------------------------------------------------------------------------------");
         MSearchRunSender run = listeSenderLaufen.senderFertig(sender);
         if (run != null) {
@@ -309,12 +311,7 @@ public class MSearchFilmeSuchen {
 //        listeFilmeNeu = null;
         stopZeit = new Date(System.currentTimeMillis());
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        int sekunden;
-        try {
-            sekunden = Math.round((stopZeit.getTime() - startZeit.getTime()) / (1000));
-        } catch (Exception ex) {
-            sekunden = -1;
-        }
+        int sekunden = getDauerSekunden();
         MSearchLog.systemMeldung("");
         MSearchLog.systemMeldung("=================================================================================");
         MSearchLog.systemMeldung("=================================================================================");
@@ -324,9 +321,6 @@ public class MSearchFilmeSuchen {
         String groesse = (MSearchGetUrl.getSeitenZaehler(MSearchGetUrl.LISTE_SUMME_BYTE) == 0) ? "<1" : Long.toString(MSearchGetUrl.getSeitenZaehler(MSearchGetUrl.LISTE_SUMME_BYTE));
         MSearchLog.systemMeldung("   Summe geladen[MiB]: " + groesse);
         MSearchLog.systemMeldung("        Traffic [MiB]: " + MSearchGetUrl.getSummeMegaByte());
-        if (sekunden <= 0) {
-            sekunden = 1;
-        }
         // Durchschnittswerte ausgeben
         long kb = (MSearchGetUrl.getSeitenZaehler(MSearchGetUrl.LISTE_SUMME_BYTE) * 1024) / sekunden;
         MSearchLog.systemMeldung("     ->   Rate[KiB/s]: " + (kb == 0 ? "<1" : kb));
@@ -336,6 +330,19 @@ public class MSearchFilmeSuchen {
         MSearchLog.systemMeldung("");
         MSearchLog.systemMeldung("=================================================================================");
         MSearchLog.systemMeldung("=================================================================================");
+    }
+
+    private int getDauerSekunden() {
+        int sekunden;
+        try {
+            sekunden = Math.round((new Date(System.currentTimeMillis()).getTime() - startZeit.getTime()) / (1000));
+        } catch (Exception ex) {
+            sekunden = 1;
+        }
+        if (sekunden <= 0) {
+            sekunden = 1;
+        }
+        return sekunden;
     }
 
     private void initStart(ListeFilme listeFilme) {

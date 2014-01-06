@@ -94,6 +94,20 @@ public class MSearchStringBuilder {
         }
     }
 
+    public void extractList(String abMuster, String bisMuster, String musterStart, String musterEnde, String addUrl, ArrayList<String> result) {
+        if ((pos1 = cont.indexOf(abMuster)) != -1) {
+            int stopPos = cont.indexOf(bisMuster);
+            while ((pos1 = cont.indexOf(musterStart, pos1)) != -1) {
+                pos1 += musterStart.length();
+                if ((pos2 = cont.indexOf(musterEnde, pos1)) != -1) {
+                    if (stopPos < 0 || pos2 < stopPos) {
+                        result.add(addUrl + cont.substring(pos1, pos2));
+                    }
+                }
+            }
+        }
+    }
+
     public String extractLast(String musterStart, String musterEnde) {
         if ((pos1 = cont.lastIndexOf(musterStart)) != -1) {
             pos1 += musterStart.length();
