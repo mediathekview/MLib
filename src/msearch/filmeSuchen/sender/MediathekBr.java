@@ -62,6 +62,14 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     if (url.equals("")) {
                         continue;
                     }
+                    /// der BR ist etwas zu langsam dafür????
+//                    // in die Liste eintragen
+//                    String[] add;
+//                    if (MSearchConfig.senderAllesLaden) {
+//                        add = new String[]{"http://www.br.de/mediathek/video/sendungen/" + url + "#seriesMoreCount=10", ""};
+//                    } else {
+//                        add = new String[]{"http://www.br.de/mediathek/video/sendungen/" + url, ""};
+//                    }
                     // in die Liste eintragen
                     String[] add = new String[]{"http://www.br.de/mediathek/video/sendungen/" + url, ""};
                     listeThemen.addUrl(add);
