@@ -21,7 +21,12 @@ package msearch.daten;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import msearch.filmeSuchen.sender.MediathekArd;
+import msearch.filmeSuchen.sender.MediathekBr;
+import msearch.filmeSuchen.sender.MediathekMdr;
 import msearch.filmeSuchen.sender.MediathekOrf;
+import msearch.filmeSuchen.sender.MediathekSrfPod;
+import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.tool.Datum;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSearchConst;
@@ -37,6 +42,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String AUFLOESUNG_NORMAL = "normal";
     public static final String AUFLOESUNG_HD = "hd";
     public static final String AUFLOESUNG_KLEIN = "klein";
+    public static final String GEO_DE = "DE"; // nur in .. zu sehen
+    public static final String GEO_AT = "AT";
+    public static final String GEO_CH = "CH";
+    public static final String GEO_EU = "EU";
     //Tags Filme
     public static final String FELD_INFO = "Feldinfo";
     public static final String FILME = "Filme";
@@ -111,32 +120,38 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_URL_HISTORY = "Url_History";
     public static final String FILM_URL_HISTORY_ = "aa";
     public static final int FILM_URL_HISTORY_NR = 21;
+    public static final String FILM_GEO = "Geo"; // Geoblocking
+    public static final String FILM_GEO_ = "bb";
+    public static final int FILM_GEO_NR = 22;
     public static final String FILM_DATUM_LONG = "DatumL"; // Datum als Long ABER Sekunden!!
     public static final String FILM_DATUM_LONG_ = "y";
-    public static final int FILM_DATUM_LONG_NR = 22;
+    public static final int FILM_DATUM_LONG_NR = 23;
     public static final String FILM_REF = "Ref"; // Referenz auf this
     public static final String FILM_REF_ = "z";
-    public static final int FILM_REF_NR = 23;
-    public static final int MAX_ELEM = 24;
+    public static final int FILM_REF_NR = 24;
+    public static final int MAX_ELEM = 25;
     public String[] arr = new String[]{
         "", "", "", "", "", "", "", "", "", "",
         "", "", "", "", "", "", "", "", "", "",
-        "", "", "", ""};
+        "", "", "", "", ""};
     public static final String[] COLUMN_NAMES = {FILM_NR, FILM_SENDER, FILM_THEMA, FILM_TITEL,
         FILM_ABSPIELEN, FILM_AUFZEICHNEN,
         FILM_DATUM, FILM_ZEIT, FILM_DAUER, FILM_GROESSE,
         FILM_BESCHREIBUNG, /*FILM_KEYWORDS,*/ FILM_URL, FILM_WEBSEITE, FILM_ABO_NAME,
-        FILM_IMAGE_URL, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_URL_HISTORY, FILM_DATUM_LONG, FILM_REF};
+        FILM_IMAGE_URL, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_URL_HISTORY, FILM_GEO,
+        FILM_DATUM_LONG, FILM_REF};
     public static final String[] COLUMN_NAMES_XML = {FILM_NR_, FILM_SENDER_, FILM_THEMA_, FILM_TITEL_,
         FILM_ABSPIELEN_, FILM_AUFZEICHNEN_,
         FILM_DATUM_, FILM_ZEIT_, FILM_DAUER_, FILM_GROESSE_,
         FILM_BESCHREIBUNG_, /*FILM_KEYWORDS_,*/ FILM_URL_, FILM_WEBSEITE_, FILM_ABO_NAME_,
-        FILM_IMAGE_URL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_, FILM_URL_HISTORY_, FILM_DATUM_LONG_, FILM_REF_};
+        FILM_IMAGE_URL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_, FILM_URL_HISTORY_, FILM_GEO_,
+        FILM_DATUM_LONG_, FILM_REF_};
     // neue Felder werden HINTEN angefügt!!!!!
     public static final int[] COLUMN_NAMES_JSON = {FILM_SENDER_NR, FILM_THEMA_NR, FILM_TITEL_NR,
         FILM_DATUM_NR, FILM_ZEIT_NR, FILM_DAUER_NR, FILM_GROESSE_NR,
         FILM_BESCHREIBUNG_NR, FILM_URL_NR, FILM_WEBSEITE_NR,
-        FILM_IMAGE_URL_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR, FILM_URL_HISTORY_NR};
+        FILM_IMAGE_URL_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR,
+        FILM_URL_HISTORY_NR, FILM_GEO_NR};
     public Datum datumFilm = new Datum(0);
     public long dauerL = 0; // Sekunden
     public Object abo = null;
@@ -226,6 +241,49 @@ public class DatenFilm implements Comparable<DatenFilm> {
             arr[DatenFilm.FILM_URL_HISTORY_NR] = "";
         } else {
             arr[DatenFilm.FILM_URL_HISTORY_NR] = u;
+        }
+    }
+
+    public void setGeo() {
+        switch (arr[DatenFilm.FILM_SENDER_NR]) {
+            case MediathekArd.SENDER:
+                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://mvideos-geo.daserste.de/")) {
+                    arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
+                }
+                break;
+            case MediathekBr.SENDER:
+                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://cdn-storage.br.de/geo/")) {
+                    arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
+                }
+                break;
+            case MediathekMdr.SENDER:
+                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://ondemandgeo.mdr.de/")) {
+                    arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
+                }
+                break;
+            case MediathekZdf.SENDER:
+                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://nrodl.zdf.de/de/")
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://rodl.zdf.de/de/")) {
+                    arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
+                } else if (arr[DatenFilm.FILM_URL_NR].startsWith("http://nrodl.zdf.de/dach/")
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://rodl.zdf.de/dach/")) {
+                    arr[DatenFilm.FILM_GEO_NR] = GEO_DE + GEO_AT + GEO_CH;
+                } else if (arr[DatenFilm.FILM_URL_NR].startsWith("http://nrodl.zdf.de/ebu/")
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://rodl.zdf.de/ebu/")) {
+                    arr[DatenFilm.FILM_GEO_NR] = GEO_DE + GEO_AT + GEO_CH + GEO_EU;
+                }
+                break;
+            case MediathekOrf.SENDER:
+                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://apasfpd.apa.at/cms-austria/")
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("rtmp://apasfw.apa.at/cms-austria/")) {
+                    arr[DatenFilm.FILM_GEO_NR] = GEO_AT;
+                }
+                break;
+            case MediathekSrfPod.SENDER:
+                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://podcasts.srf.ch/ch/audio/")) {
+                    arr[DatenFilm.FILM_GEO_NR] = GEO_CH;
+                }
+                break;
         }
     }
 

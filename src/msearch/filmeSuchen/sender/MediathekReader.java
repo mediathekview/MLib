@@ -120,6 +120,7 @@ public class MediathekReader implements Runnable {
             film.arr[DatenFilm.FILM_GROESSE_NR] = mSearchFilmeSuchen.listeFilmeAlt.getDateiGroesse(film.arr[DatenFilm.FILM_URL_NR], film.arr[DatenFilm.FILM_SENDER_NR]);
         }
         film.setUrlHistory();
+        film.setGeo();
         mSearchFilmeSuchen.listeFilmeNeu.addFilmVomSender(film);
     }
 
