@@ -19,11 +19,13 @@
  */
 package msearch.filmeSuchen.sender;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import msearch.filmeSuchen.MSearchFilmeSuchen;
 import msearch.io.MSearchGetUrl;
 import msearch.daten.MSearchConfig;
 import msearch.daten.DatenFilm;
-import msearch.tool.DatumZeit;
+import static msearch.filmeSuchen.sender.MediathekZdf.filmHolenId;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchStringBuilder;
@@ -39,16 +41,45 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
 
     @Override
     void addToList() {
-        final String ADRESSE = "http://www.3sat.de/page/?source=/specials/133576/index.html";
-        final String MUSTER_URL = "<a href=\"/mediaplayer/rss/mediathek";
         listeThemen.clear();
-        MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
         meldungStart();
-        //seite = new GetUrl(daten).getUriArd(ADRESSE, seite, "");
-        seite = getUrlIo.getUri_Iso(nameSenderMReader, ADRESSE, seite, "");
+        sendungenLaden();
+        tageLaden();
+        if (MSearchConfig.getStop()) {
+            meldungThreadUndFertig();
+        } else if (listeThemen.size() == 0) {
+            meldungThreadUndFertig();
+        } else {
+            listeSort(listeThemen, 1);
+            meldungAddMax(listeThemen.size());
+            for (int t = 0; t < maxThreadLaufen; ++t) {
+                //new Thread(new ThemaLaden()).start();
+                Thread th = new Thread(new ThemaLaden());
+                th.setName(nameSenderMReader + t);
+                th.start();
+            }
+        }
+    }
+
+    private void tageLaden() {
+        // http://www.3sat.de/mediathek/?datum=20140105&cx=108
+        String date;
+        for (int i = 0; i < (MSearchConfig.senderAllesLaden ? 21 : 7); ++i) {
+            date = new SimpleDateFormat("yyyyMMdd").format(new Date().getTime() - i * (1000 * 60 * 60 * 24));
+            String url = "http://www.3sat.de/mediathek/?datum=" + date + "&cx=108";
+            listeThemen.add(new String[]{url, ""});
+        }
+    }
+
+    private void sendungenLaden() {
+        // ><a class="SubItem" href="?red=kulturzeit">Kulturzeit</a>
+        final String ADRESSE = "http://www.3sat.de/mediathek/";
+        final String MUSTER_URL = "<a class=\"SubItem\" href=\"?red=";
+        MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        seite = getUrlIo.getUri_Utf(nameSenderMReader, ADRESSE, seite, "");
         int pos1 = 0;
         int pos2;
-        String url = "";
+        String url = "", thema = "";
         while ((pos1 = seite.indexOf(MUSTER_URL, pos1)) != -1) {
             try {
                 pos1 += MUSTER_URL.length();
@@ -58,32 +89,21 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                 if (url.equals("")) {
                     continue;
                 }
+                if ((pos1 = seite.indexOf(">", pos1)) != -1) {
+                    pos1 += 1;
+                    if ((pos2 = seite.indexOf("<", pos1)) != -1) {
+                        thema = seite.substring(pos1, pos2);
+                    }
+                }
                 // in die Liste eintragen
-                String[] add = new String[]{"http://www.3sat.de/mediaplayer/rss/mediathek" + url, ""};
+                // http://www.3sat.de/mediathek/?red=nano&type=1
+                String[] add = new String[]{"http://www.3sat.de/mediathek/?red=" + url + "&type=1", thema};
                 listeThemen.addUrl(add);
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-498653287, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.addToList", ex);
+                MSearchLog.fehlerMeldung(-915237874, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.sendungenLaden", ex);
             }
         }
-        if (MSearchConfig.getStop()) {
-            meldungThreadUndFertig();
-        } else if (listeThemen.size() == 0) {
-            meldungThreadUndFertig();
-        } else {
-            listeSort(listeThemen, 1);
-            // noch den RSS für alles anfügen
-            // Liste von http://www.3sat.de/mediathek/rss/mediathek.xml holen
-            String[] add = new String[]{MUSTER_ALLE, ""};
-            listeThemen.add(0, add); // alle nachfolgenden Filme ersetzen Filme die bereits in der Liste sind
-            meldungAddMax(listeThemen.size());
-            for (int t = 0; t < maxThreadLaufen; ++t) {
-                //new Thread(new ThemaLaden()).start();
-                Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
-                th.start();
-            }
 
-        }
     }
 
     private class ThemaLaden implements Runnable {
@@ -97,7 +117,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
             try {
                 meldungAddThread();
                 String[] link;
-                while (!MSearchConfig.getStop() && (link = getListeThemen()) != null) {
+                while (!MSearchConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     laden(link[0] /* url */, link[1] /* Thema */);
                 }
@@ -107,178 +127,59 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         }
 
-        void laden(String url_rss, String thema_rss) {
-            // <title>3sat.schweizweit: Mediathek-Beiträge</title>
-            final String MUSTER_URL = "type=\"video/x-ms-asf\" url=\"";
-            final String MUSTER_URL_QUICKTIME_1 = "type=\"video/quicktime\" url=\"http://hstreaming.zdf.de/3sat/veryhigh";
-            final String MUSTER_URL_QUICKTIME_2 = "type=\"video/quicktime\" url=\"http://hstreaming.zdf.de/3sat/300";
-            final String MUSTER_TITEL = "<title>";
-            final String MUSTER_DESCRIPTION = "<media:description>";
-            final String MUSTER_IMAGE = "<media:thumbnail url=\"";
-            final String MUSTER_DURATION = "media:content duration=\"";
-            final String MUSTER_DATUM = "<pubDate>";
-            final String MUSTER_LINK = "<link>";
-            boolean urlAlle = url_rss.equals(MUSTER_ALLE);
-            seite1 = getUrlIo.getUri_Utf(nameSenderMReader, url_rss, seite1, "");
-            int pos = 0;
-            int pos1;
-            int pos2;
-            int ende = 0;
+        void laden(String urlThema, String thema) {
+
+            final String MUSTER_START = "<div class=\"BoxPicture MediathekListPic\">";
             String url;
-            String thema = "3sat";
-            String link;
-            String datum;
-            String zeit;
-            long duration;
-            String description;
-            String imageUrl;
-            String titel;
-            String tmp;
-            if ((pos = seite1.indexOf(MUSTER_TITEL, pos)) == -1) {
-                return;
-            } else {
-                //für den HTML-Titel
-                pos += MUSTER_TITEL.length();
-                pos1 = pos;
-                if (!urlAlle) {
-                    if ((pos2 = seite1.indexOf("<", pos1)) != -1) {
-                        thema = seite1.substring(pos1, pos2);
-                        thema = thema.replace("3sat.", "");
-                        if (thema.contains(":")) {
-                            thema = thema.substring(0, thema.indexOf(":"));
-                        }
-                    }
+            for (int i = 0; i < (MSearchConfig.senderAllesLaden ? 50 : 5); ++i) {
+                //http://www.3sat.de/mediathek/?type=1&red=nano&mode=verpasst3
+                if (thema.isEmpty()) {
+                    // dann ist es aus "TAGE"
+                    // und wird auch nur einmanl durchlaufen
+                    url = urlThema;
+                    i = 9999;
+                } else {
+                    url = urlThema + "&mode=verpasst" + i;
                 }
-
-            }
-            // erst mal auf den Start setzen
-            if ((pos = seite1.indexOf("<item>")) == -1) {
-                return;
-            }
-            while (!MSearchConfig.getStop() && (pos = seite1.indexOf(MUSTER_TITEL, pos)) != -1) {
-                pos += MUSTER_TITEL.length();
-                ende = seite1.indexOf(MUSTER_TITEL, pos); // beginnt der nächste Film
-                url = "";
-                link = "";
-                datum = "";
-                zeit = "";
-                titel = "";
-                duration = 0;
-                try {
-                    pos1 = pos;
-                    if ((pos2 = seite1.indexOf("<", pos1)) != -1) {
-                        titel = seite1.substring(pos1, pos2);
-                        if (titel.contains(":") && (titel.indexOf(":") + 1) < titel.length()) {
-                            //enthält : und ist nicht das letztes zeichen
-                            if (urlAlle) {
-                                thema = titel.substring(0, titel.indexOf(":"));
-                            }
-                            titel = titel.substring(titel.indexOf(":") + 1);
-                        }
-                        titel = titel.trim();
-                        if (!titel.equals("")) {
-                            while (titel.charAt(0) == '\u00A0') {
-                                titel = titel.substring(1);
-                                if (titel.equals("")) {
-                                    break;
-                                }
-                            }
+                meldung(url);
+                seite1 = getUrlIo.getUri_Utf(nameSenderMReader, url, seite1, "");
+                if (seite1.indexOf(MUSTER_START) == -1) {
+                    // dann gibts keine weiteren
+                    break;
+                }
+                int pos1 = 0;
+                boolean ok;
+                String titel, id, urlFilm;
+                while ((pos1 = seite1.indexOf(MUSTER_START, pos1)) != -1) {
+                    pos1 += MUSTER_START.length();
+                    ok = false;
+                    // <a class="MediathekLink"  title='Video abspielen: nano vom 8. Januar 2014' href="?mode=play&amp;obj=40860">
+                    titel = seite1.extract("<a class=\"MediathekLink\"  title='Video abspielen:", "'", pos1).trim();
+                    // ID
+                    // http://www.3sat.de/mediathek/?mode=play&obj=40860
+                    id = seite1.extract("href=\"?mode=play&amp;obj=", "\"", pos1);
+                    if (id.isEmpty()) {
+                        //href="?obj=24138"
+                        id = seite1.extract("href=\"?obj=", "\"", pos1);
+                    }
+                    urlFilm = "http://www.3sat.de/mediathek/?mode=play&obj=" + id;
+                    if (!id.isEmpty()) {
+                        //http://www.3sat.de/mediathek/xmlservice/web/beitragsDetails?ak=web&id=40860
+                        id = "http://www.3sat.de/mediathek/xmlservice/web/beitragsDetails?ak=web&id=" + id;
+                        //meldung(id);
+                        DatenFilm film = filmHolenId(getUrl, seite2, nameSenderMReader, thema, titel, urlFilm, id);
+                        if (film != null) {
+                            // dann wars gut
+                            addFilm(film);
+                            ok = true;
                         }
                     }
-                    link = seite1.extract(MUSTER_LINK, "<", pos);
-                    // Film über die ID suchen
-                    boolean ok = false;
-                    if (link.contains("?obj=")) {
-                        String id = link.substring(link.indexOf("?obj=") + "?obj=".length());
-                        if (id.isEmpty()) {
-                            MSearchLog.fehlerMeldung(-912690789, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.laden", "keine id: " + url_rss);
-                        } else {
-                            id = "http://www.3sat.de/mediathek/xmlservice/web/beitragsDetails?ak=web&id=" + id;
-                            meldung(id);
-                            DatenFilm film = MediathekZdf.filmHolenId(getUrl, seite2, nameSenderMReader, thema, titel, link, id);
-                            if (film == null) {
-                                // dann mit der herkömmlichen Methode versuchen
-                                MSearchLog.fehlerMeldung(-925464987, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.laden", "auf die alte Art: " + url_rss);
-                            } else {
-                                // dann wars gut
-                                addFilm(film);
-                                ok = true;
-                            }
-                        }
-                    }
-                    // =============================================================================
-                    // URL dann auf die herkömmliche Art
                     if (!ok) {
-                        tmp = seite1.extract(MUSTER_DURATION, "\"", pos);
-                        try {
-                            duration = Long.parseLong(tmp);
-                        } catch (Exception ex) {
-                            MSearchLog.fehlerMeldung(-363524108, MSearchLog.FEHLER_ART_MREADER, "Mediathek3Sat.addToList", "duration");
-                        }
-                        tmp = seite1.extract(MUSTER_DATUM, "<", pos);
-                        if (tmp.equals("")) {
-                            MSearchLog.fehlerMeldung(-987453983, MSearchLog.FEHLER_ART_MREADER, "Mediathek3Sat.addToList", "keine Datum");
-                        } else {
-                            datum = DatumZeit.convertDatum(tmp);
-                            zeit = DatumZeit.convertTime(tmp);
-                        }
-                        description = seite1.extract(MUSTER_DESCRIPTION, "</media:description>", pos);
-                        imageUrl = seite1.extract(MUSTER_IMAGE, "\"", pos);
-                        pos1 = seite1.indexOf(MUSTER_URL, pos);
-                        if (pos1 != -1 && (ende == -1 || pos1 < ende)) {
-                            // asx
-                            pos1 += MUSTER_URL.length();
-                            if ((pos2 = seite1.indexOf("\"", pos1)) != -1) {
-                                url = seite1.substring(pos1, pos2);
-                            }
-                            if (!url.equals("") && url.endsWith("asx")) {
-                                url = url.replace("/300/", "/veryhigh/");
-                                flashHolen(thema, titel, link, url, datum, zeit, duration, description, imageUrl);
-                            }
-                        } else {
-                            // dann mit Quicktime-Link versuchen
-                            pos1 = seite1.indexOf(MUSTER_URL_QUICKTIME_1, pos);
-                            if (pos1 != -1 && (ende == -1 || pos1 < ende)) {
-                                pos1 += MUSTER_URL_QUICKTIME_1.length();
-                                if ((pos2 = seite1.indexOf("\"", pos1)) != -1) {
-                                    url = seite1.substring(pos1, pos2);
-                                }
-                                if (!url.equals("") && url.endsWith("mov")) {
-                                    url = "http://hstreaming.zdf.de/3sat/veryhigh" + url;
-                                    quicktimeHolen(thema, titel, link, url, datum, zeit, duration, description, imageUrl);
-                                }
-                            }
-                        }
-                        if (url.equals("")) {
-                            MSearchLog.fehlerMeldung(-976432589, MSearchLog.FEHLER_ART_MREADER, "Mediathek3Sat.addToList", new String[]{"keine URL:", titel, url_rss});
-                        }
+                        // dann mit der herkömmlichen Methode versuchen
+                        MSearchLog.fehlerMeldung(-462313269, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.laden", "Thema: " + url);
                     }
-                } catch (Exception ex) {
-                    MSearchLog.fehlerMeldung(-823694892, MSearchLog.FEHLER_ART_MREADER, "Mediathek3Sat.laden", ex);
                 }
-            } //while, die ganz große Schleife
-        }
-
-        private void flashHolen(String thema, String titel, String urlThema, String urlFilm, String datum, String zeit, long durationInSeconds, String description, String imageUrl) {
-            meldung(urlFilm);
-            //DatenFilm f = MediathekZdf.flash(getUrl, seite2, nameSenderMReader, thema, titel, urlThema, urlFilm, datum, zeit);
-            DatenFilm f = MediathekZdf.flash(getUrl, seite2, nameSenderMReader, thema, titel, urlThema, urlFilm, datum, zeit, durationInSeconds, description, imageUrl, new String[]{});
-            if (f != null) {
-                addFilm(f);
             }
-        }
-
-        private void quicktimeHolen(String thema, String titel, String urlThema, String urlFilm, String datum, String zeit, long durationInSeconds, String description, String imageUrl) {
-            meldung(urlFilm);
-            //DatenFilm f = MediathekZdf.flash(getUrl, seite2, nameSenderMReader, thema, titel, urlThema, urlFilm, datum, zeit);
-            DatenFilm f = MediathekZdf.quicktime(getUrl, seite2, nameSenderMReader, thema, titel, urlThema, urlFilm, datum, zeit, durationInSeconds, description, "", imageUrl, new String[]{});
-            if (f != null) {
-                addFilm(f);
-            }
-        }
-
-        private synchronized String[] getListeThemen() {
-            return listeThemen.pollFirst();
         }
     }
 }
