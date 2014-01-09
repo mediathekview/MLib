@@ -131,7 +131,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
 
             final String MUSTER_START = "<div class=\"BoxPicture MediathekListPic\">";
             String url;
-            for (int i = 0; i < (MSearchConfig.senderAllesLaden ? 50 : 5); ++i) {
+            for (int i = 0; i < (MSearchConfig.senderAllesLaden ? 40 : 5); ++i) {
                 //http://www.3sat.de/mediathek/?type=1&red=nano&mode=verpasst3
                 if (thema.isEmpty()) {
                     // dann ist es aus "TAGE"
