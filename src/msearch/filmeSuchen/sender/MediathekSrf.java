@@ -33,7 +33,16 @@ import msearch.tool.MSearchStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekSrf extends MediathekReader implements Runnable {
-
+/**
+ *  Class for local Exceptions
+ */
+static class SRFException extends Exception {
+  public SRFException() { super(); }
+  public SRFException(String message) { super(message); }
+  public SRFException(String message, Throwable cause) { super(message, cause); }
+  public SRFException(Throwable cause) { super(cause); }
+}
+ 
     public static final String SENDER = "SRF";
     private final int MAX_FILME_THEMA = 5;
 
@@ -46,12 +55,16 @@ public class MediathekSrf extends MediathekReader implements Runnable {
      * <code>true</code> if the response code is in
      * the 200-399 range.
      * Response Codes >=400 are logged for debug purposes (except 404)
-     *
+     * If the response code is 403, it will be pinged again with a differen base-uri
      * @param url The HTTP URL to be pinged
      * @return <code>true</code> if the given HTTP URL has returned response code 200-399 on a GET request within the
      * given timeout, otherwise <code>false</code>.
      */
-    public static boolean ping(String url) {
+    private static final String OLD_URL = "https://srfvodhd-vh.akamaihd.net";
+    private static final String NEW_URL = "http://hdvodsrforigin-f.akamaihd.net";
+        
+    public static boolean ping(String url) throws SRFException {
+ 
         url = url.replaceFirst("https", "http"); // Otherwise an exception may be thrown on invalid SSL certificates.
 
         try {
@@ -59,12 +72,19 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             connection.setConnectTimeout(1000); //1000ms timeout for connect, read timeout to infinity
             connection.setReadTimeout(0);
             int responseCode = connection.getResponseCode();
-            if (responseCode > 399 && responseCode != 404) {
+            if (responseCode > 399 && responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
+                
+                if(responseCode == HttpURLConnection.HTTP_FORBIDDEN)
+                {   
+                    throw new SRFException("TEST");        
+                }
                 System.out.println(responseCode + " + responseCode " + "Url " + url);
                 MSearchLog.debugMeldung("SRF: " + responseCode + " + responseCode " + "Url " + url);
                 return false;
             }
             return (200 <= responseCode && responseCode <= 399);
+        
+ 
         } catch (IOException exception) {
             return false;
         }
@@ -102,7 +122,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     if (pos1 != -1 && pos2 != -1) {
                         thema = seite.substring(pos1 + 1, pos2);
                     }
-                    String[] add = new String[]{"http://www.videoportal.sf.tv/rss/sendung?id=" + url, thema};
+                    String[] add = new String[]{"http://www.srf.ch/player/tv/rss/sendung?id=" + url, thema};
                     listeThemen.addUrl(add);
                 } else {
                     MSearchLog.fehlerMeldung(-198620778, MSearchLog.FEHLER_ART_MREADER, "MediathekSf.addToList", "keine URL");
@@ -397,15 +417,30 @@ public class MediathekSrf extends MediathekReader implements Runnable {
         }
 
         private String getUrlFromM3u8(String m3u8Url, String resolutionPattern, String qualityIndex) {
-            final String CSMIL = "csmil/";
-            String url = m3u8Url.substring(0, m3u8Url.indexOf(CSMIL)) + CSMIL + qualityIndex;
 
-            if (ping(url)) {
-                return url;
-            }
-
-            return "";
+                final String CSMIL = "csmil/";
+                String url = m3u8Url.substring(0, m3u8Url.indexOf(CSMIL)) + CSMIL + qualityIndex;
+                   
+                return checkPing(url);
         }
+        
+        private String checkPing(String url) 
+        {
+            try {
+                if(ping(url))
+                    return url;
+            } catch (SRFException ex) {
+                try {
+                    url=url.replace(OLD_URL,NEW_URL);
+                    if(ping(url))
+                        return url;
+                } catch (SRFException ex1) {
+                    MSearchLog.fehlerMeldung(-646490237, MSearchLog.FEHLER_ART_FILME_SUCHEN, "MediathekSf.checkPing", ex);
+                }
+            }
+            
+            return "";
+         }
 
         private String extractHdUrl(MSearchStringBuilder page, String urlWebsite) {
 
@@ -582,4 +617,9 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             return jsonurl.replace(SEARCH_PATTERN, REPLACE_PATTERN);
         }
     }
+
+
+
 }
+
+
