@@ -19,6 +19,10 @@
  */
 package msearch.filmeSuchen.sender;
 
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import msearch.daten.DatenFilm;
 import msearch.daten.MSearchConfig;
 import msearch.filmeSuchen.MSearchFilmeSuchen;
@@ -26,6 +30,7 @@ import msearch.io.MSearchGetUrl;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchStringBuilder;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekZdf extends MediathekReader implements Runnable {
 
@@ -35,6 +40,9 @@ public class MediathekZdf extends MediathekReader implements Runnable {
     private final int ANZAHL_ZDF_MITTEL = 50;
     private final int ANZAHL_ZDF_UPDATE = 20;
     private final int ANZAHL_ZDF_KURZ = 10;
+    private final SimpleDateFormat sdfIn = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    private final SimpleDateFormat sdfOut_date = new SimpleDateFormat("dd.MM.yyyy");
+    private final SimpleDateFormat sdfOut_time = new SimpleDateFormat("HH:mm:ss");
 
     public MediathekZdf(MSearchFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, 8 /* threads */, 500 /* urlWarten */, startPrio);
@@ -44,6 +52,9 @@ public class MediathekZdf extends MediathekReader implements Runnable {
     public void addToList() {
         listeThemen.clear();
         meldungStart();
+
+        addTivi();
+
         // Liste von http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz0 bis sat8 holen
         String addr = "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz";
         for (int i = 0; i <= 8; ++i) {
@@ -127,6 +138,101 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 url = "http://www.zdf.de/ZDFmediathek/kanaluebersicht/aktuellste/" + url + "?bc=rub";
                 addToList_addr(url, ANZAHL_ZDF_UPDATE); // immer nur eine "kurz"
             }
+        }
+    }
+
+    private void addTivi() {
+        //<ns3:headline>Nachrichten</ns3:headline>
+        //<ns3:image>/tiviVideos/contentblob/2063212/tivi9teaserbild/9050138</ns3:image>
+        //<ns3:page>/tiviVideos/beitrag/pur%2B+Sendungen/895212/2063212?view=flashXml</ns3:page>
+        //<ns3:text>Ich will die Wahrheit!</ns3:text>
+        final String MUSTER_URL = "<ns3:page>/tiviVideos/beitrag";
+        MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
+        MSearchStringBuilder seiteTivi_1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSearchStringBuilder seiteTivi_2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        seiteTivi_1 = getUrl.getUri(nameSenderMReader, "http://www.tivi.de/tiviVideos/?view=flashXml", MSearchConst.KODIERUNG_UTF, 6 /* versuche */, seiteTivi_1, "" /* Meldung */);
+        if (seiteTivi_1.length() == 0) {
+            MSearchLog.fehlerMeldung(-302132654, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.addTivi", "Leere Seite Tivi");
+        }
+        int pos = 0;
+        int pos1;
+        int pos2;
+        int pos3 = 0;
+        String url = "";
+        long dauerL = 0;
+        String titel, thema, urlFilm = "", datum, zeit = "", bild, website, dauer;
+        try {
+            while ((pos = seiteTivi_1.indexOf(MUSTER_URL, pos)) != -1) {
+                url = "";
+                pos += MUSTER_URL.length();
+                pos1 = pos;
+                if ((pos2 = seiteTivi_1.indexOf("<", pos1)) != -1) {
+                    url = seiteTivi_1.substring(pos1, pos2);
+                    url = URLDecoder.decode(url, "UTF-8");
+                }
+                if (url.equals("")) {
+                    MSearchLog.fehlerMeldung(-754126900, MSearchLog.FEHLER_ART_MREADER, "MediathekZdfaddTivi", "keine URL");
+                } else {
+                    urlFilm = "";
+                    url = "http://www.tivi.de/tiviVideos/beitrag" + url;
+                    // Film laden
+                    meldung(url);
+                    seiteTivi_2 = getUrl.getUri_Utf(nameSenderMReader, url, seiteTivi_2, "" /* Meldung */);
+                    titel = seiteTivi_2.extract("<title>", "<");
+                    thema = seiteTivi_2.extract("<subtitle>", "<");
+                    bild = seiteTivi_2.extract("<image>", "<");
+                    if (!bild.isEmpty()) {
+                        bild = "http://www.tivi.de" + bild;
+                    }
+                    website = seiteTivi_2.extract("<link>", "<");
+                    dauer = seiteTivi_2.extract("<ns3:duration>", "<"); //<ns3:duration>P0Y0M0DT0H24M9.000S</ns3:duration>
+                    if (dauer.isEmpty()) {
+                        //<duration>P0Y0M0DT0H1M55.000S</duration>
+                        dauer = seiteTivi_2.extract("<duration>", "<"); //<duration>P0Y0M0DT0H11M0.000S</duration>
+                    }
+                    try {
+                        dauer = dauer.replace("P0Y0M0DT", "");
+                        String h = dauer.substring(0, dauer.indexOf("H"));
+                        int ih = Integer.parseInt(h);
+                        String m = dauer.substring(dauer.indexOf("H") + 1, dauer.indexOf("M"));
+                        int im = Integer.parseInt(m);
+                        String s = dauer.substring(dauer.indexOf("M")+1, dauer.indexOf("."));
+                        int is = Integer.parseInt(s);
+                        dauerL = ih * 60 * 60 + im * 60 + is;
+                    } catch (Exception ex) {
+                        dauerL = 0;
+                        MSearchLog.fehlerMeldung(-349761012, MSearchLog.FEHLER_ART_PROG, "DatumDatum.convertDatum", ex);
+                    }
+                    zeit = "";
+                    datum = seiteTivi_2.extract("<airTime>", "<");
+                    //<airTime>2014-01-19T08:35:00.000+01:00</airTime>
+                    try {
+                        Date filmDate = sdfIn.parse(datum);
+                        datum = sdfOut_date.format(filmDate);
+                        zeit = sdfOut_time.format(filmDate);
+                    } catch (Exception ex) {
+                        MSearchLog.fehlerMeldung(-649600299, MSearchLog.FEHLER_ART_PROG, "DatumDatum.convertDatum", ex);
+                    }
+                    pos3 = 0;
+                    while ((pos3 = seiteTivi_2.indexOf("<ns4:quality>veryhigh</ns4:quality>", pos3)) != -1) {
+                        pos3 += 5;
+                        urlFilm = "";
+                        urlFilm = seiteTivi_2.extract("<ns4:url>", "<", pos3);
+                        if (urlFilm.startsWith("http") && urlFilm.endsWith("mp4") && !urlFilm.contains("metafilegenerator")) {
+                            break;
+                        }
+                    }
+                    if (urlFilm.isEmpty()) {
+                        MSearchLog.fehlerMeldung(-159876234, MSearchLog.FEHLER_ART_MREADER, "MediathekZdfaddTivi", "kein Film: " + url);
+                    } else {
+                        DatenFilm film = new DatenFilm(nameSenderMReader, thema, website, titel, urlFilm, "" /*urlRtmp*/, datum, zeit,
+                                dauerL, "", bild, new String[]{""});
+                        addFilm(film);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            MSearchLog.fehlerMeldung(-454123698, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.addTivi", ex);
         }
     }
 
@@ -279,277 +385,6 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             return listeThemen.pollFirst();
         }
 
-    }
-
-    public static DatenFilm flash(MSearchGetUrl getUrl, MSearchStringBuilder seiteFlash, String senderName, String thema, String titel,
-            String filmWebsite, String urlFilm, String datum, String zeit, long durationInSeconds, String description,
-            String imageUrl, String[] keywords) {
-        //<param name="app" value="ondemand" />
-        //<param name="host" value="cp125301.edgefcs.net" />
-        //<param name="protocols" value="rtmp,rtmpt" />
-        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_l.mp4" system-bitrate="62000">
-        //<param name="quality" value="low" />
-        //</video>
-        //
-        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_h.mp4" system-bitrate="700000">
-        //<param name="quality" value="high" />
-        //</video>
-        //
-        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_vh.mp4" system-bitrate="1700000">
-        //<param name="quality" value="veryhigh" />
-        //</video>
-
-        //http://wstreaming.zdf.de/3sat/veryhigh/ ... _hitec.asx
-        //http://fstreaming.zdf.de/3sat/veryhigh/ ... hitec.smil
-        //rtmpt://cp125301.edgefcs.net/ondemand/mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_vh.mp4
-        DatenFilm ret = null;
-        final String MUSTER_HOST = "<param name=\"host\" value=\"";
-        final String MUSTER_APP = "<param name=\"app\" value=\"";
-        final String MUSTER_URL = "src=\"";
-        final String MUSTER_URL_L = "l.mp4";
-        final String MUSTER_URL_H = "h.mp4";
-        final String MUSTER_URL_VH = "vh.mp4";
-        String orgUrl = urlFilm;
-        String host = "";
-        String app = "";
-        String url = "", tmpUrl = "";
-        int pos1;
-        int pos2;
-        try {
-            orgUrl = orgUrl.replace("http://wstreaming.zdf.de", "http://fstreaming.zdf.de");
-            orgUrl = orgUrl.replace("http://wgeostreaming.zdf.de", "http://fgeostreaming.zdf.de");
-            orgUrl = orgUrl.replace(".asx", ".smil");
-            seiteFlash = getUrl.getUri_Utf(senderName, orgUrl, seiteFlash, "filmWebsite: " + filmWebsite);
-            String strSeiteFlash = seiteFlash.toString();
-            if ((pos1 = strSeiteFlash.indexOf(MUSTER_HOST, 0)) != -1) {
-                pos1 += MUSTER_HOST.length();
-                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
-                    host = strSeiteFlash.substring(pos1, pos2);
-                }
-            }
-            if ((pos1 = strSeiteFlash.indexOf(MUSTER_APP, 0)) != -1) {
-                pos1 += MUSTER_APP.length();
-                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
-                    app = strSeiteFlash.substring(pos1, pos2);
-                }
-            }
-            pos1 = 0;
-            boolean gefunden = false;
-            while ((pos1 = strSeiteFlash.indexOf(MUSTER_URL, pos1)) != -1) {
-                pos1 += MUSTER_URL.length();
-                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
-                    tmpUrl = strSeiteFlash.substring(pos1, pos2);
-                }
-                if (url.equals("")) {
-                    url = tmpUrl;
-                }
-                if (!url.contains(MUSTER_URL_VH) && tmpUrl.contains(MUSTER_URL_H)) {
-                    url = tmpUrl;
-                    gefunden = true;
-                }
-                if (tmpUrl.contains(MUSTER_URL_VH)) {
-                    url = tmpUrl;
-                    gefunden = true;
-                }
-            }
-            if (!gefunden) {
-                //<video dur="00:08:02" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/09/120919_westerwelle_mom_51k_p7v9.mp4" system-bitrate="62000">
-                //<param name="quality" value="low" />
-                //</video>
-                //<video dur="00:08:02" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/09/120919_westerwelle_mom_536k_p9v9.mp4" system-bitrate="700000">
-                //<param name="quality" value="high" />
-                //</video>
-                //<video dur="00:08:02" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/09/120919_westerwelle_mom_1596k_p13v9.mp4" system-bitrate="1700000">
-                //<param name="quality" value="veryhigh" />
-                //</video>
-                pos1 = 0;
-                while ((pos1 = strSeiteFlash.indexOf(MUSTER_URL, pos1)) != -1) {
-                    int max = 0;
-                    pos1 += MUSTER_URL.length();
-                    if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
-                        tmpUrl = strSeiteFlash.substring(pos1, pos2);
-                    }
-                    if (url.equals("")) {
-                        url = tmpUrl;
-                    }
-                    if (tmpUrl.contains("k_")) {
-                        String tmp = tmpUrl.substring(0, tmpUrl.lastIndexOf("k_"));
-                        if (tmp.contains("_")) {
-                            tmp = tmp.substring(tmp.lastIndexOf("_") + 1);
-                            try {
-                                int i = Integer.parseInt(tmp);
-                                if (i > max) {
-                                    max = i;
-                                    url = tmpUrl;
-                                    gefunden = true;
-                                }
-                            } catch (Exception e) {
-                            }
-                        }
-                    }
-                }
-            }
-            if (!gefunden) {
-                MSearchLog.fehlerMeldung(-302125078, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-1 " + senderName, "!gefunden: " + urlFilm);
-            }
-            if (url.equals("")) {
-                ret = null;
-                MSearchLog.fehlerMeldung(-783012580, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-2 " + senderName, "keine URL: " + urlFilm);
-            } else if (host.equals("")) {
-                ret = null;
-                MSearchLog.fehlerMeldung(-356047809, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-3 " + senderName, "kein Host: " + urlFilm);
-            } else {
-                url = "rtmpt://" + host + "/" + app + "/" + url;
-                //ret = new DatenFilm(senderName, thema, urlThema, titel, url, ""/* urlRtmp */, datum, zeit);
-                ret = new DatenFilm(senderName, thema, filmWebsite, titel, url, ""/* urlRtmp */, datum, zeit, durationInSeconds, description,
-                        imageUrl, keywords);
-            }
-        } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(-265847128, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash" + senderName, ex, urlFilm);
-        }
-        return ret;
-    }
-
-    public static String[] flash(MSearchGetUrl getUrl, MSearchStringBuilder seiteFlash, String urlFilm, String sender) {
-        //<param name="app" value="ondemand" />
-        //<param name="host" value="cp125301.edgefcs.net" />
-        //<param name="protocols" value="rtmp,rtmpt" />
-        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_l.mp4" system-bitrate="62000">
-        //<param name="quality" value="low" />
-        //</video>
-        //
-        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_h.mp4" system-bitrate="700000">
-        //<param name="quality" value="high" />
-        //</video>
-        //
-        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_vh.mp4" system-bitrate="1700000">
-        //<param name="quality" value="veryhigh" />
-        //</video>
-
-        //http://wstreaming.zdf.de/3sat/veryhigh/ ... _hitec.asx
-        //http://fstreaming.zdf.de/3sat/veryhigh/ ... hitec.smil
-        //rtmpt://cp125301.edgefcs.net/ondemand/mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_vh.mp4
-        final String MUSTER_HOST = "<param name=\"host\" value=\"";
-        final String MUSTER_APP = "<param name=\"app\" value=\"";
-        final String MUSTER_URL = "src=\"";
-        final String MUSTER_URL_L = "l.mp4";
-        final String MUSTER_URL_H = "h.mp4";
-        final String MUSTER_URL_VH = "vh.mp4";
-        String[] ret = new String[]{"", "", ""};
-        String orgUrl = urlFilm;
-        String host = "";
-        String app = "";
-        String url = "", urlLow = "", urlHd = "", tmpUrl = "";
-        int pos1;
-        int pos2;
-        try {
-            orgUrl = orgUrl.replace("http://wstreaming.zdf.de", "http://fstreaming.zdf.de");
-            orgUrl = orgUrl.replace("http://wgeostreaming.zdf.de", "http://fgeostreaming.zdf.de");
-            orgUrl = orgUrl.replace(".asx", ".smil");
-            seiteFlash = getUrl.getUri_Utf(sender, orgUrl, seiteFlash, "");
-            String strSeiteFlash = seiteFlash.toString();
-            if ((pos1 = strSeiteFlash.indexOf(MUSTER_HOST, 0)) != -1) {
-                pos1 += MUSTER_HOST.length();
-                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
-                    host = strSeiteFlash.substring(pos1, pos2);
-                }
-            }
-            if ((pos1 = strSeiteFlash.indexOf(MUSTER_APP, 0)) != -1) {
-                pos1 += MUSTER_APP.length();
-                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
-                    app = strSeiteFlash.substring(pos1, pos2);
-                }
-            }
-            pos1 = 0;
-            boolean gefunden = false;
-            while ((pos1 = strSeiteFlash.indexOf(MUSTER_URL, pos1)) != -1) {
-                pos1 += MUSTER_URL.length();
-                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
-                    tmpUrl = strSeiteFlash.substring(pos1, pos2);
-                }
-                if (tmpUrl.contains("hd")) {
-                    urlHd = tmpUrl;
-                    tmpUrl = "";
-                }
-                if (url.equals("")) {
-                    url = tmpUrl;
-                }
-                if (!url.contains(MUSTER_URL_VH) && tmpUrl.contains(MUSTER_URL_H)) {
-                    if (urlLow.isEmpty()) {
-                        urlLow = url;
-                    }
-                    url = tmpUrl;
-                    gefunden = true;
-                }
-                if (tmpUrl.contains(MUSTER_URL_VH)) {
-                    if (urlLow.isEmpty()) {
-                        urlLow = url;
-                    }
-                    url = tmpUrl;
-                    gefunden = true;
-                }
-            }
-            if (!gefunden) {
-                MSearchLog.fehlerMeldung(-945236478, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-1 " + sender, "!gefunden: " + urlFilm);
-            }
-            if (url.equals("")) {
-                ret = null;
-                MSearchLog.fehlerMeldung(-714253698, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-2 " + sender, "keine URL: " + urlFilm);
-            } else if (host.equals("")) {
-                ret = null;
-                MSearchLog.fehlerMeldung(-978451236, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-3 " + sender, "kein Host: " + urlFilm);
-            } else {
-                ret[0] = "rtmpt://" + host + "/" + app + "/" + urlLow;
-                ret[1] = "rtmpt://" + host + "/" + app + "/" + url;
-                ret[2] = "rtmpt://" + host + "/" + app + "/" + urlHd;
-            }
-        } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(-802030478, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash" + sender, ex, urlFilm);
-        }
-        return ret;
-    }
-
-    public static DatenFilm quicktime(MSearchGetUrl getUrl, MSearchStringBuilder seiteQuicktime, String senderName, String thema, String titel, String filmWebsite, String urlFilm, String datum, String zeit, long durationInSeconds, String description, String thumbnailUrl, String imageUrl, String[] keywords) {
-        // RTSPtext
-        // rtsp://a1966.v1252936.c125293.g.vq.akamaistream.net/7/1966/125293/v0001/mp4.od.origin.zdf.de.gl-systemhaus.de/none/3sat/13/06/130614_meyer_kuz_1596k_p13v9.mp4
-        // 
-        // daraus wird:
-        // http://rodl.zdf.de / none/3sat/13/06/130621_news_kuz_436k_p9v11.mp4
-        DatenFilm ret = null;
-        final String MUSTER_URL = "rtsp://";
-        final String MUSTER_TAUSCH = "gl-systemhaus.de";
-        final String MUSTER_ENDE = ".mp4";
-        String orgUrl = urlFilm;
-        String url, tmpUrl = "";
-        int pos1;
-        int pos2;
-        try {
-            seiteQuicktime = getUrl.getUri_Utf(senderName, orgUrl, seiteQuicktime, "filmWebsite: " + filmWebsite);
-            String strSeiteQuicktime = seiteQuicktime.toString();
-            if ((pos1 = strSeiteQuicktime.indexOf(MUSTER_URL, 0)) != -1) {
-                pos1 += MUSTER_URL.length();
-                if ((pos2 = strSeiteQuicktime.indexOf(MUSTER_ENDE, pos1)) != -1) {
-                    tmpUrl = strSeiteQuicktime.substring(pos1, pos2);
-                }
-            }
-            if (tmpUrl.equals("")) {
-                MSearchLog.fehlerMeldung(-679893014, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.quicktime", "!gefunden: " + urlFilm);
-            } else {
-                tmpUrl = MUSTER_URL + tmpUrl + MUSTER_ENDE;
-                if ((pos1 = tmpUrl.indexOf(MUSTER_TAUSCH)) != -1) {
-                    pos1 += MUSTER_TAUSCH.length();
-                    url = "http://rodl.zdf.de" + tmpUrl.substring(pos1);
-                    //ret = new DatenFilm(senderName, thema, urlThema, titel, url, ""/* urlRtmp */, datum, zeit);
-                    ret = new DatenFilm(senderName, thema, filmWebsite, titel, url, ""/* urlRtmp */, datum, zeit, durationInSeconds, description,
-                            imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords);
-                } else {
-                    MSearchLog.fehlerMeldung(-918596307, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.quicktime", "url passt nicht: " + urlFilm);
-                }
-            }
-        } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(-265847128, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash" + senderName, ex, urlFilm);
-        }
-        return ret;
     }
 
     public static DatenFilm filmHolenId(MSearchGetUrl getUrl, MSearchStringBuilder strBuffer, String sender, String thema, String titel, String filmWebsite, String urlId) {
@@ -773,4 +608,273 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         }
         return "";
     }
+
+//    public static DatenFilm flash(MSearchGetUrl getUrl, MSearchStringBuilder seiteFlash, String senderName, String thema, String titel,
+//            String filmWebsite, String urlFilm, String datum, String zeit, long durationInSeconds, String description,
+//            String imageUrl, String[] keywords) {
+//        //<param name="app" value="ondemand" />
+//        //<param name="host" value="cp125301.edgefcs.net" />
+//        //<param name="protocols" value="rtmp,rtmpt" />
+//        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_l.mp4" system-bitrate="62000">
+//        //<param name="quality" value="low" />
+//        //</video>
+//        //
+//        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_h.mp4" system-bitrate="700000">
+//        //<param name="quality" value="high" />
+//        //</video>
+//        //
+//        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_vh.mp4" system-bitrate="1700000">
+//        //<param name="quality" value="veryhigh" />
+//        //</video>
+//
+//        //http://wstreaming.zdf.de/3sat/veryhigh/ ... _hitec.asx
+//        //http://fstreaming.zdf.de/3sat/veryhigh/ ... hitec.smil
+//        //rtmpt://cp125301.edgefcs.net/ondemand/mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_vh.mp4
+//        DatenFilm ret = null;
+//        final String MUSTER_HOST = "<param name=\"host\" value=\"";
+//        final String MUSTER_APP = "<param name=\"app\" value=\"";
+//        final String MUSTER_URL = "src=\"";
+//        final String MUSTER_URL_L = "l.mp4";
+//        final String MUSTER_URL_H = "h.mp4";
+//        final String MUSTER_URL_VH = "vh.mp4";
+//        String orgUrl = urlFilm;
+//        String host = "";
+//        String app = "";
+//        String url = "", tmpUrl = "";
+//        int pos1;
+//        int pos2;
+//        try {
+//            orgUrl = orgUrl.replace("http://wstreaming.zdf.de", "http://fstreaming.zdf.de");
+//            orgUrl = orgUrl.replace("http://wgeostreaming.zdf.de", "http://fgeostreaming.zdf.de");
+//            orgUrl = orgUrl.replace(".asx", ".smil");
+//            seiteFlash = getUrl.getUri_Utf(senderName, orgUrl, seiteFlash, "filmWebsite: " + filmWebsite);
+//            String strSeiteFlash = seiteFlash.toString();
+//            if ((pos1 = strSeiteFlash.indexOf(MUSTER_HOST, 0)) != -1) {
+//                pos1 += MUSTER_HOST.length();
+//                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
+//                    host = strSeiteFlash.substring(pos1, pos2);
+//                }
+//            }
+//            if ((pos1 = strSeiteFlash.indexOf(MUSTER_APP, 0)) != -1) {
+//                pos1 += MUSTER_APP.length();
+//                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
+//                    app = strSeiteFlash.substring(pos1, pos2);
+//                }
+//            }
+//            pos1 = 0;
+//            boolean gefunden = false;
+//            while ((pos1 = strSeiteFlash.indexOf(MUSTER_URL, pos1)) != -1) {
+//                pos1 += MUSTER_URL.length();
+//                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
+//                    tmpUrl = strSeiteFlash.substring(pos1, pos2);
+//                }
+//                if (url.equals("")) {
+//                    url = tmpUrl;
+//                }
+//                if (!url.contains(MUSTER_URL_VH) && tmpUrl.contains(MUSTER_URL_H)) {
+//                    url = tmpUrl;
+//                    gefunden = true;
+//                }
+//                if (tmpUrl.contains(MUSTER_URL_VH)) {
+//                    url = tmpUrl;
+//                    gefunden = true;
+//                }
+//            }
+//            if (!gefunden) {
+//                //<video dur="00:08:02" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/09/120919_westerwelle_mom_51k_p7v9.mp4" system-bitrate="62000">
+//                //<param name="quality" value="low" />
+//                //</video>
+//                //<video dur="00:08:02" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/09/120919_westerwelle_mom_536k_p9v9.mp4" system-bitrate="700000">
+//                //<param name="quality" value="high" />
+//                //</video>
+//                //<video dur="00:08:02" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/09/120919_westerwelle_mom_1596k_p13v9.mp4" system-bitrate="1700000">
+//                //<param name="quality" value="veryhigh" />
+//                //</video>
+//                pos1 = 0;
+//                while ((pos1 = strSeiteFlash.indexOf(MUSTER_URL, pos1)) != -1) {
+//                    int max = 0;
+//                    pos1 += MUSTER_URL.length();
+//                    if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
+//                        tmpUrl = strSeiteFlash.substring(pos1, pos2);
+//                    }
+//                    if (url.equals("")) {
+//                        url = tmpUrl;
+//                    }
+//                    if (tmpUrl.contains("k_")) {
+//                        String tmp = tmpUrl.substring(0, tmpUrl.lastIndexOf("k_"));
+//                        if (tmp.contains("_")) {
+//                            tmp = tmp.substring(tmp.lastIndexOf("_") + 1);
+//                            try {
+//                                int i = Integer.parseInt(tmp);
+//                                if (i > max) {
+//                                    max = i;
+//                                    url = tmpUrl;
+//                                    gefunden = true;
+//                                }
+//                            } catch (Exception e) {
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            if (!gefunden) {
+//                MSearchLog.fehlerMeldung(-302125078, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-1 " + senderName, "!gefunden: " + urlFilm);
+//            }
+//            if (url.equals("")) {
+//                ret = null;
+//                MSearchLog.fehlerMeldung(-783012580, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-2 " + senderName, "keine URL: " + urlFilm);
+//            } else if (host.equals("")) {
+//                ret = null;
+//                MSearchLog.fehlerMeldung(-356047809, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-3 " + senderName, "kein Host: " + urlFilm);
+//            } else {
+//                url = "rtmpt://" + host + "/" + app + "/" + url;
+//                //ret = new DatenFilm(senderName, thema, urlThema, titel, url, ""/* urlRtmp */, datum, zeit);
+//                ret = new DatenFilm(senderName, thema, filmWebsite, titel, url, ""/* urlRtmp */, datum, zeit, durationInSeconds, description,
+//                        imageUrl, keywords);
+//            }
+//        } catch (Exception ex) {
+//            MSearchLog.fehlerMeldung(-265847128, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash" + senderName, ex, urlFilm);
+//        }
+//        return ret;
+//    }
+//    public static String[] flash(MSearchGetUrl getUrl, MSearchStringBuilder seiteFlash, String urlFilm, String sender) {
+//        //<param name="app" value="ondemand" />
+//        //<param name="host" value="cp125301.edgefcs.net" />
+//        //<param name="protocols" value="rtmp,rtmpt" />
+//        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_l.mp4" system-bitrate="62000">
+//        //<param name="quality" value="low" />
+//        //</video>
+//        //
+//        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_h.mp4" system-bitrate="700000">
+//        //<param name="quality" value="high" />
+//        //</video>
+//        //
+//        //<video dur="00:29:33" paramGroup="gl-vod-rtmp" src="mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_vh.mp4" system-bitrate="1700000">
+//        //<param name="quality" value="veryhigh" />
+//        //</video>
+//
+//        //http://wstreaming.zdf.de/3sat/veryhigh/ ... _hitec.asx
+//        //http://fstreaming.zdf.de/3sat/veryhigh/ ... hitec.smil
+//        //rtmpt://cp125301.edgefcs.net/ondemand/mp4:zdf/12/07/120724_mann_bin_ich_schoen_37g_vh.mp4
+//        final String MUSTER_HOST = "<param name=\"host\" value=\"";
+//        final String MUSTER_APP = "<param name=\"app\" value=\"";
+//        final String MUSTER_URL = "src=\"";
+//        final String MUSTER_URL_L = "l.mp4";
+//        final String MUSTER_URL_H = "h.mp4";
+//        final String MUSTER_URL_VH = "vh.mp4";
+//        String[] ret = new String[]{"", "", ""};
+//        String orgUrl = urlFilm;
+//        String host = "";
+//        String app = "";
+//        String url = "", urlLow = "", urlHd = "", tmpUrl = "";
+//        int pos1;
+//        int pos2;
+//        try {
+//            orgUrl = orgUrl.replace("http://wstreaming.zdf.de", "http://fstreaming.zdf.de");
+//            orgUrl = orgUrl.replace("http://wgeostreaming.zdf.de", "http://fgeostreaming.zdf.de");
+//            orgUrl = orgUrl.replace(".asx", ".smil");
+//            seiteFlash = getUrl.getUri_Utf(sender, orgUrl, seiteFlash, "");
+//            String strSeiteFlash = seiteFlash.toString();
+//            if ((pos1 = strSeiteFlash.indexOf(MUSTER_HOST, 0)) != -1) {
+//                pos1 += MUSTER_HOST.length();
+//                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
+//                    host = strSeiteFlash.substring(pos1, pos2);
+//                }
+//            }
+//            if ((pos1 = strSeiteFlash.indexOf(MUSTER_APP, 0)) != -1) {
+//                pos1 += MUSTER_APP.length();
+//                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
+//                    app = strSeiteFlash.substring(pos1, pos2);
+//                }
+//            }
+//            pos1 = 0;
+//            boolean gefunden = false;
+//            while ((pos1 = strSeiteFlash.indexOf(MUSTER_URL, pos1)) != -1) {
+//                pos1 += MUSTER_URL.length();
+//                if ((pos2 = strSeiteFlash.indexOf("\"", pos1)) != -1) {
+//                    tmpUrl = strSeiteFlash.substring(pos1, pos2);
+//                }
+//                if (tmpUrl.contains("hd")) {
+//                    urlHd = tmpUrl;
+//                    tmpUrl = "";
+//                }
+//                if (url.equals("")) {
+//                    url = tmpUrl;
+//                }
+//                if (!url.contains(MUSTER_URL_VH) && tmpUrl.contains(MUSTER_URL_H)) {
+//                    if (urlLow.isEmpty()) {
+//                        urlLow = url;
+//                    }
+//                    url = tmpUrl;
+//                    gefunden = true;
+//                }
+//                if (tmpUrl.contains(MUSTER_URL_VH)) {
+//                    if (urlLow.isEmpty()) {
+//                        urlLow = url;
+//                    }
+//                    url = tmpUrl;
+//                    gefunden = true;
+//                }
+//            }
+//            if (!gefunden) {
+//                MSearchLog.fehlerMeldung(-945236478, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-1 " + sender, "!gefunden: " + urlFilm);
+//            }
+//            if (url.equals("")) {
+//                ret = null;
+//                MSearchLog.fehlerMeldung(-714253698, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-2 " + sender, "keine URL: " + urlFilm);
+//            } else if (host.equals("")) {
+//                ret = null;
+//                MSearchLog.fehlerMeldung(-978451236, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash-3 " + sender, "kein Host: " + urlFilm);
+//            } else {
+//                ret[0] = "rtmpt://" + host + "/" + app + "/" + urlLow;
+//                ret[1] = "rtmpt://" + host + "/" + app + "/" + url;
+//                ret[2] = "rtmpt://" + host + "/" + app + "/" + urlHd;
+//            }
+//        } catch (Exception ex) {
+//            MSearchLog.fehlerMeldung(-802030478, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash" + sender, ex, urlFilm);
+//        }
+//        return ret;
+//    }
+//    public static DatenFilm quicktime(MSearchGetUrl getUrl, MSearchStringBuilder seiteQuicktime, String senderName, String thema, String titel, String filmWebsite, String urlFilm, String datum, String zeit, long durationInSeconds, String description, String thumbnailUrl, String imageUrl, String[] keywords) {
+//        // RTSPtext
+//        // rtsp://a1966.v1252936.c125293.g.vq.akamaistream.net/7/1966/125293/v0001/mp4.od.origin.zdf.de.gl-systemhaus.de/none/3sat/13/06/130614_meyer_kuz_1596k_p13v9.mp4
+//        // 
+//        // daraus wird:
+//        // http://rodl.zdf.de / none/3sat/13/06/130621_news_kuz_436k_p9v11.mp4
+//        DatenFilm ret = null;
+//        final String MUSTER_URL = "rtsp://";
+//        final String MUSTER_TAUSCH = "gl-systemhaus.de";
+//        final String MUSTER_ENDE = ".mp4";
+//        String orgUrl = urlFilm;
+//        String url, tmpUrl = "";
+//        int pos1;
+//        int pos2;
+//        try {
+//            seiteQuicktime = getUrl.getUri_Utf(senderName, orgUrl, seiteQuicktime, "filmWebsite: " + filmWebsite);
+//            String strSeiteQuicktime = seiteQuicktime.toString();
+//            if ((pos1 = strSeiteQuicktime.indexOf(MUSTER_URL, 0)) != -1) {
+//                pos1 += MUSTER_URL.length();
+//                if ((pos2 = strSeiteQuicktime.indexOf(MUSTER_ENDE, pos1)) != -1) {
+//                    tmpUrl = strSeiteQuicktime.substring(pos1, pos2);
+//                }
+//            }
+//            if (tmpUrl.equals("")) {
+//                MSearchLog.fehlerMeldung(-679893014, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.quicktime", "!gefunden: " + urlFilm);
+//            } else {
+//                tmpUrl = MUSTER_URL + tmpUrl + MUSTER_ENDE;
+//                if ((pos1 = tmpUrl.indexOf(MUSTER_TAUSCH)) != -1) {
+//                    pos1 += MUSTER_TAUSCH.length();
+//                    url = "http://rodl.zdf.de" + tmpUrl.substring(pos1);
+//                    //ret = new DatenFilm(senderName, thema, urlThema, titel, url, ""/* urlRtmp */, datum, zeit);
+//                    ret = new DatenFilm(senderName, thema, filmWebsite, titel, url, ""/* urlRtmp */, datum, zeit, durationInSeconds, description,
+//                            imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords);
+//                } else {
+//                    MSearchLog.fehlerMeldung(-918596307, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.quicktime", "url passt nicht: " + urlFilm);
+//                }
+//            }
+//        } catch (Exception ex) {
+//            MSearchLog.fehlerMeldung(-265847128, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.flash" + senderName, ex, urlFilm);
+//        }
+//        return ret;
+//    }
 }
