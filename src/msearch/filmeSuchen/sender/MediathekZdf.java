@@ -52,9 +52,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
     public void addToList() {
         listeThemen.clear();
         meldungStart();
-
         addTivi();
-
         // Liste von http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz0 bis sat8 holen
         String addr = "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz";
         for (int i = 0; i <= 8; ++i) {

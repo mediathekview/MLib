@@ -40,7 +40,6 @@ import msearch.tool.GuiFunktionen;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchUrlDateiGroesse;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 public class ListeFilme extends ArrayList<DatenFilm> {
 
