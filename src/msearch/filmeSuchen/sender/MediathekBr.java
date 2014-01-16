@@ -249,35 +249,9 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 //<serverPrefix>rtmp://cdn-vod-fc.br.de/ondemand/</serverPrefix>
                 //<fileName>mp4:MUJIuUOVBwQIbtC2uKJDM6OhuLnC_2rc_H1S/_AiS/_yb69Ab6/3325d7de-b41b-49cc-8684-eb957219a070_B.mp4</fileName>
 
-                //=====> Klein
                 String urlGanzKlein = seiteXml.extract("<asset type=\"STANDARD\">", "<downloadUrl>", "<");
-//            if (urlKlein.isEmpty()) {
-//                String urlKlein1 = seite3.extract("<asset type=\"STANDARD\">", "<serverPrefix>", "<");
-//                String urlKlein2 = seite3.extract("<asset type=\"STANDARD\">", "<fileName>", "<");
-//                urlKlein = urlKlein1 + urlKlein2;
-//            }
-//            String groesseKlein = seite3.extract("<asset type=\"STANDARD\">", "<readableSize>", "<");
-//            groesseKlein = groesseKlein.replace("MB", "").trim();
-
-                //=====> Normal
                 String urlKlein = seiteXml.extract("<asset type=\"LARGE\">", "<downloadUrl>", "<");
-//            if (url.isEmpty()) {
-//                String url1 = seite3.extract("<asset type=\"LARGE\">", "<serverPrefix>", "<");
-//                String url2 = seite3.extract("<asset type=\"LARGE\">", "<fileName>", "<");
-//                url = url1 + url2;
-//            }
-//            String groesse = seite3.extract("<asset type=\"LARGE\">", "<readableSize>", "<");
-//            groesse = groesse.replace("MB", "").trim();
-
-                //=====> HD
                 String urlNormal = seiteXml.extract("<asset type=\"PREMIUM\">", "<downloadUrl>", "<");
-//            if (urlHd.isEmpty()) {
-//                String urlHd1 = seite3.extract("<asset type=\"PREMIUM\">", "<serverPrefix>", "<");
-//                String urlHd2 = seite3.extract("<asset type=\"PREMIUM\">", "<fileName>", "<");
-//                urlHd = urlHd1 + urlHd2;
-//            }
-//            String groesseHd = seite3.extract("<asset type=\"PREMIUM\">", "<readableSize>", "<");
-//            groesseHd = groesseHd.replace("MB", "").trim();
 
                 //public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
                 //String datum, String zeit,
@@ -317,7 +291,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             // <a href="/mediathek/video/sendungen/abendschau/der-grosse-max-spionageabwehr-100.html" class="teaser link_video contenttype_podcast der-grosse-max-spionageabwehr-100" title="zur Detailseite">
             int pos1 = 0;
             int count = 0;
-            int max = (MSearchConfig.senderAllesLaden ? 20 : 3);
+            int max = (MSearchConfig.senderAllesLaden ? 20 : 0);
             final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
             if ((pos1 = seite.indexOf("<h3>Mehr von <strong>")) != -1) {
                 while ((pos1 = seite.indexOf(MUSTER_URL, pos1)) != -1) {
@@ -326,11 +300,11 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     if (!urlWeiter.isEmpty()) {
                         urlWeiter = "http://www.br.de/mediathek/video/sendungen/" + urlWeiter;
                         ++count;
-                        laden(urlWeiter, seite2, false);
                         if (count > max) {
-//                            MSearchLog.debugMeldung("MediathekBr.laden" + " count max erreicht" + urlThema);
+//                            MSearchLog.debugMeldung("MediathekBr.laden" + " ------> count max erreicht: " + urlThema);
                             break;
                         }
+                        laden(urlWeiter, seite2, false);
                     }
                 }
             }

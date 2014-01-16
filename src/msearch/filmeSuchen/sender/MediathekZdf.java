@@ -19,10 +19,6 @@
  */
 package msearch.filmeSuchen.sender;
 
-import java.net.URLDecoder;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import msearch.daten.DatenFilm;
 import msearch.daten.MSearchConfig;
 import msearch.filmeSuchen.MSearchFilmeSuchen;
@@ -30,7 +26,6 @@ import msearch.io.MSearchGetUrl;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchStringBuilder;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekZdf extends MediathekReader implements Runnable {
 
@@ -40,9 +35,6 @@ public class MediathekZdf extends MediathekReader implements Runnable {
     private final int ANZAHL_ZDF_MITTEL = 50;
     private final int ANZAHL_ZDF_UPDATE = 20;
     private final int ANZAHL_ZDF_KURZ = 10;
-    private final SimpleDateFormat sdfIn = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-    private final SimpleDateFormat sdfOut_date = new SimpleDateFormat("dd.MM.yyyy");
-    private final SimpleDateFormat sdfOut_time = new SimpleDateFormat("HH:mm:ss");
 
     public MediathekZdf(MSearchFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, 8 /* threads */, 500 /* urlWarten */, startPrio);
@@ -52,7 +44,6 @@ public class MediathekZdf extends MediathekReader implements Runnable {
     public void addToList() {
         listeThemen.clear();
         meldungStart();
-        addTivi();
         // Liste von http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz0 bis sat8 holen
         String addr = "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz";
         for (int i = 0; i <= 8; ++i) {
@@ -136,101 +127,6 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 url = "http://www.zdf.de/ZDFmediathek/kanaluebersicht/aktuellste/" + url + "?bc=rub";
                 addToList_addr(url, ANZAHL_ZDF_UPDATE); // immer nur eine "kurz"
             }
-        }
-    }
-
-    private void addTivi() {
-        //<ns3:headline>Nachrichten</ns3:headline>
-        //<ns3:image>/tiviVideos/contentblob/2063212/tivi9teaserbild/9050138</ns3:image>
-        //<ns3:page>/tiviVideos/beitrag/pur%2B+Sendungen/895212/2063212?view=flashXml</ns3:page>
-        //<ns3:text>Ich will die Wahrheit!</ns3:text>
-        final String MUSTER_URL = "<ns3:page>/tiviVideos/beitrag";
-        MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
-        MSearchStringBuilder seiteTivi_1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        MSearchStringBuilder seiteTivi_2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        seiteTivi_1 = getUrl.getUri(nameSenderMReader, "http://www.tivi.de/tiviVideos/?view=flashXml", MSearchConst.KODIERUNG_UTF, 6 /* versuche */, seiteTivi_1, "" /* Meldung */);
-        if (seiteTivi_1.length() == 0) {
-            MSearchLog.fehlerMeldung(-302132654, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.addTivi", "Leere Seite Tivi");
-        }
-        int pos = 0;
-        int pos1;
-        int pos2;
-        int pos3 = 0;
-        String url = "";
-        long dauerL = 0;
-        String titel, thema, urlFilm = "", datum, zeit = "", bild, website, dauer;
-        try {
-            while ((pos = seiteTivi_1.indexOf(MUSTER_URL, pos)) != -1) {
-                url = "";
-                pos += MUSTER_URL.length();
-                pos1 = pos;
-                if ((pos2 = seiteTivi_1.indexOf("<", pos1)) != -1) {
-                    url = seiteTivi_1.substring(pos1, pos2);
-                    url = URLDecoder.decode(url, "UTF-8");
-                }
-                if (url.equals("")) {
-                    MSearchLog.fehlerMeldung(-754126900, MSearchLog.FEHLER_ART_MREADER, "MediathekZdfaddTivi", "keine URL");
-                } else {
-                    urlFilm = "";
-                    url = "http://www.tivi.de/tiviVideos/beitrag" + url;
-                    // Film laden
-                    meldung(url);
-                    seiteTivi_2 = getUrl.getUri_Utf(nameSenderMReader, url, seiteTivi_2, "" /* Meldung */);
-                    titel = seiteTivi_2.extract("<title>", "<");
-                    thema = seiteTivi_2.extract("<subtitle>", "<");
-                    bild = seiteTivi_2.extract("<image>", "<");
-                    if (!bild.isEmpty()) {
-                        bild = "http://www.tivi.de" + bild;
-                    }
-                    website = seiteTivi_2.extract("<link>", "<");
-                    dauer = seiteTivi_2.extract("<ns3:duration>", "<"); //<ns3:duration>P0Y0M0DT0H24M9.000S</ns3:duration>
-                    if (dauer.isEmpty()) {
-                        //<duration>P0Y0M0DT0H1M55.000S</duration>
-                        dauer = seiteTivi_2.extract("<duration>", "<"); //<duration>P0Y0M0DT0H11M0.000S</duration>
-                    }
-                    try {
-                        dauer = dauer.replace("P0Y0M0DT", "");
-                        String h = dauer.substring(0, dauer.indexOf("H"));
-                        int ih = Integer.parseInt(h);
-                        String m = dauer.substring(dauer.indexOf("H") + 1, dauer.indexOf("M"));
-                        int im = Integer.parseInt(m);
-                        String s = dauer.substring(dauer.indexOf("M")+1, dauer.indexOf("."));
-                        int is = Integer.parseInt(s);
-                        dauerL = ih * 60 * 60 + im * 60 + is;
-                    } catch (Exception ex) {
-                        dauerL = 0;
-                        MSearchLog.fehlerMeldung(-349761012, MSearchLog.FEHLER_ART_PROG, "DatumDatum.convertDatum", ex);
-                    }
-                    zeit = "";
-                    datum = seiteTivi_2.extract("<airTime>", "<");
-                    //<airTime>2014-01-19T08:35:00.000+01:00</airTime>
-                    try {
-                        Date filmDate = sdfIn.parse(datum);
-                        datum = sdfOut_date.format(filmDate);
-                        zeit = sdfOut_time.format(filmDate);
-                    } catch (Exception ex) {
-                        MSearchLog.fehlerMeldung(-649600299, MSearchLog.FEHLER_ART_PROG, "DatumDatum.convertDatum", ex);
-                    }
-                    pos3 = 0;
-                    while ((pos3 = seiteTivi_2.indexOf("<ns4:quality>veryhigh</ns4:quality>", pos3)) != -1) {
-                        pos3 += 5;
-                        urlFilm = "";
-                        urlFilm = seiteTivi_2.extract("<ns4:url>", "<", pos3);
-                        if (urlFilm.startsWith("http") && urlFilm.endsWith("mp4") && !urlFilm.contains("metafilegenerator")) {
-                            break;
-                        }
-                    }
-                    if (urlFilm.isEmpty()) {
-                        MSearchLog.fehlerMeldung(-159876234, MSearchLog.FEHLER_ART_MREADER, "MediathekZdfaddTivi", "kein Film: " + url);
-                    } else {
-                        DatenFilm film = new DatenFilm(nameSenderMReader, thema, website, titel, urlFilm, "" /*urlRtmp*/, datum, zeit,
-                                dauerL, "", bild, new String[]{""});
-                        addFilm(film);
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(-454123698, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.addTivi", ex);
         }
     }
 

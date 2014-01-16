@@ -46,6 +46,7 @@ import msearch.filmeSuchen.sender.MediathekSrfPod;
 import msearch.filmeSuchen.sender.MediathekSwr;
 import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
+import msearch.filmeSuchen.sender.MediathekZdfTivi;
 import msearch.io.MSearchGetUrl;
 import msearch.tool.DatumZeit;
 import msearch.tool.GermanStringSorter;
@@ -85,6 +86,7 @@ public class MSearchFilmeSuchen {
         mediathekListe.add(new MediathekArd(this, 0));
         mediathekListe.add(new MediathekArdPodcast(this, 1));
         mediathekListe.add(new MediathekZdf(this, 0));
+        mediathekListe.add(new MediathekZdfTivi(this, 0));
         mediathekListe.add(new MediathekArte_de(this, 1));
         mediathekListe.add(new MediathekArte_fr(this, 1));
         mediathekListe.add(new Mediathek3Sat(this, 0));
