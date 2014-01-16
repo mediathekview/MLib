@@ -246,7 +246,9 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 // =====================================================
                 // mehrer Episoden
                 thema = titel;
-                while ((pos = seite2.indexOf("\"clickcounter_corrected\":\"0\"", pos)) != -1) {
+                //final String MUSTER_SUCHEN = "\"clickcounter_corrected\":\"0\"";
+                final String MUSTER_SUCHEN = "\"clickcounter_corrected\":\"";
+                while ((pos = seite2.indexOf(MUSTER_SUCHEN, pos)) != -1) {
                     posStopEpisode = seite2.indexOf("\"is_episode_one_segment_episode\":false", pos);
                     if (posStopEpisode == -1) {
                         posStopEpisode = seite2.indexOf("\"is_episode_one_segment_episode\":true", pos);
@@ -257,7 +259,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                     if (pos > posStopAlles) {
                         break;
                     }
-                    pos += "\"clickcounter_corrected\":\"0\"".length();
+                    pos += MUSTER_SUCHEN.length();
                     tmp = seite2.extract("\"duration\":\"", "\"", pos, posStopEpisode);
                     try {
                         duration = Long.parseLong(tmp) / 1000; // time in milliseconds
