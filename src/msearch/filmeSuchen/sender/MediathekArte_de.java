@@ -114,6 +114,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         int posStart = 0, posStop = 0;
         int pos1;
         int pos2;
+        int pos;
         String urlJson;
         String datum;
         String zeit;
@@ -136,19 +137,43 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                     }
                 }
             }
-            if ((pos1 = seite1.indexOf(MUSTER_DATUM, posStart)) != -1) {
-                pos1 += MUSTER_DATUM.length();
-                if (posStop == -1 || pos1 < posStop) {
-                    if ((pos2 = seite1.indexOf("\"", pos1)) != -1) {
-                        datum = seite1.substring(pos1, pos2);
+//            if ((pos1 = seite1.indexOf(MUSTER_DATUM, posStart)) != -1) {
+//                pos1 += MUSTER_DATUM.length();
+//                if (posStop == -1 || pos1 < posStop) {
+//                    if ((pos2 = seite1.indexOf("\"", pos1)) != -1) {
+//                        datum = seite1.substring(pos1, pos2);
+//                    }
+//                }
+//            }
+            pos = posStart;
+            while ((pos = seite1.indexOf(MUSTER_DATUM, pos)) != -1) {
+                pos += MUSTER_DATUM.length();
+                if (posStop != -1 && pos > posStop) {
+                    break;
+                }
+                if (posStop == -1 || pos < posStop) {
+                    if ((pos2 = seite1.indexOf("\"", pos)) != -1) {
+                        datum = seite1.substring(pos, pos2);
                     }
                 }
             }
-            if ((pos1 = seite1.indexOf(MUSTER_ZEIT, posStart)) != -1) {
-                pos1 += MUSTER_ZEIT.length();
-                if (posStop == -1 || pos1 < posStop) {
-                    if ((pos2 = seite1.indexOf("\"", pos1)) != -1) {
-                        zeit = seite1.substring(pos1, pos2);
+//            if ((pos1 = seite1.indexOf(MUSTER_ZEIT, posStart)) != -1) {
+//                pos1 += MUSTER_ZEIT.length();
+//                if (posStop == -1 || pos1 < posStop) {
+//                    if ((pos2 = seite1.indexOf("\"", pos1)) != -1) {
+//                        zeit = seite1.substring(pos1, pos2);
+//                    }
+//                }
+//            }
+            pos = posStart;
+            while ((pos = seite1.indexOf(MUSTER_ZEIT, pos)) != -1) {
+                pos += MUSTER_ZEIT.length();
+                if (posStop != -1 && pos > posStop) {
+                    break;
+                }
+                if (posStop == -1 || pos < posStop) {
+                    if ((pos2 = seite1.indexOf("\"", pos)) != -1) {
+                        zeit = seite1.substring(pos, pos2);
                     }
                 }
             }
@@ -270,7 +295,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                 // http://artestras.vo.llnwxd.net/o35/nogeo/HBBTV/042975-013-B_EXT_SQ_1_VA_00604871_MP4-2200_AMM-HBBTV_EXTRAIT.mp4
                 // sind nur Trailer
                 DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, url, "" /*urlRtmp*/,
-                        datum, zeit, dauer, beschreibung, bild,  new String[]{});
+                        datum, zeit, dauer, beschreibung, bild, new String[]{});
                 if (!urlKlein.isEmpty()) {
                     film.addUrlKlein(urlKlein, "");
                 }
@@ -281,14 +306,14 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
             }
         } else if (!urlKlein.isEmpty()) {
             DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, urlKlein, "" /*urlRtmp*/,
-                    datum, zeit, dauer, beschreibung, bild,  new String[]{});
+                    datum, zeit, dauer, beschreibung, bild, new String[]{});
             if (!urlHd.isEmpty()) {
                 film.addUrlHd(urlHd, "");
             }
             addFilm(film);
         } else if (!urlHd.isEmpty()) {
             DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, urlHd, "" /*urlRtmp*/,
-                    datum, zeit, dauer, beschreibung, bild,  new String[]{});
+                    datum, zeit, dauer, beschreibung, bild, new String[]{});
             addFilm(film);
         } else {
             MSearchLog.fehlerMeldung(-963025874, MSearchLog.FEHLER_ART_MREADER, "MediathekArte_de.filmeLaden", "Keine URL: " + arr[0]);

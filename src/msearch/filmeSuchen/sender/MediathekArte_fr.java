@@ -25,8 +25,8 @@ public class MediathekArte_fr extends MediathekArte_de implements Runnable {
 
     /**
      *
-     * @param ddaten
-     * @param dde
+     * @param ssearch
+     * @param startPrio
      */
     public MediathekArte_fr(MSearchFilmeSuchen ssearch, int startPrio) {
         super(ssearch, startPrio);
