@@ -33,7 +33,6 @@ import msearch.tool.MSearchStringBuilder;
 public class Mediathek3Sat extends MediathekReader implements Runnable {
 
     public static final String SENDER = "3Sat";
-    private final String MUSTER_ALLE = "http://www.3sat.de/mediathek/rss/mediathek.xml";
 
     public Mediathek3Sat(MSearchFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 3, /* urlWarten */ 500, startPrio);

@@ -433,7 +433,11 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         if (!urlF4m.isEmpty()) {
             String u = f4mUrlHolen(getUrl, sender, strBuffer, urlF4m);
             if (!u.isEmpty()) {
-                url = u;
+                if (url.contains("/zdf/")) {
+                    url = url.substring(0, url.indexOf("/zdf/")) + "/" + u;
+                } else if (url.contains("/3sat/")) {
+                    url = url.substring(0, url.indexOf("/3sat/")) + "/" + u;
+                }
             }
         }
         if (urlHd.endsWith("asx")) {
@@ -474,7 +478,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         //    <media href="mp4/none/3sat/13/07/130714_zkm_bonus_rundgang_museumscheck_1056k_p12v11.mp4/manifest.f4m?hdcore" bitrate="1000000"/>
         //    <media href="mp4/none/3sat/13/07/130714_zkm_bonus_rundgang_museumscheck_2256k_p14v11.mp4/manifest.f4m?hdcore" bitrate="2200000"/>
         //</manifest>
-        final String URL = "<media href=\"mp4";
+        final String URL = "<media href=\"";
         String url = "";
         int pos1 = 0, pos2;
         strBuffer = getUrl.getUri_Utf(sender, urlf4m, strBuffer, "url: " + urlf4m);
@@ -494,7 +498,8 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                     if (url.contains("2256k") && url.contains("mp4")) {
                         // das draus bauen:
                         // http://rodl.zdf.de/none/3sat/13/07/130714_zkm_bonus_rundgang_museumscheck_2256k_p14v11.mp4
-                        url = "http://rodl.zdf.de" + url.substring(0, url.indexOf("mp4")) + "mp4";
+                        //url = "http://rodl.zdf.de/" + url.substring(0, url.indexOf("mp4")) + "mp4";
+                        url = url.substring(0, url.indexOf("mp4")) + "mp4";
                         return url;
                     }
                 }
