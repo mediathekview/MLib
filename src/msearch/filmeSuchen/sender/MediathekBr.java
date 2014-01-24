@@ -252,7 +252,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 String urlGanzKlein = seiteXml.extract("<asset type=\"STANDARD\">", "<downloadUrl>", "<");
                 String urlKlein = seiteXml.extract("<asset type=\"LARGE\">", "<downloadUrl>", "<");
                 String urlNormal = seiteXml.extract("<asset type=\"PREMIUM\">", "<downloadUrl>", "<");
-
+                String urlHd = seiteXml.extract("<asset type=\"HD\">", "<downloadUrl>", "<");
                 //public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
                 //String datum, String zeit,
                 //long dauerSekunden, String description, String imageUrl, String[] keywords) {
@@ -276,6 +276,9 @@ public class MediathekBr extends MediathekReader implements Runnable {
                             duration, description, imageUrl, new String[]{});
                     if (!urlKlein.isEmpty()) {
                         film.addUrlKlein(urlKlein, "");
+                    }
+                    if (!urlHd.isEmpty()) {
+                        film.addUrlHd(urlHd, "");
                     }
                     addFilm(film);
                     meldung(film.arr[DatenFilm.FILM_URL_NR]);
