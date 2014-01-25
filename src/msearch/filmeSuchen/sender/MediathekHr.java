@@ -231,6 +231,8 @@ public class MediathekHr extends MediathekReader implements Runnable {
             final String MUSTER_TITEL = "<title>"; //<title>alle wetter! vom 03.01.2011</title>
             final String MUSTER_URL_1 = "<jwplayer:streamer>";//<jwplayer:streamer>rtmp://gffstream.fcod.llnwd.net/a792/e4</jwplayer:streamer>
             final String MUSTER_URL_2 = "\" url=\"";//<media:content duration="00:29:42" type="video/mp4" url="mp4:flash/fs/hessenschau/20110103_1930" />
+
+            final String MUSTER_URL = "type=\"video/mp4\" url=\"";
             final String MUSTER_ITEM_1 = "<item>";
             final String MUSTER_DATUM = "<pubDate>"; //<pubDate>03.01.2011</pubDate>
             final String MUSTER_THEMA = "<jwplayer:author>"; //TH 7.8.2012
@@ -247,7 +249,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                 int posItem1 = 0;
                 int pos1;
                 int pos2;
-                String url;
+                String url = "", furl = "";
                 String url1;
                 String url2;
                 String datum = "";
@@ -277,64 +279,43 @@ public class MediathekHr extends MediathekReader implements Runnable {
                             }
                         }
                     }
-
-                    if ((pos1 = seite1.indexOf(MUSTER_DESCRIPTION, posItem1)) != -1) {
-                        pos1 += MUSTER_DESCRIPTION.length();
-                        if ((pos2 = seite1.indexOf(MUSTER_DESCRIPTIO_END, pos1)) != -1) {
-                            description = seite1.substring(pos1, pos2);
-                        }
-                    }
-
-                    if ((pos1 = seite1.indexOf(MUSTER_IMAGE, posItem1)) != -1) {
-                        pos1 += MUSTER_IMAGE.length();
-                        if ((pos2 = seite1.indexOf(MUSTER_IMAGE_END, pos1)) != -1) {
-                            image = seite1.substring(pos1, pos2);
-                            image = image.replaceAll("&amp;", "&");
-                        }
-                    }
-                    //posItem2 = seite1.indexOf(MUSTER_ITEM_2, posItem1);
-                    if ((pos1 = seite1.indexOf(MUSTER_DATUM, posItem1)) != -1) {
-                        pos1 += MUSTER_DATUM.length();
-                        if ((pos2 = seite1.indexOf("<", pos1)) != -1) {
-                            datum = seite1.substring(pos1, pos2);
-                        }
-                    }
-                    if ((pos1 = seite1.indexOf(MUSTER_TITEL, posItem1)) != -1) {
-                        pos1 += MUSTER_TITEL.length();
-                        if ((pos2 = seite1.indexOf("<", pos1)) != -1) {
-                            titel = seite1.substring(pos1, pos2);
-                            //thema = titel; //TH 7.8.2012 weg weil thema nun meistens belegt
-                        }
-                    }
+                    description = seite1.extract(MUSTER_DESCRIPTION, MUSTER_DESCRIPTIO_END, posItem1);
+                    image = seite1.extract(MUSTER_IMAGE, MUSTER_IMAGE_END, posItem1);
+                    image = image.replaceAll("&amp;", "&");
+                    datum = seite1.extract(MUSTER_DATUM, "<", posItem1);
+                    titel = seite1.extract(MUSTER_TITEL, "<", posItem1);
                     //TH 7.8.2012 Falls Thema doch nicht belegt, dann in XML Datei nehmen (leider weniger zuverlässig)
-                    if (thema.isEmpty() && (pos1 = seite1.indexOf(MUSTER_THEMA, posItem1)) != -1) {
-                        pos1 += MUSTER_THEMA.length();
-                        if ((pos2 = seite1.indexOf("<", pos1)) != -1) {
-                            thema = seite1.substring(pos1, pos2);
+                    if (thema.isEmpty()) {
+                        thema = seite1.extract(MUSTER_THEMA, "<", posItem1);
+                        if (thema.isEmpty()) {
+                            thema = titel;
                         }
                     }
-                    if (thema.isEmpty()) {
-                        thema = titel;
+                    url = seite1.extract(MUSTER_URL, "\"", posItem1); // <media:content duration="00:01:21" type="video/mp4" url="http://www.hr.gl-systemhaus.de/video/fs/allgemein/20100909_onkelotto.mp4" />
+                    if (url.isEmpty()) {
+                        // auf die alte Art
+                        if ((pos1 = seite1.indexOf(MUSTER_URL_1, posItem1)) == -1) {
+                            return; // nix is
+                        }
+                        pos1 += MUSTER_URL_1.length();
+                        if ((pos2 = seite1.indexOf("<", pos1)) == -1) {
+                            return; // nix is
+                        }
+                        url1 = seite1.substring(pos1, pos2);
+                        if (url1.equals("")) {
+                            return; // nix is
+                        }
+                        if ((pos1 = seite1.indexOf(MUSTER_URL_2, pos2)) == -1) {
+                            return; // nix is
+                        }
+                        pos1 += MUSTER_URL_2.length();
+                        if ((pos2 = seite1.indexOf("\"", pos1)) != -1) {
+                            url2 = seite1.substring(pos1, pos2);
+                            url = addsUrl(url1, url2);
+                            furl = "-r " + url + " -y " + url2;
+                        }
                     }
-                    if ((pos1 = seite1.indexOf(MUSTER_URL_1, posItem1)) == -1) {
-                        return; // nix is
-                    }
-                    pos1 += MUSTER_URL_1.length();
-                    if ((pos2 = seite1.indexOf("<", pos1)) == -1) {
-                        return; // nix is
-                    }
-                    url1 = seite1.substring(pos1, pos2);
-                    if (url1.equals("")) {
-                        return; // nix is
-                    }
-                    if ((pos1 = seite1.indexOf(MUSTER_URL_2, pos2)) == -1) {
-                        return; // nix is
-                    }
-                    pos1 += MUSTER_URL_2.length();
-                    if ((pos2 = seite1.indexOf("\"", pos1)) != -1) {
-                        url2 = seite1.substring(pos1, pos2);
-                        url = addsUrl(url1, url2);
-                        String furl = "-r " + url + " -y " + url2;
+                    if (!url.isEmpty()) {
                         if (datum.equals("")) {
                             datum = getDate(url);
                         }
@@ -346,6 +327,9 @@ public class MediathekHr extends MediathekReader implements Runnable {
                     } else {
                         MSearchLog.fehlerMeldung(-649882036, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.addFilme", "keine URL");
                     }
+                }
+                if (url.isEmpty()) {
+                    MSearchLog.fehlerMeldung(-761236458, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.addFilme", "keine URL für: " + filmWebsite);
                 }
             } catch (Exception ex) {
                 MSearchLog.fehlerMeldung(-487774126, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.addFilme", ex, "");
