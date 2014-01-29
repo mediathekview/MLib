@@ -24,6 +24,7 @@ import java.util.Date;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekBr;
 import msearch.filmeSuchen.sender.MediathekMdr;
+import msearch.filmeSuchen.sender.MediathekNdr;
 import msearch.filmeSuchen.sender.MediathekOrf;
 import msearch.filmeSuchen.sender.MediathekSrfPod;
 import msearch.filmeSuchen.sender.MediathekZdf;
@@ -249,7 +250,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public void setGeo() {
         switch (arr[DatenFilm.FILM_SENDER_NR]) {
             case MediathekArd.SENDER:
-                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://mvideos-geo.daserste.de/")) {
+                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://mvideos-geo.daserste.de/")
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://media.ndr.de/progressive-geo/")) {
                     arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
                 }
                 break;
