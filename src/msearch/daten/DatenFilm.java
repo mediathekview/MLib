@@ -251,7 +251,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         switch (arr[DatenFilm.FILM_SENDER_NR]) {
             case MediathekArd.SENDER:
                 if (arr[DatenFilm.FILM_URL_NR].startsWith("http://mvideos-geo.daserste.de/")
-                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://media.ndr.de/progressive-geo/")) {
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://media.ndr.de/progressive_geo/")) {
                     arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
                 }
                 break;
