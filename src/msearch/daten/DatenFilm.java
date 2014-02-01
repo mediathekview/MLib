@@ -609,10 +609,12 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     private void checkZeit(String datum, String zeit, String fehlermeldung) {
         zeit = zeit.trim();
-        if (!datum.isEmpty()) {
+        if (!datum.isEmpty() && !zeit.isEmpty()) {
             //wenn kein Datum, macht die Zeit auch keinen Sinn
             if (zeit.contains(":") && zeit.length() == 8) {
                 arr[FILM_ZEIT_NR] = zeit;
+            } else {
+                MSearchLog.fehlerMeldung(159623647, MSearchLog.FEHLER_ART_PROG, "DatenFilm.checkZeit [", zeit + "] " + fehlermeldung);
             }
         }
     }

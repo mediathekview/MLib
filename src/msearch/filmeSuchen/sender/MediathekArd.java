@@ -32,7 +32,7 @@ import msearch.tool.MSearchStringBuilder;
  * @author
  */
 public class MediathekArd extends MediathekReader implements Runnable {
-    
+
     public static final String SENDER = "ARD";
     private static int wiederholungen1 = 0;
     private static int wiederholungen2 = 0;
@@ -45,7 +45,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
     public MediathekArd(MSearchFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 10, /* urlWarten */ 500, startPrio);
     }
-    
+
     @Override
     void addToList() {
         wiederholungen1 = 0;
@@ -116,7 +116,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             }
         }
     }
-    
+
     private synchronized void warten(int i) {
         // Sekunden warten
         try {
@@ -128,17 +128,17 @@ public class MediathekArd extends MediathekReader implements Runnable {
             MSearchLog.fehlerMeldung(-369502367, MSearchLog.FEHLER_ART_MREADER, "MediathekArd.warten", ex, "2. Versuch");
         }
     }
-    
+
     private class ThemaLaden implements Runnable {
-        
+
         MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
-        
+
         public ThemaLaden() {
         }
         private MSearchStringBuilder seite1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
         private MSearchStringBuilder seiteWeiter = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
         private MSearchStringBuilder seite2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        
+
         @Override
         public synchronized void run() {
             try {
@@ -153,7 +153,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             }
             meldungThreadUndFertig();
         }
-        
+
         private void feedSuchen(String strUrlFeed, String thema) {
             //weitere Seiten:
             //wenn vorhanden: <option value="
@@ -196,17 +196,15 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 }
             }
         }
-        
+
         private boolean feedEinerSeiteSuchen(MSearchStringBuilder seite, String strUrlFeed, String thema) {
             //url: http://www.ardmediathek.de/ard/servlet/ajax-cache/3516962/view=list/documentId=443668/index.html
             //Feed eines Themas laden
             //<h3 class="mt-title"><a href="/ard/servlet/content/3517136?documentId=3743644"
 
             //<a href="/ard/servlet/ajax-cache/3516938/view=switch/documentId=3398614/index.html" class="mt-box_preload mt-box-overflow"></a>
-
             //weitere Seiten:
             //wenn vorhanden: <option value="
-
             //<option value="/ard/servlet/ajax-cache/3516962/view=list/documentId=1175574/goto=2/index.html">2</option>
             //<span class="mt-airtime">22.11.10
             //<span class="mt-icon mt-icon-toggle_arrows"></span>              Sendung vom 22.11.10 | 23:00            </a>
@@ -241,6 +239,8 @@ public class MediathekArd extends MediathekReader implements Runnable {
                             datum = datum.substring(0, 6) + "20" + datum.substring(6);
                         }
                         zeit = tmp.substring(tmp.indexOf("|") + 1) + ":00";
+                        zeit = zeit.replace("Uhr", "");
+                        zeit = zeit.replace(" ", "");
                     }
                 }
                 pos = posDatum1;
@@ -301,11 +301,11 @@ public class MediathekArd extends MediathekReader implements Runnable {
                         MSearchLog.fehlerMeldung(-487369532, MSearchLog.FEHLER_ART_MREADER, "MediathekArd.feedEinerSeiteSuchen-2", ex, "Thema hat keine Links");
                     }
                 }
-                
+
             }
             return ret;
         }
-        
+
         boolean filmLaden(String urlFeed, String filmWebsite, String thema, String datum, String zeit) {
             // mediaCollection.addMediaStream(0, 0, "", "http://http-ras.wdr.de/CMS2010/mdb/14/148362/ichwillnichtlaengerschweigen_1460800.mp4", "default");
             // mediaCollection.addMediaStream(0, 1, "rtmp://gffstream.fcod.llnwd.net/a792/e2/", "mp4:CMS2010/mdb/14/148362/ichwillnichtlaengerschweigen_1460799.mp4", "limelight");
@@ -317,7 +317,6 @@ public class MediathekArd extends MediathekReader implements Runnable {
             // mediaCollection.addMediaStream(0, 1, "", "http://www.hr.gl-systemhaus.de/flash/fs/buchmesse2011/20111015_tilmankat.flv", "default");
 
             //flvstreamer --host vod.daserste.de --app ardfs --playpath mp4:videoportal/Film/c_100000/106579/format106899.f4v > bla.flv
-
             boolean flash;
             String protokoll = "";
             meldung(filmWebsite);
@@ -437,7 +436,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             }
             return false;
         }
-        
+
         private boolean filmHolen(DatenFilm f, boolean flash, int pos1, String protokoll, boolean zweitenSuchen) {
             // mediaCollection.addMediaStream(0, 2, "rtmp://gffstream.fcod.llnwd.net/a792/e2/", "mp4:CMS2010/mdb/14/148362/ichwillnichtlaengerschweigen_1460798.mp4", "limelight");
             // mediaCollection.addMediaStream(1, 0, "", "http://http-ras.wdr.de/CMS2010/mdb/14/148362/ichwillnichtlaengerschweigen_1460800.mp4", "default");
@@ -511,11 +510,11 @@ public class MediathekArd extends MediathekReader implements Runnable {
             }
             return false;
         }
-        
+
         private synchronized String[] getListeThemen() {
             return listeThemen.pollFirst();
         }
-        
+
         private long extractDuration(MSearchStringBuilder page) {
             String duration = extractString(page, "<meta property=\"video:duration\" content=\"", "\"");
             if (duration == null) {
@@ -527,7 +526,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 return 0;
             }
         }
-        
+
         private String extractDescription(MSearchStringBuilder page) {
             String desc = extractString(page, "<meta property=\"og:description\" content=\"", "\"");
             if (desc == null) {
@@ -535,40 +534,40 @@ public class MediathekArd extends MediathekReader implements Runnable {
             }
             return desc;
         }
-        
+
         private String[] extractKeywords(MSearchStringBuilder page) {
             String keywords = extractString(page, "<meta name=\"keywords\" content=\"", "\"");
             if (keywords == null) {
                 return new String[]{""};
             }
-            
+
             return keywords.split(", ");
         }
-        
+
         private String extractThumbnailURL(MSearchStringBuilder page) {
             return extractString(page, "<meta itemprop=\"thumbnailURL\" content=\"", "\"");
         }
-        
+
         private String extractImageURL(MSearchStringBuilder page) {
             return extractString(page, "<meta property=\"og:image\" content=\"", "\"");
         }
-        
+
         private String extractString(MSearchStringBuilder source, String startMarker, String endMarker) {
             int start = source.indexOf(startMarker);
             if (start == -1) {
                 return null;
             }
-            
+
             start = start + startMarker.length();
-            
+
             int end = source.indexOf(endMarker, start);
             if (end == -1) {
                 return null;
             }
-            
+
             return source.substring(start, end);
         }
-        
+
         private String m3uUrlHolen(MSearchGetUrl getUrl, String sender, MSearchStringBuilder strBuffer, String urlM3u) {
             // #EXTM3U
             // #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=208000,RESOLUTION=288x216,CODECS="avc1.66.30, mp4a.40.2"
