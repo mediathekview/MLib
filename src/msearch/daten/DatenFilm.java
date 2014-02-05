@@ -308,7 +308,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return getUrl(film.arr[DatenFilm.FILM_SENDER_NR], film.arr[DatenFilm.FILM_URL_NR]);
     }
 
-    public static String getUrl(String ssender, String uurl) {
+    private static String getUrl(String ssender, String uurl) {
         // liefert die URL zum VERGLEICHEN!!
         String url = "";
         if (ssender.equals(MediathekOrf.SENDER)) {
@@ -329,7 +329,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                     return "";
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-4", "Url: " + uurl);
+                MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-4", ex, "Url: " + uurl);
             }
             return MediathekOrf.SENDER + "----" + url;
         } else {
