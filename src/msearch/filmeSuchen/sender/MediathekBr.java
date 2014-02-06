@@ -197,7 +197,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             if (seite.indexOf("<p class=\"noVideo\">Zur Sendung \"") != -1
                     && seite.indexOf("\" liegen momentan keine Videos vor</p>") != -1) {
                 // dann gibts keine Videos
-                MSearchLog.fehlerMeldung(-978451236, MSearchLog.FEHLER_ART_MREADER, "MediathekBr.laden", "keine Videos" + urlThema);
+                MSearchLog.fehlerMeldung(-978451236, MSearchLog.FEHLER_ART_MREADER, "MediathekBr.laden", "keine Videos: " + urlThema);
                 return;
             }
             thema = seite.extract("<h3>", "<"); //<h3>Abendschau</h3>
@@ -220,7 +220,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             //<a href="#" onclick="return BRavFramework.register(BRavFramework('avPlayer_3f097ee3-7959-421b-b3f0-c2a249ad7c91').setup({dataURL:'/mediathek/video/sendungen/abendschau/der-grosse-max-spionageabwehr-100~meta_xsl-avtransform100_-daa09e70fbea65acdb1929dadbd4fc6cdb955b63.xml'}));" id="avPlayer_3f097ee3-7959-421b-b3f0-c2a249ad7c91">
             urlXml = seite.extract("{dataURL:'", "'");
             if (urlXml.isEmpty()) {
-                MSearchLog.fehlerMeldung(-915263478, MSearchLog.FEHLER_ART_MREADER, "MediathekBr.laden", "keine URL " + urlThema);
+                MSearchLog.fehlerMeldung(-915263478, MSearchLog.FEHLER_ART_MREADER, "MediathekBr.laden", "keine URL: " + urlThema);
             } else {
                 urlXml = "http://www.br.de" + urlXml;
                 seiteXml = getUrlIo.getUri_Utf(nameSenderMReader, urlXml, seiteXml, "");
@@ -283,7 +283,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     addFilm(film);
                     meldung(film.arr[DatenFilm.FILM_URL_NR]);
                 } else {
-                    MSearchLog.fehlerMeldung(-612136978, MSearchLog.FEHLER_ART_MREADER, "MediathekBr.laden", "keine URL " + urlXml);
+                    MSearchLog.fehlerMeldung(-612136978, MSearchLog.FEHLER_ART_MREADER, "MediathekBr.laden", "keine URL: " + urlXml);
                 }
             }
             if (!weitersuchen) {
@@ -295,9 +295,18 @@ public class MediathekBr extends MediathekReader implements Runnable {
             int pos1 = 0;
             int count = 0;
             int max = (MSearchConfig.senderAllesLaden ? 20 : 0);
+            if (max > 0) {
+                // dann mit der ganzen Seite arbeiten
+                String u = seite.extract("<a class=\"button large\" href=\"", "\"");
+                if (!u.isEmpty()) {
+                    u = "http://www.br.de" + u;
+                    seite = getUrlIo.getUri_Utf(nameSenderMReader, u, seite, "");
+                }
+            }
             final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
             if ((pos1 = seite.indexOf("<h3>Mehr von <strong>")) != -1) {
-                while ((pos1 = seite.indexOf(MUSTER_URL, pos1)) != -1) {
+                while (!MSearchConfig.getStop()
+                        && (pos1 = seite.indexOf(MUSTER_URL, pos1)) != -1) {
                     String urlWeiter = seite.extract(MUSTER_URL, "\"", pos1);
                     pos1 += MUSTER_URL.length();
                     if (!urlWeiter.isEmpty()) {
