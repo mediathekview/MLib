@@ -144,8 +144,8 @@ public class MSearchFilmeSuchen {
         // nur für den Mauskontext "Sender aktualisieren"
         allStarted = false;
         boolean starten = false;
-        MSearchConfig.senderAllesLaden = false;
-        MSearchConfig.updateFilmliste = true;
+//        MSearchConfig.senderAllesLaden = false;
+//        MSearchConfig.updateFilmliste = true;
         initStart(listeFilme);
         Iterator<MediathekReader> it = mediathekListe.iterator();
         while (it.hasNext()) {
