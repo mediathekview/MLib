@@ -276,6 +276,18 @@ public class MSearchFilmeSuchen {
         // wird einmal aufgerufen, wenn alle Sender fertig sind
         String zeile = "";
         MSearchLog.progressEnde();
+        if (MSearchConfig.getStop()) {
+            // Abbruch melden
+            MSearchLog.systemMeldung("                                                                                     ");
+            MSearchLog.systemMeldung("                                                                                     ");
+            MSearchLog.systemMeldung("*************************************************************************************");
+            MSearchLog.systemMeldung("*************************************************************************************");
+            MSearchLog.systemMeldung("     ----- Abbruch -----                                                             ");
+            MSearchLog.systemMeldung("*************************************************************************************");
+            MSearchLog.systemMeldung("*************************************************************************************");
+            MSearchLog.systemMeldung("                                                                                     ");
+            MSearchLog.systemMeldung("                                                                                     ");
+        }
         // Sender ===============================================
         // ======================================================
         MSearchLog.systemMeldung("");
