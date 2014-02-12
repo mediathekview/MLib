@@ -47,6 +47,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String GEO_AT = "AT";
     public static final String GEO_CH = "CH";
     public static final String GEO_EU = "EU";
+    public static final String GEO_WELT = "WELT";
     //Tags Filme
     public static final String FELD_INFO = "Feldinfo";
     public static final String FILME = "Filme";
