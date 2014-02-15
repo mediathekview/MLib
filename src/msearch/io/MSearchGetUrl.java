@@ -326,6 +326,8 @@ public class MSearchGetUrl {
             if ((retCode = conn.getResponseCode()) < 400) {
                 mvIn = new MVInputStream(conn);
             } else {
+                MSearchLog.fehlerMeldung(302160789, MSearchLog.FEHLER_ART_GETURL, MSearchGetUrl.class.getName() + ".getUri",
+                        new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
                 if (retCode == 403 || retCode == 408) {
                     if (!MSearchConfig.proxyUrl.isEmpty() && MSearchConfig.proxyPort > 0) {
                         // nur dann verwenden

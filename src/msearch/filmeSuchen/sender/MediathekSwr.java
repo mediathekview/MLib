@@ -170,256 +170,177 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             // "entry_media":"http://mp4-download.swr.de/swr-fernsehen/zur-sache-baden-wuerttemberg/das-letzte-wort-podcast/20120913-2015.m.mp4"
             // oder
             // :"entry_media","attr":{"val0":"flashmedia","val1":"1","val2":"rtmp://fc-ondemand.swr.de/a4332/e6/swr-fernsehen/eisenbahn-romantik/381104.s.flv","val3":"rtmp://fc-ondemand.swr.de/a4332/e6/"},"sub":[]},{"name":"entry_media","attr":{"val0":"flashmedia","val1":"2","val2":"rtmp://fc-ondemand.swr.de/a4332/e6/swr-fernsehen/eisenbahn-romantik/381104.m.flv","val3":"rtmp://fc-ondemand.swr.de/a4332/e6/"},"sub":[]
-
             // "entry_title":"\"Troika-Tragödie - Verspielt die Regierung unser Steuergeld?\"
-            final String MUSTER_TITEL_1 = "\"entry_title\":\"";
-            final String MUSTER_TITEL_2 = "\"entry_title\":\"\\\"";
-            final String MUSTER_DATUM = "\"entry_pdatehd\":\"";
-            final String MUSTER_DAUER = "\"entry_durat\":\"";
-            final String MUSTER_ZEIT = "\"entry_pdateht\":\"";
-            final String MUSTER_URL_START = "{\"name\":\"entry_media\"";
-            final String MUSTER_URL_1 = "\"entry_media\",\"attr\":{\"val0\":\"flashmedia\",\"val1\":\"\",\"val2\":\"http";
-            final String MUSTER_PROT_1 = "http";
-            final String MUSTER_URL_2 = "\"entry_media\",\"attr\":{\"val0\":\"h264\",\"val1\":\"3\",\"val2\":\"http";
-            final String MUSTER_PROT_2 = "http";
-            final String MUSTER_URL_3 = "\"entry_media\",\"attr\":{\"val0\":\"h264\",\"val1\":\"2\",\"val2\":\"rtmp";
-            final String MUSTER_PROT_3 = "rtmp";
-            final String MUSTER_URL_4 = "entry_media\",\"attr\":{\"val0\":\"flashmedia\",\"val1\":\"2\",\"val2\":\"rtmp";
-            final String MUSTER_PROT_4 = "rtmp";
-
-            final String MUSTER_DESCRIPTION = "\"entry_descl\":\"";
-            final String MUSTER_THUMBNAIL_URL = "\"entry_image_16_9\":\"";
-            int pos, pos1;
-            int pos2;
-            String url = "", urlKlein = "";
-            String titel = "";
-            String datum = "";
-            String zeit = "";
-            long dauer = 0;
-            String description = "";
-            String thumbnailUrl = "";
-            String[] keywords = null;
-            String tmp;
             try {
                 strSeite2 = getUrlThemaLaden.getUri_Utf(nameSenderMReader, urlJson, strSeite2, "");
-                if ((pos1 = strSeite2.indexOf(MUSTER_TITEL_1)) != -1) {
-                    pos1 += MUSTER_TITEL_1.length();
-
-                    if ((pos2 = strSeite2.indexOf("\"", pos1)) != -1) {
-                        titel = strSeite2.substring(pos1, pos2);
-                    }
+                if (strSeite2.length() == 0) {
+                    MSearchLog.fehlerMeldung(-95623451, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json", "Seite leer: " + urlJson);
+                    return;
                 }
-                if (titel.startsWith("\\") && (pos1 = strSeite2.indexOf(MUSTER_TITEL_2)) != -1) {
-                    pos1 += MUSTER_TITEL_2.length();
-                    if ((pos2 = strSeite2.indexOf("\"", pos1)) != -1) {
-                        titel = strSeite2.substring(pos1, pos2);
-                        if (titel.endsWith("\\")) {
-                            titel = titel.substring(0, titel.length() - 2);
-                        }
-                    }
-                }
-                if ((pos1 = strSeite2.indexOf(MUSTER_DAUER)) != -1) {
-                    pos1 += MUSTER_DAUER.length();
-                    if ((pos2 = strSeite2.indexOf("\"", pos1)) != -1) {
-                        String d = null;
-                        try {
-                            d = strSeite2.substring(pos1, pos2);
-                            if (!d.equals("")) {
-                                String[] parts = d.split(":");
-                                long power = 1;
-                                for (int i = parts.length - 1; i >= 0; i--) {
-                                    dauer += Long.parseLong(parts[i]) * power;
-                                    power *= 60;
-                                }
-                            }
-                        } catch (Exception ex) {
-                            MSearchLog.fehlerMeldung(-679012497, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json", "d: " + (d == null ? " " : d));
-                        }
-                    }
-                }
-
-                if ((pos1 = strSeite2.indexOf(MUSTER_DESCRIPTION)) != -1) {
-                    pos1 += MUSTER_DESCRIPTION.length();
-                    if ((pos2 = strSeite2.indexOf("\",", pos1)) != -1) {
-                        description = strSeite2.substring(pos1, pos2);
-                    }
-                }
-
-                if ((pos1 = strSeite2.indexOf(MUSTER_THUMBNAIL_URL)) != -1) {
-                    pos1 += MUSTER_THUMBNAIL_URL.length();
-                    if ((pos2 = strSeite2.indexOf("\"", pos1)) != -1) {
-                        thumbnailUrl = strSeite2.substring(pos1, pos2);
-                    }
-                }
-
-                keywords = extractKeywords(strSeite2);
-                if ((pos1 = strSeite2.indexOf(MUSTER_DATUM)) != -1) {
-                    pos1 += MUSTER_DATUM.length();
-                    if ((pos2 = strSeite2.indexOf("\"", pos1)) != -1) {
-                        datum = strSeite2.substring(pos1, pos2);
-                        if (datum.length() < 10) {
-                            if (datum.contains(".")) {
-                                if ((tmp = datum.substring(0, datum.indexOf("."))).length() != 2) {
-                                    datum = "0" + datum;
-                                }
-                            }
-                            if (datum.indexOf(".") != datum.lastIndexOf(".")) {
-                                if ((tmp = datum.substring(datum.indexOf(".") + 1, datum.lastIndexOf("."))).length() != 2) {
-                                    datum = datum.substring(0, datum.indexOf(".") + 1) + "0" + datum.substring(datum.indexOf(".") + 1);
-                                }
-                            }
-                        }
-                    }
-                }
-                if ((pos1 = strSeite2.indexOf(MUSTER_ZEIT)) != -1) {
-                    pos1 += MUSTER_ZEIT.length();
-                    if ((pos2 = strSeite2.indexOf("\"", pos1)) != -1) {
-                        zeit = strSeite2.substring(pos1, pos2);
-                        if (zeit.length() <= 5) {
-                            zeit = zeit.trim() + ":00";
-                        }
-                        zeit = zeit.replace(".", ":");
-                        if (zeit.length() < 8) {
-                            if (zeit.contains(":")) {
-                                if ((tmp = zeit.substring(0, zeit.indexOf(":"))).length() != 2) {
-                                    zeit = "0" + zeit;
-                                }
-                            }
-                            if (zeit.indexOf(":") != zeit.lastIndexOf(":")) {
-                                if ((tmp = zeit.substring(zeit.indexOf(":") + 1, zeit.lastIndexOf(":"))).length() != 2) {
-                                    zeit = zeit.substring(0, zeit.indexOf(":") + 1) + "0" + zeit + zeit.substring(zeit.lastIndexOf(":"));
-                                }
-                            }
-                        }
-                    }
-                }
-                // entweder
-                pos = 0;
-                while ((pos = strSeite2.indexOf(MUSTER_URL_START, pos)) != -1) {
-                    if (!url.isEmpty() && !urlKlein.isEmpty()) {
-                        break;
-                    }
-                    pos += "{\"name\"".length();
-                    if ((pos1 = strSeite2.indexOf(MUSTER_URL_1, pos)) != -1) {
-                        pos1 += MUSTER_URL_1.length();
-                        if ((pos2 = strSeite2.indexOf("\"", pos1)) != -1) {
-                            tmp = strSeite2.substring(pos1, pos2);
-                            if (!tmp.isEmpty()) {
-                                tmp = MUSTER_PROT_1 + tmp;
-                                if (tmp.endsWith("m.mp4") && urlKlein.isEmpty()) {
-                                    urlKlein = tmp;
-                                }
-                                if (tmp.endsWith("l.mp4") && url.isEmpty()) {
-                                    url = tmp;
-                                }
-                                continue;
-                            } else {
-                                MSearchLog.fehlerMeldung(-468200690, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json-1", thema + " " + urlJson);
-                            }
-                        }
-                    }
-                }
-                // oder
-                pos = 0;
-                while ((pos = strSeite2.indexOf(MUSTER_URL_START, pos)) != -1) {
-                    if (!url.isEmpty() && !urlKlein.isEmpty()) {
-                        break;
-                    }
-                    pos += "{\"name\"".length();
-                    if ((pos1 = strSeite2.indexOf(MUSTER_URL_2, pos)) != -1) {
-                        pos1 += MUSTER_URL_2.length();
-                        if ((pos2 = strSeite2.indexOf("\"", pos1)) != -1) {
-                            tmp = strSeite2.substring(pos1, pos2);
-                            if (!tmp.isEmpty()) {
-                                tmp = MUSTER_PROT_2 + tmp;
-                                if (tmp.endsWith("m.mp4") && urlKlein.isEmpty()) {
-                                    urlKlein = tmp;
-                                }
-                                if (tmp.endsWith("l.mp4") && url.isEmpty()) {
-                                    url = tmp;
-                                }
-                                continue;
-                            } else {
-                                MSearchLog.fehlerMeldung(-468200690, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json-1", thema + " " + urlJson);
-                            }
-                        }
-                    }
-                }
-                // oder
-                pos = 0;
-                while ((pos = strSeite2.indexOf(MUSTER_URL_START, pos)) != -1) {
-                    if (!url.isEmpty() && !urlKlein.isEmpty()) {
-                        break;
-                    }
-                    pos += "{\"name\"".length();
-                    if ((pos1 = strSeite2.indexOf(MUSTER_URL_3, pos)) != -1) {
-                        pos1 += MUSTER_URL_3.length();
-                        if ((pos2 = strSeite2.indexOf("\"", pos1)) != -1) {
-                            tmp = strSeite2.substring(pos1, pos2);
-                            if (!tmp.isEmpty()) {
-                                tmp = MUSTER_PROT_3 + tmp;
-                                if (tmp.endsWith("m.mp4") && urlKlein.isEmpty()) {
-                                    urlKlein = tmp;
-                                }
-                                if (tmp.endsWith("l.mp4") && url.isEmpty()) {
-                                    url = tmp;
-                                }
-                                continue;
-                            } else {
-                                MSearchLog.fehlerMeldung(-468200690, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json-1", thema + " " + urlJson);
-                            }
-                        }
-                    }
-                }
-                // oder
-                pos = 0;
-                while ((pos = strSeite2.indexOf(MUSTER_URL_START, pos)) != -1) {
-                    if (!url.isEmpty() && !urlKlein.isEmpty()) {
-                        break;
-                    }
-                    pos += "{\"name\"".length();
-                    if ((pos1 = strSeite2.indexOf(MUSTER_URL_4, pos)) != -1) {
-                        pos1 += MUSTER_URL_4.length();
-                        if ((pos2 = strSeite2.indexOf("\"", pos1)) != -1) {
-                            tmp = strSeite2.substring(pos1, pos2);
-                            if (!tmp.isEmpty()) {
-                                tmp = MUSTER_PROT_4 + tmp;
-                                if (tmp.endsWith("m.mp4") && urlKlein.isEmpty()) {
-                                    urlKlein = tmp;
-                                }
-                                if (tmp.endsWith("l.mp4") && url.isEmpty()) {
-                                    url = tmp;
-                                }
-                                if (tmp.endsWith("m.flv") && urlKlein.isEmpty()) {
-                                    urlKlein = tmp;
-                                }
-                                if (tmp.endsWith("l.flv") && url.isEmpty()) {
-                                    url = tmp;
-                                }
-                                continue;
-                            } else {
-                                MSearchLog.fehlerMeldung(-468200690, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json-1", thema + " " + urlJson);
-                            }
-                        }
-                    }
-                }
-                if (url.isEmpty() && urlKlein.isEmpty()) {
-                    MSearchLog.fehlerMeldung(-203690478, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.jason-2", thema + " " + urlJson);
+                String title = getTitle();
+                String date = getDate();
+                String time = getTime();
+                String description = getDescription();
+                String thumbNailUrl = getThumbNailUrl();
+                long duration = getDuration();
+                String[] keywords = extractKeywords(strSeite2);
+                String urldHd = getHDUrl();
+                String normalUrl = getNormalUrl();
+                String smallUrl = getSmallUrl();
+                String rtmpUrl = getRtmpUrl();
+                if (normalUrl.isEmpty() && smallUrl.isEmpty() && rtmpUrl.isEmpty()) {
+                    MSearchLog.fehlerMeldung(-203690478, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json", thema + " NO normal and small url:  " + urlJson);
                 } else {
-                    if (url.isEmpty()) {
-                        url = urlKlein;
-                        urlKlein = "";
+                    if (normalUrl.isEmpty() && !smallUrl.isEmpty()) {
+                        normalUrl = smallUrl;
+                    } else if (normalUrl.isEmpty()) {
+                        normalUrl = rtmpUrl;
                     }
-                    DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, ""/*rtmpURL*/, datum, zeit, dauer, description,
-                            thumbnailUrl, keywords);
-                    if (!urlKlein.isEmpty()) {
-                        film.addUrlKlein(urlKlein, "");
+                    if (smallUrl.isEmpty()) {
+                        smallUrl = getSuperSmalUrl();
+                    }
+                    DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, title, normalUrl, ""/*rtmpURL*/, date, time, duration, description,
+                            thumbNailUrl, keywords);
+
+                    if (!urldHd.isEmpty()) {
+                        film.addUrlHd(urldHd, "");
+                    }
+                    if (!smallUrl.isEmpty()) {
+                        film.addUrlKlein(smallUrl, "");
                     }
                     addFilm(film);
                 }
             } catch (Exception ex) {
                 MSearchLog.fehlerMeldung(-939584720, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json-3", thema + " " + urlJson);
             }
+        }
+
+        final String PATTERN_END = "\"";
+        final String HTTP = "http";
+
+        private String getTitle() {
+            final String PATTERN_TITLE_START = "\"entry_title\":\"";
+            final String MUSTER_TITEL_2 = "\"entry_title\":\"\\\"";
+            String title = strSeite2.extract(PATTERN_TITLE_START, PATTERN_END);
+            return title;
+        }
+
+        private String getDescription() {
+            final String PATTERN_DESCRIPTION_START = "\"entry_descl\":\"";
+            return strSeite2.extract(PATTERN_DESCRIPTION_START, PATTERN_END);
+        }
+
+        private String getThumbNailUrl() {
+            final String PATTERN_THUMBNAIL_URL_START = "\"entry_image_16_9\":\"";
+            return strSeite2.extract(PATTERN_THUMBNAIL_URL_START, PATTERN_END);
+        }
+
+        private String getDate() {
+            final String PATTERN_DATE_START = "\"entry_pdatehd\":\"";
+            String datum = strSeite2.extract(PATTERN_DATE_START, PATTERN_END);
+            if (datum.length() < 10) {
+                if (datum.contains(".")) {
+                    if ((datum.substring(0, datum.indexOf("."))).length() != 2) {
+                        datum = "0" + datum;
+                    }
+                }
+                if (datum.indexOf(".") != datum.lastIndexOf(".")) {
+                    if ((datum.substring(datum.indexOf(".") + 1, datum.lastIndexOf("."))).length() != 2) {
+                        datum = datum.substring(0, datum.indexOf(".") + 1) + "0" + datum.substring(datum.indexOf(".") + 1);
+                    }
+                }
+            }
+            return datum;
+        }
+
+        private long getDuration() {
+            final String PATTERN_DURATION_START = "\"entry_durat\":\"";
+            String dur = null;
+            long duration = 0;
+            try {
+                dur = strSeite2.extract(PATTERN_DURATION_START, PATTERN_END);
+                if (!dur.isEmpty()) {
+                    String[] parts = dur.split(":");
+                    long power = 1;
+                    for (int i = parts.length - 1; i >= 0; i--) {
+                        duration += Long.parseLong(parts[i]) * power;
+                        power *= 60;
+                    }
+                }
+            } catch (NumberFormatException ex) {
+                MSearchLog.fehlerMeldung(-679012497, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json", "duration: " + (dur == null ? " " : duration));
+            }
+            return duration;
+        }
+
+        private String getTime() {
+            final String PATTERN_TIME_START = "\"entry_pdateht\":\"";
+            String tmp = "";
+            String time = strSeite2.extract(PATTERN_TIME_START, PATTERN_END);
+            if (time.length() <= 5) {
+                time = time.trim() + ":00";
+            }
+            time = time.replace(".", ":");
+            if (time.length() < 8) {
+                if (time.contains(":")) {
+                    if ((tmp = time.substring(0, time.indexOf(":"))).length() != 2) {
+                        time = "0" + time;
+                    }
+                }
+                if (time.indexOf(":") != time.lastIndexOf(":")) {
+                    if ((tmp = time.substring(time.indexOf(":") + 1, time.lastIndexOf(":"))).length() != 2) {
+                        time = time.substring(0, time.indexOf(":") + 1) + "0" + time + time.substring(time.lastIndexOf(":"));
+                    }
+                }
+            }
+            return time;
+        }
+
+        private String getHDUrl() {
+            final String PATTTERN_PROT_HTTP_HD = "\"entry_media\",\"attr\":{\"val0\":\"h264\",\"val1\":\"4\",\"val2\":\"http";
+            String urlWithOutprot = strSeite2.extract(PATTTERN_PROT_HTTP_HD, PATTERN_END);
+            if (urlWithOutprot.isEmpty()) {
+                return "";
+            }
+            String hdUrl = HTTP + urlWithOutprot;
+            return hdUrl;
+        }
+
+        private String getNormalUrl() {
+            final String PATTTERN_PROT_HTTP_L = "\"entry_media\",\"attr\":{\"val0\":\"h264\",\"val1\":\"3\",\"val2\":\"http";
+            String urlWithOutprot = strSeite2.extract(PATTTERN_PROT_HTTP_L, PATTERN_END);
+            if (urlWithOutprot.isEmpty()) {
+                return "";
+            }
+            String normalUrl = HTTP + urlWithOutprot;
+            return normalUrl;
+        }
+
+        private String getRtmpUrl() {
+            final String PATTTERN_PROT_HTTP_L = "\"entry_media\",\"attr\":{\"val0\":\"h264\",\"val1\":\"3\",\"val2\":\"rtmp";
+            String urlWithOutprot = strSeite2.extract(PATTTERN_PROT_HTTP_L, PATTERN_END);
+            if (urlWithOutprot.isEmpty()) {
+                return "";
+            }
+            String normalUrl = "rtmp" + urlWithOutprot;
+            return normalUrl;
+        }
+
+        private String getSmallUrl() {
+            final String PATTTERN_PROT_HTTP_M = "\"entry_media\",\"attr\":{\"val0\":\"h264\",\"val1\":\"2\",\"val2\":\"http";
+            String urlWithOutprot = strSeite2.extract(PATTTERN_PROT_HTTP_M, PATTERN_END);
+            if (urlWithOutprot.isEmpty()) {
+                return "";
+            }
+            String smallUrl = HTTP + urlWithOutprot;
+            return smallUrl;
+        }
+
+        private String getSuperSmalUrl() {
+            final String PATTTERN_PROT_HTTP_S = "\"entry_media\",\"attr\":{\"val0\":\"h264\",\"val1\":\"1\",\"val2\":\"http";
+            String urlWithOutprot = strSeite2.extract(PATTTERN_PROT_HTTP_S, PATTERN_END);
+            String superSmallUrl = HTTP + urlWithOutprot;
+            return superSmallUrl;
         }
 
         private String[] extractKeywords(MSearchStringBuilder strSeite2) {
@@ -438,7 +359,6 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     pos = end;
                 }
             }
-
             return keywords.toArray(new String[keywords.size()]);
         }
     }
