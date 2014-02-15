@@ -317,10 +317,14 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         }
 
         private String getRtmpUrl() {
-            final String PATTTERN_PROT_HTTP_L = "\"entry_media\",\"attr\":{\"val0\":\"h264\",\"val1\":\"3\",\"val2\":\"rtmp";
-            String urlWithOutprot = strSeite2.extract(PATTTERN_PROT_HTTP_L, PATTERN_END);
+            final String PATTERN_1 = "\"entry_media\",\"attr\":{\"val0\":\"h264\",\"val1\":\"3\",\"val2\":\"rtmp";
+            final String PATTERN_2 = "entry_media\",\"attr\":{\"val0\":\"h264\",\"val1\":\"2\",\"val2\":\"rtmp";
+            String urlWithOutprot = strSeite2.extract(PATTERN_1, PATTERN_END);
             if (urlWithOutprot.isEmpty()) {
-                return "";
+                urlWithOutprot = strSeite2.extract(PATTERN_2, PATTERN_END);
+                if (urlWithOutprot.isEmpty()) {
+                    return "";
+                }
             }
             String normalUrl = "rtmp" + urlWithOutprot;
             return normalUrl;
