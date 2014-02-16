@@ -174,8 +174,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         // da werden die gefundenen Filme beim Absuchen der Senderwebsites erstellt, und nur die!!
         dateigroesseL = new MSearchLong(0); // Dateigröße in MByte
         arr[FILM_SENDER_NR] = ssender;
-        arr[FILM_THEMA_NR] = tthema.isEmpty() ? ssender : tthema;
-        arr[FILM_TITEL_NR] = ttitel;
+        arr[FILM_THEMA_NR] = tthema.isEmpty() ? ssender : tthema.trim();
+        arr[FILM_TITEL_NR] = ttitel.isEmpty() ? tthema : ttitel.trim();
         arr[FILM_URL_NR] = uurl;
         arr[FILM_URL_RTMP_NR] = uurlRtmp;
         arr[FILM_WEBSEITE_NR] = filmWebsite;

@@ -336,10 +336,20 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
                         titel = titel.substring(0, titel.lastIndexOf(" - ")).trim();
                     }
                 } else {
+                    if (titel.startsWith(":")) {
+                        titel = titel.replaceFirst(":", "");
+                    }
                     if (titel.toLowerCase().contains("angeklickt:")) {
                         titel = titel.substring(titel.indexOf(":") + 1);
                         datum = titel.substring(0, titel.indexOf(",")).trim();
+                        titel = titel.substring(titel.indexOf(",")).trim();
                     }
+                }
+                if (titel.startsWith(":")) {
+                    titel = titel.replaceFirst(":", "").trim();
+                }
+                if (titel.startsWith(",")) {
+                    titel = titel.replaceFirst(",", "").trim();
                 }
                 meldung(url);
                 if (datum.equals("")) {
@@ -361,8 +371,8 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
                 }
                 // public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String datum, String zeit,
                 //  long duration, String description, String thumbnailUrl, String imageUrl, String[] keywords) {
-                addFilm(new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, "", durationInSeconds, description, 
-                          imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords));
+                addFilm(new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, "", durationInSeconds, description,
+                        imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords));
             }
         }
 
