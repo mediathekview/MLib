@@ -205,10 +205,18 @@ public class Search implements Runnable {
                 // dann ist die komplette Liste das diff
                 new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.orgFilmliste, listeFilme);
                 new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.diffFilmliste, listeFilme);
+                if (!MSearchConfig.exportOrgFilmliste.isEmpty()) {
+                    //datei schreiben
+                    new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.exportOrgFilmliste, listeFilme);
+                }
             } else if (tmpListe.filmlisteIstAelter(24 * 60 * 60)) {
                 // älter als ein Tag
                 new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.orgFilmliste, listeFilme);
                 new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.diffFilmliste, listeFilme);
+                if (!MSearchConfig.exportOrgFilmliste.isEmpty()) {
+                    //datei schreiben
+                    new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.exportOrgFilmliste, listeFilme);
+                }
             } else {
                 // nur dann macht die Arbeit sinn
                 ListeFilme l = listeFilme.neueFilme(tmpListe);

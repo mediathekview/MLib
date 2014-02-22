@@ -37,6 +37,7 @@ public class MSearchConfig {
     public static String exportFilmlisteJson = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: Json)
     public static String orgFilmliste = ""; // gegen diese Filmliste wird das diff erzeugt
     public static String diffFilmliste = ""; // ist das diff
+    public static String exportOrgFilmliste = ""; // die Org-Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: Json)
     //
     private static String userAgent = null;
     // flags
