@@ -35,6 +35,8 @@ public class MSearchConfig {
     public static String[] nurSenderLaden = null; // es wird nur dieser Sender geladen => "senderAllesLaden"=false, "updateFillmliste"=true
     public static String exportFilmlisteXml = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: XML)
     public static String exportFilmlisteJson = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: Json)
+    public static String orgFilmliste = ""; // gegen diese Filmliste wird das diff erzeugt
+    public static String diffFilmliste = ""; // ist das diff
     //
     private static String userAgent = null;
     // flags
