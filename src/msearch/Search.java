@@ -190,37 +190,41 @@ public class Search implements Runnable {
         }
         new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.dateiFilmliste, listeFilme);
         if (!MSearchConfig.exportFilmlisteXml.isEmpty()) {
-            //datei schreiben
+            // Filmliste exportieren, xml-Format
             new MSearchFilmlisteSchreiben().filmlisteSchreibenXml(MSearchConfig.exportFilmlisteXml, listeFilme);
         }
         if (!MSearchConfig.exportFilmlisteJson.isEmpty()) {
-            //datei schreiben
+            // Filmliste exportieren, json-Format
             new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.exportFilmlisteJson, listeFilme);
+        }
+        if (MSearchConfig.orgFilmlisteErstellen) {
+            // org-Liste anlegen, typ. erste Liste am Tag
+            MSearchLog.systemMeldung("Org-Lilste erzeugen: " + MSearchConfig.orgFilmliste);
+            new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.orgFilmliste, listeFilme);
+            if (!MSearchConfig.exportOrgFilmliste.isEmpty()) {
+                // und noch exportieren
+                new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.exportOrgFilmliste, listeFilme);
+            }
         }
         if (!MSearchConfig.orgFilmliste.isEmpty() && !MSearchConfig.diffFilmliste.isEmpty()) {
             // noch das diff erzeugen
             MSearchLog.systemMeldung("Diff erzeugen, von: " + MSearchConfig.orgFilmliste + " nach: " + MSearchConfig.diffFilmliste);
             tmpListe.clear();
+            ListeFilme diff;
             if (!new MSearchFilmlisteLesen().filmlisteLesenJson(MSearchConfig.orgFilmliste, "", tmpListe) || tmpListe.isEmpty()) {
                 // dann ist die komplette Liste das diff
-                new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.orgFilmliste, listeFilme);
-                new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.diffFilmliste, listeFilme);
-                if (!MSearchConfig.exportOrgFilmliste.isEmpty()) {
-                    //datei schreiben
-                    new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.exportOrgFilmliste, listeFilme);
-                }
+                diff = listeFilme;
             } else if (tmpListe.filmlisteIstAelter(24 * 60 * 60)) {
-                // älter als ein Tag
-                new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.orgFilmliste, listeFilme);
-                new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.diffFilmliste, listeFilme);
-                if (!MSearchConfig.exportOrgFilmliste.isEmpty()) {
-                    //datei schreiben
-                    new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.exportOrgFilmliste, listeFilme);
-                }
+                // älter als ein Tag, dann stimmt was nicht!
+                diff = listeFilme;
             } else {
                 // nur dann macht die Arbeit sinn
-                ListeFilme l = listeFilme.neueFilme(tmpListe);
-                new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.diffFilmliste, l);
+                diff = listeFilme.neueFilme(tmpListe);
+            }
+            new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.diffFilmliste, diff);
+            if (!MSearchConfig.exportDiffFilmliste.isEmpty()) {
+                // und noch exportieren
+                new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.exportDiffFilmliste, diff);
             }
         }
         MSearchLog.printEndeMeldung();
