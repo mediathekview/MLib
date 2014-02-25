@@ -35,9 +35,9 @@ import msearch.filmeSuchen.sender.MediathekNdr;
 import msearch.filmeSuchen.sender.MediathekRbb;
 import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
-import msearch.tool.GuiFunktionen;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchFunktionen;
+import msearch.tool.MSearchGuiFunktionen;
 import msearch.tool.MSearchLog;
 import msearch.tool.MSearchUrlDateiGroesse;
 
@@ -167,8 +167,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         DatenFilm film;
         while (it.hasNext()) {
             film = it.next();
-            film.arr[DatenFilm.FILM_THEMA_NR] = GuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
-            film.arr[DatenFilm.FILM_TITEL_NR] = GuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
+            film.arr[DatenFilm.FILM_THEMA_NR] = MSearchGuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
+            film.arr[DatenFilm.FILM_TITEL_NR] = MSearchGuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
             if (film.arr[DatenFilm.FILM_URL_NR].contains(" ")) {
                 System.out.println(film.arr[DatenFilm.FILM_URL_NR]);
             }

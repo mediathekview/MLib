@@ -38,7 +38,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import msearch.daten.MSearchConfig;
 import msearch.tool.DatumZeit;
-import msearch.tool.GuiFunktionen;
+import msearch.tool.MSearchGuiFunktionen;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchListenerMediathekView;
 import msearch.tool.MSearchLog;
@@ -118,8 +118,8 @@ public class MSearchFilmlistenSuchen {
         //listeFilmlistenServer.clear();
         while (it.hasNext()) {
             String serverUrl = it.next().arr[FILM_UPDATE_SERVER_URL_NR];
-            String url = serverUrl.replace(GuiFunktionen.getDateiName(serverUrl), "");
-            url = GuiFunktionen.addUrl(url, MSearchConst.DATEINAME_LISTE_FILMLISTEN);
+            String url = serverUrl.replace(MSearchGuiFunktionen.getDateiName(serverUrl), "");
+            url = MSearchGuiFunktionen.addUrl(url, MSearchConst.DATEINAME_LISTE_FILMLISTEN);
             listeFilmlistenServer.addCheck(new DatenFilmlistenServer(url));
         }
         // die Liste der Filmlistenserver aufräumen
@@ -143,8 +143,8 @@ public class MSearchFilmlistenSuchen {
 
     private void getDownloadUrlsFilmlisten__backuplisten(ListeDownloadUrlsFilmlisten sListe, String userAgent) {
         // für den Notfall fest hinterlegte Downloadserver
-        getDownloadUrlsFilmlisten(GuiFunktionen.addUrl("http://176.28.8.161/json1", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
-        getDownloadUrlsFilmlisten(GuiFunktionen.addUrl("http://85.25.49.47/json1", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
+        getDownloadUrlsFilmlisten(MSearchGuiFunktionen.addUrl("http://176.28.8.161/json1", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
+        getDownloadUrlsFilmlisten(MSearchGuiFunktionen.addUrl("http://85.25.49.47/json1", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
         Iterator<DatenFilmlistenServer> it = listeFilmlistenServer.iterator();
         while (it.hasNext()) {
             if (sListe.size() > 100) {
@@ -164,7 +164,7 @@ public class MSearchFilmlistenSuchen {
             inFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
             XMLStreamReader parser;
             InputStreamReader inReader;
-            if (GuiFunktionen.istUrl(dateiUrl)) {
+            if (MSearchGuiFunktionen.istUrl(dateiUrl)) {
                 // eine URL verarbeiten
                 int timeout = 20000; //ms
                 URLConnection conn;

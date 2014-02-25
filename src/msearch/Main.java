@@ -26,7 +26,7 @@ public class Main {
     public static final String STARTP_ALLES = "-alles";
     public static final String STARTP_UPDATE = "-update";
     public static final String STARTP_USER_AGENT = "-agent";
-    public static final String STARTP_DATEI_FILMLISTE = "-filmliste";
+    public static final String STARTP_DIR_FILMS = "-dirFilms";
     public static final String STARTP_SENDER = "-sender";
     public static final String STARTP_DEBUG = "-d";
 

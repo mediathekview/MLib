@@ -45,7 +45,7 @@ import msearch.daten.MSearchConfig;
 import msearch.filmeSuchen.MSearchListenerFilmeLaden;
 import msearch.filmeSuchen.MSearchListenerFilmeLadenEvent;
 import msearch.tool.DatumZeit;
-import msearch.tool.GuiFunktionen;
+import msearch.tool.MSearchGuiFunktionen;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchLog;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
@@ -68,7 +68,7 @@ public class MSearchFilmlisteLesen {
         // die Filmliste "vonDateiUrl" (Url oder lokal) wird in die List "listeFilme" eingelesen und 
         // wenn angegeben: in "nachDatei" gespeichert
         boolean ret = false;
-        boolean istUrl = GuiFunktionen.istUrl(vonDateiUrl);
+        boolean istUrl = MSearchGuiFunktionen.istUrl(vonDateiUrl);
         try {
             if (istUrl && vonDateiUrl.endsWith(MSearchConst.FORMAT_XZ)
                     || istUrl && vonDateiUrl.endsWith(MSearchConst.FORMAT_BZ2)
@@ -134,7 +134,7 @@ public class MSearchFilmlisteLesen {
     public boolean filmlisteLesenXml(String vonDateiUrl, ListeFilme listeFilme) {
         // die Filmliste "vonDateiUrl" (Url oder lokal) wird in die List "listeFilme" eingelesen
         boolean ret = true;
-        boolean istUrl = GuiFunktionen.istUrl(vonDateiUrl);
+        boolean istUrl = MSearchGuiFunktionen.istUrl(vonDateiUrl);
         if (!istUrl) {
             if (!new File(vonDateiUrl).exists()) {
                 MSearchLog.fehlerMeldung(602140697, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", "Datei existiert nicht: " + vonDateiUrl);

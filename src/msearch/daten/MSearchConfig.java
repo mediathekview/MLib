@@ -20,6 +20,7 @@
 package msearch.daten;
 
 import msearch.tool.MSearchConst;
+import msearch.tool.MSearchGuiFunktionen;
 
 public class MSearchConfig {
 
@@ -36,16 +37,13 @@ public class MSearchConfig {
     public static String exportFilmlisteXml = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: XML), bz2
     public static String exportFilmlisteJson = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: Json), xz
     public static boolean orgFilmlisteErstellen = false; // dann wird eine neue Org-Liste angelegt, typ. die erste Liste am Tag
-    public static String orgFilmliste = ""; // ist die Org-Filmliste, typ. die erste am Tag
-    public static String exportOrgFilmliste = ""; // die Org-Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: Json), xz
-    public static String diffFilmliste = ""; // ist das diff, Filmliste gegen Org-Liste
-    public static String exportDiffFilmliste = ""; // und die wird noch exportiert, xz
+    public static boolean diffFilmlisteErstellen = false; // dann wird ein diff erstellt
     //
     private static String userAgent = null;
     // flags
     public static boolean debug = false; // Debugmodus
     // Verzeichnis zum Speichern der Programmeinstellungen
-    public static String dateiFilmliste = "";
+    public static String dirFilme = ""; // Pfad mit den Filmlisten
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
     private static boolean stop = false; // damit kannn das Laden gestoppt werden
 
@@ -70,6 +68,45 @@ public class MSearchConfig {
         } else {
             return userAgent + " user-" + zufall;
         }
+    }
+
+    // Namen der Filmlisten
+    public static final String nameAktFilmlist = "filme.json"; // ist die aktuelle Filmliste
+    public static final String nameAktFilmlist_xz = "filme.xz"; // ist die aktuelle Filmliste, xz komprimiert
+    public static final String nameAktFilmlist_bz2 = "filme-xml.bz2"; // ist die aktuelle Filmliste (xml Format), bz2 komprimiert, für die Programmversion <4
+
+    public static final String nameOrgFilmlist = "filme-org.json"; // ist die "ORG" Filmliste, typ. die erste am Tag
+    public static final String nameOrgFilmlist_xz = "filme-org.xz"; // ist die "ORG" Filmliste, typ. die erste am Tag, xz komprimiert
+
+    public static final String nameDiffFilmlist = "filme-diff.json"; // ist ein diff der aktuellen zur ORG Filmliste
+    public static final String nameDiffFilmlist_xz = "filme-diff.xz"; // ist ein diff der aktuellen zur ORG Filmliste, xz komprimiert
+
+    public static String getPathFilmlist() {
+        return MSearchGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist);
+    }
+
+    public static String getPathFilmlist_json_xz() {
+        return MSearchGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist_xz);
+    }
+
+    public static String getPathFilmlist_xml_bz2() {
+        return MSearchGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist_bz2);
+    }
+
+    public static String getPathFilmlist_org() {
+        return MSearchGuiFunktionen.addsPfad(dirFilme, nameOrgFilmlist);
+    }
+
+    public static String getPathFilmlist_org_xz() {
+        return MSearchGuiFunktionen.addsPfad(dirFilme, nameOrgFilmlist_xz);
+    }
+
+    public static String getPathFilmlist_diff() {
+        return MSearchGuiFunktionen.addsPfad(dirFilme, nameDiffFilmlist);
+    }
+
+    public static String getPathFilmlist_diff_xz() {
+        return MSearchGuiFunktionen.addsPfad(dirFilme, nameDiffFilmlist_xz);
     }
 
     /**

@@ -23,7 +23,7 @@ import msearch.filmeSuchen.MSearchFilmeSuchen;
 import msearch.io.MSearchGetUrl;
 import msearch.daten.MSearchConfig;
 import msearch.daten.DatenFilm;
-import msearch.tool.GuiFunktionen;
+import msearch.tool.MSearchGuiFunktionen;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchFunktionen;
 import msearch.tool.MSearchLog;
@@ -297,8 +297,8 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     //     String datum, String zeit,
                     //     long dauerSekunden, String description, String thumbnailUrl, String imageUrl, String[] keywords) {
                     DatenFilm film = null;
-                    thema = GuiFunktionen.utf8(thema);
-                    titel = GuiFunktionen.utf8(titel);
+                    thema = MSearchGuiFunktionen.utf8(thema);
+                    titel = MSearchGuiFunktionen.utf8(titel);
                     if ((film = istInFilmListe(nameSenderMReader, thema, titel)) != null) {
                         film.addUrlKlein(urlFilm, "");
                     } else {

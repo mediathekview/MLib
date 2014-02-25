@@ -27,7 +27,7 @@ import msearch.daten.MSearchConfig;
 import msearch.tool.MSearchLog;
 import msearch.io.MSearchGetUrl;
 import msearch.daten.DatenFilm;
-import msearch.tool.GuiFunktionen;
+import msearch.tool.MSearchGuiFunktionen;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchStringBuilder;
 
@@ -339,7 +339,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
         private String getDate(String url) {
             String ret = "";
             try {
-                String tmp = GuiFunktionen.getDateiName(url);
+                String tmp = MSearchGuiFunktionen.getDateiName(url);
                 if (tmp.length() > 8) {
                     tmp = tmp.substring(0, 8);
                     SimpleDateFormat sdfIn = new SimpleDateFormat("yyyyMMdd");
