@@ -103,7 +103,7 @@ public class MSearchLog {
         versionsMeldungen(classname);
         MSearchLog.systemMeldung("##################################################################################");
         MSearchLog.systemMeldung("Programmpfad: " + MSearchFunktionen.getPathJar());
-        MSearchLog.systemMeldung("Filmliste: " + MSearchConfig.getPathFilmlist(true));
+        MSearchLog.systemMeldung("Filmliste: " + MSearchConfig.getPathFilmlist(true /*aktDate*/));
         MSearchLog.systemMeldung("Useragent: " + MSearchConfig.getUserAgent());
         MSearchLog.systemMeldung("##################################################################################");
         MSearchLog.systemMeldung("");

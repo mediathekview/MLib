@@ -84,7 +84,7 @@ public class MSearchConfig {
 
     public static String getPathFilmlist(boolean aktDate) {
         if (aktDate) {
-            return MSearchGuiFunktionen.addsPfad(dirFilme, DatumZeit.getJetzt_yyyy_MM_dd__HH_mm_ss() + nameAktFilmlist);
+            return MSearchGuiFunktionen.addsPfad(dirFilme, DatumZeit.getJetzt_yyyy_MM_dd__HH_mm_ss() + "__" + nameAktFilmlist);
         } else {
             return MSearchGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist);
         }

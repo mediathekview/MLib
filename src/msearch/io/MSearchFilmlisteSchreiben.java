@@ -57,7 +57,7 @@ public class MSearchFilmlisteSchreiben {
                 MSearchLog.fehlerMeldung(915236478, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
-        MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
+        MSearchLog.systemMeldung("   --> Start Schreiben nach: " + datei);
         try {
             String sender = "", thema = "";
             JsonFactory jsonF = new JsonFactory();
@@ -122,7 +122,7 @@ public class MSearchFilmlisteSchreiben {
             }
             jg.writeEndObject();
             jg.close();
-            MSearchLog.systemMeldung("geschrieben!");
+            MSearchLog.systemMeldung("   --> geschrieben!");
         } catch (Exception ex) {
             MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
         }
@@ -147,7 +147,7 @@ public class MSearchFilmlisteSchreiben {
                 MSearchLog.fehlerMeldung(947623049, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
-        MSearchLog.systemMeldung("Start Schreiben nach: " + datei);
+        MSearchLog.systemMeldung("   --> Start Schreiben nach: " + datei);
         outFactory = XMLOutputFactory.newInstance();
         if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
             bZip2CompressorOutputStream = new BZip2CompressorOutputStream(new FileOutputStream(file), 9 /*Blocksize: 1 - 9*/);
@@ -244,6 +244,6 @@ public class MSearchFilmlisteSchreiben {
             writer.close();
             out.close();
         }
-        MSearchLog.systemMeldung("geschrieben!");
+        MSearchLog.systemMeldung("   --> geschrieben!");
     }
 }
