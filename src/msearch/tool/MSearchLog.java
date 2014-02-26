@@ -57,7 +57,7 @@ public class MSearchLog {
     private static LinkedList<Integer[]> fehlerListe = new LinkedList<>(); // [Art, Fehlernummer, Anzahl, Exception(0,1 für ja, nein)]
     private static boolean progress = false;
     private static String progressText = "";
-    private static Date startZeit = new Date(System.currentTimeMillis());
+    private static final Date startZeit = new Date(System.currentTimeMillis());
     private static Date stopZeit = null;
     private static File logfile = null;
 
@@ -103,7 +103,7 @@ public class MSearchLog {
         versionsMeldungen(classname);
         MSearchLog.systemMeldung("##################################################################################");
         MSearchLog.systemMeldung("Programmpfad: " + MSearchFunktionen.getPathJar());
-        MSearchLog.systemMeldung("Filmliste: " + MSearchConfig.getPathFilmlist());
+        MSearchLog.systemMeldung("Filmliste: " + MSearchConfig.getPathFilmlist(true));
         MSearchLog.systemMeldung("Useragent: " + MSearchConfig.getUserAgent());
         MSearchLog.systemMeldung("##################################################################################");
         MSearchLog.systemMeldung("");

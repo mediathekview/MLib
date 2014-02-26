@@ -19,6 +19,7 @@
  */
 package msearch.daten;
 
+import msearch.tool.DatumZeit;
 import msearch.tool.MSearchConst;
 import msearch.tool.MSearchGuiFunktionen;
 
@@ -34,8 +35,8 @@ public class MSearchConfig {
     public static boolean senderAllesLaden = false;
     public static boolean updateFilmliste = false; // die bestehende Filmliste wird aktualisiert und bleibt erhalten
     public static String[] nurSenderLaden = null; // es wird nur dieser Sender geladen => "senderAllesLaden"=false, "updateFillmliste"=true
-    public static String exportFilmlisteXml = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: XML), bz2
-    public static String exportFilmlisteJson = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: Json), xz
+//    public static String exportFilmlisteXml = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: XML), bz2
+//    public static String exportFilmlisteJson = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: Json), xz
     public static boolean orgFilmlisteErstellen = false; // dann wird eine neue Org-Liste angelegt, typ. die erste Liste am Tag
     public static boolean diffFilmlisteErstellen = false; // dann wird ein diff erstellt
     //
@@ -81,8 +82,12 @@ public class MSearchConfig {
     public static final String nameDiffFilmlist = "filme-diff.json"; // ist ein diff der aktuellen zur ORG Filmliste
     public static final String nameDiffFilmlist_xz = "filme-diff.xz"; // ist ein diff der aktuellen zur ORG Filmliste, xz komprimiert
 
-    public static String getPathFilmlist() {
-        return MSearchGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist);
+    public static String getPathFilmlist(boolean aktDate) {
+        if (aktDate) {
+            return MSearchGuiFunktionen.addsPfad(dirFilme, DatumZeit.getJetzt_yyyy_MM_dd__HH_mm_ss() + nameAktFilmlist);
+        } else {
+            return MSearchGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist);
+        }
     }
 
     public static String getPathFilmlist_json_xz() {

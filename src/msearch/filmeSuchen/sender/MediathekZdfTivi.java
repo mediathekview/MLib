@@ -58,6 +58,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
         MSearchStringBuilder seiteTivi_1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
         MSearchStringBuilder seiteTivi_2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
         seiteTivi_1 = getUrl.getUri(nameSenderMReader, "http://www.tivi.de/tiviVideos/?view=flashXml", MSearchConst.KODIERUNG_UTF, 6 /* versuche */, seiteTivi_1, "" /* Meldung */);
+        ///seiteTivi_1 = getUrl.getUri(nameSenderMReader, "http://www.tivi.de/tiviVideos/?view=xml", MSearchConst.KODIERUNG_UTF, 6 /* versuche */, seiteTivi_1, "" /* Meldung */);
         if (seiteTivi_1.length() == 0) {
             MSearchLog.fehlerMeldung(-302132654, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.addTivi", "Leere Seite Tivi-1");
         }

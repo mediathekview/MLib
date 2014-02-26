@@ -145,7 +145,7 @@ public class Search implements Runnable {
         });
         // laden was es schon gibt
         //Daten.ioXmlFilmlisteLesen.filmlisteLesen(Daten.getBasisVerzeichnis() + Konstanten.XML_DATEI_FILME, false /* istUrl */, Daten.listeFilme);
-        new MSearchFilmlisteLesen().filmlisteLesenJson(MSearchConfig.getPathFilmlist(), "", listeFilme);
+        new MSearchFilmlisteLesen().filmlisteLesenJson(MSearchConfig.getPathFilmlist(false), "", listeFilme);
         // das eigentliche Suchen der Filme bei den Sendern starten
         if (MSearchConfig.nurSenderLaden == null) {
             mSearchFilmeSuchen.filmeBeimSenderLaden(listeFilme);
@@ -190,24 +190,16 @@ public class Search implements Runnable {
         }
         //================================================
         // Filmliste schreiben, normal, xz und bz2 komprimiert
-        new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.getPathFilmlist(), listeFilme);
-        // new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.getPathFilmlist_json_xz(), listeFilme);
-        // jetzt  noch in eine Datei exportieren
-        if (!MSearchConfig.exportFilmlisteXml.isEmpty()) {
-            // Filmliste exportieren, xml-Format
-            new MSearchFilmlisteSchreiben().filmlisteSchreibenXml(MSearchConfig.exportFilmlisteXml, listeFilme);
-        }
-        if (!MSearchConfig.exportFilmlisteJson.isEmpty()) {
-            // Filmliste exportieren, json-Format
-            new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.exportFilmlisteJson, listeFilme);
-        }
+        new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.getPathFilmlist(false), listeFilme);
+        new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.getPathFilmlist(true), listeFilme);
+        new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.getPathFilmlist_json_xz(), listeFilme);
+        new MSearchFilmlisteSchreiben().filmlisteSchreibenXml(MSearchConfig.getPathFilmlist_xml_bz2(), listeFilme);
         //================================================
         // Org-Diff
         if (MSearchConfig.orgFilmlisteErstellen) {
             // org-Liste anlegen, typ. erste Liste am Tag
             MSearchLog.systemMeldung("Org-Lilste erzeugen: " + MSearchConfig.getPathFilmlist_org());
             new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.getPathFilmlist_org(), listeFilme);
-            // und noch exportieren
             new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.getPathFilmlist_org_xz(), listeFilme);
         }
         if (MSearchConfig.diffFilmlisteErstellen) {
@@ -226,7 +218,6 @@ public class Search implements Runnable {
                 diff = listeFilme.neueFilme(tmpListe);
             }
             new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.getPathFilmlist_diff(), diff);
-            // und noch exportieren
             new MSearchFilmlisteSchreiben().filmlisteSchreibenJson(MSearchConfig.getPathFilmlist_diff_xz(), diff);
         }
         //================================================
