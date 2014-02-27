@@ -35,11 +35,11 @@ import msearch.filmeSuchen.sender.MediathekNdr;
 import msearch.filmeSuchen.sender.MediathekRbb;
 import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchFunktionen;
-import msearch.tool.MSearchGuiFunktionen;
-import msearch.tool.MSearchLog;
-import msearch.tool.MSearchUrlDateiGroesse;
+import msearch.tool.MSConst;
+import msearch.tool.MSFunktionen;
+import msearch.tool.MSGuiFunktionen;
+import msearch.tool.MSLog;
+import msearch.tool.MSUrlDateiGroesse;
 
 public class ListeFilme extends ArrayList<DatenFilm> {
 
@@ -79,7 +79,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // nur für die MediathekReader
         // ist eine URL,Sender,Thema,Titel schon vorhanden, wird sie verworfen, 
         // der aktuellste Film (werden von jetzt in die Vergangenheit gesucht) bleibt erhalten
-        MSearchFunktionen.unescape(film);
+        MSFunktionen.unescape(film);
         // erst mal schauen obs das schon gibt
         DatenFilm f;
         String idx = film.getIndex();
@@ -167,8 +167,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         DatenFilm film;
         while (it.hasNext()) {
             film = it.next();
-            film.arr[DatenFilm.FILM_THEMA_NR] = MSearchGuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
-            film.arr[DatenFilm.FILM_TITEL_NR] = MSearchGuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
+            film.arr[DatenFilm.FILM_THEMA_NR] = MSGuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
+            film.arr[DatenFilm.FILM_TITEL_NR] = MSGuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
             if (film.arr[DatenFilm.FILM_URL_NR].contains(" ")) {
                 System.out.println(film.arr[DatenFilm.FILM_URL_NR]);
             }
@@ -241,12 +241,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 if (!film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
                     return film.arr[DatenFilm.FILM_GROESSE_NR];
                 } else {
-                    return MSearchUrlDateiGroesse.laengeString(url, sender);
+                    return MSUrlDateiGroesse.laengeString(url, sender);
                 }
             }
         }
         // dann ist der Film nicht in der Liste
-        return MSearchUrlDateiGroesse.laengeString(url, sender);
+        return MSUrlDateiGroesse.laengeString(url, sender);
     }
 
     public synchronized void nurDoppelteAnzeigen(boolean index) {
@@ -394,13 +394,13 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         try {
             n = Integer.parseInt(nr);
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(936254978, MSearchLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
+            MSLog.fehlerMeldung(936254978, MSLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
             return null;
         }
         try {
             return this.get(--n);
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(203647098, MSearchLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
+            MSLog.fehlerMeldung(203647098, MSLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
             return new DatenFilm();
         }
     }
@@ -410,7 +410,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         try {
             return this.get(--nr);
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(203647098, MSearchLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
+            MSLog.fehlerMeldung(203647098, MSLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
             return new DatenFilm();
         }
     }
@@ -498,13 +498,13 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         if (this.size() == 0) {
             return true;
         }
-        return filmlisteIstAelter(MSearchConst.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE);
+        return filmlisteIstAelter(MSConst.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE);
     }
 
     public synchronized boolean filmlisteIstAelter(int sekunden) {
         int ret = alterFilmlisteSek();
         if (ret != 0) {
-            MSearchLog.systemMeldung("Die Filmliste ist " + ret / 60 + " Minuten alt");
+            MSLog.systemMeldung("Die Filmliste ist " + ret / 60 + " Minuten alt");
         }
         return ret > sekunden;
     }
@@ -514,15 +514,15 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         for (int i = 0; i < metaDaten.length; ++i) {
             metaDaten[i] = "";
         }
-        if (!MSearchConfig.getStop() /* löschen */) {
+        if (!MSConfig.getStop() /* löschen */) {
             metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = getJetzt_ddMMyyyy_HHmm();
             metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = getJetzt_ddMMyyyy_HHmm_gmt();
         } else {
             metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = "";
             metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = "";
         }
-        metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
-        metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = MSearchFunktionen.getProgVersionString() + " - Compiled: " + MSearchFunktionen.getCompileDate();
+        metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSConst.VERSION_FILMLISTE;
+        metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = MSFunktionen.getProgVersionString() + " - Compiled: " + MSFunktionen.getCompileDate();
     }
 
     private String getJetzt_ddMMyyyy_HHmm() {

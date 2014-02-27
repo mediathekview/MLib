@@ -5,9 +5,9 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
-import msearch.daten.MSearchConfig;
+import msearch.daten.MSConfig;
 
-public class MSearchUrlDateiGroesse {
+public class MSUrlDateiGroesse {
 
     final static int TIMEOUT = 2500; // ms
     //private static int anz = 0;
@@ -90,7 +90,7 @@ public class MSearchUrlDateiGroesse {
         countArray(anz, ssender);
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setRequestProperty("User-Agent", MSearchConfig.getUserAgent());
+            conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
             conn.setReadTimeout(TIMEOUT);
             conn.setConnectTimeout(TIMEOUT);
             if ((retCode = conn.getResponseCode()) < 400) {
@@ -100,16 +100,16 @@ public class MSearchUrlDateiGroesse {
             } else {
                 if (retCode == 403) {
                     countArray(anz403, ssender);
-                    if (!MSearchConfig.proxyUrl.isEmpty() && MSearchConfig.proxyPort > 0) {
+                    if (!MSConfig.proxyUrl.isEmpty() && MSConfig.proxyPort > 0) {
                         // nur dann verwenden
                         try {
                             // ein anderer Versuch
                             // wenn möglich, einen Proxy einrichten
                             //SocketAddress saddr = new InetSocketAddress("localhost", 9050);
-                            SocketAddress saddr = new InetSocketAddress(MSearchConfig.proxyUrl, MSearchConfig.proxyPort);
+                            SocketAddress saddr = new InetSocketAddress(MSConfig.proxyUrl, MSConfig.proxyPort);
                             Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
                             conn = (HttpURLConnection) new URL(url).openConnection(proxy);
-                            conn.setRequestProperty("User-Agent", MSearchConfig.getUserAgent());
+                            conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
                             conn.setReadTimeout(TIMEOUT);
                             conn.setConnectTimeout(TIMEOUT);
                             ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
@@ -120,7 +120,7 @@ public class MSearchUrlDateiGroesse {
                             }
                         } catch (Exception ex) {
                             ret = -1;
-                            MSearchLog.fehlerMeldung(963215478, MSearchLog.FEHLER_ART_PROG, "MVUrlDateiGroesse.laenge", ex);
+                            MSLog.fehlerMeldung(963215478, MSLog.FEHLER_ART_PROG, "MVUrlDateiGroesse.laenge", ex);
                         }
                     }
                 }
@@ -128,9 +128,9 @@ public class MSearchUrlDateiGroesse {
         } catch (Exception ex) {
             ret = -1;
             if (ex.getMessage().equals("Read timed out")) {
-                MSearchLog.fehlerMeldung(825141452, MSearchLog.FEHLER_ART_PROG, "StarterClass.StartenDownload.laenge", "Read timed out: " + ssender);
+                MSLog.fehlerMeldung(825141452, MSLog.FEHLER_ART_PROG, "StarterClass.StartenDownload.laenge", "Read timed out: " + ssender);
             } else {
-                MSearchLog.fehlerMeldung(643298301, MSearchLog.FEHLER_ART_PROG, "StarterClass.StartenDownload.laenge", ex);
+                MSLog.fehlerMeldung(643298301, MSLog.FEHLER_ART_PROG, "StarterClass.StartenDownload.laenge", ex);
             }
         }
         if (ret < 300 * 1024) {

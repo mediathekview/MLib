@@ -20,21 +20,21 @@
 package msearch.filmeSuchen.sender;
 
 import msearch.daten.DatenFilm;
-import msearch.daten.MSearchConfig;
-import msearch.filmeSuchen.MSearchFilmeSuchen;
-import msearch.io.MSearchGetUrl;
+import msearch.daten.MSConfig;
+import msearch.filmeSuchen.MSFilmeSuchen;
+import msearch.io.MSGetUrl;
 import msearch.tool.DatumZeit;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchLog;
-import msearch.tool.MSearchStringBuilder;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
+import msearch.tool.MSStringBuilder;
 
 public class MediathekSrfPod extends MediathekReader implements Runnable {
 
     //public static final String SENDER = "SF.Podcast";
     public static final String SENDER = "SRF.Podcast";
-    private MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+    private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
-    public MediathekSrfPod(MSearchFilmeSuchen ssearch, int startPrio) {
+    public MediathekSrfPod(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 1000, startPrio);
     }
 
@@ -53,7 +53,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
         int pos1 = 0;
         int pos2 = 0;
         String url = "";
-        while (!MSearchConfig.getStop() && (pos = seite.indexOf(MUSTER_1, pos)) != -1) {
+        while (!MSConfig.getStop() && (pos = seite.indexOf(MUSTER_1, pos)) != -1) {
             pos += MUSTER_1.length();
             pos1 = pos;
             pos2 = seite.indexOf("\"", pos);
@@ -62,14 +62,14 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                 url = "http://feeds.sf.tv/podcast" + url;
             }
             if (url.equals("")) {
-                MSearchLog.fehlerMeldung(-698875503, MSearchLog.FEHLER_ART_MREADER, "MediathekSfPod.addToList", "keine URL");
+                MSLog.fehlerMeldung(-698875503, MSLog.FEHLER_ART_MREADER, "MediathekSfPod.addToList", "keine URL");
             } else {
                 String[] add = new String[]{url, ""};
                 listeThemen.addUrl(add);
             }
         }
         pos = 0;
-        while (!MSearchConfig.getStop() && (pos = seite.indexOf(MUSTER_2, pos)) != -1) {
+        while (!MSConfig.getStop() && (pos = seite.indexOf(MUSTER_2, pos)) != -1) {
             pos += MUSTER_2.length();
             pos1 = pos;
             pos2 = seite.indexOf("\"", pos);
@@ -78,13 +78,13 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                 url = "http://pod.drs.ch/" + url;
             }
             if (url.equals("")) {
-                MSearchLog.fehlerMeldung(-698875503, MSearchLog.FEHLER_ART_MREADER, "MediathekSfPod.addToList", "keine URL");
+                MSLog.fehlerMeldung(-698875503, MSLog.FEHLER_ART_MREADER, "MediathekSfPod.addToList", "keine URL");
             } else {
                 String[] add = new String[]{url, ""};
                 listeThemen.addUrl(add);
             }
         }
-        if (MSearchConfig.getStop()) {
+        if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -101,20 +101,20 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
-        private MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
         @Override
         public void run() {
             try {
                 meldungAddThread();
                 String link[];
-                while (!MSearchConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0] /* url */);
                     addFilme(link[1], link[0] /* url */);
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-286931004, MSearchLog.FEHLER_ART_MREADER, "MediathekSfPod.SfThemaLaden.run", ex);
+                MSLog.fehlerMeldung(-286931004, MSLog.FEHLER_ART_MREADER, "MediathekSfPod.SfThemaLaden.run", ex);
             }
             meldungThreadUndFertig();
         }
@@ -190,13 +190,13 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                                         duration = Long.parseLong(d);
                                     }
                                 } catch (Exception ex) {
-                                    MSearchLog.fehlerMeldung(-915263987, MSearchLog.FEHLER_ART_MREADER, "MediathekSfPod.addFilme", "d: " + d);
+                                    MSLog.fehlerMeldung(-915263987, MSLog.FEHLER_ART_MREADER, "MediathekSfPod.addFilme", "d: " + d);
                                 }
                             }
                         }
                     }
                     if (duration == 0) {
-                        MSearchLog.fehlerMeldung(-915159637, MSearchLog.FEHLER_ART_MREADER, "MediathekSfPod.addFilme", "keine Dauer");
+                        MSLog.fehlerMeldung(-915159637, MSLog.FEHLER_ART_MREADER, "MediathekSfPod.addFilme", "keine Dauer");
                     }
                     if ((pos5 = seite.indexOf(MUSTER_DESCRIPTION, pos)) != -1) {
                         pos5 += MUSTER_DESCRIPTION.length();
@@ -236,7 +236,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                                 url = "http://" + url;
                             }
                             if (url.equals("")) {
-                                MSearchLog.fehlerMeldung(-463820049, MSearchLog.FEHLER_ART_MREADER, "MediathekSfPod.addFilme", "keine URL: " + strUrlFeed);
+                                MSLog.fehlerMeldung(-463820049, MSLog.FEHLER_ART_MREADER, "MediathekSfPod.addFilme", "keine URL: " + strUrlFeed);
                             } else {
                                 // public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String datum, String zeit,
                                 //      long duration, String description, String thumbnailUrl, String imageUrl, String[] keywords) {
@@ -247,7 +247,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-496352007, MSearchLog.FEHLER_ART_MREADER, "MediathekSfPod.addFilme", ex);
+                MSLog.fehlerMeldung(-496352007, MSLog.FEHLER_ART_MREADER, "MediathekSfPod.addFilme", ex);
             }
         }
     }

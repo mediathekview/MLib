@@ -21,20 +21,20 @@ package msearch.filmeSuchen.sender;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import msearch.filmeSuchen.MSearchFilmeSuchen;
-import msearch.io.MSearchGetUrl;
-import msearch.daten.MSearchConfig;
+import msearch.filmeSuchen.MSFilmeSuchen;
+import msearch.io.MSGetUrl;
+import msearch.daten.MSConfig;
 import msearch.daten.DatenFilm;
 import static msearch.filmeSuchen.sender.MediathekZdf.filmHolenId;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchLog;
-import msearch.tool.MSearchStringBuilder;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
+import msearch.tool.MSStringBuilder;
 
 public class Mediathek3Sat extends MediathekReader implements Runnable {
 
     public static final String SENDER = "3Sat";
 
-    public Mediathek3Sat(MSearchFilmeSuchen ssearch, int startPrio) {
+    public Mediathek3Sat(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 3, /* urlWarten */ 500, startPrio);
     }
 
@@ -44,7 +44,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
         meldungStart();
         sendungenLaden();
         tageLaden();
-        if (MSearchConfig.getStop()) {
+        if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -63,7 +63,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
     private void tageLaden() {
         // http://www.3sat.de/mediathek/?datum=20140105&cx=108
         String date;
-        for (int i = 0; i < (MSearchConfig.senderAllesLaden ? 21 : 7); ++i) {
+        for (int i = 0; i < (MSConfig.senderAllesLaden ? 21 : 7); ++i) {
             date = new SimpleDateFormat("yyyyMMdd").format(new Date().getTime() - i * (1000 * 60 * 60 * 24));
             String url = "http://www.3sat.de/mediathek/?datum=" + date + "&cx=108";
             listeThemen.add(new String[]{url, ""});
@@ -74,7 +74,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
         // ><a class="SubItem" href="?red=kulturzeit">Kulturzeit</a>
         final String ADRESSE = "http://www.3sat.de/mediathek/";
         final String MUSTER_URL = "<a class=\"SubItem\" href=\"?red=";
-        MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         seite = getUrlIo.getUri_Utf(nameSenderMReader, ADRESSE, seite, "");
         int pos1 = 0;
         int pos2;
@@ -99,7 +99,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                 String[] add = new String[]{"http://www.3sat.de/mediathek/?red=" + url + "&type=1", thema};
                 listeThemen.addUrl(add);
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-915237874, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.sendungenLaden", ex);
+                MSLog.fehlerMeldung(-915237874, MSLog.FEHLER_ART_MREADER, "Mediathek3sat.sendungenLaden", ex);
             }
         }
 
@@ -107,21 +107,21 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
-        private MSearchStringBuilder seite1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        private MSearchStringBuilder seite2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
         @Override
         public synchronized void run() {
             try {
                 meldungAddThread();
                 String[] link;
-                while (!MSearchConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     laden(link[0] /* url */, link[1] /* Thema */);
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-987452384, MSearchLog.FEHLER_ART_MREADER, "Mediathek3Sat.ThemaLaden.run", ex);
+                MSLog.fehlerMeldung(-987452384, MSLog.FEHLER_ART_MREADER, "Mediathek3Sat.ThemaLaden.run", ex);
             }
             meldungThreadUndFertig();
         }
@@ -130,7 +130,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
 
             final String MUSTER_START = "<div class=\"BoxPicture MediathekListPic\">";
             String url;
-            for (int i = 0; i < (MSearchConfig.senderAllesLaden ? 40 : 5); ++i) {
+            for (int i = 0; i < (MSConfig.senderAllesLaden ? 40 : 5); ++i) {
                 //http://www.3sat.de/mediathek/?type=1&red=nano&mode=verpasst3
                 if (thema.isEmpty()) {
                     // dann ist es aus "TAGE"
@@ -175,7 +175,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                     }
                     if (!ok) {
                         // dann mit der herkömmlichen Methode versuchen
-                        MSearchLog.fehlerMeldung(-462313269, MSearchLog.FEHLER_ART_MREADER, "Mediathek3sat.laden", "Thema: " + url);
+                        MSLog.fehlerMeldung(-462313269, MSLog.FEHLER_ART_MREADER, "Mediathek3sat.laden", "Thema: " + url);
                     }
                 }
             }

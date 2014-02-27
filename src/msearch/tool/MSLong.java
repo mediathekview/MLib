@@ -21,20 +21,20 @@ package msearch.tool;
 
 import msearch.daten.DatenFilm;
 
-public class MSearchLong implements Comparable<MSearchLong> {
+public class MSLong implements Comparable<MSLong> {
 
     public Long l = 0L;
     public String s = "";
 
-    public MSearchLong() {
+    public MSLong() {
     }
 
-    public MSearchLong(long ll) {
+    public MSLong(long ll) {
         l = new Long(ll);
         s = l.toString();
     }
 
-    public MSearchLong(DatenFilm film) {
+    public MSLong(DatenFilm film) {
         if (film.arr[DatenFilm.FILM_GROESSE_NR].equals("<1")) {
             film.arr[DatenFilm.FILM_GROESSE_NR] = "1";
         }
@@ -44,7 +44,7 @@ public class MSearchLong implements Comparable<MSearchLong> {
                 s = film.arr[DatenFilm.FILM_GROESSE_NR];
             }
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(649891025, MSearchLog.FEHLER_ART_MREADER, MSearchLong.class.getName(), ex, "String: " + film.arr[DatenFilm.FILM_GROESSE_NR]);
+            MSLog.fehlerMeldung(649891025, MSLog.FEHLER_ART_MREADER, MSLong.class.getName(), ex, "String: " + film.arr[DatenFilm.FILM_GROESSE_NR]);
             l = 0L;
             s = "";
         }
@@ -56,7 +56,7 @@ public class MSearchLong implements Comparable<MSearchLong> {
     }
 
     @Override
-    public int compareTo(MSearchLong ll) {
+    public int compareTo(MSLong ll) {
         return (l.compareTo(ll.l));
     }
 }

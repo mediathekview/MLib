@@ -23,11 +23,11 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import msearch.daten.DatenFilm;
-import msearch.filmeSuchen.MSearchFilmeSuchen;
-import msearch.io.MSearchGetUrl;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchLog;
-import msearch.tool.MSearchStringBuilder;
+import msearch.filmeSuchen.MSFilmeSuchen;
+import msearch.io.MSGetUrl;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
+import msearch.tool.MSStringBuilder;
 
 public class MediathekZdfTivi extends MediathekReader implements Runnable {
 
@@ -36,7 +36,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
     private final SimpleDateFormat sdfOut_date = new SimpleDateFormat("dd.MM.yyyy");
     private final SimpleDateFormat sdfOut_time = new SimpleDateFormat("HH:mm:ss");
 
-    public MediathekZdfTivi(MSearchFilmeSuchen ssearch, int startPrio) {
+    public MediathekZdfTivi(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, 1 /* threads */, 500 /* urlWarten */, startPrio);
     }
 
@@ -54,13 +54,13 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
         //<ns3:page>/tiviVideos/beitrag/pur%2B+Sendungen/895212/2063212?view=flashXml</ns3:page>
         //<ns3:text>Ich will die Wahrheit!</ns3:text>
         final String MUSTER_URL = "<ns3:page>/tiviVideos/beitrag";
-        MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
-        MSearchStringBuilder seiteTivi_1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        MSearchStringBuilder seiteTivi_2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        seiteTivi_1 = getUrl.getUri(nameSenderMReader, "http://www.tivi.de/tiviVideos/?view=flashXml", MSearchConst.KODIERUNG_UTF, 6 /* versuche */, seiteTivi_1, "" /* Meldung */);
+        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
+        MSStringBuilder seiteTivi_1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seiteTivi_2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        seiteTivi_1 = getUrl.getUri(nameSenderMReader, "http://www.tivi.de/tiviVideos/?view=flashXml", MSConst.KODIERUNG_UTF, 6 /* versuche */, seiteTivi_1, "" /* Meldung */);
         ///seiteTivi_1 = getUrl.getUri(nameSenderMReader, "http://www.tivi.de/tiviVideos/?view=xml", MSearchConst.KODIERUNG_UTF, 6 /* versuche */, seiteTivi_1, "" /* Meldung */);
         if (seiteTivi_1.length() == 0) {
-            MSearchLog.fehlerMeldung(-302132654, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.addTivi", "Leere Seite Tivi-1");
+            MSLog.fehlerMeldung(-302132654, MSLog.FEHLER_ART_MREADER, "MediathekZdf.addTivi", "Leere Seite Tivi-1");
         }
         int pos = 0;
         int pos1;
@@ -79,7 +79,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                     url = URLDecoder.decode(url, "UTF-8");
                 }
                 if (url.equals("")) {
-                    MSearchLog.fehlerMeldung(-754126900, MSearchLog.FEHLER_ART_MREADER, "MediathekZdfaddTivi", "keine URL");
+                    MSLog.fehlerMeldung(-754126900, MSLog.FEHLER_ART_MREADER, "MediathekZdfaddTivi", "keine URL");
                 } else {
                     urlFilm = "";
                     url = "http://www.tivi.de/tiviVideos/beitrag" + url;
@@ -87,7 +87,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                     meldung(url);
                     seiteTivi_2 = getUrl.getUri_Utf(nameSenderMReader, url, seiteTivi_2, "" /* Meldung */);
                     if (seiteTivi_2.length() == 0) {
-                        MSearchLog.fehlerMeldung(-798956231, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.addTivi", "Leere Seite Tivi-2: " + url);
+                        MSLog.fehlerMeldung(-798956231, MSLog.FEHLER_ART_MREADER, "MediathekZdf.addTivi", "Leere Seite Tivi-2: " + url);
                         continue;
                     }
                     thema = seiteTivi_2.extract("<title>", "<");
@@ -114,7 +114,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                         dauerL = ih * 60 * 60 + im * 60 + is;
                     } catch (Exception ex) {
                         dauerL = 0;
-                        MSearchLog.fehlerMeldung(-349761012, MSearchLog.FEHLER_ART_PROG, "MediathekZdfaddTivi, Dauer: " + url, ex);
+                        MSLog.fehlerMeldung(-349761012, MSLog.FEHLER_ART_PROG, "MediathekZdfaddTivi, Dauer: " + url, ex);
                     }
                     zeit = "";
                     datum = seiteTivi_2.extract("<airTime>", "<");
@@ -124,7 +124,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                         datum = sdfOut_date.format(filmDate);
                         zeit = sdfOut_time.format(filmDate);
                     } catch (Exception ex) {
-                        MSearchLog.fehlerMeldung(-649600299, MSearchLog.FEHLER_ART_PROG, "MediathekZdfaddTivi, Datum: " + url, ex);
+                        MSLog.fehlerMeldung(-649600299, MSLog.FEHLER_ART_PROG, "MediathekZdfaddTivi, Datum: " + url, ex);
                     }
                     pos3 = 0;
                     while ((pos3 = seiteTivi_2.indexOf("<ns4:quality>veryhigh</ns4:quality>", pos3)) != -1) {
@@ -136,7 +136,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                         }
                     }
                     if (urlFilm.isEmpty()) {
-                        MSearchLog.fehlerMeldung(-159876234, MSearchLog.FEHLER_ART_MREADER, "MediathekZdfaddTivi", "kein Film: " + url);
+                        MSLog.fehlerMeldung(-159876234, MSLog.FEHLER_ART_MREADER, "MediathekZdfaddTivi", "kein Film: " + url);
                     } else {
                         // public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
                         //        String datum, String zeit,
@@ -149,7 +149,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                 }
             }
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(-454123698, MSearchLog.FEHLER_ART_MREADER, "MediathekZdf.addTivi", ex);
+            MSLog.fehlerMeldung(-454123698, MSLog.FEHLER_ART_MREADER, "MediathekZdf.addTivi", ex);
         }
     }
 

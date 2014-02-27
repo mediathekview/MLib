@@ -19,7 +19,7 @@
  */
 package msearch.filmeLaden;
 
-import msearch.tool.MSearchLog;
+import msearch.tool.MSLog;
 
 public class DatenFilmlistenServer implements Comparable<DatenFilmlistenServer> {
 
@@ -54,7 +54,7 @@ public class DatenFilmlistenServer implements Comparable<DatenFilmlistenServer> 
             int alter = Integer.parseInt(arr[FILM_LISTEN_SERVER_ALTER_NR]);
             arr[FILM_LISTEN_SERVER_ALTER_NR] = String.valueOf(++alter);
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(689412357, MSearchLog.FEHLER_ART_PROG, this.getClass().getName(), ex, arr[FILM_LISTEN_SERVER_ALTER_NR]);
+            MSLog.fehlerMeldung(689412357, MSLog.FEHLER_ART_PROG, this.getClass().getName(), ex, arr[FILM_LISTEN_SERVER_ALTER_NR]);
             arr[FILM_LISTEN_SERVER_ALTER_NR] = "0";
         }
     }
@@ -64,7 +64,7 @@ public class DatenFilmlistenServer implements Comparable<DatenFilmlistenServer> 
         try {
             alter = Integer.parseInt(arr[FILM_LISTEN_SERVER_ALTER_NR]);
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(689412357, MSearchLog.FEHLER_ART_PROG, this.getClass().getName(), ex, arr[FILM_LISTEN_SERVER_ALTER_NR]);
+            MSLog.fehlerMeldung(689412357, MSLog.FEHLER_ART_PROG, this.getClass().getName(), ex, arr[FILM_LISTEN_SERVER_ALTER_NR]);
             alter = 0;
             arr[FILM_LISTEN_SERVER_ALTER_NR] = "0";
         }

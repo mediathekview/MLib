@@ -30,10 +30,10 @@ import msearch.filmeSuchen.sender.MediathekSrfPod;
 import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.tool.Datum;
 import msearch.tool.GermanStringSorter;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchLog;
-import msearch.tool.MSearchLong;
-import msearch.tool.MSearchUrlDateiGroesse;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
+import msearch.tool.MSLong;
+import msearch.tool.MSUrlDateiGroesse;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 
@@ -159,20 +159,20 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public Datum datumFilm = new Datum(0);
     public long dauerL = 0; // Sekunden
     public Object abo = null;
-    public MSearchLong dateigroesseL; // Dateigröße in MByte
+    public MSLong dateigroesseL; // Dateigröße in MByte
     public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
     public int nr;
     public boolean neuerFilm = false;
 
     public DatenFilm() {
-        dateigroesseL = new MSearchLong(0); // Dateigröße in MByte
+        dateigroesseL = new MSLong(0); // Dateigröße in MByte
     }
 
     public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
             String datum, String zeit,
             long dauerSekunden, String description, String imageUrl, String[] keywords) {
         // da werden die gefundenen Filme beim Absuchen der Senderwebsites erstellt, und nur die!!
-        dateigroesseL = new MSearchLong(0); // Dateigröße in MByte
+        dateigroesseL = new MSLong(0); // Dateigröße in MByte
         arr[FILM_SENDER_NR] = ssender;
         arr[FILM_THEMA_NR] = tthema.isEmpty() ? ssender : tthema.trim();
         arr[FILM_TITEL_NR] = ttitel.isEmpty() ? tthema : ttitel.trim();
@@ -235,7 +235,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         if (url.equals(arr[DatenFilm.FILM_URL_NR])) {
             return arr[DatenFilm.FILM_GROESSE_NR];
         } else {
-            return MSearchUrlDateiGroesse.laengeString(url);
+            return MSUrlDateiGroesse.laengeString(url);
         }
     }
 
@@ -318,21 +318,21 @@ public class DatenFilm implements Comparable<DatenFilm> {
             try {
                 url = uurl.substring(uurl.indexOf("/online/") + "/online/".length());
                 if (!url.contains("/")) {
-                    MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-1", "Url: " + uurl);
+                    MSLog.fehlerMeldung(915230478, MSLog.FEHLER_ART_PROG, "DatenFilm.getUrl-1", "Url: " + uurl);
                     return "";
                 }
                 url = url.substring(url.indexOf("/") + 1);
                 if (!url.contains("/")) {
-                    MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-2", "Url: " + uurl);
+                    MSLog.fehlerMeldung(915230478, MSLog.FEHLER_ART_PROG, "DatenFilm.getUrl-2", "Url: " + uurl);
                     return "";
                 }
                 url = url.substring(url.indexOf("/") + 1);
                 if (url.isEmpty()) {
-                    MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-3", "Url: " + uurl);
+                    MSLog.fehlerMeldung(915230478, MSLog.FEHLER_ART_PROG, "DatenFilm.getUrl-3", "Url: " + uurl);
                     return "";
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(915230478, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getUrl-4", ex, "Url: " + uurl);
+                MSLog.fehlerMeldung(915230478, MSLog.FEHLER_ART_PROG, "DatenFilm.getUrl-4", ex, "Url: " + uurl);
             }
             return MediathekOrf.SENDER + "----" + url;
         } else {
@@ -372,7 +372,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public void init() {
         try {
             // Dateigröße
-            dateigroesseL = new MSearchLong(this);
+            dateigroesseL = new MSLong(this);
             // Filmdauer
             try {
                 if (!this.arr[DatenFilm.FILM_DAUER_NR].contains(":") && !this.arr[DatenFilm.FILM_DAUER_NR].isEmpty()) {
@@ -402,7 +402,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 }
             } catch (Exception ex) {
                 dauerL = 0;
-                MSearchLog.fehlerMeldung(468912049, MSearchLog.FEHLER_ART_PROG, "DatenFilm.init", "Dauer: " + this.arr[DatenFilm.FILM_DAUER_NR]);
+                MSLog.fehlerMeldung(468912049, MSLog.FEHLER_ART_PROG, "DatenFilm.init", "Dauer: " + this.arr[DatenFilm.FILM_DAUER_NR]);
             }
             // Datum
             if (!arr[DatenFilm.FILM_DATUM_NR].isEmpty()) {
@@ -420,7 +420,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                         datumFilm = new Datum(l * 1000 /* sind SEKUNDEN!!*/);
                     }
                 } catch (Exception ex) {
-                    MSearchLog.fehlerMeldung(915236701, MSearchLog.FEHLER_ART_PROG, "DatenFilm.getDatumForObject", ex,
+                    MSLog.fehlerMeldung(915236701, MSLog.FEHLER_ART_PROG, "DatenFilm.getDatumForObject", ex,
                             new String[]{"Datum: " + arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + arr[DatenFilm.FILM_ZEIT_NR]});
                     datumFilm = new Datum(0);
                     arr[DatenFilm.FILM_DATUM_NR] = "";
@@ -428,7 +428,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 }
             }
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(715263987, MSearchLog.FEHLER_ART_PROG, DatenFilm.class.getName() + ".init()", ex);
+            MSLog.fehlerMeldung(715263987, MSLog.FEHLER_ART_PROG, DatenFilm.class.getName() + ".init()", ex);
         }
     }
 
@@ -491,8 +491,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         if (!arr[DatenFilm.FILM_URL_RTMP_NR].isEmpty()) {
             ret = arr[DatenFilm.FILM_URL_RTMP_NR];
         } else {
-            if (arr[DatenFilm.FILM_URL_NR].startsWith(MSearchConst.RTMP_PRTOKOLL)) {
-                ret = MSearchConst.RTMP_FLVSTREAMER + arr[DatenFilm.FILM_URL_NR];
+            if (arr[DatenFilm.FILM_URL_NR].startsWith(MSConst.RTMP_PRTOKOLL)) {
+                ret = MSConst.RTMP_FLVSTREAMER + arr[DatenFilm.FILM_URL_NR];
             } else {
                 ret = arr[DatenFilm.FILM_URL_NR];
             }
@@ -519,8 +519,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
             // dann gibts überhaupt nur die normalen URLs
             ret = getUrlNormalKlein();
             // und jetzt noch "-r" davorsetzten wenn nötig
-            if (ret.startsWith(MSearchConst.RTMP_PRTOKOLL)) {
-                ret = MSearchConst.RTMP_FLVSTREAMER + ret;
+            if (ret.startsWith(MSConst.RTMP_PRTOKOLL)) {
+                ret = MSConst.RTMP_FLVSTREAMER + ret;
             }
         }
         return ret;
@@ -596,16 +596,16 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 Date filmDate = sdfIn.parse(datum);
                 if (filmDate.getTime() < 0) {
                     //Datum vor 1970
-                    MSearchLog.debugMeldung("DatenFilm.CheckDatum-3 - " + "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
+                    MSLog.debugMeldung("DatenFilm.CheckDatum-3 - " + "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
                 } else if ((new Date().getTime() + MAX) < filmDate.getTime()) {
-                    MSearchLog.debugMeldung("DatenFilm.CheckDatum-4 - " + "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
+                    MSLog.debugMeldung("DatenFilm.CheckDatum-4 - " + "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
                 } else {
                     arr[FILM_DATUM_NR] = datum;
 //                    arr[FILM_DATUM_LONG_NR] = String.valueOf(filmDate.getTime() / 1000);
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(794630593, MSearchLog.FEHLER_ART_PROG, "DatenFilm.checkDatum-5", ex);
-                MSearchLog.fehlerMeldung(946301596, MSearchLog.FEHLER_ART_PROG, "DatenFilm.CheckDatum-6 [", datum + "] " + fehlermeldung);
+                MSLog.fehlerMeldung(794630593, MSLog.FEHLER_ART_PROG, "DatenFilm.checkDatum-5", ex);
+                MSLog.fehlerMeldung(946301596, MSLog.FEHLER_ART_PROG, "DatenFilm.CheckDatum-6 [", datum + "] " + fehlermeldung);
             }
         }
     }
@@ -617,7 +617,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             if (zeit.contains(":") && zeit.length() == 8) {
                 arr[FILM_ZEIT_NR] = zeit;
             } else {
-                MSearchLog.fehlerMeldung(159623647, MSearchLog.FEHLER_ART_PROG, "DatenFilm.checkZeit [", zeit + "] " + fehlermeldung);
+                MSLog.fehlerMeldung(159623647, MSLog.FEHLER_ART_PROG, "DatenFilm.checkZeit [", zeit + "] " + fehlermeldung);
             }
         }
     }

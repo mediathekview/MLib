@@ -33,7 +33,7 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
     public boolean addWithCheck(DatenUrlFilmliste film) {
         ListIterator<DatenUrlFilmliste> it = listIterator();
         while (it.hasNext()) {
-            if (it.next().arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(film.arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR])) {
+            if (it.next().arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(film.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR])) {
                 return false;
             }
         }
@@ -49,7 +49,7 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
             while (str.length() < 3) {
                 str = "0" + str;
             }
-            it.next().arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_NR_NR] = str;
+            it.next().arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_NR_NR] = str;
         }
     }
 
@@ -57,16 +57,16 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
         DatenUrlFilmliste filmUpdate;
         String[][] object;
         ListIterator<DatenUrlFilmliste> iterator = this.listIterator();
-        object = new String[this.size()][MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_MAX_ELEM];
+        object = new String[this.size()][MSFilmlistenSuchen.FILM_UPDATE_SERVER_MAX_ELEM];
         int i = 0;
         while (iterator.hasNext()) {
             filmUpdate = iterator.next();
-            for (int k = 0; k < MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_MAX_ELEM; ++k) {
+            for (int k = 0; k < MSFilmlistenSuchen.FILM_UPDATE_SERVER_MAX_ELEM; ++k) {
                 // sonst wird anschließend "filmUpdate" überschrieben
                 object[i][k] = filmUpdate.arr[k];
             }
-            object[i][MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] = filmUpdate.getDateStr(); // lokale Zeit anzeigen
-            object[i][MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR] = filmUpdate.getTimeStr(); // lokale Zeit anzeigen
+            object[i][MSFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] = filmUpdate.getDateStr(); // lokale Zeit anzeigen
+            object[i][MSFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR] = filmUpdate.getTimeStr(); // lokale Zeit anzeigen
             ++i;
         }
         return object;
@@ -76,7 +76,7 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
         int nr = 0;
         ListIterator<DatenUrlFilmliste> iterator = this.listIterator();
         while (iterator.hasNext()) {
-            if (iterator.next().arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(url)) {
+            if (iterator.next().arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(url)) {
                 break;
             }
             ++nr;
@@ -92,7 +92,7 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
         ListIterator<DatenUrlFilmliste> iterator = this.listIterator();
         while (iterator.hasNext()) {
             update = iterator.next();
-            if (update.arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(url)) {
+            if (update.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(url)) {
                 return update;
             }
         }
@@ -119,7 +119,7 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
             while (it.hasNext()) {
                 datenUrlFilmliste = it.next();
                 if (bereitsGebraucht != null) {
-                    if (bereitsGebraucht.contains(datenUrlFilmliste.arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR])) {
+                    if (bereitsGebraucht.contains(datenUrlFilmliste.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR])) {
                         // wurde schon versucht
                         continue;
                     }
@@ -148,7 +148,7 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
             it = listeZeit.iterator();
             while (it.hasNext()) {
                 datenUrlFilmliste = it.next();
-                if (datenUrlFilmliste.arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_PRIO_NR].equals(MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_PRIO_1)) {
+                if (datenUrlFilmliste.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_PRIO_NR].equals(MSFilmlistenSuchen.FILM_UPDATE_SERVER_PRIO_1)) {
                     listePrio.add(datenUrlFilmliste);
                 } else {
                     listePrio.add(datenUrlFilmliste);
@@ -162,7 +162,7 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
                 int nr = new Random().nextInt(this.size());
                 datenUrlFilmliste = this.get(nr);
             }
-            ret = datenUrlFilmliste.arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR];
+            ret = datenUrlFilmliste.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR];
         }
         return ret;
     }

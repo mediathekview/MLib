@@ -20,10 +20,10 @@
 package msearch.daten;
 
 import msearch.tool.DatumZeit;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchGuiFunktionen;
+import msearch.tool.MSConst;
+import msearch.tool.MSGuiFunktionen;
 
-public class MSearchConfig {
+public class MSConfig {
 
     //alle Programmeinstellungen
     public static String proxyUrl = "";
@@ -55,7 +55,7 @@ public class MSearchConfig {
 
     public static String getUserAgent() {
         if (userAgent == null) {
-            return MSearchConst.USER_AGENT_DEFAULT;
+            return MSConst.USER_AGENT_DEFAULT;
         } else {
             return userAgent;
         }
@@ -65,7 +65,7 @@ public class MSearchConfig {
         int zufall = 1 + (int) (Math.random() * 10000); // 1 - 10000
         //String user = " user-" + zufall;
         if (userAgent == null) {
-            return MSearchConst.USER_AGENT_DEFAULT + " user-" + zufall;
+            return MSConst.USER_AGENT_DEFAULT + " user-" + zufall;
         } else {
             return userAgent + " user-" + zufall;
         }
@@ -84,48 +84,48 @@ public class MSearchConfig {
 
     public static String getPathFilmlist(boolean aktDate) {
         if (aktDate) {
-            return MSearchGuiFunktionen.addsPfad(dirFilme, DatumZeit.getJetzt_yyyy_MM_dd__HH_mm_ss() + "__" + nameAktFilmlist);
+            return MSGuiFunktionen.addsPfad(dirFilme, DatumZeit.getJetzt_yyyy_MM_dd__HH_mm_ss() + "__" + nameAktFilmlist);
         } else {
-            return MSearchGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist);
+            return MSGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist);
         }
     }
 
     public static String getPathFilmlist_json_xz() {
-        return MSearchGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist_xz);
+        return MSGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist_xz);
     }
 
     public static String getPathFilmlist_xml_bz2() {
-        return MSearchGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist_bz2);
+        return MSGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist_bz2);
     }
 
     public static String getPathFilmlist_org() {
-        return MSearchGuiFunktionen.addsPfad(dirFilme, nameOrgFilmlist);
+        return MSGuiFunktionen.addsPfad(dirFilme, nameOrgFilmlist);
     }
 
     public static String getPathFilmlist_org_xz() {
-        return MSearchGuiFunktionen.addsPfad(dirFilme, nameOrgFilmlist_xz);
+        return MSGuiFunktionen.addsPfad(dirFilme, nameOrgFilmlist_xz);
     }
 
     public static String getPathFilmlist_diff() {
-        return MSearchGuiFunktionen.addsPfad(dirFilme, nameDiffFilmlist);
+        return MSGuiFunktionen.addsPfad(dirFilme, nameDiffFilmlist);
     }
 
     public static String getPathFilmlist_diff_xz() {
-        return MSearchGuiFunktionen.addsPfad(dirFilme, nameDiffFilmlist_xz);
+        return MSGuiFunktionen.addsPfad(dirFilme, nameDiffFilmlist_xz);
     }
 
     /**
      * Damit kann das Suchen abgebrochen werden
      */
     public static synchronized void setStop() {
-        MSearchConfig.stop = true;
+        MSConfig.stop = true;
     }
 
     /**
      * Damit kann "stop" gesetzt/rückgesetzt werden
      */
     public static synchronized void setStop(boolean set) {
-        MSearchConfig.stop = set;
+        MSConfig.stop = set;
     }
 
     /**
@@ -134,6 +134,6 @@ public class MSearchConfig {
      * @return true/false
      */
     public static synchronized boolean getStop() {
-        return MSearchConfig.stop;
+        return MSConfig.stop;
     }
 }

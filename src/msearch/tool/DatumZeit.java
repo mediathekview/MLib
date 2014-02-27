@@ -118,7 +118,7 @@ public class DatumZeit {
             sdfOut = new SimpleDateFormat("dd.MM.yyyy");
             datum = sdfOut.format(filmDate);
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(649600299, MSearchLog.FEHLER_ART_PROG, "DatumDatum.convertDatum", ex);
+            MSLog.fehlerMeldung(649600299, MSLog.FEHLER_ART_PROG, "DatumDatum.convertDatum", ex);
         }
         return datum;
     }
@@ -132,7 +132,7 @@ public class DatumZeit {
             sdfOut = new SimpleDateFormat("HH:mm:ss");
             zeit = sdfOut.format(filmDate);
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(663259004, MSearchLog.FEHLER_ART_PROG, "DatumZeit.convertTime", ex);
+            MSLog.fehlerMeldung(663259004, MSLog.FEHLER_ART_PROG, "DatumZeit.convertTime", ex);
         }
         return zeit;
     }

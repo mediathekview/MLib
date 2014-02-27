@@ -28,18 +28,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
-import msearch.daten.MSearchConfig;
+import msearch.daten.MSConfig;
 import org.apache.commons.lang3.StringUtils;
 
-public class MSearchLog {
+public class MSLog {
 
     public static StringBuffer textSystem = new StringBuffer(10000);
-    public static StringBuffer textProgramm = new StringBuffer(10000);
+//    public static StringBuffer textProgramm = new StringBuffer(10000);
     public static StringBuffer textFehler = new StringBuffer();
     public static boolean playerMeldungenAus = false;
-    public static final int LOG_FEHLER = MSearchListenerMediathekView.EREIGNIS_LOG_FEHLER;
-    public static final int LOG_SYSTEM = MSearchListenerMediathekView.EREIGNIS_LOG_SYSTEM;
-    public static final int LOG_PLAYER = MSearchListenerMediathekView.EREIGNIS_LOG_PLAYER;
+    public static final int LOG_FEHLER = 16;
+    public static final int LOG_SYSTEM = 17;
+//    public static final int LOG_PLAYER = 18;
     public static final int FEHLER_ART_PROG = 0;
     public static final String FEHLER_ART_PROG_TEXT = "   Prog: ";
     public static final int FEHLER_ART_GETURL = 1;
@@ -52,7 +52,7 @@ public class MSearchLog {
     private static final int MAX_LAENGE_1 = 50000;
     private static final int MAX_LAENGE_2 = 30000;
     private static int zeilenNrSystem = 0;
-    private static int zeilenNrProgramm = 0;
+//    private static int zeilenNrProgramm = 0;
     private static int zeilenNrFehler = 0;
     private static LinkedList<Integer[]> fehlerListe = new LinkedList<>(); // [Art, Fehlernummer, Anzahl, Exception(0,1 für ja, nein)]
     private static boolean progress = false;
@@ -71,63 +71,63 @@ public class MSearchLog {
 
     public static synchronized void versionsMeldungen(String classname) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        MSearchLog.systemMeldung("");
-        MSearchLog.systemMeldung("");
-        MSearchLog.systemMeldung("##################################################################################");
-        MSearchLog.systemMeldung("##################################################################################");
-        MSearchLog.systemMeldung("Programmstart: " + sdf.format(startZeit));
-        MSearchLog.systemMeldung("##################################################################################");
-        MSearchLog.systemMeldung("##################################################################################");
+        MSLog.systemMeldung("");
+        MSLog.systemMeldung("");
+        MSLog.systemMeldung("##################################################################################");
+        MSLog.systemMeldung("##################################################################################");
+        MSLog.systemMeldung("Programmstart: " + sdf.format(startZeit));
+        MSLog.systemMeldung("##################################################################################");
+        MSLog.systemMeldung("##################################################################################");
         long totalMem = Runtime.getRuntime().totalMemory();
-        MSearchLog.systemMeldung("totalMemory: " + totalMem / (1024L * 1024L) + " MiB");
+        MSLog.systemMeldung("totalMemory: " + totalMem / (1024L * 1024L) + " MiB");
         long maxMem = Runtime.getRuntime().maxMemory();
-        MSearchLog.systemMeldung("maxMemory: " + maxMem / (1024L * 1024L) + " MiB");
+        MSLog.systemMeldung("maxMemory: " + maxMem / (1024L * 1024L) + " MiB");
         long freeMem = Runtime.getRuntime().freeMemory();
-        MSearchLog.systemMeldung("freeMemory: " + freeMem / (1024L * 1024L) + " MiB");
-        MSearchLog.systemMeldung("##################################################################################");
+        MSLog.systemMeldung("freeMemory: " + freeMem / (1024L * 1024L) + " MiB");
+        MSLog.systemMeldung("##################################################################################");
         //Version
-        MSearchLog.systemMeldung(MSearchFunktionen.getProgVersionString());
-        MSearchLog.systemMeldung("Compiled: " + MSearchFunktionen.getCompileDate());
-        MSearchLog.systemMeldung("##################################################################################");
-        MSearchLog.systemMeldung("Java");
-        MSearchLog.systemMeldung("Classname: " + classname);
-        String[] java = MSearchFunktionen.getJavaVersion();
+        MSLog.systemMeldung(MSFunktionen.getProgVersionString());
+        MSLog.systemMeldung("Compiled: " + MSFunktionen.getCompileDate());
+        MSLog.systemMeldung("##################################################################################");
+        MSLog.systemMeldung("Java");
+        MSLog.systemMeldung("Classname: " + classname);
+        String[] java = MSFunktionen.getJavaVersion();
         for (String ja : java) {
-            MSearchLog.systemMeldung(ja);
+            MSLog.systemMeldung(ja);
         }
-        MSearchLog.systemMeldung("");
-        MSearchLog.systemMeldung("");
+        MSLog.systemMeldung("");
+        MSLog.systemMeldung("");
     }
 
     public static synchronized void startMeldungen(String classname) {
         versionsMeldungen(classname);
-        MSearchLog.systemMeldung("##################################################################################");
-        MSearchLog.systemMeldung("Programmpfad: " + MSearchFunktionen.getPathJar());
-        MSearchLog.systemMeldung("Filmliste: " + MSearchConfig.getPathFilmlist(true /*aktDate*/));
-        MSearchLog.systemMeldung("Useragent: " + MSearchConfig.getUserAgent());
-        MSearchLog.systemMeldung("##################################################################################");
-        MSearchLog.systemMeldung("");
-        MSearchLog.systemMeldung("");
-        if (MSearchConfig.senderAllesLaden) {
-            MSearchLog.systemMeldung("Laden:  alles");
+        MSLog.systemMeldung("##################################################################################");
+        MSLog.systemMeldung("Programmpfad: " + MSFunktionen.getPathJar());
+        MSLog.systemMeldung("Filmliste: " + MSConfig.getPathFilmlist(true /*aktDate*/));
+        MSLog.systemMeldung("Useragent: " + MSConfig.getUserAgent());
+        MSLog.systemMeldung("##################################################################################");
+        MSLog.systemMeldung("");
+        MSLog.systemMeldung("");
+        if (MSConfig.senderAllesLaden) {
+            MSLog.systemMeldung("Laden:  alles");
         } else {
-            MSearchLog.systemMeldung("Laden:  nur update");
+            MSLog.systemMeldung("Laden:  nur update");
         }
-        if (MSearchConfig.updateFilmliste) {
-            MSearchLog.systemMeldung("Filmliste:  nur updaten");
+        if (MSConfig.updateFilmliste) {
+            MSLog.systemMeldung("Filmliste:  nur updaten");
         } else {
-            MSearchLog.systemMeldung("Filmliste:  neu erstellen");
+            MSLog.systemMeldung("Filmliste:  neu erstellen");
         }
-        MSearchLog.systemMeldung("Import (ersetzen):  " + MSearchConfig.importUrl__ersetzen);
-        MSearchLog.systemMeldung("Import (anhängen):  " + MSearchConfig.importUrl__anhaengen);
-        if (MSearchConfig.nurSenderLaden != null) {
-            MSearchLog.systemMeldung("Nur Sender laden:  " + StringUtils.join(MSearchConfig.nurSenderLaden, ','));
+        MSLog.systemMeldung("Import (ersetzen):  " + MSConfig.importUrl__ersetzen);
+        MSLog.systemMeldung("Import (anhängen):  " + MSConfig.importUrl__anhaengen);
+        if (MSConfig.nurSenderLaden != null) {
+            MSLog.systemMeldung("Nur Sender laden:  " + StringUtils.join(MSConfig.nurSenderLaden, ','));
         }
-        MSearchLog.systemMeldung("##################################################################################");
+        MSLog.systemMeldung("##################################################################################");
     }
 
     public static synchronized void debugMeldung(String text) {
-        if (MSearchConfig.debug) {
+        if (MSConfig.debug) {
             debugmeldung(text);
         }
     }
@@ -160,12 +160,6 @@ public class MSearchLog {
 
     public static synchronized void systemMeldung(String text) {
         systemmeldung(new String[]{text});
-    }
-
-    public static synchronized void playerMeldung(String text) {
-        if (!playerMeldungenAus) {
-            playermeldung(new String[]{text});
-        }
     }
 
     public static synchronized void progress(String texte) {
@@ -283,13 +277,13 @@ public class MSearchLog {
 
     private static void fehlermeldung_(int fehlerNummer, int art, String klasse, Exception ex, String[] texte) {
         addFehlerNummer(fehlerNummer, art, ex != null);
-        if (ex != null || MSearchConfig.debug) {
+        if (ex != null || MSConfig.debug) {
             // Exceptions immer ausgeben
             if (progress) {
                 // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
                 System.out.print("                                                                                           \r");
             }
-            final String FEHLER = "Fehler(" + MSearchConst.PROGRAMMNAME + "): ";
+            final String FEHLER = "Fehler(" + MSConst.PROGRAMMNAME + "): ";
             String x, z;
             if (ex != null) {
                 x = "!";
@@ -408,23 +402,6 @@ public class MSearchLog {
 
     }
 
-    private static void playermeldung(String[] texte) {
-        if (progress) {
-            // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
-            System.out.print("                                                                                           \r");
-        }
-        final String z = "  >>";
-        System.out.println(z + " " + texte[0]);
-        notifyMediathekListener(LOG_PLAYER, texte[0]);
-        for (int i = 1; i < texte.length; ++i) {
-            System.out.println(z + " " + texte[i]);
-            notifyMediathekListener(LOG_PLAYER, texte[i]);
-        }
-        if (progress) {
-            System.out.print(progressText);
-        }
-    }
-
     public static void clearText(int art) {
         if (art == LOG_FEHLER) {
             zeilenNrFehler = 0;
@@ -432,11 +409,11 @@ public class MSearchLog {
         } else if (art == LOG_SYSTEM) {
             zeilenNrSystem = 0;
             textSystem.setLength(0);
-        } else if (art == LOG_PLAYER) {
-            zeilenNrProgramm = 0;
-            textProgramm.setLength(0);
+//        } else if (art == LOG_PLAYER) {
+//            zeilenNrProgramm = 0;
+//            textProgramm.setLength(0);
         }
-        MSearchListenerMediathekView.notify(art, MSearchLog.class.getName());
+//        MSearchListenerMediathekView.notify(art, MSearchLog.class.getName());
     }
 
     private static void notifyMediathekListener(int art, String zeile) {
@@ -444,10 +421,10 @@ public class MSearchLog {
             addText(textFehler, "[" + getNr(zeilenNrFehler++) + "]   " + zeile);
         } else if (art == LOG_SYSTEM) {
             addText(textSystem, "[" + getNr(zeilenNrSystem++) + "]   " + zeile);
-        } else if (art == LOG_PLAYER) {
-            addText(textProgramm, "[" + getNr(zeilenNrProgramm++) + "]   " + zeile);
+//        } else if (art == LOG_PLAYER) {
+//            addText(textProgramm, "[" + getNr(zeilenNrProgramm++) + "]   " + zeile);
         }
-        MSearchListenerMediathekView.notify(art, MSearchLog.class.getName());
+//        MSearchListenerMediathekView.notify(art, MSearchLog.class.getName());
     }
 
     private static String getStackTrace(Throwable t) {

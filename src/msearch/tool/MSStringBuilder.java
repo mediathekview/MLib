@@ -21,16 +21,16 @@ package msearch.tool;
 
 import java.util.ArrayList;
 
-public class MSearchStringBuilder {
+public class MSStringBuilder {
 
     private StringBuilder cont;
     private int pos1 = 0, pos2 = 0, pos3 = 0;
 
-    public MSearchStringBuilder() {
+    public MSStringBuilder() {
         cont = new StringBuilder();
     }
 
-    public MSearchStringBuilder(int capacity) {
+    public MSStringBuilder(int capacity) {
         cont = new StringBuilder(capacity);
     }
 

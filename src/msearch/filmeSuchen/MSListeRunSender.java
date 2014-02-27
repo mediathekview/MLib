@@ -22,12 +22,12 @@ package msearch.filmeSuchen;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class MSearchListeRunSender extends LinkedList<MSearchRunSender> {
+public class MSListeRunSender extends LinkedList<MSRunSender> {
 
     public boolean listeFertig() {
         // liefert true wenn alle Sender fertig sind
         // und löscht dann auch die Liste
-        Iterator<MSearchRunSender> it = iterator();
+        Iterator<MSRunSender> it = iterator();
         while (it.hasNext()) {
             if (!it.next().fertig) {
                 return false;
@@ -37,10 +37,10 @@ public class MSearchListeRunSender extends LinkedList<MSearchRunSender> {
         return true;
     }
 
-    public MSearchRunSender getSender(String sender) {
-        Iterator<MSearchRunSender> it = iterator();
+    public MSRunSender getSender(String sender) {
+        Iterator<MSRunSender> it = iterator();
         while (it.hasNext()) {
-            MSearchRunSender runSender = it.next();
+            MSRunSender runSender = it.next();
             if (runSender.sender.equals(sender)) {
                 return runSender;
             }
@@ -48,9 +48,9 @@ public class MSearchListeRunSender extends LinkedList<MSearchRunSender> {
         return null;
     }
 
-    public MSearchRunSender senderFertig(String sender) {
-        MSearchRunSender run = null;
-        Iterator<MSearchRunSender> it = iterator();
+    public MSRunSender senderFertig(String sender) {
+        MSRunSender run = null;
+        Iterator<MSRunSender> it = iterator();
         while (it.hasNext()) {
             run = it.next();
             if (run.sender.equals(sender)) {
@@ -63,7 +63,7 @@ public class MSearchListeRunSender extends LinkedList<MSearchRunSender> {
 
     public int getMax() {
         int ret = 0;
-        Iterator<MSearchRunSender> it = iterator();
+        Iterator<MSRunSender> it = iterator();
         while (it.hasNext()) {
             ret += it.next().max;
         }
@@ -73,8 +73,8 @@ public class MSearchListeRunSender extends LinkedList<MSearchRunSender> {
     public int getProgress() {
         int prog = 0;
         int max = 0;
-        MSearchRunSender run = null;
-        Iterator<MSearchRunSender> it = iterator();
+        MSRunSender run = null;
+        Iterator<MSRunSender> it = iterator();
         while (it.hasNext()) {
             run = it.next();
             prog += run.progress;

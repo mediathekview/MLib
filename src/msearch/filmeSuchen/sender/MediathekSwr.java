@@ -21,12 +21,12 @@ package msearch.filmeSuchen.sender;
 
 import java.util.LinkedList;
 import msearch.daten.DatenFilm;
-import msearch.daten.MSearchConfig;
-import msearch.filmeSuchen.MSearchFilmeSuchen;
-import msearch.io.MSearchGetUrl;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchLog;
-import msearch.tool.MSearchStringBuilder;
+import msearch.daten.MSConfig;
+import msearch.filmeSuchen.MSFilmeSuchen;
+import msearch.io.MSGetUrl;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
+import msearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekSwr extends MediathekReader implements Runnable {
@@ -36,7 +36,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
 
     public static final String SENDER = "SWR";
 
-    public MediathekSwr(MSearchFilmeSuchen ssearch, int startPrio) {
+    public MediathekSwr(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ wartenLang, startPrio);
     }
 
@@ -49,7 +49,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         //Theman suchen
         listeThemen.clear();
         addToList__("http://swrmediathek.de/tvlist.htm");
-        if (MSearchConfig.getStop()) {
+        if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -71,14 +71,14 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         //Theman suchen
         final String MUSTER_URL = "<a href=\"tvshow.htm?show=";
         final String MUSTER_THEMA = "title=\"";
-        MSearchStringBuilder strSeite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        strSeite = getUrlIo.getUri(nameSenderMReader, ADRESSE, MSearchConst.KODIERUNG_UTF, 2, strSeite, "");
+        MSStringBuilder strSeite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        strSeite = getUrlIo.getUri(nameSenderMReader, ADRESSE, MSConst.KODIERUNG_UTF, 2, strSeite, "");
         int pos = 0;
         int pos1;
         int pos2;
         String url;
         String thema = "";
-        while (!MSearchConfig.getStop() && (pos = strSeite.indexOf(MUSTER_URL, pos)) != -1) {
+        while (!MSConfig.getStop() && (pos = strSeite.indexOf(MUSTER_URL, pos)) != -1) {
             pos += MUSTER_URL.length();
             pos1 = pos;
             pos2 = strSeite.indexOf("\"", pos);
@@ -94,7 +94,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     thema = StringEscapeUtils.unescapeHtml4(thema.trim()); //wird gleich benutzt und muss dann schon stimmen
                 }
                 if (url.equals("")) {
-                    MSearchLog.fehlerMeldung(-163255009, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.addToList__", "keine URL");
+                    MSLog.fehlerMeldung(-163255009, MSLog.FEHLER_ART_MREADER, "MediathekSwr.addToList__", "keine URL");
                 } else {
                     //url = url.replace("&amp;", "&");
                     String[] add = new String[]{"http://swrmediathek.de/tvshow.htm?show=" + url, thema};
@@ -106,9 +106,9 @@ public class MediathekSwr extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSearchGetUrl getUrlThemaLaden = new MSearchGetUrl(MSearchConfig.senderAllesLaden ? wartenLang : wartenKurz);
-        private MSearchStringBuilder strSeite1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        private MSearchStringBuilder strSeite2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSGetUrl getUrlThemaLaden = new MSGetUrl(MSConfig.senderAllesLaden ? wartenLang : wartenKurz);
+        private MSStringBuilder strSeite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder strSeite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
         public ThemaLaden() {
         }
@@ -118,12 +118,12 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             try {
                 meldungAddThread();
                 String[] link = null;
-                while (!MSearchConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     themenSeitenSuchen(link[0] /* url */, link[1] /* Thema */);
                     meldungProgress(link[0]);
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-739285690, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.SenderThemaLaden.run", ex);
+                MSLog.fehlerMeldung(-739285690, MSLog.FEHLER_ART_MREADER, "MediathekSwr.SenderThemaLaden.run", ex);
             }
             meldungThreadUndFertig();
         }
@@ -131,14 +131,14 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         private void themenSeitenSuchen(String strUrlFeed, String thema) {
             final String MUSTER_URL = "<li><a class=\"plLink\" href=\"player.htm?show=";
             //strSeite1 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, strSeite1, thema);
-            strSeite1 = getUrlThemaLaden.getUri(nameSenderMReader, strUrlFeed, MSearchConst.KODIERUNG_UTF, 2 /* versuche */, strSeite1, thema);
+            strSeite1 = getUrlThemaLaden.getUri(nameSenderMReader, strUrlFeed, MSConst.KODIERUNG_UTF, 2 /* versuche */, strSeite1, thema);
             meldung(strUrlFeed);
             int pos1 = 0;
             int pos2;
             String url;
             int max = 0;
-            while (!MSearchConfig.getStop() && (pos1 = strSeite1.indexOf(MUSTER_URL, pos1)) != -1) {
-                if (!MSearchConfig.senderAllesLaden) {
+            while (!MSConfig.getStop() && (pos1 = strSeite1.indexOf(MUSTER_URL, pos1)) != -1) {
+                if (!MSConfig.senderAllesLaden) {
                     ++max;
                     if (max > 2) {
                         break;
@@ -153,7 +153,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                 if ((pos2 = strSeite1.indexOf("\"", pos1)) != -1) {
                     url = strSeite1.substring(pos1, pos2);
                     if (url.equals("")) {
-                        MSearchLog.fehlerMeldung(-875012369, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.addFilme2", "keine URL, Thema: " + thema);
+                        MSLog.fehlerMeldung(-875012369, MSLog.FEHLER_ART_MREADER, "MediathekSwr.addFilme2", "keine URL, Thema: " + thema);
                     } else {
                         url = "http://swrmediathek.de/AjaxEntry?callback=jsonp1347979401564&ekey=" + url;
                         json(strUrlFeed, thema, url);
@@ -174,7 +174,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             try {
                 strSeite2 = getUrlThemaLaden.getUri_Utf(nameSenderMReader, urlJson, strSeite2, "");
                 if (strSeite2.length() == 0) {
-                    MSearchLog.fehlerMeldung(-95623451, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json", "Seite leer: " + urlJson);
+                    MSLog.fehlerMeldung(-95623451, MSLog.FEHLER_ART_MREADER, "MediathekSwr.json", "Seite leer: " + urlJson);
                     return;
                 }
                 String title = getTitle();
@@ -189,7 +189,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                 String smallUrl = getSmallUrl();
                 String rtmpUrl = getRtmpUrl();
                 if (normalUrl.isEmpty() && smallUrl.isEmpty() && rtmpUrl.isEmpty()) {
-                    MSearchLog.fehlerMeldung(-203690478, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json", thema + " NO normal and small url:  " + urlJson);
+                    MSLog.fehlerMeldung(-203690478, MSLog.FEHLER_ART_MREADER, "MediathekSwr.json", thema + " NO normal and small url:  " + urlJson);
                 } else {
                     if (normalUrl.isEmpty() && !smallUrl.isEmpty()) {
                         normalUrl = smallUrl;
@@ -211,7 +211,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     addFilm(film);
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-939584720, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json-3", thema + " " + urlJson);
+                MSLog.fehlerMeldung(-939584720, MSLog.FEHLER_ART_MREADER, "MediathekSwr.json-3", thema + " " + urlJson);
             }
         }
 
@@ -268,7 +268,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     }
                 }
             } catch (NumberFormatException ex) {
-                MSearchLog.fehlerMeldung(-679012497, MSearchLog.FEHLER_ART_MREADER, "MediathekSwr.json", "duration: " + (dur == null ? " " : duration));
+                MSLog.fehlerMeldung(-679012497, MSLog.FEHLER_ART_MREADER, "MediathekSwr.json", "duration: " + (dur == null ? " " : duration));
             }
             return duration;
         }
@@ -347,7 +347,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             return superSmallUrl;
         }
 
-        private String[] extractKeywords(MSearchStringBuilder strSeite2) {
+        private String[] extractKeywords(MSStringBuilder strSeite2) {
             // {"name":"entry_keywd","attr":{"val":"Fernsehserie"},"sub":[]}
             final String MUSTER_KEYWORD_START = "{\"name\":\"entry_keywd\",\"attr\":{\"val\":\"";
             final String MUSTER_KEYWORD_END = "\"},\"sub\":[]}";

@@ -21,20 +21,20 @@
  */
 package msearch.filmeSuchen.sender;
 
-import msearch.filmeSuchen.MSearchFilmeSuchen;
-import msearch.io.MSearchGetUrl;
-import msearch.daten.MSearchConfig;
+import msearch.filmeSuchen.MSFilmeSuchen;
+import msearch.io.MSGetUrl;
+import msearch.daten.MSConfig;
 import msearch.daten.DatenFilm;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchLog;
-import msearch.tool.MSearchStringBuilder;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
+import msearch.tool.MSStringBuilder;
 
 public class MediathekRbb extends MediathekReader implements Runnable {
 
     public static final String SENDER = "RBB";
     final String ROOTADR = "http://mediathek.rbb-online.de";
 
-    public MediathekRbb(MSearchFilmeSuchen ssearch, int startPrio) {
+    public MediathekRbb(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
@@ -42,8 +42,8 @@ public class MediathekRbb extends MediathekReader implements Runnable {
     void addToList() {
         int pos1 = 0;
         int pos2;
-        MSearchStringBuilder seite1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        MSearchStringBuilder seite2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         final String ADRESSE = "http://mediathek.rbb-online.de/fernsehen";
         final String ITEM_1 = "<a href=\"/rbb/servlet/ajax-cache/";
         final String ITEM_URL = "http://mediathek.rbb-online.de/rbb/servlet/ajax-cache/";
@@ -71,13 +71,13 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         }
                     }
                 } else {
-                    MSearchLog.fehlerMeldung(-894562036, MSearchLog.FEHLER_ART_MREADER, "MediathekRBB.addToList", "keine URL");
+                    MSLog.fehlerMeldung(-894562036, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addToList", "keine URL");
                 }
             }
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(-398214058, MSearchLog.FEHLER_ART_MREADER, "MediathekRBB.addToList", ex);
+            MSLog.fehlerMeldung(-398214058, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addToList", ex);
         }
-        if (MSearchConfig.getStop()) {
+        if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -95,22 +95,22 @@ public class MediathekRbb extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
-        private MSearchStringBuilder seite1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        private MSearchStringBuilder seite2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        private MSearchStringBuilder seite3 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
         @Override
         public void run() {
             try {
                 meldungAddThread();
                 String link[];
-                while (!MSearchConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     addFilme(link[0] /* url */);
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-794625882, MSearchLog.FEHLER_ART_MREADER, "MediathekRBB.ThemaLaden.run", ex);
+                MSLog.fehlerMeldung(-794625882, MSLog.FEHLER_ART_MREADER, "MediathekRBB.ThemaLaden.run", ex);
             }
             meldungThreadUndFertig();
         }
@@ -133,7 +133,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     rpos = 0;
                     int count = 0;
                     while ((rpos = seite2.indexOf("<link>", rpos)) != -1) {
-                        if (!MSearchConfig.senderAllesLaden) {
+                        if (!MSConfig.senderAllesLaden) {
                             // beim Update nur die neuesten Laden
                             ++count;
                             if (count > 10) {
@@ -203,7 +203,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                                 }
                             }
                             if (urlMp4.isEmpty() && filmurl.isEmpty()) {
-                                MSearchLog.fehlerMeldung(-316498587, MSearchLog.FEHLER_ART_MREADER, "MediathekRBB.addFilme", "keine URL für: " + showurl);
+                                MSLog.fehlerMeldung(-316498587, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addFilme", "keine URL für: " + showurl);
                             } else if (urlMp4.isEmpty()) {
                                 // DatenFilm film = new DatenFilm(nameSenderMReader, thema, showurl, title, urlOrg, urlRtmp, datum, ""/* zeit */);
                                 DatenFilm film = new DatenFilm(nameSenderMReader, thema, showurl, title, urlOrg, urlRtmp,
@@ -219,11 +219,11 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-934670894, MSearchLog.FEHLER_ART_MREADER, "MediathekRBB.addFilme", ex);
+                MSLog.fehlerMeldung(-934670894, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addFilme", ex);
             }
         }
 
-        private long extractDuration(MSearchStringBuilder page) {
+        private long extractDuration(MSStringBuilder page) {
             String duration = extractString(page, "<meta property=\"video:duration\" content=\"", "\"");
             if (duration == null) {
                 return 0;
@@ -231,12 +231,12 @@ public class MediathekRbb extends MediathekReader implements Runnable {
             try {
                 return Long.parseLong(duration);
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-200145787, MSearchLog.FEHLER_ART_MREADER, "MediathekRBB.extractDuration", ex);
+                MSLog.fehlerMeldung(-200145787, MSLog.FEHLER_ART_MREADER, "MediathekRBB.extractDuration", ex);
                 return 0;
             }
         }
 
-        private String extractDescription(MSearchStringBuilder page) {
+        private String extractDescription(MSStringBuilder page) {
             String desc = extractString(page, "<meta property=\"og:description\" content=\"", "\"");
             if (desc == null) {
                 return "";
@@ -245,7 +245,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
             return desc;
         }
 
-        private String[] extractKeywords(MSearchStringBuilder page) {
+        private String[] extractKeywords(MSStringBuilder page) {
             String keywords = extractString(page, "<meta name=\"keywords\" content=\"", "\"");
             if (keywords == null) {
                 return new String[]{""};
@@ -254,15 +254,15 @@ public class MediathekRbb extends MediathekReader implements Runnable {
             return keywords.split(", ");
         }
 
-        private String extractThumbnailURL(MSearchStringBuilder page) {
+        private String extractThumbnailURL(MSStringBuilder page) {
             return extractString(page, "<meta itemprop=\"thumbnailURL\" content=\"", "\"");
         }
 
-        private String extractImageURL(MSearchStringBuilder page) {
+        private String extractImageURL(MSStringBuilder page) {
             return extractString(page, " <meta property=\"og:image\" content=\"", "\"");
         }
 
-        private String extractString(MSearchStringBuilder source, String startMarker, String endMarker) {
+        private String extractString(MSStringBuilder source, String startMarker, String endMarker) {
             int start = source.indexOf(startMarker);
             if (start == -1) {
                 return null;

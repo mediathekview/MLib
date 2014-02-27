@@ -19,17 +19,17 @@
  */
 package msearch.filmeSuchen.sender;
 
-import msearch.filmeSuchen.MSearchFilmeSuchen;
+import msearch.filmeSuchen.MSFilmeSuchen;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import msearch.daten.MSearchConfig;
-import msearch.tool.MSearchLog;
-import msearch.io.MSearchGetUrl;
+import msearch.daten.MSConfig;
+import msearch.tool.MSLog;
+import msearch.io.MSGetUrl;
 import msearch.daten.DatenFilm;
-import msearch.tool.MSearchGuiFunktionen;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchStringBuilder;
+import msearch.tool.MSGuiFunktionen;
+import msearch.tool.MSConst;
+import msearch.tool.MSStringBuilder;
 
 /**
  *
@@ -38,15 +38,15 @@ import msearch.tool.MSearchStringBuilder;
 public class MediathekHr extends MediathekReader implements Runnable {
 
     public static final String SENDER = "HR";
-    private MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-    private MSearchStringBuilder rubrikSeite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+    private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+    private MSStringBuilder rubrikSeite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
     /**
      *
      * @param ssearch
      * @param startPrio
      */
-    public MediathekHr(MSearchFilmeSuchen ssearch, int startPrio) {
+    public MediathekHr(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
@@ -75,7 +75,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                     bearbeiteRubrik(url);
                 }
             } else {
-                MSearchLog.fehlerMeldung(-456933258, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.addToList-1", "keine URL");
+                MSLog.fehlerMeldung(-456933258, MSLog.FEHLER_ART_MREADER, "MediathekHr.addToList-1", "keine URL");
             }
         }
         pos = 0;
@@ -92,11 +92,11 @@ public class MediathekHr extends MediathekReader implements Runnable {
                         listeThemen.add(add);
                     }
                 } else {
-                    MSearchLog.fehlerMeldung(-203659403, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.addToList-2", "keine URL");
+                    MSLog.fehlerMeldung(-203659403, MSLog.FEHLER_ART_MREADER, "MediathekHr.addToList-2", "keine URL");
                 }
             }
         }
-        if (MSearchConfig.getStop()) {
+        if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -156,7 +156,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                     } catch (UnsupportedEncodingException ex) {
                     }
                 } else {
-                    MSearchLog.fehlerMeldung(-653210697, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.bearbeiteRubrik", "keine URL");
+                    MSLog.fehlerMeldung(-653210697, MSLog.FEHLER_ART_MREADER, "MediathekHr.bearbeiteRubrik", "keine URL");
                 }
             }
         }
@@ -207,8 +207,8 @@ public class MediathekHr extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
-        private MSearchStringBuilder seite1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         //private MVStringBuilder seite2 = new MVStringBuilder();
 
         @Override
@@ -216,13 +216,13 @@ public class MediathekHr extends MediathekReader implements Runnable {
             try {
                 meldungAddThread();
                 String link[];
-                while (!MSearchConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0] /* url */);
                     seite.setLength(0);
                     addFilme(link[1], link[0] /* url */);
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-894330854, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.ThemaLaden.run", ex, "");
+                MSLog.fehlerMeldung(-894330854, MSLog.FEHLER_ART_MREADER, "MediathekHr.ThemaLaden.run", ex, "");
             }
             meldungThreadUndFertig();
         }
@@ -257,7 +257,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                 long duration = 0;
                 String description = "";
                 String image = "";
-                while (!MSearchConfig.getStop() && (posItem1 = seite1.indexOf(MUSTER_ITEM_1, posItem1)) != -1) {
+                while (!MSConfig.getStop() && (posItem1 = seite1.indexOf(MUSTER_ITEM_1, posItem1)) != -1) {
                     posItem1 += MUSTER_ITEM_1.length();
                     if ((pos1 = seite1.indexOf(MUSTER_DURATION, posItem1)) != -1) {
                         pos1 += MUSTER_DURATION.length();
@@ -275,7 +275,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                                     }
                                 }
                             } catch (Exception ex) {
-                                MSearchLog.fehlerMeldung(-708096931, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.addFilm", "d: " + d);
+                                MSLog.fehlerMeldung(-708096931, MSLog.FEHLER_ART_MREADER, "MediathekHr.addFilm", "d: " + d);
                             }
                         }
                     }
@@ -325,21 +325,21 @@ public class MediathekHr extends MediathekReader implements Runnable {
                                 image, new String[]{});
                         addFilm(film);
                     } else {
-                        MSearchLog.fehlerMeldung(-649882036, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.addFilme", "keine URL");
+                        MSLog.fehlerMeldung(-649882036, MSLog.FEHLER_ART_MREADER, "MediathekHr.addFilme", "keine URL");
                     }
                 }
                 if (url.isEmpty()) {
-                    MSearchLog.fehlerMeldung(-761236458, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.addFilme", "keine URL für: " + filmWebsite);
+                    MSLog.fehlerMeldung(-761236458, MSLog.FEHLER_ART_MREADER, "MediathekHr.addFilme", "keine URL für: " + filmWebsite);
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-487774126, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.addFilme", ex, "");
+                MSLog.fehlerMeldung(-487774126, MSLog.FEHLER_ART_MREADER, "MediathekHr.addFilme", ex, "");
             }
         }
 
         private String getDate(String url) {
             String ret = "";
             try {
-                String tmp = MSearchGuiFunktionen.getDateiName(url);
+                String tmp = MSGuiFunktionen.getDateiName(url);
                 if (tmp.length() > 8) {
                     tmp = tmp.substring(0, 8);
                     SimpleDateFormat sdfIn = new SimpleDateFormat("yyyyMMdd");
@@ -350,7 +350,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                 }
             } catch (Exception ex) {
                 ret = "";
-                MSearchLog.fehlerMeldung(-356408790, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.getDate", "kein Datum");
+                MSLog.fehlerMeldung(-356408790, MSLog.FEHLER_ART_MREADER, "MediathekHr.getDate", "kein Datum");
             }
             return ret;
         }

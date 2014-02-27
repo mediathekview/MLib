@@ -19,14 +19,14 @@
  */
 package msearch.filmeSuchen;
 
-public class MSearchListenerFilmeLadenEvent {
+public class MSListenerFilmeLadenEvent {
 
     public String sender = "";
     public String text = "";
     public int max = 0;
     public int progress = 0;
 
-    public MSearchListenerFilmeLadenEvent(String ssender, String ttext, int mmax, int pprogress) {
+    public MSListenerFilmeLadenEvent(String ssender, String ttext, int mmax, int pprogress) {
         sender = ssender;
         text = ttext;
         max = mmax;

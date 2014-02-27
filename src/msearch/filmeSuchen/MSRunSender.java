@@ -20,9 +20,9 @@
 package msearch.filmeSuchen;
 
 import java.util.Date;
-import msearch.tool.MSearchLog;
+import msearch.tool.MSLog;
 
-public class MSearchRunSender {
+public class MSRunSender {
 
     public String sender = "";
     public int max = 0;
@@ -30,7 +30,7 @@ public class MSearchRunSender {
     public Date startZeit = new Date();
     public boolean fertig = false;
 
-    public MSearchRunSender(String ssender, int mmax, int pprogress) {
+    public MSRunSender(String ssender, int mmax, int pprogress) {
         sender = ssender;
         max = mmax;
         progress = pprogress;
@@ -51,7 +51,7 @@ public class MSearchRunSender {
                 ret = min + ":" + sek;
             }
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(976431583, MSearchLog.FEHLER_ART_PROG, "Suchen.RunSender.getLaufzeitMinuten", ex, sender);
+            MSLog.fehlerMeldung(976431583, MSLog.FEHLER_ART_PROG, "Suchen.RunSender.getLaufzeitMinuten", ex, sender);
         }
         return ret;
     }

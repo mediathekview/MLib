@@ -34,12 +34,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
-import msearch.daten.MSearchConfig;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchLog;
-import msearch.tool.MSearchStringBuilder;
+import msearch.daten.MSConfig;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
+import msearch.tool.MSStringBuilder;
 
-public class MSearchGetUrl {
+public class MSGetUrl {
 
     public static final int LISTE_SEITEN_ZAEHLER = 1;
     public static final int LISTE_SEITEN_ZAEHLER_FEHlER = 2;
@@ -95,22 +95,22 @@ public class MSearchGetUrl {
         }
     }
 
-    public MSearchGetUrl(long wwartenBasis) {
+    public MSGetUrl(long wwartenBasis) {
         wartenBasis = wwartenBasis;
     }
 
     //===================================
     // public
     //===================================
-    public MSearchStringBuilder getUri_Utf(String sender, String addr, MSearchStringBuilder seite, String meldung) {
-        return getUri(sender, addr, MSearchConst.KODIERUNG_UTF, 1 /* versuche */, seite, meldung);
+    public MSStringBuilder getUri_Utf(String sender, String addr, MSStringBuilder seite, String meldung) {
+        return getUri(sender, addr, MSConst.KODIERUNG_UTF, 1 /* versuche */, seite, meldung);
     }
 
-    public MSearchStringBuilder getUri_Iso(String sender, String addr, MSearchStringBuilder seite, String meldung) {
-        return getUri(sender, addr, MSearchConst.KODIERUNG_ISO15, 1 /* versuche */, seite, meldung);
+    public MSStringBuilder getUri_Iso(String sender, String addr, MSStringBuilder seite, String meldung) {
+        return getUri(sender, addr, MSConst.KODIERUNG_ISO15, 1 /* versuche */, seite, meldung);
     }
 
-    public synchronized MSearchStringBuilder getUri(String sender, String addr, String kodierung, int maxVersuche, MSearchStringBuilder seite, String meldung) {
+    public synchronized MSStringBuilder getUri(String sender, String addr, String kodierung, int maxVersuche, MSStringBuilder seite, String meldung) {
         final int PAUSE = 1000;
         int aktTimeout = timeout;
         int aktVer = 0;
@@ -127,9 +127,9 @@ public class MSearchGetUrl {
                 seite = getUri(sender, addr, seite, kodierung, aktTimeout, meldung, maxVersuche, letzterVersuch);
                 if (seite.length() > 0) {
                     // und nix wie weiter 
-                    if (MSearchConfig.debug && aktVer > 1) {
+                    if (MSConfig.debug && aktVer > 1) {
                         String text = sender + " [" + aktVer + "/" + maxVersuche + "] ~~~> " + addr;
-                        MSearchLog.systemMeldung(text);
+                        MSLog.systemMeldung(text);
                     }
                     // nur dann zählen
                     incSeitenZaehler(LISTE_SEITEN_ZAEHLER, sender, 1, LADE_ART_UNBEKANNT);
@@ -149,9 +149,9 @@ public class MSearchGetUrl {
                     }
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(698963200, MSearchLog.FEHLER_ART_GETURL, MSearchGetUrl.class.getName() + ".getUri", ex, sender);
+                MSLog.fehlerMeldung(698963200, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, sender);
             }
-        } while (!MSearchConfig.getStop() && aktVer < maxVersuche);
+        } while (!MSConfig.getStop() && aktVer < maxVersuche);
         return seite;
     }
 
@@ -295,7 +295,7 @@ public class MSearchGetUrl {
         }
     }
 
-    private synchronized MSearchStringBuilder getUri(String sender, String addr, MSearchStringBuilder seite, String kodierung, int timeout, String meldung, int versuch, boolean lVersuch) {
+    private synchronized MSStringBuilder getUri(String sender, String addr, MSStringBuilder seite, String kodierung, int timeout, String meldung, int versuch, boolean lVersuch) {
         int timeo = timeout;
         seite.setLength(0);
         HttpURLConnection conn = null;
@@ -310,12 +310,12 @@ public class MSearchGetUrl {
             long w = wartenBasis;// * faktorWarten;
             this.wait(w);
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(976120379, MSearchLog.FEHLER_ART_GETURL, MSearchGetUrl.class.getName() + ".getUri", ex, sender);
+            MSLog.fehlerMeldung(976120379, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, sender);
         }
         try {
             // conn = url.openConnection(Proxy.NO_PROXY);
             conn = (HttpURLConnection) new URL(addr).openConnection();
-            conn.setRequestProperty("User-Agent", MSearchConfig.getUserAgent());
+            conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
             conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
             if (timeout > 0) {
                 conn.setReadTimeout(timeout);
@@ -326,15 +326,15 @@ public class MSearchGetUrl {
             if ((retCode = conn.getResponseCode()) < 400) {
                 mvIn = new MVInputStream(conn);
             } else {
-                MSearchLog.fehlerMeldung(302160789, MSearchLog.FEHLER_ART_GETURL, MSearchGetUrl.class.getName() + ".getUri",
+                MSLog.fehlerMeldung(302160789, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri",
                         new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
                 if (retCode == 403 || retCode == 408) {
-                    if (!MSearchConfig.proxyUrl.isEmpty() && MSearchConfig.proxyPort > 0) {
+                    if (!MSConfig.proxyUrl.isEmpty() && MSConfig.proxyPort > 0) {
                         // nur dann verwenden
                         // ein anderer Versuch
                         // wenn möglich, einen Proxy einrichten
                         //SocketAddress saddr = new InetSocketAddress("localhost", 9050);
-                        SocketAddress saddr = new InetSocketAddress(MSearchConfig.proxyUrl, MSearchConfig.proxyPort);
+                        SocketAddress saddr = new InetSocketAddress(MSConfig.proxyUrl, MSConfig.proxyPort);
                         Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
 
                         conn = (HttpURLConnection) new URL(addr).openConnection(proxy);
@@ -380,7 +380,7 @@ public class MSearchGetUrl {
 //            }
             char[] buffer = new char[1024];
             int n = 0;
-            while (!MSearchConfig.getStop() && (n = inReader.read(buffer)) != -1) {
+            while (!MSConfig.getStop() && (n = inReader.read(buffer)) != -1) {
                 // hier wird andlich geladen
                 seite.append(buffer, 0, n);
             }
@@ -396,7 +396,7 @@ public class MSearchGetUrl {
                         inReader.close();
                     }
                 } catch (Exception e) {
-                    MSearchLog.fehlerMeldung(645105987, MSearchLog.FEHLER_ART_GETURL, MSearchGetUrl.class.getName() + ".getUri", e, "");
+                    MSLog.fehlerMeldung(645105987, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", e, "");
                 }
             }
             if (lVersuch) {
@@ -407,20 +407,20 @@ public class MSearchGetUrl {
                     text = new String[]{sender + " - timout: " + timeo + " Versuche: " + versuch, addr, meldung/*, (proxyB ? "Porxy - " : "")*/};
                 }
                 if (ex.getMessage().equals("Read timed out")) {
-                    MSearchLog.fehlerMeldung(502739817, MSearchLog.FEHLER_ART_GETURL, MSearchGetUrl.class.getName() + ".getUri: TimeOut", text);
+                    MSLog.fehlerMeldung(502739817, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri: TimeOut", text);
                 } else {
-                    MSearchLog.fehlerMeldung(379861049, MSearchLog.FEHLER_ART_GETURL, MSearchGetUrl.class.getName() + ".getUri", ex, text);
+                    MSLog.fehlerMeldung(379861049, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, text);
                 }
             }
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(973969801, MSearchLog.FEHLER_ART_GETURL, MSearchGetUrl.class.getName() + ".getUri", ex, "");
+            MSLog.fehlerMeldung(973969801, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, "");
         } finally {
             try {
                 if (in != null) {
                     in.close();
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(696321478, MSearchLog.FEHLER_ART_GETURL, MSearchGetUrl.class.getName() + ".getUri", ex, "");
+                MSLog.fehlerMeldung(696321478, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, "");
             }
         }
         return seite;

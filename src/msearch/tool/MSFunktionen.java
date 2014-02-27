@@ -26,7 +26,7 @@ import msearch.Main;
 import msearch.daten.DatenFilm;
 import org.apache.commons.lang3.StringEscapeUtils;
 
-public class MSearchFunktionen {
+public class MSFunktionen {
 
     public static final int OS_UNKNOWN = 0;
     public static final int OS_WIN_32BIT = 1;
@@ -96,7 +96,7 @@ public class MSearchFunktionen {
     }
 
     public static String getProgVersionString() {
-        return MSearchConst.PROGRAMMNAME + " [Rel: " + getBuildNr() + "]";
+        return MSConst.PROGRAMMNAME + " [Rel: " + getBuildNr() + "]";
     }
 
     public static String[] getJavaVersion() {
@@ -118,7 +118,7 @@ public class MSearchFunktionen {
             rb = ResourceBundle.getBundle("version");
             msg = rb.getString(propToken);
         } catch (Exception e) {
-            MSearchLog.fehlerMeldung(807293847, MSearchLog.FEHLER_ART_PROG, MSearchFunktionen.class.getName(), e);
+            MSLog.fehlerMeldung(807293847, MSLog.FEHLER_ART_PROG, MSFunktionen.class.getName(), e);
         }
         return msg;
     }
@@ -132,7 +132,7 @@ public class MSearchFunktionen {
             rb = ResourceBundle.getBundle("version");
             msg = rb.getString(propToken);
         } catch (Exception e) {
-            MSearchLog.fehlerMeldung(134679898, MSearchLog.FEHLER_ART_PROG, MSearchFunktionen.class.getName(), e);
+            MSLog.fehlerMeldung(134679898, MSLog.FEHLER_ART_PROG, MSFunktionen.class.getName(), e);
         }
         return msg;
     }

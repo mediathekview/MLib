@@ -19,16 +19,16 @@
  */
 package msearch.filmeSuchen.sender;
 
-import msearch.filmeSuchen.MSearchFilmeSuchen;
+import msearch.filmeSuchen.MSFilmeSuchen;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
-import msearch.io.MSearchGetUrl;
-import msearch.daten.MSearchConfig;
+import msearch.io.MSGetUrl;
+import msearch.daten.MSConfig;
 import msearch.daten.DatenFilm;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchLog;
-import msearch.tool.MSearchStringBuilder;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
+import msearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
@@ -43,7 +43,7 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
      *
      * @param ddaten
      */
-    public MediathekArdPodcast(MSearchFilmeSuchen ssearch, int startPrio) {
+    public MediathekArdPodcast(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 4, /* urlWarten */ 500, startPrio);
     }
 
@@ -54,7 +54,7 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
         final String MUSTER_THEMA = "{ \"titel\": \"";
         final String MUSTER_SET = "http://www.ardmediathek.de";
         listeThemen.clear();
-        MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         meldungStart();
         seite = getUrlIo.getUri_Utf(nameSenderMReader, ADRESSE, seite, "");
         int pos = 0;
@@ -87,10 +87,10 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
                 String[] add = new String[]{MUSTER_SET + url, thema};
                 listeThemen.addUrl(add);
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-764238903, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.addToList", ex, "kein Thema");
+                MSLog.fehlerMeldung(-764238903, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.addToList", ex, "kein Thema");
             }
         }
-        if (MSearchConfig.getStop()) {
+        if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -108,21 +108,21 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
-        private MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        private MSearchStringBuilder seite2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
         @Override
         public synchronized void run() {
             try {
                 meldungAddThread();
                 String[] link;
-                while (!MSearchConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     feedEinerSeiteSuchen(link[0] /* url */, link[1] /* Thema */);
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-460287629, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.ArdThemaLaden.run", ex);
+                MSLog.fehlerMeldung(-460287629, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.ArdThemaLaden.run", ex);
             }
             meldungThreadUndFertig();
         }
@@ -150,7 +150,7 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
                 }
                 if (url.equals("")) {
                     //-------------
-                    MSearchLog.fehlerMeldung(-643188097, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeEinerSeiteSuchen-1", "keine URL für: " + urlFeed);
+                    MSLog.fehlerMeldung(-643188097, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeEinerSeiteSuchen-1", "keine URL für: " + urlFeed);
                 } else {
                     url = MUSTER_SET + url;
                     //++++++++++++++++++++++++++++++++++ 2te Seite
@@ -178,7 +178,7 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
                         pos1 = 0;
                         pos2 = 0;
                         url = "";
-                        while (!MSearchConfig.getStop() && (pos = seite.indexOf(MUSTER_2a, pos)) != -1) {
+                        while (!MSConfig.getStop() && (pos = seite.indexOf(MUSTER_2a, pos)) != -1) {
                             pos += MUSTER_2a.length();
                             pos1 = pos;
                             pos2 = seite.indexOf("\"", pos);
@@ -199,16 +199,16 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
                                 }
                             }
                             if (url.equals("#")) {
-                                MSearchLog.fehlerMeldung(-698025468, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeEinerSeiteSuchen-3", "keine URL für: " + tmpUrl);
+                                MSLog.fehlerMeldung(-698025468, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeEinerSeiteSuchen-3", "keine URL für: " + tmpUrl);
                             } else if (url.equals("")) {
                                 //-------------
-                                MSearchLog.fehlerMeldung(-456903578, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeEinerSeiteSuchen-2", "keine URL für: " + urlFeed);
+                                MSLog.fehlerMeldung(-456903578, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeEinerSeiteSuchen-2", "keine URL für: " + urlFeed);
                             } else {
                                 url = MUSTER_SET + url;
                                 filmLaden(urlFeed, url, thema);
                             }
                         }
-                        if (MSearchConfig.senderAllesLaden && listeWeiter.size() > 0) {
+                        if (MSConfig.senderAllesLaden && listeWeiter.size() > 0) {
                             url = listeWeiter.pollFirst();
                             seite = getUrl.getUri_Utf(nameSenderMReader, url, seite, "Thema: " + thema);
                             weiter = true;
@@ -227,7 +227,7 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
             int pos2 = 0;
             final String MUSTER_ = "http://www.ardmediathek.de/ard/servlet/content/3517244";
             if (!filmWebsite.contains("?")) {
-                MSearchLog.fehlerMeldung(-969875421, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
+                MSLog.fehlerMeldung(-969875421, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
                 return;
             } else {
                 //3517136 ersetzen mit 3517244
@@ -241,7 +241,7 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
                 seite2.setLength(0);
                 seite2 = getUrl.getUri_Utf(nameSenderMReader, filmWebsite, seite2, "Thema: " + thema);
                 if (seite2.length() == 0) {
-                    MSearchLog.fehlerMeldung(-646569896, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
+                    MSLog.fehlerMeldung(-646569896, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
                     return;
                 }
                 long durationInSeconds = extractDuration(seite2);
@@ -272,7 +272,7 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
                     }
                     if (url.equals("")) {
                         //-------------
-                        MSearchLog.fehlerMeldung(-363698701, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
+                        MSLog.fehlerMeldung(-363698701, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
                         return;
                     }
                 }
@@ -287,12 +287,12 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
                 // <title>Video-Clip &#034;Live aus Eging am See II - PS-Party in Pullmann City - 08.05.2013&#034; | Bayerisches Fernsehen | ARD Mediathek</title>
                 final String MUSTER_TITEL = "<title>";
                 if ((pos1 = seite2.indexOf(MUSTER_TITEL, 0)) == -1) {
-                    MSearchLog.fehlerMeldung(-465698731, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
+                    MSLog.fehlerMeldung(-465698731, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
                     return;
                 }
                 pos1 += MUSTER_TITEL.length();
                 if ((pos2 = seite2.indexOf("<", pos1)) == -1) {
-                    MSearchLog.fehlerMeldung(-915487398, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
+                    MSLog.fehlerMeldung(-915487398, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
                     return;
                 }
                 titel = seite2.substring(pos1, pos2);
@@ -305,12 +305,12 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
                 } else if (titel.startsWith("Audio")) {
                     titel = titel.replaceFirst("Audio", "");
                 } else {
-                    MSearchLog.fehlerMeldung(-996500478, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
+                    MSLog.fehlerMeldung(-996500478, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
                     return;
                 }
                 titel = StringEscapeUtils.unescapeHtml4(titel);
                 if (!titel.contains("|")) {
-                    MSearchLog.fehlerMeldung(-102036977, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
+                    MSLog.fehlerMeldung(-102036977, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "keine URL für: " + filmWebsite);
                     return;
                 }
                 titel = titel.substring(0, titel.indexOf("|"));
@@ -367,7 +367,7 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
                     }
                 }
                 if (datum.equals("")) {
-                    MSearchLog.fehlerMeldung(-102589463, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "kein Datum für: " + filmWebsite);
+                    MSLog.fehlerMeldung(-102589463, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.filmeLaden", "kein Datum für: " + filmWebsite);
                 }
                 // public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String datum, String zeit,
                 //  long duration, String description, String thumbnailUrl, String imageUrl, String[] keywords) {
@@ -376,7 +376,7 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
             }
         }
 
-        private long extractDuration(MSearchStringBuilder page) {
+        private long extractDuration(MSStringBuilder page) {
             String duration = extractString(page, "<meta property=\"video:duration\" content=\"", "\"");
             if (duration == null) {
                 return 0;
@@ -388,7 +388,7 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
             }
         }
 
-        private String extractDescription(MSearchStringBuilder page) {
+        private String extractDescription(MSStringBuilder page) {
             String desc = extractString(page, "<meta property=\"og:description\" content=\"", "\"");
             if (desc == null) {
                 return "";
@@ -397,7 +397,7 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
             return desc;
         }
 
-        private String[] extractKeywords(MSearchStringBuilder page) {
+        private String[] extractKeywords(MSStringBuilder page) {
             String keywords = extractString(page, "<meta name=\"keywords\" content=\"", "\"");
             if (keywords == null) {
                 return new String[]{""};
@@ -406,15 +406,15 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
             return keywords.split(", ");
         }
 
-        private String extractThumbnailURL(MSearchStringBuilder page) {
+        private String extractThumbnailURL(MSStringBuilder page) {
             return extractString(page, "<meta itemprop=\"thumbnailURL\" content=\"", "\"");
         }
 
-        private String extractImageURL(MSearchStringBuilder page) {
+        private String extractImageURL(MSStringBuilder page) {
             return extractString(page, "<meta property=\"og:image\" content=\"", "\"");
         }
 
-        protected String extractString(MSearchStringBuilder source, String startMarker, String endMarker) {
+        protected String extractString(MSStringBuilder source, String startMarker, String endMarker) {
             int start = source.indexOf(startMarker);
             if (start == -1) {
                 return null;
@@ -436,7 +436,7 @@ public class MediathekArdPodcast extends MediathekReader implements Runnable {
             Date filmDate = new SimpleDateFormat("yyyyMMdd").parse(datum);
             datum = new SimpleDateFormat("dd.MM.yyyy").format(filmDate);
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(-979451236, MSearchLog.FEHLER_ART_MREADER, "MediathekArdPodcast.convertDatum", ex, "Datum: " + datum);
+            MSLog.fehlerMeldung(-979451236, MSLog.FEHLER_ART_MREADER, "MediathekArdPodcast.convertDatum", ex, "Datum: " + datum);
         }
         return datum;
     }

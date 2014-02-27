@@ -34,13 +34,13 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchLog;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
 
-public class MSearchFilmlisteSchreiben {
+public class MSFilmlisteSchreiben {
 
     private XMLOutputFactory outFactory;
     private XMLStreamWriter writer;
@@ -49,29 +49,29 @@ public class MSearchFilmlisteSchreiben {
     BZip2CompressorOutputStream bZip2CompressorOutputStream = null;
 
     public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
-        MSearchLog.systemMeldung("Filme Schreiben");
+        MSLog.systemMeldung("Filme Schreiben");
         File file = new File(datei);
         File dir = new File(file.getParent());
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
-                MSearchLog.fehlerMeldung(915236478, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
+                MSLog.fehlerMeldung(915236478, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
-        MSearchLog.systemMeldung("   --> Start Schreiben nach: " + datei);
+        MSLog.systemMeldung("   --> Start Schreiben nach: " + datei);
         try {
             String sender = "", thema = "";
             JsonFactory jsonF = new JsonFactory();
             JsonGenerator jg;
-            if (datei.endsWith(MSearchConst.FORMAT_XZ)) {
+            if (datei.endsWith(MSConst.FORMAT_XZ)) {
                 LZMA2Options options = new LZMA2Options();
                 XZOutputStream out = new XZOutputStream(new FileOutputStream(file), options);
                 jg = jsonF.createGenerator(out);
-            } else if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
+            } else if (datei.endsWith(MSConst.FORMAT_BZ2)) {
                 bZip2CompressorOutputStream = new BZip2CompressorOutputStream(new FileOutputStream(file), 9 /*Blocksize: 1 - 9*/);
                 jg = jsonF.createGenerator(bZip2CompressorOutputStream, JsonEncoding.UTF8);
-            } else if (datei.endsWith(MSearchConst.FORMAT_ZIP)) {
+            } else if (datei.endsWith(MSConst.FORMAT_ZIP)) {
                 zipOutputStream = new ZipOutputStream(new FileOutputStream(file));
-                ZipEntry entry = new ZipEntry(MSearchConst.XML_DATEI_FILME);
+                ZipEntry entry = new ZipEntry(MSConst.XML_DATEI_FILME);
                 zipOutputStream.putNextEntry(entry);
                 jg = jsonF.createGenerator(zipOutputStream, JsonEncoding.UTF8);
             } else {
@@ -122,20 +122,20 @@ public class MSearchFilmlisteSchreiben {
             }
             jg.writeEndObject();
             jg.close();
-            MSearchLog.systemMeldung("   --> geschrieben!");
+            MSLog.systemMeldung("   --> geschrieben!");
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
+            MSLog.fehlerMeldung(846930145, MSLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
         }
     }
 
     public void filmlisteSchreibenXml(String datei, ListeFilme listeFilme) {
         try {
-            MSearchLog.systemMeldung("Filme Schreiben");
+            MSLog.systemMeldung("Filme Schreiben");
             xmlSchreibenStart(datei);
             xmlSchreibenFilmliste(listeFilme);
             xmlSchreibenEnde(datei);
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(846930145, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
+            MSLog.fehlerMeldung(846930145, MSLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
         }
     }
 
@@ -144,32 +144,32 @@ public class MSearchFilmlisteSchreiben {
         File dir = new File(file.getParent());
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
-                MSearchLog.fehlerMeldung(947623049, MSearchLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
+                MSLog.fehlerMeldung(947623049, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
-        MSearchLog.systemMeldung("   --> Start Schreiben nach: " + datei);
+        MSLog.systemMeldung("   --> Start Schreiben nach: " + datei);
         outFactory = XMLOutputFactory.newInstance();
-        if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
+        if (datei.endsWith(MSConst.FORMAT_BZ2)) {
             bZip2CompressorOutputStream = new BZip2CompressorOutputStream(new FileOutputStream(file), 9 /*Blocksize: 1 - 9*/);
-            out = new OutputStreamWriter(bZip2CompressorOutputStream, MSearchConst.KODIERUNG_UTF);
-        } else if (datei.endsWith(MSearchConst.FORMAT_ZIP)) {
+            out = new OutputStreamWriter(bZip2CompressorOutputStream, MSConst.KODIERUNG_UTF);
+        } else if (datei.endsWith(MSConst.FORMAT_ZIP)) {
             zipOutputStream = new ZipOutputStream(new FileOutputStream(file));
-            ZipEntry entry = new ZipEntry(MSearchConst.XML_DATEI_FILME);
+            ZipEntry entry = new ZipEntry(MSConst.XML_DATEI_FILME);
             zipOutputStream.putNextEntry(entry);
-            out = new OutputStreamWriter(zipOutputStream, MSearchConst.KODIERUNG_UTF);
+            out = new OutputStreamWriter(zipOutputStream, MSConst.KODIERUNG_UTF);
         } else {
-            out = new OutputStreamWriter(new FileOutputStream(file), MSearchConst.KODIERUNG_UTF);
+            out = new OutputStreamWriter(new FileOutputStream(file), MSConst.KODIERUNG_UTF);
         }
         writer = outFactory.createXMLStreamWriter(out);
         writer.writeStartDocument("UTF-8", "1.0");
         writer.writeCharacters("\n");//neue Zeile
-        writer.writeStartElement(MSearchConst.XML_START);
+        writer.writeStartElement(MSConst.XML_START);
         writer.writeCharacters("\n");//neue Zeile
     }
 
     private void xmlSchreibenFilmliste(ListeFilme listeFilme) throws XMLStreamException {
         //Filmliste Metadaten schreiben
-        listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSearchConst.VERSION_FILMLISTE;
+        listeFilme.metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSConst.VERSION_FILMLISTE;
         xmlSchreibenDaten(ListeFilme.FILMLISTE, ListeFilme.COLUMN_NAMES, listeFilme.metaDaten);
         // Feldinfo schreiben
         int xmlMax = DatenFilm.COLUMN_NAMES.length;
@@ -185,7 +185,7 @@ public class MSearchFilmlisteSchreiben {
             writer.writeEndElement();
             writer.writeCharacters("\n");//neue Zeile
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(638214005, MSearchLog.FEHLER_ART_PROG, "IoXmlSchreiben.xmlSchreibenFeldInfo", ex);
+            MSLog.fehlerMeldung(638214005, MSLog.FEHLER_ART_PROG, "IoXmlSchreiben.xmlSchreibenFeldInfo", ex);
         }
         // Filme schreiben
         ListIterator<DatenFilm> iterator;
@@ -231,11 +231,11 @@ public class MSearchFilmlisteSchreiben {
         writer.writeEndElement();
         writer.writeEndDocument();
         writer.flush();
-        if (datei.endsWith(MSearchConst.FORMAT_BZ2)) {
+        if (datei.endsWith(MSConst.FORMAT_BZ2)) {
             writer.close();
             out.close();
             bZip2CompressorOutputStream.close();
-        } else if (datei.endsWith(MSearchConst.FORMAT_ZIP)) {
+        } else if (datei.endsWith(MSConst.FORMAT_ZIP)) {
             zipOutputStream.closeEntry();
             writer.close();
             out.close();
@@ -244,6 +244,6 @@ public class MSearchFilmlisteSchreiben {
             writer.close();
             out.close();
         }
-        MSearchLog.systemMeldung("   --> geschrieben!");
+        MSLog.systemMeldung("   --> geschrieben!");
     }
 }

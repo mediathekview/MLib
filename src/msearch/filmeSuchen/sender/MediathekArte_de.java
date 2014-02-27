@@ -19,15 +19,15 @@
  */
 package msearch.filmeSuchen.sender;
 
-import msearch.filmeSuchen.MSearchFilmeSuchen;
+import msearch.filmeSuchen.MSFilmeSuchen;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import msearch.io.MSearchGetUrl;
-import msearch.daten.MSearchConfig;
+import msearch.io.MSGetUrl;
+import msearch.daten.MSConfig;
 import msearch.daten.DatenFilm;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchLog;
-import msearch.tool.MSearchStringBuilder;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
+import msearch.tool.MSStringBuilder;
 
 public class MediathekArte_de extends MediathekReader implements Runnable {
 
@@ -38,7 +38,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
     SimpleDateFormat sdfDatum = new SimpleDateFormat("dd.MM.yyyy");
     String URL_ARTE = "http://www.arte.tv/papi/tvguide/epg/schedule/D/L3/";
 
-    public MediathekArte_de(MSearchFilmeSuchen ssearch, int startPrio) {
+    public MediathekArte_de(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER_ARTE_DE, /* threads */ 2, /* urlWarten */ 500, startPrio);
         getUrlIo.setTimeout(15000);
     }
@@ -50,7 +50,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
     public void addToList() {
         meldungStart();
         addTage();
-        if (MSearchConfig.getStop()) {
+        if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -81,27 +81,27 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
 
     class ThemaLaden implements Runnable {
 
-        MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
-        private MSearchStringBuilder seite1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        private MSearchStringBuilder seite2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
         @Override
         public void run() {
             try {
                 meldungAddThread();
                 String link[];
-                while (!MSearchConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0] /* url */);
                     addTheman(seite1, seite2, link[0]);
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-894330854, MSearchLog.FEHLER_ART_MREADER, "MediathekHr.ThemaLaden.run", ex, "");
+                MSLog.fehlerMeldung(-894330854, MSLog.FEHLER_ART_MREADER, "MediathekHr.ThemaLaden.run", ex, "");
             }
             meldungThreadUndFertig();
         }
     }
 
-    private void addTheman(MSearchStringBuilder seite1, MSearchStringBuilder seite2, String startUrl) {
+    private void addTheman(MSStringBuilder seite1, MSStringBuilder seite2, String startUrl) {
         // Datum, Zeit: "BAD":"04/08/2013","BAT":"13:20"
         final String MUSTER_START = "{\"programId\":";
         final String MUSTER_URL_JSON = "\"videoStreamUrl\":\"";
@@ -202,7 +202,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         }
     }
 
-    void filmeLaden(MSearchStringBuilder seite, String[] arr) {
+    void filmeLaden(MSStringBuilder seite, String[] arr) {
         // url_hd url, url_klein
         //{"version":"VOF","versionProg":"1","VFO":"HBBTV","VQU":"SQ","VMT":"mp4","VUR":"http://artestras.vo.llnwxd.net/o35/nogeo/HBBTV/042975-013-B_EXT_SQ_2_VOF_00604879_MP4-2200_AMM-HBBTV_EXTRAIT.mp4"},
         //{"version":"VOF","versionProg":"1","VFO":"HBBTV","VQU":"EQ","VMT":"mp4","VUR":"http://artestras.vo.llnwxd.net/o35/nogeo/HBBTV/042975-013-B_EXT_EQ_2_VOF_00604878_MP4-1500_AMM-HBBTV_EXTRAIT.mp4"},
@@ -224,7 +224,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         final String MUSTER_URL_KLEIN = "HBBTV\",\"VQU\":\"HQ\",\"VMT\":\"mp4\",\"VUR\":\"";
         final String MUSTER_DAUER = "\"videoDurationSeconds\":";
         int pos1, pos2;
-        if (MSearchConfig.getStop()) {
+        if (MSConfig.getStop()) {
             return;
         }
         meldung(arr[0]);
@@ -316,7 +316,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                     datum, zeit, dauer, beschreibung, bild, new String[]{});
             addFilm(film);
         } else {
-            MSearchLog.fehlerMeldung(-963025874, MSearchLog.FEHLER_ART_MREADER, "MediathekArte_de.filmeLaden", "Keine URL: " + arr[0]);
+            MSLog.fehlerMeldung(-963025874, MSLog.FEHLER_ART_MREADER, "MediathekArte_de.filmeLaden", "Keine URL: " + arr[0]);
         }
     }
 

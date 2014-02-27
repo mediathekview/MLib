@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.SimpleTimeZone;
-import msearch.tool.MSearchLog;
+import msearch.tool.MSLog;
 
 public class DatenUrlFilmliste implements Comparable<DatenUrlFilmliste> {
 
@@ -41,14 +41,14 @@ public class DatenUrlFilmliste implements Comparable<DatenUrlFilmliste> {
         sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
         makeArr();
-        arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR] = url;
-        arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_PRIO_NR] = prio;
-        arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] = datum;
-        arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR] = zeit;
+        arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR] = url;
+        arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_PRIO_NR] = prio;
+        arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] = datum;
+        arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR] = zeit;
     }
 
     public Date getDate() {
-        String date = arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] + " " + arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR];
+        String date = arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] + " " + arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR];
         Date d;
         try {
             d = sdf.parse(date);
@@ -87,8 +87,8 @@ public class DatenUrlFilmliste implements Comparable<DatenUrlFilmliste> {
         int ret = 0;
         try {
             //31.10.2010	16:54:17
-            String ich = arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] + " " + arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR];
-            String du = arg0.arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] + " " + arg0.arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR];
+            String ich = arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] + " " + arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR];
+            String du = arg0.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] + " " + arg0.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR];
             if (ich.equals(du)) {
                 return 0;
             }
@@ -96,7 +96,7 @@ public class DatenUrlFilmliste implements Comparable<DatenUrlFilmliste> {
             Date d_du = sdf.parse(du);
             ret = d_du.compareTo(d_ich);
         } catch (ParseException ex) {
-            MSearchLog.fehlerMeldung(936542876, MSearchLog.FEHLER_ART_PROG, this.getClass().getName(), ex);
+            MSLog.fehlerMeldung(936542876, MSLog.FEHLER_ART_PROG, this.getClass().getName(), ex);
         }
         return ret;
     }
@@ -105,20 +105,20 @@ public class DatenUrlFilmliste implements Comparable<DatenUrlFilmliste> {
         boolean ret = false;
         try {
             //31.10.2010	16:54:17
-            String ich = arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] + " " + arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR];
+            String ich = arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] + " " + arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR];
             Date d_ich = sdf.parse(ich);
             Calendar cal = Calendar.getInstance();
             // tage vom calendar abziehen
             cal.add(Calendar.DATE, -tage);
             ret = d_ich.before(cal.getTime());
         } catch (ParseException ex) {
-            MSearchLog.fehlerMeldung(915468973, MSearchLog.FEHLER_ART_PROG, this.getClass().getName(), ex);
+            MSLog.fehlerMeldung(915468973, MSLog.FEHLER_ART_PROG, this.getClass().getName(), ex);
         }
         return ret;
     }
 
     private void makeArr() {
-        arr = new String[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_MAX_ELEM];
+        arr = new String[MSFilmlistenSuchen.FILM_UPDATE_SERVER_MAX_ELEM];
         for (int i = 0; i < arr.length; ++i) {
             arr[i] = "";
         }

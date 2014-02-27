@@ -24,12 +24,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
 import msearch.daten.DatenFilm;
-import msearch.daten.MSearchConfig;
-import msearch.filmeSuchen.MSearchFilmeSuchen;
-import msearch.io.MSearchGetUrl;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchLog;
-import msearch.tool.MSearchStringBuilder;
+import msearch.daten.MSConfig;
+import msearch.filmeSuchen.MSFilmeSuchen;
+import msearch.io.MSGetUrl;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
+import msearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekSrf extends MediathekReader implements Runnable {
@@ -46,7 +46,7 @@ static class SRFException extends Exception {
     public static final String SENDER = "SRF";
     private final int MAX_FILME_THEMA = 5;
 
-    public MediathekSrf(MSearchFilmeSuchen ssearch, int startPrio) {
+    public MediathekSrf(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 3, /* urlWarten */ 1000, startPrio);
     }
 
@@ -79,7 +79,7 @@ static class SRFException extends Exception {
                     throw new SRFException("TEST");        
                 }
                 System.out.println(responseCode + " + responseCode " + "Url " + url);
-                MSearchLog.debugMeldung("SRF: " + responseCode + " + responseCode " + "Url " + url);
+                MSLog.debugMeldung("SRF: " + responseCode + " + responseCode " + "Url " + url);
                 return false;
             }
             return (200 <= responseCode && responseCode <= 399);
@@ -96,7 +96,7 @@ static class SRFException extends Exception {
         //<a class="sendung_name" href="/player/tv/sendung/1-gegen-100?id=6fd27ab0-d10f-450f-aaa9-836f1cac97bd">1 gegen 100</a>
         final String MUSTER = "sendung_name\" href=\"/player/tv";
         final String MUSTER_ID = "?id=";
-        MSearchStringBuilder seite = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         listeThemen.clear();
         meldungStart();
         seite = getUrlIo.getUri_Utf(nameSenderMReader, "http://www.srf.ch/player/sendungen", seite, "");
@@ -125,11 +125,11 @@ static class SRFException extends Exception {
                     String[] add = new String[]{"http://www.srf.ch/player/tv/rss/sendung?id=" + url, thema};
                     listeThemen.addUrl(add);
                 } else {
-                    MSearchLog.fehlerMeldung(-198620778, MSearchLog.FEHLER_ART_MREADER, "MediathekSf.addToList", "keine URL");
+                    MSLog.fehlerMeldung(-198620778, MSLog.FEHLER_ART_MREADER, "MediathekSf.addToList", "keine URL");
                 }
             }
         }
-        if (MSearchConfig.getStop()) {
+        if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -146,10 +146,10 @@ static class SRFException extends Exception {
 
     private class ThemaLaden implements Runnable {
 
-        MSearchGetUrl getUrl = new MSearchGetUrl(wartenSeiteLaden);
-        private MSearchStringBuilder seite1 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        private MSearchStringBuilder seite2 = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
-        private MSearchStringBuilder film_website = new MSearchStringBuilder(MSearchConst.STRING_BUFFER_START_BUFFER);
+        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder film_website = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private final String PATTERN_URL = "\"url\":\"";
         private final String PATTERN_URL_END = "\"";
 
@@ -158,12 +158,12 @@ static class SRFException extends Exception {
             try {
                 meldungAddThread();
                 String link[];
-                while (!MSearchConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0] /* url */);
                     addFilme(link[1], link[0] /* url */);
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-832002877, MSearchLog.FEHLER_ART_MREADER, "MediathekSf.SfThemaLaden.run", ex);
+                MSLog.fehlerMeldung(-832002877, MSLog.FEHLER_ART_MREADER, "MediathekSf.SfThemaLaden.run", ex);
             }
             meldungThreadUndFertig();
         }
@@ -204,7 +204,7 @@ static class SRFException extends Exception {
                 String zeit = "";
                 String titel;
                 String tmp;
-                while (!MSearchConfig.getStop() && (MSearchConfig.senderAllesLaden || counter < MAX_FILME_THEMA) && (posItem1 = seite1.indexOf(MUSTER_ITEM_1, posItem1)) != -1) {
+                while (!MSConfig.getStop() && (MSConfig.senderAllesLaden || counter < MAX_FILME_THEMA) && (posItem1 = seite1.indexOf(MUSTER_ITEM_1, posItem1)) != -1) {
                     posItem1 += MUSTER_ITEM_1.length();
 //                    posItem2 = seite1.indexOf(MUSTER_ITEM_2, posItem1);
                     ++counter;
@@ -238,7 +238,7 @@ static class SRFException extends Exception {
                                     }
                                     addFilme2(thema, urlWebsite, BASE_URL_JSON + url + "/.json", titel, datum, zeit);
                                 } else {
-                                    MSearchLog.fehlerMeldung(-499556023, MSearchLog.FEHLER_ART_MREADER, "MediathekSf.addFilme", "keine URL: " + strUrlFeed);
+                                    MSLog.fehlerMeldung(-499556023, MSLog.FEHLER_ART_MREADER, "MediathekSf.addFilme", "keine URL: " + strUrlFeed);
                                 }
                             }
                         }
@@ -247,7 +247,7 @@ static class SRFException extends Exception {
                     }
                 }
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-795638103, MSearchLog.FEHLER_ART_MREADER, "MediathekSf.addFilme", ex);
+                MSLog.fehlerMeldung(-795638103, MSLog.FEHLER_ART_MREADER, "MediathekSf.addFilme", ex);
             }
         }
 
@@ -276,7 +276,7 @@ static class SRFException extends Exception {
                         url_small = "";
                     } else {
                         // dann gibst nix
-                        MSearchLog.fehlerMeldung(-159873540, MSearchLog.FEHLER_ART_MREADER, "MediathekSRf.filmLaden", "keine NORMALE Url für: " + urlWebsite + " : " + url_normal);
+                        MSLog.fehlerMeldung(-159873540, MSLog.FEHLER_ART_MREADER, "MediathekSRf.filmLaden", "keine NORMALE Url für: " + urlWebsite + " : " + url_normal);
                         return;
                     }
                 }
@@ -287,18 +287,18 @@ static class SRFException extends Exception {
                 if (!url_small.isEmpty()) {
                     film.addUrlKlein(url_small, "");
                 } else {
-                    MSearchLog.fehlerMeldung(-915263975, MSearchLog.FEHLER_ART_MREADER, "MediathekArd.SRF", "keine kleine Url für: " + urlWebsite + " : " + url_normal);
+                    MSLog.fehlerMeldung(-915263975, MSLog.FEHLER_ART_MREADER, "MediathekArd.SRF", "keine kleine Url für: " + urlWebsite + " : " + url_normal);
                 }
                 if (!urlHd.isEmpty()) {
                     film.addUrlHd(urlHd, "");
                 }
                 addFilm(film);
             } catch (Exception ex) {
-                MSearchLog.fehlerMeldung(-556320087, MSearchLog.FEHLER_ART_MREADER, "MediathekSf.addFilme2", ex);
+                MSLog.fehlerMeldung(-556320087, MSLog.FEHLER_ART_MREADER, "MediathekSf.addFilme2", ex);
             }
         }
 
-        private String getSmallUrlFromM3u8(MSearchStringBuilder page) {
+        private String getSmallUrlFromM3u8(MSStringBuilder page) {
             final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
             final String PATTERN_RESOLUTION = "RESOLUTION=320x180"; //480x272
 
@@ -317,7 +317,7 @@ static class SRFException extends Exception {
             return "";
         }
 
-        private String getNormalUrlFromM3u8(MSearchStringBuilder page) {
+        private String getNormalUrlFromM3u8(MSStringBuilder page) {
             final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
             final String PATTERN_RESOLUTION = "RESOLUTION=640x360";
             final String INDEX_3 = "index_3_av.m3u8";
@@ -340,7 +340,7 @@ static class SRFException extends Exception {
 
         }
 
-        private String getHiqherQualityUrl(MSearchStringBuilder page) {
+        private String getHiqherQualityUrl(MSStringBuilder page) {
             final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
             final String INDEX_4 = "index_4_av.m3u8";
             final String INDEX_3 = "index_3_av.m3u8";
@@ -385,7 +385,7 @@ static class SRFException extends Exception {
             return newUrl;
         }
 
-        private boolean isHigherResolutionAvaiable(MSearchStringBuilder page) {
+        private boolean isHigherResolutionAvaiable(MSStringBuilder page) {
             final String PATTERN_WIDTH_960 = "\"frame_width\":960";
             final String PATTERN_WIDTH_640 = "\"frame_width\":640";
             final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
@@ -394,7 +394,7 @@ static class SRFException extends Exception {
 
         }
 
-        private String getHdUrlFromM3u8(MSearchStringBuilder page) {
+        private String getHdUrlFromM3u8(MSStringBuilder page) {
             final String PATTERN_QUALITY_200 = "\"quality\":\"200\",";
             final String PATTERN_RESOLUTION = "RESOLUTION=1280x720";
 
@@ -435,14 +435,14 @@ static class SRFException extends Exception {
                     if(ping(url))
                         return url;
                 } catch (SRFException ex1) {
-                    MSearchLog.fehlerMeldung(-646490237, MSearchLog.FEHLER_ART_FILME_SUCHEN, "MediathekSf.checkPing", ex);
+                    MSLog.fehlerMeldung(-646490237, MSLog.FEHLER_ART_FILME_SUCHEN, "MediathekSf.checkPing", ex);
                 }
             }
             
             return "";
          }
 
-        private String extractHdUrl(MSearchStringBuilder page, String urlWebsite) {
+        private String extractHdUrl(MSStringBuilder page, String urlWebsite) {
 
             final String PATTERN_DL_URL_START = "button_download_img offset\" href=\"";
             final String PATTERN_DL_URL_END = "\"";
@@ -456,7 +456,7 @@ static class SRFException extends Exception {
             return "";
         }
 
-        private boolean isHdAvailable(MSearchStringBuilder page) {
+        private boolean isHdAvailable(MSStringBuilder page) {
             final String PATTERN_HD_WIDTH = "\"frame_width\":1280";
             final String PATTERN_QUALITY_200 = "\"quality\":\"200\",";
 
@@ -464,13 +464,13 @@ static class SRFException extends Exception {
 
         }
 
-        private String extractUrl(MSearchStringBuilder page) {
+        private String extractUrl(MSStringBuilder page) {
             final String PATTERN_WIDTH_640 = "\"frame_width\":640";
 
             return normalizeJsonUrl(subString(PATTERN_WIDTH_640, PATTERN_URL, PATTERN_URL_END, page));
         }
 
-        private String extractSmallUrl(MSearchStringBuilder page) {
+        private String extractSmallUrl(MSStringBuilder page) {
             final String PATTERN_WIDTH_320 = "\"frame_width\":320";
             final String PATTERN_WIDTH_384 = "\"frame_width\":384";
 
@@ -482,7 +482,7 @@ static class SRFException extends Exception {
 
         }
 
-        private long extractDuration(MSearchStringBuilder page) {
+        private long extractDuration(MSStringBuilder page) {
             int pos1, pos2;
             long duration = 0;
             final String PATTERN_DURATION = "\"mark_out\":";
@@ -501,14 +501,14 @@ static class SRFException extends Exception {
                             duration = Long.parseLong(d);
                         }
                     } catch (NumberFormatException ex) {
-                        MSearchLog.fehlerMeldung(-646490237, MSearchLog.FEHLER_ART_MREADER, "MediathekSf.extractDuration", ex);
+                        MSLog.fehlerMeldung(-646490237, MSLog.FEHLER_ART_MREADER, "MediathekSf.extractDuration", ex);
                     }
                 }
             }
             return duration;
         }
 
-        private String extractThumbnail(MSearchStringBuilder page) {
+        private String extractThumbnail(MSStringBuilder page) {
 
             final String PATTERN_ID = "\"id\":\"";
             final String PATTERN_ID_END = "\",";
@@ -519,7 +519,7 @@ static class SRFException extends Exception {
             return thumbnail;
         }
 
-        private String extractDescription(MSearchStringBuilder page) {
+        private String extractDescription(MSStringBuilder page) {
             final String PATTERN_DESCRIPTION = "\"description_lead\":\"";
             final String PATTERN_DESC_END = "\",";
             final String PATTERN_DESC_ALTERNATIVE = "\"description\":\"";
@@ -532,7 +532,7 @@ static class SRFException extends Exception {
             return StringEscapeUtils.unescapeJava(description).trim();
         }
 
-        private String extractTitle(MSearchStringBuilder page) {
+        private String extractTitle(MSStringBuilder page) {
 
             final String PATTERN_TITLE = "\"description_title\":\"";
             final String PATTERN_TITLE_END = "\",";
@@ -541,7 +541,7 @@ static class SRFException extends Exception {
             return StringEscapeUtils.unescapeJava(title).trim();
         }
 
-        private String[] extractKeywords(MSearchStringBuilder string) {
+        private String[] extractKeywords(MSStringBuilder string) {
             LinkedList<String> l = new LinkedList<String>();
 
             /*	"tags": {
@@ -582,7 +582,7 @@ static class SRFException extends Exception {
             return l.toArray(new String[l.size()]);
         }
 
-        private String subString(String searchPattern, String patternStart, String patternEnd, MSearchStringBuilder page) {
+        private String subString(String searchPattern, String patternStart, String patternEnd, MSStringBuilder page) {
             int posSearch, pos1, pos2;
             String extracted = "";
             if ((posSearch = page.indexOf(searchPattern)) != -1) {
@@ -598,7 +598,7 @@ static class SRFException extends Exception {
             return extracted;
         }
 
-        private String subString(String patternStart, String patternEnd, MSearchStringBuilder page) {
+        private String subString(String patternStart, String patternEnd, MSStringBuilder page) {
             int pos1, pos2;
             String extracted = "";
             if ((pos1 = page.indexOf(patternStart)) != -1) {

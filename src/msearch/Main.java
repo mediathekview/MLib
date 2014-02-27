@@ -19,7 +19,7 @@
  */
 package msearch;
 
-import msearch.tool.MSearchLog;
+import msearch.tool.MSLog;
 
 public class Main {
 
@@ -57,7 +57,7 @@ public class Main {
                 if (args != null) {
                     for (String s : args) {
                         if (s.equalsIgnoreCase("-v")) {
-                            MSearchLog.versionsMeldungen(this.getClass().getName());
+                            MSLog.versionsMeldungen(this.getClass().getName());
                             System.exit(0);
                         }
                     }

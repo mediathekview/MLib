@@ -36,14 +36,13 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import msearch.daten.MSearchConfig;
+import msearch.daten.MSConfig;
 import msearch.tool.DatumZeit;
-import msearch.tool.MSearchGuiFunktionen;
-import msearch.tool.MSearchConst;
-import msearch.tool.MSearchListenerMediathekView;
-import msearch.tool.MSearchLog;
+import msearch.tool.MSGuiFunktionen;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
 
-public class MSearchFilmlistenSuchen {
+public class MSFilmlistenSuchen {
 
     // damit werden die DownloadURLs zum Laden einer Filmliste gesucht
     //
@@ -75,21 +74,21 @@ public class MSearchFilmlistenSuchen {
         ListeDownloadUrlsFilmlisten tmp = new ListeDownloadUrlsFilmlisten();
         try {
             // Ausweichen auf andere Listenserver bei Bedarf
-            getDownloadUrlsFilmlisten(MSearchConst.ADRESSE_FILMLISTEN_SERVER_JSON, tmp, MSearchConfig.getUserAgent());
+            getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_JSON, tmp, MSConfig.getUserAgent());
             if (tmp.size() > 0) {
                 // dann die Liste Filmlistenserver aktualisieren
                 updateListeFilmlistenServer(tmp);
-                MSearchListenerMediathekView.notify(MSearchListenerMediathekView.EREIGNIS_LISTE_FILMLISTEN_SERVER, this.getClass().getSimpleName());
+//                MSearchListenerMediathekView.notify(MSearchListenerMediathekView.EREIGNIS_LISTE_FILMLISTEN_SERVER, this.getClass().getSimpleName());
             }
             if (tmp.size() == 0) {
                 // mit den Backuplisten versuchen
-                getDownloadUrlsFilmlisten__backuplisten(tmp, MSearchConfig.getUserAgent());
+                getDownloadUrlsFilmlisten__backuplisten(tmp, MSConfig.getUserAgent());
             }
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(347895642, MSearchLog.FEHLER_ART_PROG, "FilmUpdateServer.suchen", ex);
+            MSLog.fehlerMeldung(347895642, MSLog.FEHLER_ART_PROG, "FilmUpdateServer.suchen", ex);
         }
         if (tmp.size() == 0) {
-            MSearchLog.systemMeldung(new String[]{"Es ist ein Fehler aufgetreten!",
+            MSLog.systemMeldung(new String[]{"Es ist ein Fehler aufgetreten!",
                 "Es konnten keine Updateserver zum aktualisieren der Filme",
                 "gefunden werden."});
         } else {
@@ -106,7 +105,7 @@ public class MSearchFilmlistenSuchen {
         }
         listeDownloadUrlsFilmlisten.sort();
         retUrl = listeDownloadUrlsFilmlisten.getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
-        MSearchListenerMediathekView.notify(MSearchListenerMediathekView.EREIGNIS_LISTE_URL_FILMLISTEN, this.getClass().getSimpleName());
+//        MSearchListenerMediathekView.notify(MSearchListenerMediathekView.EREIGNIS_LISTE_URL_FILMLISTEN, this.getClass().getSimpleName());
         if (bereitsVersucht != null) {
             bereitsVersucht.add(retUrl);
         }
@@ -118,8 +117,8 @@ public class MSearchFilmlistenSuchen {
         //listeFilmlistenServer.clear();
         while (it.hasNext()) {
             String serverUrl = it.next().arr[FILM_UPDATE_SERVER_URL_NR];
-            String url = serverUrl.replace(MSearchGuiFunktionen.getDateiName(serverUrl), "");
-            url = MSearchGuiFunktionen.addUrl(url, MSearchConst.DATEINAME_LISTE_FILMLISTEN);
+            String url = serverUrl.replace(MSGuiFunktionen.getDateiName(serverUrl), "");
+            url = MSGuiFunktionen.addUrl(url, MSConst.DATEINAME_LISTE_FILMLISTEN);
             listeFilmlistenServer.addCheck(new DatenFilmlistenServer(url));
         }
         // die Liste der Filmlistenserver aufräumen
@@ -143,8 +142,8 @@ public class MSearchFilmlistenSuchen {
 
     private void getDownloadUrlsFilmlisten__backuplisten(ListeDownloadUrlsFilmlisten sListe, String userAgent) {
         // für den Notfall fest hinterlegte Downloadserver
-        getDownloadUrlsFilmlisten(MSearchGuiFunktionen.addUrl("http://176.28.8.161/json1", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
-        getDownloadUrlsFilmlisten(MSearchGuiFunktionen.addUrl("http://85.25.49.47/json1", MSearchConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
+        getDownloadUrlsFilmlisten(MSGuiFunktionen.addUrl("http://176.28.8.161/json1", MSConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
+        getDownloadUrlsFilmlisten(MSGuiFunktionen.addUrl("http://85.25.49.47/json1", MSConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
         Iterator<DatenFilmlistenServer> it = listeFilmlistenServer.iterator();
         while (it.hasNext()) {
             if (sListe.size() > 100) {
@@ -164,7 +163,7 @@ public class MSearchFilmlistenSuchen {
             inFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
             XMLStreamReader parser;
             InputStreamReader inReader;
-            if (MSearchGuiFunktionen.istUrl(dateiUrl)) {
+            if (MSGuiFunktionen.istUrl(dateiUrl)) {
                 // eine URL verarbeiten
                 int timeout = 20000; //ms
                 URLConnection conn;
@@ -172,14 +171,14 @@ public class MSearchFilmlistenSuchen {
                 conn.setRequestProperty("User-Agent", userAgent);
                 conn.setReadTimeout(timeout);
                 conn.setConnectTimeout(timeout);
-                inReader = new InputStreamReader(conn.getInputStream(), MSearchConst.KODIERUNG_UTF);
+                inReader = new InputStreamReader(conn.getInputStream(), MSConst.KODIERUNG_UTF);
             } else {
                 // eine Datei verarbeiten
                 File f = new File(dateiUrl);
                 if (!f.exists()) {
                     return;
                 }
-                inReader = new InputStreamReader(new FileInputStream(f), MSearchConst.KODIERUNG_UTF);
+                inReader = new InputStreamReader(new FileInputStream(f), MSConst.KODIERUNG_UTF);
             }
             parser = inFactory.createXMLStreamReader(inReader);
             while (parser.hasNext()) {
@@ -193,7 +192,7 @@ public class MSearchFilmlistenSuchen {
                 }
             }
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(821069874, MSearchLog.FEHLER_ART_PROG, MSearchFilmlistenSuchen.class.getName(), ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
+            MSLog.fehlerMeldung(821069874, MSLog.FEHLER_ART_PROG, MSFilmlistenSuchen.class.getName(), ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
         }
     }
 
@@ -224,7 +223,7 @@ public class MSearchFilmlistenSuchen {
                         if (!serverUrl.equals("")) {
                             //public DatenFilmUpdate(String url, String prio, String zeit, String datum, String anzahl) {
                             if (prio.equals("")) {
-                                prio = MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_PRIO_1;
+                                prio = MSFilmlistenSuchen.FILM_UPDATE_SERVER_PRIO_1;
                             }
                             sListe.addWithCheck(new DatenUrlFilmliste(serverUrl, prio, zeit, datum));
                         }
@@ -251,7 +250,7 @@ public class MSearchFilmlistenSuchen {
             tmpFile = File.createTempFile("mediathek", null);
             tmpFile.deleteOnExit();
             outFactory = XMLOutputFactory.newInstance();
-            out = new OutputStreamWriter(new FileOutputStream(tmpFile), MSearchConst.KODIERUNG_UTF);
+            out = new OutputStreamWriter(new FileOutputStream(tmpFile), MSConst.KODIERUNG_UTF);
             writer = outFactory.createXMLStreamWriter(out);
             writer.writeStartDocument("UTF-8", "1.0");
             writer.writeCharacters("\n");//neue Zeile
@@ -265,21 +264,21 @@ public class MSearchFilmlistenSuchen {
                 // Tags schreiben: URL
                 writer.writeCharacters("\t");// Tab
                 writer.writeStartElement(TAG_SERVER_URL);
-                writer.writeCharacters(d.arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR]);
+                writer.writeCharacters(d.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR]);
                 writer.writeEndElement();
                 writer.writeCharacters("\n");
                 // fertig
                 // Tags schreiben: Datum
                 writer.writeCharacters("\t");// Tab
                 writer.writeStartElement(TAG_SERVER_DATUM);
-                writer.writeCharacters(d.arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR]);
+                writer.writeCharacters(d.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR]);
                 writer.writeEndElement();
                 writer.writeCharacters("\n");
                 // fertig
                 // Tags schreiben: Zeit
                 writer.writeCharacters("\t");// Tab
                 writer.writeStartElement(TAG_SERVER_ZEIT);
-                writer.writeCharacters(d.arr[MSearchFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR]);
+                writer.writeCharacters(d.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR]);
                 writer.writeEndElement();
                 writer.writeCharacters("\n");
                 // fertig
@@ -292,7 +291,7 @@ public class MSearchFilmlistenSuchen {
             writer.flush();
             writer.close();
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(634978521, MSearchLog.FEHLER_ART_PROG, MSearchFilmlistenSuchen.class.getName(), ex, "Die URL-Filmlisten konnten nicht geschrieben werden");
+            MSLog.fehlerMeldung(634978521, MSLog.FEHLER_ART_PROG, MSFilmlistenSuchen.class.getName(), ex, "Die URL-Filmlisten konnten nicht geschrieben werden");
         }
         return tmpFile;
     }

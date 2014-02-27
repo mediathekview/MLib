@@ -22,12 +22,12 @@ package msearch.filmeSuchen.sender;
 import java.util.Iterator;
 import java.util.LinkedList;
 import msearch.daten.DatenFilm;
-import msearch.daten.MSearchConfig;
-import msearch.filmeSuchen.MSearchFilmeSuchen;
-import msearch.io.MSearchGetUrl;
+import msearch.daten.MSConfig;
+import msearch.filmeSuchen.MSFilmeSuchen;
+import msearch.io.MSGetUrl;
 import msearch.tool.DatumZeit;
 import msearch.tool.GermanStringSorter;
-import msearch.tool.MSearchLog;
+import msearch.tool.MSLog;
 
 public class MediathekReader implements Runnable {
 
@@ -41,14 +41,14 @@ public class MediathekReader implements Runnable {
     int progress = 0;
     int startPrio = 1; // es gibt die Werte: 0->startet sofort, 1->später und 2->zuletzt
     LinkedListUrl listeThemen = new LinkedListUrl();
-    MSearchGetUrl getUrlIo;
-    MSearchFilmeSuchen mSearchFilmeSuchen;
+    MSGetUrl getUrlIo;
+    MSFilmeSuchen mSearchFilmeSuchen;
     static boolean stop = false;
 
-    public MediathekReader(MSearchFilmeSuchen mmSearchFilmeSuchen, String nameMreader, int ssenderMaxThread, int ssenderWartenSeiteLaden, int sstartPrio) {
+    public MediathekReader(MSFilmeSuchen mmSearchFilmeSuchen, String nameMreader, int ssenderMaxThread, int ssenderWartenSeiteLaden, int sstartPrio) {
         mSearchFilmeSuchen = mmSearchFilmeSuchen;
         wartenSeiteLaden = ssenderWartenSeiteLaden;
-        getUrlIo = new MSearchGetUrl(ssenderWartenSeiteLaden);
+        getUrlIo = new MSGetUrl(ssenderWartenSeiteLaden);
         nameSenderMReader = nameMreader;
         maxThreadLaufen = ssenderMaxThread;
         startPrio = sstartPrio;
@@ -97,7 +97,7 @@ public class MediathekReader implements Runnable {
             threads = 0;
             addToList();
         } catch (Exception ex) {
-            MSearchLog.fehlerMeldung(-397543600, MSearchLog.FEHLER_ART_MREADER, "MediathekReader.run", ex, nameSenderMReader);
+            MSLog.fehlerMeldung(-397543600, MSLog.FEHLER_ART_MREADER, "MediathekReader.run", ex, nameSenderMReader);
         }
     }
 
@@ -156,11 +156,11 @@ public class MediathekReader implements Runnable {
     synchronized void meldungStart() {
         max = 0;
         progress = 0;
-        MSearchLog.systemMeldung("===============================================================");
-        MSearchLog.systemMeldung("Starten[" + ((MSearchConfig.senderAllesLaden) ? "alles" : "update") + "] " + nameSenderMReader + ": " + DatumZeit.getJetzt_HH_MM_SS());
-        MSearchLog.systemMeldung("   maxThreadLaufen: " + maxThreadLaufen);
-        MSearchLog.systemMeldung("   wartenSeiteLaden: " + wartenSeiteLaden);
-        MSearchLog.systemMeldung("");
+        MSLog.systemMeldung("===============================================================");
+        MSLog.systemMeldung("Starten[" + ((MSConfig.senderAllesLaden) ? "alles" : "update") + "] " + nameSenderMReader + ": " + DatumZeit.getJetzt_HH_MM_SS());
+        MSLog.systemMeldung("   maxThreadLaufen: " + maxThreadLaufen);
+        MSLog.systemMeldung("   wartenSeiteLaden: " + wartenSeiteLaden);
+        MSLog.systemMeldung("");
         mSearchFilmeSuchen.melden(nameSenderMReader, max, progress, "" /* text */);
     }
 
@@ -211,7 +211,7 @@ public class MediathekReader implements Runnable {
             }
         }
         if (ret.equals("")) {
-            MSearchLog.fehlerMeldung(-469872800, MSearchLog.FEHLER_ART_MREADER, "MediathekReader.addsUrl", pfad1 + " " + pfad2);
+            MSLog.fehlerMeldung(-469872800, MSLog.FEHLER_ART_MREADER, "MediathekReader.addsUrl", pfad1 + " " + pfad2);
         }
         return ret;
     }

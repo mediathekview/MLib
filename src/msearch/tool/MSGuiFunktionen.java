@@ -21,7 +21,7 @@ package msearch.tool;
 
 import java.io.File;
 
-public class MSearchGuiFunktionen extends MSearchFunktionen {
+public class MSGuiFunktionen extends MSFunktionen {
 
     public static String utf8(String ret) {
         ret = ret.replace("\\u0026", "&");
@@ -157,7 +157,7 @@ public class MSearchGuiFunktionen extends MSearchFunktionen {
             }
         }
         if (ret.equals("")) {
-            MSearchLog.fehlerMeldung(283946015, MSearchLog.FEHLER_ART_PROG, "GuiFunktionen.addsPfad", pfad1 + " - " + pfad2);
+            MSLog.fehlerMeldung(283946015, MSLog.FEHLER_ART_PROG, "GuiFunktionen.addsPfad", pfad1 + " - " + pfad2);
         }
         return ret;
     }
@@ -189,7 +189,7 @@ public class MSearchGuiFunktionen extends MSearchFunktionen {
             ret = ret.substring(0, ret.indexOf("&"));
         }
         if (ret.equals("")) {
-            MSearchLog.fehlerMeldung(395019631, MSearchLog.FEHLER_ART_PROG, "GuiFunktionen.getDateiName", pfad);
+            MSLog.fehlerMeldung(395019631, MSLog.FEHLER_ART_PROG, "GuiFunktionen.getDateiName", pfad);
         }
         return ret;
     }
@@ -203,14 +203,14 @@ public class MSearchGuiFunktionen extends MSearchFunktionen {
             }
         }
         if (ret.equals("")) {
-            MSearchLog.fehlerMeldung(969871236, MSearchLog.FEHLER_ART_PROG, "GuiFunktionen.getDateiSuffix", pfad);
+            MSLog.fehlerMeldung(969871236, MSLog.FEHLER_ART_PROG, "GuiFunktionen.getDateiSuffix", pfad);
         }
         if (ret.length() > 3) {
             if (ret.length() > 5) {
                 // dann ist was faul
                 ret = "---";
             }
-            MSearchLog.fehlerMeldung(821397046, MSearchLog.FEHLER_ART_PROG, "GuiFunktionen.getDateiSuffix", pfad);
+            MSLog.fehlerMeldung(821397046, MSLog.FEHLER_ART_PROG, "GuiFunktionen.getDateiSuffix", pfad);
         }
         return ret;
     }

@@ -25,9 +25,9 @@ package msearch.tool;
 
 import java.io.IOException;
 import java.io.InputStream;
-import msearch.daten.MSearchConfig;
+import msearch.daten.MSConfig;
 
-public class MSearchInputStream extends InputStream {
+public class MSInputStream extends InputStream {
 
     private final InputStream iStream;
     private long maxBytePerSec = 0;
@@ -36,9 +36,9 @@ public class MSearchInputStream extends InputStream {
     private long gesamtVerpennt = 0;
     private static final long warten_ms = 50;
 
-    public MSearchInputStream(InputStream in) {
+    public MSInputStream(InputStream in) {
         iStream = in;
-        maxBytePerSec = MSearchConfig.bandbreite;
+        maxBytePerSec = MSConfig.bandbreite;
         if (maxBytePerSec < 0) {
             maxBytePerSec = 0;
         }
@@ -73,7 +73,7 @@ public class MSearchInputStream extends InputStream {
                 wait(warten_ms);
                 gesamtVerpennt += warten_ms;
             } catch (InterruptedException ex) {
-                MSearchLog.fehlerMeldung(591237096, MSearchLog.FEHLER_ART_PROG, "MVInputStream.pause", ex);
+                MSLog.fehlerMeldung(591237096, MSLog.FEHLER_ART_PROG, "MVInputStream.pause", ex);
             }
         }
     }
