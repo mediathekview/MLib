@@ -104,24 +104,24 @@ public class Search implements Runnable {
 
     public static void senderLoeschenUndExit(String senderLoeschen, String dateiFilmliste) {
         // Infos schreiben
-        ListeFilme listeFilme = new ListeFilme();
-        versionsMeldungen("Search.senderLoeschenUndExit()");
-        MSLog.systemMeldung("###########################################################");
-        MSLog.systemMeldung("Programmpfad:   " + MSFunktionen.getPathJar());
-        MSLog.systemMeldung("Sender löschen: " + senderLoeschen);
-        MSLog.systemMeldung("Filmliste:      " + dateiFilmliste);
-        MSLog.systemMeldung("###########################################################");
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("");
-        new MSFilmlisteLesen().filmlisteLesenXml(dateiFilmliste, listeFilme);
-        // dann nur einen Sender löschen und dann wieder beenden
-        int anz1 = listeFilme.size();
-        MSLog.systemMeldung("Anzahl Filme vorher: " + anz1);
-        listeFilme.delSender(senderLoeschen);
-        int anz2 = listeFilme.size();
-        MSLog.systemMeldung("Anzehl Filme nachher: " + anz2);
-        MSLog.systemMeldung(" --> gelöscht: " + (anz1 - anz2));
-        new MSFilmlisteSchreiben().filmlisteSchreibenXml(dateiFilmliste, listeFilme);
+////        ListeFilme listeFilme = new ListeFilme();
+////        versionsMeldungen("Search.senderLoeschenUndExit()");
+////        MSLog.systemMeldung("###########################################################");
+////        MSLog.systemMeldung("Programmpfad:   " + MSFunktionen.getPathJar());
+////        MSLog.systemMeldung("Sender löschen: " + senderLoeschen);
+////        MSLog.systemMeldung("Filmliste:      " + dateiFilmliste);
+////        MSLog.systemMeldung("###########################################################");
+////        MSLog.systemMeldung("");
+////        MSLog.systemMeldung("");
+////        new MSFilmlisteLesen().filmlisteLesenXml(dateiFilmliste, listeFilme);
+////        // dann nur einen Sender löschen und dann wieder beenden
+////        int anz1 = listeFilme.size();
+////        MSLog.systemMeldung("Anzahl Filme vorher: " + anz1);
+////        listeFilme.delSender(senderLoeschen);
+////        int anz2 = listeFilme.size();
+////        MSLog.systemMeldung("Anzehl Filme nachher: " + anz2);
+////        MSLog.systemMeldung(" --> gelöscht: " + (anz1 - anz2));
+////        new MSFilmlisteSchreiben().filmlisteSchreibenXml(dateiFilmliste, listeFilme);
         System.exit(0);
     }
 
