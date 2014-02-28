@@ -62,7 +62,7 @@ public class Main {
                         }
                     }
                 }
-                new Search(args).starten();
+////                new Search(args).starten();
             }
         });
     }

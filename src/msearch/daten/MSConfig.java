@@ -37,6 +37,7 @@ public class MSConfig {
     public static String[] nurSenderLaden = null; // es wird nur dieser Sender geladen => "senderAllesLaden"=false, "updateFillmliste"=true
 //    public static String exportFilmlisteXml = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: XML), bz2
 //    public static String exportFilmlisteJson = ""; // Filmliste wird nach dem Suchen noch in die Datei exportiert (Format: Json), xz
+    public static String orgFilmliste = ""; // OrgFilmliste, zum Erstellen des Diff, angelegt wird sie immer im Ordner der Filmlisten, wenn leer wird die eigene Org-Liste gesucht
     public static boolean orgFilmlisteErstellen = false; // dann wird eine neue Org-Liste angelegt, typ. die erste Liste am Tag
     public static boolean diffFilmlisteErstellen = false; // dann wird ein diff erstellt
     //
