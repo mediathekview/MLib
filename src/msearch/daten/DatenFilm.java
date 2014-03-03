@@ -27,6 +27,7 @@ import msearch.filmeSuchen.sender.MediathekMdr;
 import msearch.filmeSuchen.sender.MediathekNdr;
 import msearch.filmeSuchen.sender.MediathekOrf;
 import msearch.filmeSuchen.sender.MediathekSrfPod;
+import msearch.filmeSuchen.sender.MediathekSwr;
 import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.tool.Datum;
 import msearch.tool.GermanStringSorter;
@@ -253,7 +254,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
             case MediathekArd.SENDER:
                 if (arr[DatenFilm.FILM_URL_NR].startsWith("http://mvideos-geo.daserste.de/")
                         || arr[DatenFilm.FILM_URL_NR].startsWith("http://media.ndr.de/progressive_geo/")
-                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://cdn-sotschi.br.de/geo/b7/")) {
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://cdn-sotschi.br.de/geo/b7/")
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://pd-ondemand.swr.de/geo/de/")) {
                     arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
                 }
                 break;
@@ -289,6 +291,11 @@ public class DatenFilm implements Comparable<DatenFilm> {
             case MediathekSrfPod.SENDER:
                 if (arr[DatenFilm.FILM_URL_NR].startsWith("http://podcasts.srf.ch/ch/audio/")) {
                     arr[DatenFilm.FILM_GEO_NR] = GEO_CH;
+                }
+                break;
+            case MediathekSwr.SENDER:
+                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://pd-ondemand.swr.de/geo/de/")) {
+                    arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
                 }
                 break;
         }
