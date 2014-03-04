@@ -186,10 +186,10 @@ public class MSFilmeSuchen {
             listeSenderLaufen.add(new MSRunSender(sender, max, progress));
             //wird beim Start des Senders aufgerufen, 1x
             if (listeSenderLaufen.size() <= 1 /* erster Aufruf */) {
-                notifyStart(new MSListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(),false));
+                notifyStart(new MSListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), false));
             }
         }
-        notifyProgress(new MSListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(),false));
+        notifyProgress(new MSListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), false));
         progressBar();
     }
 
@@ -230,12 +230,12 @@ public class MSFilmeSuchen {
         }
         if (!allStarted || !listeSenderLaufen.listeFertig()) {
             //nur ein Sender fertig oder noch nicht alle gestartet
-            notifyProgress(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(),false));
+            notifyProgress(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), false));
         } else {
             // wird einmal aufgerufen, wenn alle Sender fertig sind
             MSLog.progressEnde();
             endeMeldung();
-            notifyFertig(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(),false));
+            notifyFertig(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), false));
         }
     }
 
@@ -316,7 +316,8 @@ public class MSFilmeSuchen {
         int anzFilme = listeFilmeNeu.size();
         if (MSConfig.updateFilmliste) {
             // alte Filme eintragen wenn angefordert oder nur ein update gesucht wurde
-            listeFilmeNeu.updateListe(listeFilmeAlt, true /* über den Index vergleichen */);
+            //////toDo
+            listeFilmeNeu.updateListe(listeFilmeAlt, true /* über den Index vergleichen */, false /*ersetzen*/);
         }
         listeFilmeNeu.sort();
         // FilmlisteMetaDaten

@@ -93,9 +93,10 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return addInit(film);
     }
 
-    public synchronized void updateListe(ListeFilme listeEinsortieren, boolean index /* Vergleich über Index, sonst nur URL */) {
+    public synchronized void updateListe(ListeFilme listeEinsortieren, boolean index /* Vergleich über Index, sonst nur URL */, boolean ersetzen) {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
+        // "ersetzen": true: dann werden gleiche (index/URL) in der Liste durch neue ersetzt
         DatenFilm film;
         HashSet<String> hash = new HashSet<>();
         Iterator<DatenFilm> it = this.iterator();
@@ -116,13 +117,22 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             if (film.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDER)) {
                 if (!hash.contains(film.arr[DatenFilm.FILM_THEMA_NR] + film.arr[DatenFilm.FILM_TITEL_NR])) {
                     addInit(film);
+                } else if (ersetzen) {
+                    it.remove();
+                    addInit(film);
                 }
             } else if (index) {
                 if (!hash.contains(film.getIndex())) {
                     addInit(film);
+                } else if (ersetzen) {
+                    it.remove();
+                    addInit(film);
                 }
             } else {
                 if (!hash.contains(DatenFilm.getUrl(film))) {
+                    addInit(film);
+                } else if (ersetzen) {
+                    it.remove();
                     addInit(film);
                 }
             }

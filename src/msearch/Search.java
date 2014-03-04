@@ -167,7 +167,7 @@ public class Search implements Runnable {
             MSLog.systemMeldung("Filmliste importieren (anhängen) von: " + MSConfig.importUrl__anhaengen);
             tmpListe.clear();
             new MSFilmlisteLesen().filmlisteLesenJson(MSConfig.importUrl__anhaengen, "", tmpListe);
-            listeFilme.updateListe(tmpListe, false /* nur URL vergleichen */);
+            listeFilme.updateListe(tmpListe, false /* nur URL vergleichen */, false /*ersetzen*/);
             tmpListe.clear();
             System.gc();
             listeFilme.sort();
@@ -178,7 +178,8 @@ public class Search implements Runnable {
             MSLog.systemMeldung("Filmliste importieren (ersetzen) von: " + MSConfig.importUrl__ersetzen);
             tmpListe.clear();
             new MSFilmlisteLesen().filmlisteLesenJson(MSConfig.importUrl__ersetzen, "", tmpListe);
-            tmpListe.updateListe(listeFilme, false /* nur URL vergleichen */);
+            /////// toDo
+            tmpListe.updateListe(listeFilme, false /* nur URL vergleichen */, false /*ersetzen*/);
             tmpListe.metaDaten = listeFilme.metaDaten;
             listeFilme.clear();
             System.gc();
