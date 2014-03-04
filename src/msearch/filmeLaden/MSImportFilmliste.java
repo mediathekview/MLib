@@ -81,19 +81,21 @@ public class MSImportFilmliste {
     // #########################################################
     // Filmeliste importieren, URL automatisch wählen
     // #########################################################
-    public void filmeImportierenAuto(String dateiZiel, ListeFilme listeFilme) {
+    public void filmeImportierenAuto(String dateiZiel, ListeFilme listeFilme, boolean diff) {
         MSConfig.setStop(false);
-        new Thread(new FilmeImportierenAutoThread(dateiZiel, listeFilme)).start();
+        new Thread(new FilmeImportierenAutoThread(dateiZiel, listeFilme, diff)).start();
     }
 
     private class FilmeImportierenAutoThread implements Runnable {
 
         private ListeFilme listeFilme;
         private String ziel;
+        private boolean diff = false;
 
-        public FilmeImportierenAutoThread(String dateiZiel, ListeFilme llisteFilme) {
+        public FilmeImportierenAutoThread(String dateiZiel, ListeFilme llisteFilme, boolean ddiff /* nur ein update*/) {
             ziel = dateiZiel;
             listeFilme = llisteFilme;
+            diff = ddiff;
         }
 
         @Override
@@ -101,11 +103,12 @@ public class MSImportFilmliste {
             //wenn auto-update-url dann erst mal die Updateserver aktualiseren
             boolean ret = false;
             ArrayList<String> versuchteUrls = new ArrayList<>();
-            String updateUrl = msFilmlistenSuchen.suchen(versuchteUrls);
+            String updateUrl = diff ? msFilmlistenSuchen.suchenDiff(versuchteUrls) : msFilmlistenSuchen.suchen(versuchteUrls);
+
             if (!updateUrl.equals("")) {
                 for (int i = 0; i < 5; ++i) {
                     //5 mal mit einem anderen Server probieren
-                    if (urlLaden(updateUrl, ziel, listeFilme)) {
+                    if (diff ? urlDiffLaden(updateUrl, ziel, listeFilme) : urlLaden(updateUrl, ziel, listeFilme)) {
                         // hat geklappt, nix wie weiter
                         ret = true; // keine Fehlermeldung
                         if (i < 3 && listeFilme.filmlisteIstAelter(5 * 60 * 60 /*sekunden*/)) {
@@ -165,6 +168,19 @@ public class MSImportFilmliste {
     // private
     //===================================
     private boolean urlLaden(String dateiUrl, String dateiZiel, ListeFilme listeFilme) {
+        boolean ret = false;
+        try {
+            if (!dateiUrl.equals("")) {
+                MSLog.systemMeldung("Filmliste laden von: " + dateiUrl);
+                ret = msFilmlisteLesen.filmlisteLesenJson(dateiUrl, dateiZiel, listeFilme);
+            }
+        } catch (Exception ex) {
+            MSLog.fehlerMeldung(965412378, MSLog.FEHLER_ART_PROG, "ImportListe.urlLaden: ", ex);
+        }
+        return ret;
+    }
+
+    private boolean urlDiffLaden(String dateiUrl, String dateiZiel, ListeFilme listeFilme) {
         boolean ret = false;
         try {
             if (!dateiUrl.equals("")) {

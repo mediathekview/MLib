@@ -483,18 +483,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // Alter der Filmliste in Sekunden
         int ret = 0;
         Date jetzt = new Date(System.currentTimeMillis());
-        String date;
-        if (!metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
-            date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
-            sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
-        } else {
-            date = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
-        }
-        Date filmDate = null;
-        try {
-            filmDate = sdf.parse(date);
-        } catch (ParseException ex) {
-        }
+        Date filmDate = alterFilmlisteDate();
         if (filmDate != null) {
             ret = Math.round((jetzt.getTime() - filmDate.getTime()) / (1000));
             if (ret < 0) {
@@ -504,11 +493,45 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
+    public synchronized Date alterFilmlisteDate() {
+        // liefert das Datum der Filmliste
+        String date;
+        if (!metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
+            date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
+            sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+        } else {
+            date = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
+        }
+        Date filmDate;
+        try {
+            filmDate = sdf.parse(date);
+        } catch (ParseException ex) {
+            filmDate = null;
+        }
+        return filmDate;
+    }
+
     public synchronized boolean filmlisteZuAlt() {
         if (this.size() == 0) {
             return true;
         }
         return filmlisteIstAelter(MSConst.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE);
+    }
+
+    public synchronized boolean filmlisteDiffZuAlt() {
+        if (this.size() == 0) {
+            return true;
+        }
+        try {
+            String d = new SimpleDateFormat("yyyy.MM.dd__").format(new Date()) + MSConst.ALTER_MAX_FILMLISTE_FUER_DIFF + ":00:00";
+            Date maxDiff = new SimpleDateFormat("yyyy.MM.dd__HH:mm:ss").parse(d);
+            Date filmliste = alterFilmlisteDate();
+            if (filmliste != null) {
+                return filmliste.getTime() < maxDiff.getTime();
+            }
+        } catch (Exception ex) {
+        }
+        return true;
     }
 
     public synchronized boolean filmlisteIstAelter(int sekunden) {
