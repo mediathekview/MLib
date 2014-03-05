@@ -238,6 +238,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 ret.add(film);
             }
         }
+        ret.metaDaten = metaDaten;
         return ret;
     }
 
