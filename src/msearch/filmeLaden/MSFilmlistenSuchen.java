@@ -38,8 +38,8 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import msearch.daten.MSConfig;
 import msearch.tool.DatumZeit;
-import msearch.tool.MSGuiFunktionen;
 import msearch.tool.MSConst;
+import msearch.tool.MSGuiFunktionen;
 import msearch.tool.MSLog;
 
 public class MSFilmlistenSuchen {
@@ -67,6 +67,7 @@ public class MSFilmlistenSuchen {
     public ListeFilmlistenServer listeFilmlistenServer = new ListeFilmlistenServer();
     // Liste mit den URLs zum Download der Filmliste
     public ListeDownloadUrlsFilmlisten listeDownloadUrlsFilmlisten = new ListeDownloadUrlsFilmlisten();
+    public ListeDownloadUrlsFilmlisten listeDownloadUrlsFilmlisten_diff = new ListeDownloadUrlsFilmlisten();
 
     public String suchen(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Filmliste suchen
@@ -127,10 +128,10 @@ public class MSFilmlistenSuchen {
                 "Es konnten keine Updateserver (DIFF) zum aktualisieren der Filme",
                 "gefunden werden."});
         } else {
-            listeDownloadUrlsFilmlisten = tmp;
+            listeDownloadUrlsFilmlisten_diff = tmp;
         }
-        listeDownloadUrlsFilmlisten.sort();
-        retUrl = listeDownloadUrlsFilmlisten.getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
+        listeDownloadUrlsFilmlisten_diff.sort();
+        retUrl = listeDownloadUrlsFilmlisten_diff.getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
         if (bereitsVersucht != null) {
             bereitsVersucht.add(retUrl);
         }

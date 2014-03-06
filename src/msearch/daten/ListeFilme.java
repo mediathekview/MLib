@@ -97,43 +97,74 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
         // "ersetzen": true: dann werden gleiche (index/URL) in der Liste durch neue ersetzt
-        DatenFilm film;
         HashSet<String> hash = new HashSet<>();
-        Iterator<DatenFilm> it = this.iterator();
-        while (it.hasNext()) {
-            DatenFilm f = it.next();
-            if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDER)) {
-                // beim KIKA ändern sich die URLs laufend
-                hash.add(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR]);
-            } else if (index) {
-                hash.add(f.getIndex());
-            } else {
-                hash.add(DatenFilm.getUrl(f));
+        Iterator<DatenFilm> it;
+        if (ersetzen) {
+            // ==========================================
+            it = listeEinsortieren.iterator();
+            while (it.hasNext()) {
+                DatenFilm f = it.next();
+                if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDER)) {
+                    // beim KIKA ändern sich die URLs laufend
+                    hash.add(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR]);
+                } else if (index) {
+                    hash.add(f.getIndex());
+                } else {
+                    hash.add(DatenFilm.getUrl(f));
+                }
             }
-        }
-        it = listeEinsortieren.iterator();
-        while (it.hasNext()) {
-            film = it.next();
-            if (film.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDER)) {
-                if (!hash.contains(film.arr[DatenFilm.FILM_THEMA_NR] + film.arr[DatenFilm.FILM_TITEL_NR])) {
-                    addInit(film);
-                } else if (ersetzen) {
-                    it.remove();
-                    addInit(film);
+            it = this.iterator();
+            while (it.hasNext()) {
+                DatenFilm f = it.next();
+                if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDER)) {
+                    // beim KIKA ändern sich die URLs laufend
+                    if (hash.contains(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR])) {
+                        it.remove();
+                    }
+                } else if (index) {
+                    if (hash.contains(f.getIndex())) {
+                        it.remove();
+                    }
+                } else {
+                    if (hash.contains(DatenFilm.getUrl(f))) {
+                        it.remove();
+                    }
                 }
-            } else if (index) {
-                if (!hash.contains(film.getIndex())) {
-                    addInit(film);
-                } else if (ersetzen) {
-                    it.remove();
-                    addInit(film);
+            }
+            it = listeEinsortieren.iterator();
+            while (it.hasNext()) {
+                DatenFilm f = it.next();
+                this.addInit(f);
+            }
+        } else {
+            // ==============================================
+            it = this.iterator();
+            while (it.hasNext()) {
+                DatenFilm f = it.next();
+                if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDER)) {
+                    // beim KIKA ändern sich die URLs laufend
+                    hash.add(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR]);
+                } else if (index) {
+                    hash.add(f.getIndex());
+                } else {
+                    hash.add(DatenFilm.getUrl(f));
                 }
-            } else {
-                if (!hash.contains(DatenFilm.getUrl(film))) {
-                    addInit(film);
-                } else if (ersetzen) {
-                    it.remove();
-                    addInit(film);
+            }
+            it = listeEinsortieren.iterator();
+            while (it.hasNext()) {
+                DatenFilm f = it.next();
+                if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDER)) {
+                    if (!hash.contains(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR])) {
+                        addInit(f);
+                    }
+                } else if (index) {
+                    if (!hash.contains(f.getIndex())) {
+                        addInit(f);
+                    }
+                } else {
+                    if (!hash.contains(DatenFilm.getUrl(f))) {
+                        addInit(f);
+                    }
                 }
             }
         }
@@ -519,12 +550,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return filmlisteIstAelter(MSConst.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE);
     }
 
-    public synchronized boolean filmlisteDiffZuAlt() {
+    public synchronized boolean toOldForDiff() {
         if (this.size() == 0) {
             return true;
         }
         try {
-            String d = new SimpleDateFormat("yyyy.MM.dd__").format(new Date()) + MSConst.ALTER_MAX_FILMLISTE_FUER_DIFF + ":00:00";
+            String d = new SimpleDateFormat("yyyy.MM.dd__").format(new Date()) + MSConst.TIME_MAX_AGE_FOR_DIFF + ":00:00";
             Date maxDiff = new SimpleDateFormat("yyyy.MM.dd__HH:mm:ss").parse(d);
             Date filmliste = alterFilmlisteDate();
             if (filmliste != null) {
