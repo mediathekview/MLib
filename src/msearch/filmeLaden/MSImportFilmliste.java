@@ -142,7 +142,7 @@ public class MSImportFilmliste {
             if (!updateUrl.equals("")) {
                 for (int i = 0; i < 5; ++i) {
                     //5 mal mit einem anderen Server probieren
-                    if (urlLaden(updateUrl, ziel, liste)) { //////ziel
+                    if (urlLaden(updateUrl, diff ? "" : ziel, liste)) { // dann muss die komplette Liste erst später geschrieben werden
                         // hat geklappt, nix wie weiter
                         ret = true; // keine Fehlermeldung
                         if (i < 3 && liste.filmlisteIstAelter(5 * 60 * 60 /*sekunden*/)) {
@@ -157,7 +157,7 @@ public class MSImportFilmliste {
                             break;
                         }
                     }
-                    updateUrl = msFilmlistenSuchen.listeDownloadUrlsFilmlisten.getRand(versuchteUrls, i); //nächste Adresse in der Liste wählen
+                    updateUrl = msFilmlistenSuchen.listeDownloadUrlsFilmlisten_diff.getRand(versuchteUrls, i); //nächste Adresse in der Liste wählen
                     versuchteUrls.add(updateUrl);
                 }
             }
