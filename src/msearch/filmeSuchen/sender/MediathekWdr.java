@@ -21,12 +21,12 @@
  */
 package msearch.filmeSuchen.sender;
 
-import msearch.filmeSuchen.MSFilmeSuchen;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import msearch.io.MSGetUrl;
-import msearch.daten.MSConfig;
 import msearch.daten.DatenFilm;
+import msearch.daten.MSConfig;
+import msearch.filmeSuchen.MSFilmeSuchen;
+import msearch.io.MSGetUrl;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
@@ -54,7 +54,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         //Theman suchen
         listeThemen.clear();
         meldungStart();
-        addToList__("http://www1.wdr.de/mediathek/video/sendungen/abisz-a102.html");
+        addToList__("http://www1.wdr.de/mediathek/video/sendungen/index.html");
         if (MSConfig.senderAllesLaden) {
             //TH Rockpalast hinzu
             String[] add = new String[]{ROCKPALAST_URL, "Rockpalast"};
@@ -188,7 +188,6 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             int pos1;
             int pos2;
             int ende;
-            strSeite1 = getUrl.getUri_Utf(nameSenderMReader, strUrl, strSeite1, "");
             meldung(strUrl);
             // Sendungen auf der Seite
             sendungsSeitenSuchen2(strUrl);
@@ -196,6 +195,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 // dann wars das
                 return;
             }
+            strSeite1 = getUrl.getUri_Utf(nameSenderMReader, strUrl, strSeite1, "");
             // weitere Seiten suchen
             if ((pos1 = strSeite1.indexOf("<ul class=\"pageCounterNavi\">")) == -1) {
                 return;
@@ -361,7 +361,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         private void addFilm1(String thema, String titel, String filmWebsite, long dauer, String datum) {
             // http://www1.wdr.de/mediathek/video/sendungen/die_story/videopharmasklaven100-videoplayer_size-L.html
 
-            final String MUSTER_URL_START = "<span class=\"videoLink\">";
+            final String MUSTER_URL_START = "<span class=\"videoLink\"";
             final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
             final String MUSTER_DESCRIPTION = "<meta name=\"Description\" content=\"";
             final String MUSTER_IMAGE_START = "<div class=\"linkCont\">";
