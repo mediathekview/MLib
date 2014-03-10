@@ -167,10 +167,11 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                     pos += MUSTER_THEMA_1.length();
                     pos1 = pos;
                     int pos5 = 0;
+                    String d = "";
                     if ((pos5 = seite.indexOf(MUSTER_DURATION, pos)) != -1) {
                         pos5 += MUSTER_DURATION.length();
                         if ((pos2 = seite.indexOf("</", pos5)) != -1) {
-                            String d = seite.substring(pos5, pos2);
+                            d = seite.substring(pos5, pos2);
                             if (!d.isEmpty()) {
                                 try {
                                     if (d.contains(".")) {
@@ -196,7 +197,9 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                         }
                     }
                     if (duration == 0) {
-                        MSLog.fehlerMeldung(-915159637, MSLog.FEHLER_ART_MREADER, "MediathekSfPod.addFilme", "keine Dauer");
+                        if (!d.equals("0")) {
+                            MSLog.fehlerMeldung(-915159637, MSLog.FEHLER_ART_MREADER, "MediathekSfPod.addFilme", "keine Dauer");
+                        }
                     }
                     if ((pos5 = seite.indexOf(MUSTER_DESCRIPTION, pos)) != -1) {
                         pos5 += MUSTER_DESCRIPTION.length();
