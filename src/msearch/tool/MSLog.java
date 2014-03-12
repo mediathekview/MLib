@@ -39,7 +39,6 @@ public class MSLog {
     public static boolean playerMeldungenAus = false;
     public static final int LOG_FEHLER = 16;
     public static final int LOG_SYSTEM = 17;
-//    public static final int LOG_PLAYER = 18;
     public static final int FEHLER_ART_PROG = 0;
     public static final String FEHLER_ART_PROG_TEXT = "   Prog: ";
     public static final int FEHLER_ART_GETURL = 1;
@@ -52,7 +51,6 @@ public class MSLog {
     private static final int MAX_LAENGE_1 = 50000;
     private static final int MAX_LAENGE_2 = 30000;
     private static int zeilenNrSystem = 0;
-//    private static int zeilenNrProgramm = 0;
     private static int zeilenNrFehler = 0;
     private static LinkedList<Integer[]> fehlerListe = new LinkedList<>(); // [Art, Fehlernummer, Anzahl, Exception(0,1 für ja, nein)]
     private static boolean progress = false;
@@ -167,15 +165,16 @@ public class MSLog {
         texte += "\r";
         progressText = texte;
         System.out.print(texte);
+        progress = false;
     }
 
-    public static synchronized void progressEnde() {
-        progress = false;
-        progressText = "";
-        System.out.print("                                                                                           \r");
-        System.out.println();
-        System.out.println();
-    }
+//    public static synchronized void progressEnde() {
+//        progress = false;
+//        progressText = "";
+//        System.out.print("                                                                                           \r");
+//        System.out.println();
+//        System.out.println();
+//    }
 
     public static void printEndeMeldung() {
         systemMeldung("");

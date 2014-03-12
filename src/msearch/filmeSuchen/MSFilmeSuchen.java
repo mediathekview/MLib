@@ -196,6 +196,7 @@ public class MSFilmeSuchen {
     public void meldenFertig(String sender) {
         //wird ausgeführt wenn Sender beendet ist
         String zeile = "";
+        MSLog.systemMeldung("");
         MSLog.systemMeldung("-------------------------------------------------------------------------------------");
         MSLog.systemMeldung("Fertig " + sender + ": " + DatumZeit.getJetzt_HH_MM_SS() + " Uhr, Filme: " + listeFilmeNeu.countSender(sender));
         int sekunden = getDauerSekunden();
@@ -233,7 +234,7 @@ public class MSFilmeSuchen {
             notifyProgress(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), false));
         } else {
             // wird einmal aufgerufen, wenn alle Sender fertig sind
-            MSLog.progressEnde();
+//            MSLog.progressEnde();
             endeMeldung();
             notifyFertig(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), false));
         }
@@ -275,7 +276,7 @@ public class MSFilmeSuchen {
     private void endeMeldung() {
         // wird einmal aufgerufen, wenn alle Sender fertig sind
         String zeile = "";
-        MSLog.progressEnde();
+//        MSLog.progressEnde();
         if (MSConfig.getStop()) {
             // Abbruch melden
             MSLog.systemMeldung("                                                                                     ");
