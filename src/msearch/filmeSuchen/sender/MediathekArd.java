@@ -599,4 +599,16 @@ public class MediathekArd extends MediathekReader implements Runnable {
             return url;
         }
     }
+
+    @Override
+    void addFilm(DatenFilm film) {
+        if (film.arr[DatenFilm.FILM_URL_NR].endsWith("?null=")) {
+            film.arr[DatenFilm.FILM_URL_NR] = film.arr[DatenFilm.FILM_URL_NR].substring(0, film.arr[DatenFilm.FILM_URL_NR].indexOf("?null="));
+        }
+        if (film.arr[DatenFilm.FILM_URL_KLEIN_NR].endsWith("?null=")) {
+            film.arr[DatenFilm.FILM_URL_KLEIN_NR] = film.arr[DatenFilm.FILM_URL_KLEIN_NR].substring(0, film.arr[DatenFilm.FILM_URL_KLEIN_NR].indexOf("?null="));
+        }
+        super.addFilm(film);
+    }
+
 }
