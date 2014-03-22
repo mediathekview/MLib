@@ -283,6 +283,9 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                     // public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
                     //        String datum, String zeit,
                     //        long dauerSekunden, String description, String imageUrl, String[] keywords) {
+                    if (urlFilm.endsWith("1456k_p13v11.mp4")) {
+                        urlFilm = urlFilm.substring(0, urlFilm.lastIndexOf("1456k_p13v11.mp4")) + "2256k_p14v11.mp4";
+                    }
                     DatenFilm film = new DatenFilm(nameSenderMReader, thema, website, titel, urlFilm, "" /*urlRtmp*/,
                             datum, zeit,
                             dauerL, text, bild, new String[]{""});

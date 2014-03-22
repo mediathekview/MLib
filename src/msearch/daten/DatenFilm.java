@@ -24,11 +24,11 @@ import java.util.Date;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekBr;
 import msearch.filmeSuchen.sender.MediathekMdr;
-import msearch.filmeSuchen.sender.MediathekNdr;
 import msearch.filmeSuchen.sender.MediathekOrf;
 import msearch.filmeSuchen.sender.MediathekSrfPod;
 import msearch.filmeSuchen.sender.MediathekSwr;
 import msearch.filmeSuchen.sender.MediathekZdf;
+import msearch.filmeSuchen.sender.MediathekZdfTivi;
 import msearch.tool.Datum;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSConst;
@@ -271,6 +271,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 }
                 break;
             case MediathekZdf.SENDER:
+            case MediathekZdfTivi.SENDER:
                 if (arr[DatenFilm.FILM_URL_NR].startsWith("http://nrodl.zdf.de/de/")
                         || arr[DatenFilm.FILM_URL_NR].startsWith("http://rodl.zdf.de/de/")) {
                     arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
