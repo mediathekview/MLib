@@ -54,12 +54,12 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         //Theman suchen
         listeThemen.clear();
         meldungStart();
-        addToList__("http://www1.wdr.de/mediathek/video/sendungen/index.html");
-        if (MSConfig.senderAllesLaden) {
+////        addToList__("http://www1.wdr.de/mediathek/video/sendungen/index.html");
+////        if (MSConfig.senderAllesLaden) {
             //TH Rockpalast hinzu
             String[] add = new String[]{ROCKPALAST_URL, "Rockpalast"};
             listeThemen.addUrl(add);
-        }
+////        }
         // Sendung verpasst, da sind einige die nicht in einer "Sendung" enthalten sind
         // URLs nach dem Muster bauen:
         // http://www1.wdr.de/mediathek/video/sendungverpasst/sendung-verpasst-alles100_tag-03062013.html
@@ -69,7 +69,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             final String URL = "http://www1.wdr.de/mediathek/video/sendungverpasst/sendung-verpasst-alles100_tag-";
             tag = formatter.format(new Date().getTime() - (1000 * 60 * 60 * 24 * i));
             String urlString = URL + tag + ".html";
-            listeThemen.addUrl(new String[]{urlString, ""});
+////            listeThemen.addUrl(new String[]{urlString, ""});
         }
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
@@ -125,7 +125,6 @@ public class MediathekWdr extends MediathekReader implements Runnable {
 
         // url:
         // http://www1.wdr.de/mediathek/video/sendungen/dittsche/videonichtimpapamobil100.html
-
         final String MUSTER_START = "<ul class=\"linkList pictured\">";
         final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
         int pos1;
@@ -235,7 +234,6 @@ public class MediathekWdr extends MediathekReader implements Runnable {
 
             // url:
             // http://www1.wdr.de/mediathek/video/sendungen/der_vorkoster/videodervorkosterspeisesalzimqualitaetsvergleich100.html
-
             final String MUSTER_START_1 = "<ul class=\"linkList pictured\">";
             final String MUSTER_START_2 = "<div id=\"pageLeadIn\">";
 
@@ -427,7 +425,6 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     }
                 }
             }
-
 
             if (description.equals("") || image.equals("") || keywords.equals("")) {
 //                Log.fehlerMeldung(-649830789, Log.FEHLER_ART_MREADER, "MediathekWdr.addFilm1", new String[]{filmWebsite});
@@ -641,18 +638,8 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 }
             }
             // Datum suchen
-            if ((pos = strSeite2.indexOf(MUSTER_DATUM)) != -1) {
-                pos += MUSTER_DATUM.length();
-                pos1 = pos;
-                if ((pos2 = strSeite2.indexOf("<", pos)) != -1) {
-                    if (pos1 < pos2) {
-                        datum = strSeite2.substring(pos1, pos2).trim();
-                        if (datum.length() > 10) {
-                            datum = datum.substring(datum.length() - 10);
-                        }
-                    }
-                }
-            }
+            // <li><a href="/tv/rockpalast/sendungsbeitraege/2014/0317/index.jsp">Rockpalast am 17.03.2014, 00:15 Uhr</a></li>
+            datum = strSeite2.extract(">Rockpalast am ", ",");
             // Thema suchen
             if (thema.equals("")) {
                 if ((pos = strSeite2.indexOf(MUSTER_THEMA)) != -1) {
