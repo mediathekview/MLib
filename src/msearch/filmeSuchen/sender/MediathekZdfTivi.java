@@ -203,7 +203,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
             int pos = 0;
             String url;
             try {
-                while ((pos = seite2.indexOf(MUSTER_START, pos)) != -1) {
+                while (!MSConfig.getStop() && (pos = seite2.indexOf(MUSTER_START, pos)) != -1) {
                     pos += MUSTER_START.length();
                     url = seite2.extract("<ns3:page>", "<", pos);
                     url = URLDecoder.decode(url, "UTF-8");
@@ -283,12 +283,11 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                     // public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
                     //        String datum, String zeit,
                     //        long dauerSekunden, String description, String imageUrl, String[] keywords) {
-                    if (urlFilm.endsWith("1456k_p13v11.mp4")) {
-                        urlFilm = urlFilm.substring(0, urlFilm.lastIndexOf("1456k_p13v11.mp4")) + "2256k_p14v11.mp4";
-                    }
                     DatenFilm film = new DatenFilm(nameSenderMReader, thema, website, titel, urlFilm, "" /*urlRtmp*/,
                             datum, zeit,
                             dauerL, text, bild, new String[]{""});
+                    // jetzt noch manuell die Auflösung hochsetzen
+                    MediathekZdf.urlTauschen(film, url, mSearchFilmeSuchen);
                     addFilm(film);
                 }
             } catch (Exception ex) {
@@ -297,4 +296,5 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
         }
 
     }
+
 }

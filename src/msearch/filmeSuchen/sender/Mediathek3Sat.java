@@ -21,11 +21,10 @@ package msearch.filmeSuchen.sender;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import msearch.daten.DatenFilm;
+import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.io.MSGetUrl;
-import msearch.daten.MSConfig;
-import msearch.daten.DatenFilm;
-import static msearch.filmeSuchen.sender.MediathekZdf.filmHolenId;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
@@ -148,7 +147,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                 }
                 int pos1 = 0;
                 boolean ok;
-                String titel, id, urlFilm;
+                String titel, urlId, urlFilm;
                 while ((pos1 = seite1.indexOf(MUSTER_START, pos1)) != -1) {
                     pos1 += MUSTER_START.length();
                     ok = false;
@@ -156,19 +155,21 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                     titel = seite1.extract("<a class=\"MediathekLink\"  title='Video abspielen:", "'", pos1).trim();
                     // ID
                     // http://www.3sat.de/mediathek/?mode=play&obj=40860
-                    id = seite1.extract("href=\"?mode=play&amp;obj=", "\"", pos1);
-                    if (id.isEmpty()) {
+                    urlId = seite1.extract("href=\"?mode=play&amp;obj=", "\"", pos1);
+                    if (urlId.isEmpty()) {
                         //href="?obj=24138"
-                        id = seite1.extract("href=\"?obj=", "\"", pos1);
+                        urlId = seite1.extract("href=\"?obj=", "\"", pos1);
                     }
-                    urlFilm = "http://www.3sat.de/mediathek/?mode=play&obj=" + id;
-                    if (!id.isEmpty()) {
+                    urlFilm = "http://www.3sat.de/mediathek/?mode=play&obj=" + urlId;
+                    if (!urlId.isEmpty()) {
                         //http://www.3sat.de/mediathek/xmlservice/web/beitragsDetails?ak=web&id=40860
-                        id = "http://www.3sat.de/mediathek/xmlservice/web/beitragsDetails?ak=web&id=" + id;
+                        urlId = "http://www.3sat.de/mediathek/xmlservice/web/beitragsDetails?ak=web&id=" + urlId;
                         //meldung(id);
-                        DatenFilm film = filmHolenId(getUrl, seite2, nameSenderMReader, thema, titel, urlFilm, id);
+                        DatenFilm film = MediathekZdf.filmHolenId(getUrl, seite2, nameSenderMReader, thema, titel, urlFilm, urlId);
                         if (film != null) {
                             // dann wars gut
+                            // jetzt noch manuell die Auflösung hochsetzen
+                            MediathekZdf.urlTauschen(film, url, mSearchFilmeSuchen);
                             addFilm(film);
                             ok = true;
                         }
