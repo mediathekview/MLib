@@ -54,12 +54,12 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         //Theman suchen
         listeThemen.clear();
         meldungStart();
-////        addToList__("http://www1.wdr.de/mediathek/video/sendungen/index.html");
-////        if (MSConfig.senderAllesLaden) {
+        addToList__("http://www1.wdr.de/mediathek/video/sendungen/index.html");
+        if (MSConfig.senderAllesLaden) {
             //TH Rockpalast hinzu
             String[] add = new String[]{ROCKPALAST_URL, "Rockpalast"};
             listeThemen.addUrl(add);
-////        }
+        }
         // Sendung verpasst, da sind einige die nicht in einer "Sendung" enthalten sind
         // URLs nach dem Muster bauen:
         // http://www1.wdr.de/mediathek/video/sendungverpasst/sendung-verpasst-alles100_tag-03062013.html
@@ -69,7 +69,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             final String URL = "http://www1.wdr.de/mediathek/video/sendungverpasst/sendung-verpasst-alles100_tag-";
             tag = formatter.format(new Date().getTime() - (1000 * 60 * 60 * 24 * i));
             String urlString = URL + tag + ".html";
-////            listeThemen.addUrl(new String[]{urlString, ""});
+            listeThemen.addUrl(new String[]{urlString, ""});
         }
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
