@@ -56,7 +56,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public static final int FILMLISTE_PRGRAMM_NR = 3;
     public static final int MAX_ELEM = 4;
     public static final String[] COLUMN_NAMES = {FILMLISTE_DATUM, FILMLISTE_DATUM_GMT, FILMLISTE_VERSION, FILMLISTE_PROGRAMM};
-    public static int countDupletten = 0;
+//    public static int countDupletten = 0;
     public int nr = 1;
     public boolean listeClean = false;
     public String[] metaDaten = new String[]{"", "", "", ""};
@@ -88,8 +88,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         while (it.hasNext()) {
             f = it.next();
             if (f.getIndex().equals(idx)) {
-                ++countDupletten;
-                MSLog.debugMeldung("Dupletten: " + countDupletten + "                                                                 ");
+//                ++countDupletten;
+//                MSLog.debugMeldung("Dupletten: " + countDupletten + "                                                                 ");
                 return false;
             }
         }
