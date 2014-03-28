@@ -163,6 +163,7 @@ public class MSLog {
     public static synchronized void progress(String texte) {
         progress = true;
         texte += "\r";
+//        texte += "\n"; // für netbeans
         progressText = texte;
         System.out.print(texte);
         progress = false;

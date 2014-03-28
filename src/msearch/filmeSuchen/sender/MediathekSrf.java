@@ -19,9 +19,19 @@
  */
 package msearch.filmeSuchen.sender;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import msearch.daten.DatenFilm;
 import msearch.daten.MSConfig;
@@ -33,38 +43,58 @@ import msearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekSrf extends MediathekReader implements Runnable {
-/**
- *  Class for local Exceptions
- */
-static class SRFException extends Exception {
-  public SRFException() { super(); }
-  public SRFException(String message) { super(message); }
-  public SRFException(String message, Throwable cause) { super(message, cause); }
-  public SRFException(Throwable cause) { super(cause); }
-}
- 
+
+    private final int todayYear = Calendar.getInstance().get(Calendar.YEAR);
+    private final int todayMonth = Calendar.getInstance().get(Calendar.MONTH) + 1;
+    private final int URL_ENTRY = 0;
+    private final int THEME_ENTRY = 1;
+
+    /**
+     * Class for local Exceptions
+     */
+    static class SRFException extends Exception {
+
+        public SRFException() {
+            super();
+        }
+
+        public SRFException(String message) {
+            super(message);
+        }
+
+        public SRFException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public SRFException(Throwable cause) {
+            super(cause);
+        }
+    }
+
     public static final String SENDER = "SRF";
     private final int MAX_FILME_THEMA = 5;
 
     public MediathekSrf(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 3, /* urlWarten */ 1000, startPrio);
+        super(ssearch, /* name */ SENDER, /* threads */ 5, /* urlWarten */ 1000, startPrio);
     }
 
     /**
-     * Pings a HTTP URL. This effectively sends a GET request (HEAD is blocked) and returns
-     * <code>true</code> if the response code is in
-     * the 200-399 range.
-     * Response Codes >=400 are logged for debug purposes (except 404)
-     * If the response code is 403, it will be pinged again with a differen base-uri
+     * Pings a HTTP URL. This effectively sends a GET request (HEAD is blocked)
+     * and returns <code>true</code> if the response code is in the 200-399
+     * range. Response Codes >=400 are logged for debug purposes (except 404) If
+     * the response code is 403, it will be pinged again with a differen
+     * base-uri
+     *
      * @param url The HTTP URL to be pinged
-     * @return <code>true</code> if the given HTTP URL has returned response code 200-399 on a GET request within the
-     * given timeout, otherwise <code>false</code>.
+     * @return <code>true</code> if the given HTTP URL has returned response
+     * code 200-399 on a GET request within the given timeout, otherwise
+     * <code>false</code>.
      */
     private static final String OLD_URL = "https://srfvodhd-vh.akamaihd.net";
     private static final String NEW_URL = "http://hdvodsrforigin-f.akamaihd.net";
-        
+
     public static boolean ping(String url) throws SRFException {
- 
+
         url = url.replaceFirst("https", "http"); // Otherwise an exception may be thrown on invalid SSL certificates.
 
         try {
@@ -73,18 +103,15 @@ static class SRFException extends Exception {
             connection.setReadTimeout(0);
             int responseCode = connection.getResponseCode();
             if (responseCode > 399 && responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
-                
-                if(responseCode == HttpURLConnection.HTTP_FORBIDDEN)
-                {   
-                    throw new SRFException("TEST");        
+
+                if (responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
+                    throw new SRFException("TEST");
                 }
-                System.out.println(responseCode + " + responseCode " + "Url " + url);
                 MSLog.debugMeldung("SRF: " + responseCode + " + responseCode " + "Url " + url);
                 return false;
             }
             return (200 <= responseCode && responseCode <= 399);
-        
- 
+
         } catch (IOException exception) {
             return false;
         }
@@ -92,43 +119,36 @@ static class SRFException extends Exception {
 
     @Override
     public void addToList() {
-        //Liste von http://www.videoportal.sf.tv/sendungen holen
+        //Liste von http://www.srf.ch/player/tv/sendungen?displayedKey=Alle holen
         //<a class="sendung_name" href="/player/tv/sendung/1-gegen-100?id=6fd27ab0-d10f-450f-aaa9-836f1cac97bd">1 gegen 100</a>
-        final String MUSTER = "sendung_name\" href=\"/player/tv";
-        final String MUSTER_ID = "?id=";
+        final String MUSTER = "sendung_name\" href=\"";
+        final String PATTERN_END = "\"";
+        final String THEME_PATTERN_START = ">";
+        final String THEME_PATTERN_END = "<";
+        final String URL_PREFIX = "http://srf.ch";
         MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         listeThemen.clear();
         meldungStart();
-        seite = getUrlIo.getUri_Utf(nameSenderMReader, "http://www.srf.ch/player/sendungen", seite, "");
+        seite = getUrlIo.getUri_Utf(nameSenderMReader, "http://www.srf.ch/player/tv/sendungen?displayedKey=Alle", seite, "");
         int pos = 0;
         int pos1;
-        int pos2;
         String url;
-        String thema = "";
+        String thema;
+
+//        System.out.println("Alles Laden " + MSConfig.senderAllesLaden);
         while ((pos = seite.indexOf(MUSTER, pos)) != -1) {
-            pos += MUSTER.length();
             pos1 = pos;
-            pos2 = seite.indexOf("\"", pos);
-            if (pos1 != -1 && pos2 != -1) {
-                url = seite.substring(pos1, pos2);
-                if (url.contains(MUSTER_ID)) {
-                    url = url.substring(url.indexOf(MUSTER_ID) + MUSTER_ID.length());
-                } else {
-                    url = "";
-                }
-                if (!url.equals("")) {
-                    pos1 = seite.indexOf(">", pos);
-                    pos2 = seite.indexOf("</a>", pos);
-                    if (pos1 != -1 && pos2 != -1) {
-                        thema = seite.substring(pos1 + 1, pos2);
-                    }
-                    String[] add = new String[]{"http://www.srf.ch/player/tv/rss/sendung?id=" + url, thema};
-                    listeThemen.addUrl(add);
-                } else {
-                    MSLog.fehlerMeldung(-198620778, MSLog.FEHLER_ART_MREADER, "MediathekSf.addToList", "keine URL");
-                }
-            }
+            pos += MUSTER.length();
+
+            url = URL_PREFIX + seite.extract(MUSTER, PATTERN_END, pos1);
+            thema = seite.extract(THEME_PATTERN_START, THEME_PATTERN_END, pos1);
+            listeThemen.addUrl(new String[]{url, thema});
+//            System.out.println("URL " + url);
+//            System.out.println("THEMA " + thema);
+//            System.out.println(pos);
+
         }
+
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
@@ -136,7 +156,6 @@ static class SRFException extends Exception {
         } else {
             meldungAddMax(listeThemen.size());
             for (int t = 0; t < maxThreadLaufen; ++t) {
-                //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
                 th.setName(nameSenderMReader + t);
                 th.start();
@@ -147,20 +166,23 @@ static class SRFException extends Exception {
     private class ThemaLaden implements Runnable {
 
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+
         private MSStringBuilder film_website = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private final String PATTERN_URL = "\"url\":\"";
         private final String PATTERN_URL_END = "\"";
+
+        private MSStringBuilder periodPageFilm = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private final JsonFactory jf = new JsonFactory();
 
         @Override
         public void run() {
             try {
                 meldungAddThread();
                 String link[];
+
                 while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
-                    meldungProgress(link[0] /* url */);
-                    addFilme(link[1], link[0] /* url */);
+                    meldungProgress(link[URL_ENTRY] /* url */);
+                    addFilme(link[THEME_ENTRY], link[URL_ENTRY] /* url */);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-832002877, MSLog.FEHLER_ART_MREADER, "MediathekSf.SfThemaLaden.run", ex);
@@ -168,107 +190,177 @@ static class SRFException extends Exception {
             meldungThreadUndFertig();
         }
 
-        private void addFilme(String thema, String strUrlFeed) {
+        private void addFilme(String thema, final String strUrlFeed) {
 
-
-
-            // href="/player/tv/die-groessten-schweizer-talente/video/andrea-sutter-der-weg-ins-finale?id=06411758-1bd6-42ea-bc0e-cb8ebde3dfaa"
-            // <title>Die grössten Schweizer Talente vom 17.03.2012, 20:11</title>
-            // href="/player/tv/die-groessten-schweizer-talente/video/andrea-sutter-der-weg-ins-finale?id=06411758-1bd6-42ea-bc0e-cb8ebde3dfaa"&gt;Andrea Sutter - der Weg ins Finale&lt;/a&gt;&lt;/li&gt;
-            // oder <link>http://www.srf.ch/player/tv/dok-panamericana/video/panamericana-vom-machu-piccu-in-peru-nach-bolivien-67?id=09f2cb4d-c5be-4809-9c9c-2d4cc703ad00</link>
-            final String MUSTER_TITEL = "&gt;"; //bis zum &
-            final String MUSTER_URL = "href=\"/player/tv"; //bis zum ;
-            final String MUSTER_URL_NEU = "<link>/player/tv"; //bis zum <
-            final String MUSTER_ID = "?id=";
-            final String MUSTER_ITEM_1 = "<item>";
-            final String MUSTER_ITEM_2 = "</item>";
-            final String MUSTER_DATUM = "<title>";
-            final String BASE_URL_JSON = "http://srf.ch/webservice/cvis/segment/";
+            final String PATTERN_JSON_ARRAY_START = "var calendarGroupYearMonth = $.parseJSON('";
+            final String PATTERN_JSON_ARRAY_END = "')";
+            MSStringBuilder overviewPageFilm = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
             meldung(strUrlFeed);
-            seite1 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, seite1, "");
-//            String s = seite.toString();
-//            s = s.replace("&lt;", "<");
-//            s = s.replace("&gt;", ">");
-//            seite.setLength(0);
-//            seite.append(s);
             try {
-                int counter = 0;
-                int posItem1 = 0;
-                int posItem2 = 0;
-                int pos = 0;
-                int pos1;
-                int pos2;
-                String url;
-                String urlWebsite;
-                String datum = "";
-                String zeit = "";
-                String titel;
-                String tmp;
-                while (!MSConfig.getStop() && (MSConfig.senderAllesLaden || counter < MAX_FILME_THEMA) && (posItem1 = seite1.indexOf(MUSTER_ITEM_1, posItem1)) != -1) {
-                    posItem1 += MUSTER_ITEM_1.length();
-//                    posItem2 = seite1.indexOf(MUSTER_ITEM_2, posItem1);
-                    ++counter;
-                    titel = "";
-                    if ((pos1 = seite1.indexOf(MUSTER_DATUM, posItem1)) != -1) {
-                        pos1 += MUSTER_DATUM.length();
-                        if ((pos2 = seite1.indexOf("<", pos1)) != -1) {
-                            tmp = seite1.substring(pos1, pos2);
-                            if (tmp.contains("vom")) {
-                                titel = tmp.substring(0, tmp.indexOf("vom")).trim();
-                                tmp = tmp.substring(tmp.indexOf("vom") + 3);
-                                if (tmp.contains(",")) {
-                                    datum = tmp.substring(0, tmp.indexOf(",")).trim();
-                                    zeit = tmp.substring(tmp.indexOf(",") + 1).trim() + ":00";
-                                    titel = titel + " vom: " + datum;
-                                }
-                            }
+                overviewPageFilm = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, overviewPageFilm, "");
+                addFilmsFromPage(overviewPageFilm, strUrlFeed);
+                if (MSConfig.senderAllesLaden) {
+                    int pos = 0;
+                    while (!MSConfig.getStop()
+                            && ((pos = overviewPageFilm.indexOf(PATTERN_JSON_ARRAY_START, pos)) != -1)) {
+
+                        String jsonArray = overviewPageFilm.extract(PATTERN_JSON_ARRAY_START, PATTERN_JSON_ARRAY_END, pos - 1);
+                        pos += jsonArray.length();
+
+                        ArrayList<Date> dateList = parseJsonArray(jsonArray);
+                        Collections.sort(dateList, Collections.reverseOrder());
+
+                        //Beschränkung auf Maximal 5 Seiten Einträge 
+                        if (dateList.size() >= MAX_FILME_THEMA) {
+                            dateList.subList(MAX_FILME_THEMA, dateList.size()).clear();
                         }
-                    }
-                    if ((pos1 = seite1.indexOf(MUSTER_URL_NEU, posItem1)) != -1) {
-                        // neu
-                        pos1 += MUSTER_URL_NEU.length();
-                        if ((pos2 = seite1.indexOf("<", pos1)) != -1) {
-                            url = seite1.substring(pos1, pos2);
-                            if (url.contains(MUSTER_ID)) {
-                                urlWebsite = "http://www.srf.ch/player/tv" + url;
-                                url = url.substring(url.indexOf(MUSTER_ID) + MUSTER_ID.length());
-                                if (!url.equals("")) {
-                                    if (titel.equals("")) {
-                                        titel = thema;
-                                    }
-                                    addFilme2(thema, urlWebsite, BASE_URL_JSON + url + "/.json", titel, datum, zeit);
-                                } else {
-                                    MSLog.fehlerMeldung(-499556023, MSLog.FEHLER_ART_MREADER, "MediathekSf.addFilme", "keine URL: " + strUrlFeed);
-                                }
-                            }
-                        }
-                    } else {
-                        System.out.println("RelativeUrls");
+
+                        addFilmsFromPeriod(strUrlFeed, dateList); //To change body of generated methods, choose Tools | Templates.
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-795638103, MSLog.FEHLER_ART_MREADER, "MediathekSf.addFilme", ex);
+                MSLog.fehlerMeldung(-195926364, MSLog.FEHLER_ART_MREADER, "MediathekSrf.addFilme", ex);
             }
         }
 
-        private void addFilme2(String thema, String urlWebsite, String urlFilm, String titel, String datum, String zeit) {
+        private void addFilmsFromPage(MSStringBuilder page, String themePageUrl) {
+            final String PATTERN_ID_START = "/player/tv/popupvideoplayer?id=";
+            final String PATTERN_ID_END = "\">";
+            final String BASE_URL_JSON = "http://srf.ch/webservice/cvis/segment/";
+            final String END_URL_JSON = "/.json?nohttperr=1";
+            final String THEME_PATTERN_START = "<meta property=\"og:title\" content=\"";
+            final String THEME_PATTERN_END = "\"";
+            int pos = 0;
+            String theme = page.extract(THEME_PATTERN_START, THEME_PATTERN_END);
+
+            while (!MSConfig.getStop() && ((pos = page.indexOf(PATTERN_ID_START, pos)) != -1)) {
+                String id = page.extract(PATTERN_ID_START, PATTERN_ID_END, pos);
+                pos += PATTERN_ID_START.length();
+
+                String jsonMovieUrl = BASE_URL_JSON + id + END_URL_JSON;
+
+                addFilms(jsonMovieUrl, themePageUrl, theme);
+            }
+
+        }
+
+        /**
+         *
+         * @param urlThema
+         * @param dateList
+         */
+        private void addFilmsFromPeriod(String urlThema, ArrayList<Date> dateList) {
+            Calendar c = Calendar.getInstance();
+            String themePageUrl;
+
+            for (Date d : dateList) {
+                if (MSConfig.getStop()) {
+                    break;
+                }
+                c.setTime(d);
+                String year = String.valueOf(c.get(Calendar.YEAR));
+                String month = String.valueOf(c.get(Calendar.MONTH) + 1);
+                String urlPart = getPeriodPartYearMonth(year, month);
+                themePageUrl = urlThema + urlPart;
+                periodPageFilm = getUrl.getUri_Utf(nameSenderMReader, themePageUrl, periodPageFilm, "");
+                addFilmsFromPage(periodPageFilm, themePageUrl);
+
+            }
+
+        }
+
+        private final DateFormat df = new SimpleDateFormat("yyyy-M");
+
+        /**
+         *
+         * @param jsonArray The jsonArray as String to parse
+         * @return Returns the parsed dates (year and month) from the Array
+         * @throws IOException
+         */
+        private ArrayList<Date> parseJsonArray(String jsonArray) throws IOException {
+            // var calendarGroupYearMonth = $.parseJSON('"2013":{"1":1,"2":1,"3":1,"4":1,"5":1,"6":1,"7":1,"8":1,"9":1,"10":1,"11":1,"12":1},"2014":{"1":1,"2":1,"3":1}}');
+            JsonParser parser = jf.createParser(jsonArray);
+            JsonToken currentToken = parser.nextToken();
+            ArrayList<Date> dateList = new ArrayList<>();
+            String month = "";
+            String year = "";
+            final int YEAR_LENGTH = 4;
+
+            while (parser.hasCurrentToken()) {
+                if (currentToken == JsonToken.FIELD_NAME) {  //JSON FieldNames are enclosed in ""
+                    String text = parser.getText();
+                    if (text.length() == YEAR_LENGTH) {
+                        year = text;
+                    } else {
+                        month = text;
+
+                        if (!month.isEmpty()) {
+
+                            //Ignoring the current year and month, because that is the same as the overview page
+                            if ((Integer.valueOf(year) != todayYear) && (Integer.parseInt(month) != todayMonth)) {
+
+                                String str_date = year + "-" + month;
+
+                                try {
+                                    Date d = df.parse(str_date);
+                                    dateList.add(d);
+                                } catch (ParseException ex) {
+                                    MSLog.fehlerMeldung(-102306547, MSLog.FEHLER_ART_MREADER, "MediathekSrf.parseJsonArray", ex);
+                                }
+                            }
+                        }
+                    }
+                }
+                currentToken = parser.nextToken();
+
+            }
+            return dateList;
+        }
+
+        private String getPeriodPartYearMonth(String year, String month) {
+            final String PERIOD = "&period=";
+            final String PERIOD_DELIM = "-";
+
+            return PERIOD + year + PERIOD_DELIM + month;
+        }
+
+        /**
+         * This method adds the films from the json file to the film list
+         *
+         * @param urlFilm the json url of the film
+         * @param urlWebsite the website url of the film
+         * @param theme the theme name of the film
+         */
+        private void addFilms(String urlFilm, String urlWebsite, String theme) {
 
             meldung(urlFilm);
-            seite2 = getUrl.getUri_Utf(nameSenderMReader, urlFilm, seite2, "");
+
+            MSStringBuilder filmPage = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+            filmPage = getUrl.getUri_Utf(nameSenderMReader, urlFilm, filmPage, "");
             try {
 
-                String[] keywords = extractKeywords(seite2);
-                String thumbOrImage = extractThumbnail(seite2);
-                long duration = extractDuration(seite2);
-                String description = extractDescription(seite2);
-                String title = extractTitle(seite2);
-                String urlHd = extractHdUrl(seite2, urlWebsite);
-                String url_normal = getNormalUrlFromM3u8(seite2);
-                String url_small = getSmallUrlFromM3u8(seite2);
+                String date_str = "";
+                String time = "";
+                Date date = extractDateAndTime(filmPage);
+                if (date != null) {
+                    DateFormat dfDayMonthYear = new SimpleDateFormat("dd.MM.yyyy");
+                    date_str = dfDayMonthYear.format(date);
+                    dfDayMonthYear = new SimpleDateFormat("hh:mm:ss");
+                    time = dfDayMonthYear.format(date);
+                }
 
-                urlHd = urlHd.isEmpty() ? getHdUrlFromM3u8(seite2) : urlHd;
-                url_normal = url_normal.isEmpty() ? extractUrl(seite2) : url_normal;
-                url_small = url_small.isEmpty() ? extractSmallUrl(seite2) : url_small;
+                String[] keywords = extractKeywords(filmPage);
+                String thumbOrImage = extractThumbnail(filmPage);
+                long duration = extractDuration(filmPage);
+                String description = extractDescription(filmPage);
+                String title = extractTitle(filmPage);
+                String urlHd = extractHdUrl(filmPage, urlWebsite);
+                String url_normal = getNormalUrlFromM3u8(filmPage);
+                String url_small = getSmallUrlFromM3u8(filmPage);
+
+                urlHd = urlHd.isEmpty() ? getHdUrlFromM3u8(filmPage) : urlHd;
+                url_normal = url_normal.isEmpty() ? extractUrl(filmPage) : url_normal;
+                url_small = url_small.isEmpty() ? extractSmallUrl(filmPage) : url_small;
 
                 if (url_normal.isEmpty()) {
                     if (!url_small.isEmpty()) {
@@ -281,13 +373,13 @@ static class SRFException extends Exception {
                     }
                 }
 
-                DatenFilm film = new DatenFilm(nameSenderMReader, thema, urlWebsite, title, url_normal, ""/*rtmpURL*/, datum, zeit, duration, description,
+                DatenFilm film = new DatenFilm(nameSenderMReader, theme, urlWebsite, title, url_normal, ""/*rtmpURL*/, date_str, time, duration, description,
                         thumbOrImage, keywords);
 
                 if (!url_small.isEmpty()) {
                     film.addUrlKlein(url_small, "");
                 } else {
-                    MSLog.fehlerMeldung(-915263975, MSLog.FEHLER_ART_MREADER, "MediathekArd.SRF", "keine kleine Url für: " + urlWebsite + " : " + url_normal);
+                    // MSLog.fehlerMeldung(-915263975, MSLog.FEHLER_ART_MREADER, "MediathekArd.SRF", "keine kleine Url für: " + urlWebsite + " : " + url_normal);
                 }
                 if (!urlHd.isEmpty()) {
                     film.addUrlHd(urlHd, "");
@@ -376,7 +468,7 @@ static class SRFException extends Exception {
             final String Q20 = "q20,";
             final String Q30 = "q30";
             String newUrl = "";
-            if (m3u8Url.indexOf(Q20) != -1) {
+            if (m3u8Url.contains(Q20)) {
 
                 int posMp4 = m3u8Url.indexOf(MP4);
                 newUrl = m3u8Url.substring(0, posMp4);
@@ -418,29 +510,30 @@ static class SRFException extends Exception {
 
         private String getUrlFromM3u8(String m3u8Url, String resolutionPattern, String qualityIndex) {
 
-                final String CSMIL = "csmil/";
-                String url = m3u8Url.substring(0, m3u8Url.indexOf(CSMIL)) + CSMIL + qualityIndex;
-                   
-                return checkPing(url);
+            final String CSMIL = "csmil/";
+            String url = m3u8Url.substring(0, m3u8Url.indexOf(CSMIL)) + CSMIL + qualityIndex;
+
+            return checkPing(url);
         }
-        
-        private String checkPing(String url) 
-        {
+
+        private String checkPing(String url) {
             try {
-                if(ping(url))
+                if (ping(url)) {
                     return url;
+                }
             } catch (SRFException ex) {
                 try {
-                    url=url.replace(OLD_URL,NEW_URL);
-                    if(ping(url))
+                    url = url.replace(OLD_URL, NEW_URL);
+                    if (ping(url)) {
                         return url;
+                    }
                 } catch (SRFException ex1) {
                     MSLog.fehlerMeldung(-646490237, MSLog.FEHLER_ART_FILME_SUCHEN, "MediathekSf.checkPing", ex);
                 }
             }
-            
+
             return "";
-         }
+        }
 
         private String extractHdUrl(MSStringBuilder page, String urlWebsite) {
 
@@ -508,6 +601,23 @@ static class SRFException extends Exception {
             return duration;
         }
 
+        private Date extractDateAndTime(MSStringBuilder page) {
+            final String PATTERN_DATE_TIME = "\"time_published\":\"";
+            final String PATTERN_END = "\"";
+            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+            String date_str = page.extract(PATTERN_DATE_TIME, PATTERN_END);
+
+            Date date = null;
+            try {
+                date = formatter.parse(date_str);
+            } catch (ParseException ex) {
+                MSLog.fehlerMeldung(-784512304, MSLog.FEHLER_ART_MREADER, "MediathekSrf.extractDateAndTime", ex, "DAte_STR " + date_str);
+            }
+
+            return date;
+        }
+
         private String extractThumbnail(MSStringBuilder page) {
 
             final String PATTERN_ID = "\"id\":\"";
@@ -542,7 +652,7 @@ static class SRFException extends Exception {
         }
 
         private String[] extractKeywords(MSStringBuilder string) {
-            LinkedList<String> l = new LinkedList<String>();
+            LinkedList<String> l = new LinkedList<>();
 
             /*	"tags": {
              "user": [],
@@ -618,8 +728,4 @@ static class SRFException extends Exception {
         }
     }
 
-
-
 }
-
-
