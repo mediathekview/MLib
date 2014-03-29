@@ -200,7 +200,8 @@ public class MSFilmeSuchen {
         MSLog.systemMeldung("-------------------------------------------------------------------------------------");
         MSLog.systemMeldung("Fertig " + sender + ": " + DatumZeit.getJetzt_HH_MM_SS() + " Uhr, Filme: " + listeFilmeNeu.countSender(sender));
         int sekunden = getDauerSekunden();
-        MSLog.systemMeldung("     ->    Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60));
+        MSLog.systemMeldung("     -> Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60));
+        MSLog.systemMeldung("     ->       Rest: " + listeSenderLaufen.getSenderRun());
         MSLog.systemMeldung("-------------------------------------------------------------------------------------");
         MSRunSender run = listeSenderLaufen.senderFertig(sender);
         if (run != null) {

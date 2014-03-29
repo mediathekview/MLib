@@ -61,6 +61,19 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
         return null;
     }
 
+    public String getSenderRun() {
+        MSRunSender run;
+        String ret = "";
+        Iterator<MSRunSender> it = iterator();
+        while (it.hasNext()) {
+            run = it.next();
+            if (!run.fertig) {
+                ret += run.sender + " ";
+            }
+        }
+        return ret;
+    }
+
     public int getMax() {
         int ret = 0;
         Iterator<MSRunSender> it = iterator();
