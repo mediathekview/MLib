@@ -19,9 +19,6 @@
  */
 package msearch.tool;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
@@ -33,12 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 
 public class MSLog {
 
-    public static StringBuffer textSystem = new StringBuffer(10000);
-//    public static StringBuffer textProgramm = new StringBuffer(10000);
-    public static StringBuffer textFehler = new StringBuffer();
-    public static boolean playerMeldungenAus = false;
-    public static final int LOG_FEHLER = 16;
-    public static final int LOG_SYSTEM = 17;
     public static final int FEHLER_ART_PROG = 0;
     public static final String FEHLER_ART_PROG_TEXT = "   Prog: ";
     public static final int FEHLER_ART_GETURL = 1;
@@ -48,23 +39,14 @@ public class MSLog {
     public static final int FEHLER_ART_FILME_SUCHEN = 3;
     public static final String FEHLER_ART_FILME_SUCHEN_TEXT = "  Filme: ";
     // private
-    private static final int MAX_LAENGE_1 = 50000;
-    private static final int MAX_LAENGE_2 = 30000;
-    private static int zeilenNrSystem = 0;
-    private static int zeilenNrFehler = 0;
     private static LinkedList<Integer[]> fehlerListe = new LinkedList<>(); // [Art, Fehlernummer, Anzahl, Exception(0,1 für ja, nein)]
     private static boolean progress = false;
     private static String progressText = "";
     private static final Date startZeit = new Date(System.currentTimeMillis());
     private static Date stopZeit = null;
-    private static File logfile = null;
 
     public void resetFehlerListe() {
         fehlerListe.clear();
-    }
-
-    public static void setLogFile(File log) {
-        logfile = log;
     }
 
     public static synchronized void versionsMeldungen(String classname) {
@@ -124,60 +106,7 @@ public class MSLog {
         MSLog.systemMeldung("##################################################################################");
     }
 
-    public static synchronized void debugMeldung(String text) {
-        if (MSConfig.debug) {
-            debugmeldung(text);
-        }
-    }
-
-    // Fehlermeldung mit Exceptions
-    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, Exception ex) {
-        fehlermeldung_(fehlerNummer, art, klasse, ex, new String[]{});
-    }
-
-    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, Exception ex, String text) {
-        fehlermeldung_(fehlerNummer, art, klasse, ex, new String[]{text});
-    }
-
-    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, Exception ex, String text[]) {
-        fehlermeldung_(fehlerNummer, art, klasse, ex, text);
-    }
-
-    // Fehlermeldungen
-    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, String text) {
-        fehlermeldung_(fehlerNummer, art, klasse, null, new String[]{text});
-    }
-
-    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, String[] text) {
-        fehlermeldung_(fehlerNummer, art, klasse, null, text);
-    }
-
-    public static synchronized void systemMeldung(String[] text) {
-        systemmeldung(text);
-    }
-
-    public static synchronized void systemMeldung(String text) {
-        systemmeldung(new String[]{text});
-    }
-
-    public static synchronized void progress(String texte) {
-        progress = true;
-        texte += "\r";
-//        texte += "\n"; // für netbeans
-        progressText = texte;
-        System.out.print(texte);
-        progress = false;
-    }
-
-//    public static synchronized void progressEnde() {
-//        progress = false;
-//        progressText = "";
-//        System.out.print("                                                                                           \r");
-//        System.out.println();
-//        System.out.println();
-//    }
-
-    public static void printEndeMeldung() {
+    public static synchronized void endeMeldung() {
         systemMeldung("");
         systemMeldung("");
         systemMeldung("");
@@ -259,6 +188,60 @@ public class MSLog {
         systemMeldung("##################################################################################");
     }
 
+    // Fehlermeldung mit Exceptions
+    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, Exception ex) {
+        fehlermeldung_(fehlerNummer, art, klasse, ex, new String[]{});
+    }
+
+    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, Exception ex, String text) {
+        fehlermeldung_(fehlerNummer, art, klasse, ex, new String[]{text});
+    }
+
+    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, Exception ex, String text[]) {
+        fehlermeldung_(fehlerNummer, art, klasse, ex, text);
+    }
+
+    // Fehlermeldungen
+    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, String text) {
+        fehlermeldung_(fehlerNummer, art, klasse, null, new String[]{text});
+    }
+
+    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, String[] text) {
+        fehlermeldung_(fehlerNummer, art, klasse, null, text);
+    }
+
+    public static synchronized void systemMeldung(String[] text) {
+        systemmeldung_(text);
+    }
+
+    public static synchronized void systemMeldung(String text) {
+        systemmeldung_(new String[]{text});
+    }
+
+    public static synchronized void debugMeldung(String text) {
+        if (MSConfig.debug) {
+            resetProgress();
+            System.out.println("|||| " + text);
+            printProgress();
+        }
+    }
+
+    public static synchronized void progress(String texte) {
+        progress = true;
+        progressText = texte + "\r";
+        printProgress();
+        progress = false;
+    }
+
+    private static void printProgress() {
+        System.out.print(progressText);
+    }
+
+    private static void resetProgress() {
+        // Leerzeite um die Progresszeile zu löschen
+        System.out.print("                                                                                           \r");
+    }
+
     private static void addFehlerNummer(int nr, int art, boolean exception) {
         Iterator<Integer[]> it = fehlerListe.iterator();
         int ex = exception ? (ex = 1) : (ex = 2);
@@ -279,10 +262,7 @@ public class MSLog {
         addFehlerNummer(fehlerNummer, art, ex != null);
         if (ex != null || MSConfig.debug) {
             // Exceptions immer ausgeben
-            if (progress) {
-                // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
-                System.out.print("                                                                                           \r");
-            }
+            resetProgress();
             final String FEHLER = "Fehler(" + MSConst.PROGRAMMNAME + "): ";
             String x, z;
             if (ex != null) {
@@ -305,156 +285,48 @@ public class MSLog {
                     z = "*";
             }
             System.out.println(x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x);
+
             try {
-                String s = getStackTrace(ex);
-                System.out.println(s);
-                logFileSchreiben(new String[]{s});
-            } catch (Exception nix) {
+                // Stacktrace
+                StringWriter sw = new StringWriter();
+                try (PrintWriter pw = new PrintWriter(sw)) {
+                    ex.printStackTrace(pw);
+                    pw.flush();
+                    sw.flush();
+                    System.out.println(sw.toString());
+                }
+            } catch (Exception e) {
             }
-            //System.out.println(x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x);
+
             System.out.println(z + " Fehlernr: " + fehlerNummer);
             if (ex != null) {
                 System.out.println(z + " Exception: " + ex.getMessage());
             }
             System.out.println(z + " " + FEHLER + klasse);
-            notifyMediathekListener(LOG_FEHLER, FEHLER + klasse);
             for (int i = 0; i < texte.length; ++i) {
                 System.out.println(z + "           " + texte[i]);
-                notifyMediathekListener(LOG_FEHLER, texte[i]);
             }
             System.out.println("");
-            if (progress) {
-                System.out.print(progressText);
-            }
+            printProgress();
         }
-        logFileSchreiben(texte);
     }
 
-    private static void debugmeldung(String texte) {
-        if (progress) {
-            // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
-            System.out.print("                                                                                           \r");
-        }
-        System.out.println("|||| " + texte);
-        if (progress) {
-            System.out.print(progressText);
-        }
-        logFileSchreiben(new String[]{texte});
-    }
-
-    private static void systemmeldung(String[] texte) {
-        if (progress) {
-            // dann brauchen wir erst eine Leerzeite um die Progresszeile zu löschen
-            System.out.print("                                                                                           \r");
-        }
+    private static void systemmeldung_(String[] texte) {
+        resetProgress();
         final String z = ". ";
         if (texte.length <= 1) {
             System.out.println(z + " " + texte[0]);
-            notifyMediathekListener(LOG_SYSTEM, texte[0]);
         } else {
             String zeile = "---------------------------------------";
             String txt;
             System.out.println(z + zeile);
-            notifyMediathekListener(LOG_SYSTEM, zeile);
             for (int i = 0; i < texte.length; ++i) {
                 txt = "| " + texte[i];
                 System.out.println(z + txt);
-                if (i == 0) {
-                    notifyMediathekListener(LOG_SYSTEM, texte[i]);
-                } else {
-                    notifyMediathekListener(LOG_SYSTEM, "    " + texte[i]);
-                }
             }
-            notifyMediathekListener(LOG_SYSTEM, " ");
             System.out.println(z + zeile);
         }
-        if (progress) {
-            System.out.print(progressText);
-        }
-        logFileSchreiben(texte);
+        printProgress();
     }
 
-    private synchronized static void logFileSchreiben(String[] texte) {
-        // ins Logfile eintragen
-        if (logfile != null) {
-            OutputStreamWriter writer = null;
-            try {
-                writer = new OutputStreamWriter(new FileOutputStream(logfile, true));
-                for (int i = 0; i < texte.length; ++i) {
-                    String s = texte[i];
-                    if (s.equals("")) {
-                        writer.write("\n"); // nur leere Zeile schrieben
-                    } else {
-                        writer.write(DatumZeit.getJetzt_ddMMyyyy_HHmm() + "     " + s);
-                        writer.write("\n");
-                    }
-                }
-                writer.close();
-            } catch (Exception ex) {
-                System.out.println("Fehler beim Logfile schreiben: " + ex.getMessage());
-            } finally {
-                try {
-                    writer.close();
-                } catch (Exception ex) {
-                }
-            }
-        }
-
-    }
-
-    public static void clearText(int art) {
-        if (art == LOG_FEHLER) {
-            zeilenNrFehler = 0;
-            textFehler.setLength(0);
-        } else if (art == LOG_SYSTEM) {
-            zeilenNrSystem = 0;
-            textSystem.setLength(0);
-//        } else if (art == LOG_PLAYER) {
-//            zeilenNrProgramm = 0;
-//            textProgramm.setLength(0);
-        }
-//        MSearchListenerMediathekView.notify(art, MSearchLog.class.getName());
-    }
-
-    private static void notifyMediathekListener(int art, String zeile) {
-        if (art == LOG_FEHLER) {
-            addText(textFehler, "[" + getNr(zeilenNrFehler++) + "]   " + zeile);
-        } else if (art == LOG_SYSTEM) {
-            addText(textSystem, "[" + getNr(zeilenNrSystem++) + "]   " + zeile);
-//        } else if (art == LOG_PLAYER) {
-//            addText(textProgramm, "[" + getNr(zeilenNrProgramm++) + "]   " + zeile);
-        }
-//        MSearchListenerMediathekView.notify(art, MSearchLog.class.getName());
-    }
-
-    private static String getStackTrace(Throwable t) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw, true);
-        t.printStackTrace(pw);
-        pw.flush();
-        sw.flush();
-        return sw.toString();
-    }
-
-    private static String getNr(int nr) {
-        final int MAX_STELLEN = 5;
-        final String FUELL_ZEICHEN = "0";
-        String str = String.valueOf(nr);
-        while (str.length() < MAX_STELLEN) {
-            str = FUELL_ZEICHEN + str;
-        }
-        return str;
-    }
-
-    private static void addText(StringBuffer text, String texte) {
-        cut(text);
-        text.append(texte);
-        text.append(System.getProperty("line.separator"));
-    }
-
-    private static void cut(StringBuffer buffer) {
-        if (buffer.length() > MAX_LAENGE_1) {
-            buffer.delete(0, MAX_LAENGE_2);
-        }
-    }
 }

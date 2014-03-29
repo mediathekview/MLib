@@ -227,7 +227,7 @@ public class Search implements Runnable {
 
         //================================================
         // fertig
-        MSLog.printEndeMeldung();
+        MSLog.endeMeldung();
         // nur dann das Programm beenden
         if (exit) {
             System.exit(listeFilme.isEmpty() ? 1 : 0);
