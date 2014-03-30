@@ -56,7 +56,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public static final int FILMLISTE_PRGRAMM_NR = 3;
     public static final int MAX_ELEM = 4;
     public static final String[] COLUMN_NAMES = {FILMLISTE_DATUM, FILMLISTE_DATUM_GMT, FILMLISTE_VERSION, FILMLISTE_PROGRAMM};
-//    public static int countDupletten = 0;
     public int nr = 1;
     public boolean listeClean = false;
     public String[] metaDaten = new String[]{"", "", "", ""};
@@ -66,8 +65,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public String[] sender = {""};
     public String[][] themenPerSender = {{""}};
     public boolean neueFilme = false;
-//    public TreeSet<String> treeSet = new TreeSet<>(msearch.tool.GermanStringSorter.getInstance());
-//    public HashSet<String> hashSet = new HashSet<>();
 
     public ListeFilme() {
     }
@@ -88,8 +85,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         while (it.hasNext()) {
             f = it.next();
             if (f.getIndex().equals(idx)) {
-//                ++countDupletten;
-//                MSLog.debugMeldung("Dupletten: " + countDupletten + "                                                                 ");
                 return false;
             }
         }
@@ -233,7 +228,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
     public synchronized void setMeta(ListeFilme listeFilme) {
         for (int i = 0; i < MAX_ELEM; ++i) {
-            metaDaten[i] = listeFilme.metaDaten[i].toString();
+            metaDaten[i] = listeFilme.metaDaten[i];
         }
     }
 
@@ -384,10 +379,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDER + ".neo " + THEMA_LIVE,
                 "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de09_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
-        // KIKA
-//        addFilmVomSender(new DatenFilm(MediathekKika.SENDER, THEMA_LIVE, ""/* urlThema */,
-//                MediathekKika.SENDER + " " + THEMA_LIVE,
-//                "http://kikaplus.net/clients/kika/player/myplaylist.php?channel=1&programm=1&videoid=1", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekKika.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekKika.SENDER + " " + THEMA_LIVE,
                 "rtmp://85.239.122.162/live/mk3w-3faw-3rqf-enc0-kika", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
@@ -432,49 +423,49 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    public synchronized DatenFilm getFilmByNr(String nr) {
-        //////////////////////
-        // die Zählung beginnt bei 1 !!!!!
-        int n = 0;
-        try {
-            n = Integer.parseInt(nr);
-        } catch (Exception ex) {
-            MSLog.fehlerMeldung(936254978, MSLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
-            return null;
-        }
-        try {
-            return this.get(--n);
-        } catch (Exception ex) {
-            MSLog.fehlerMeldung(203647098, MSLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
-            return new DatenFilm();
-        }
-    }
+//    public synchronized DatenFilm getFilmByNr(String nr) {
+//        //////////////////////
+//        // die Zählung beginnt bei 1 !!!!!
+//        int n = 0;
+//        try {
+//            n = Integer.parseInt(nr);
+//        } catch (Exception ex) {
+//            MSLog.fehlerMeldung(936254978, MSLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
+//            return null;
+//        }
+//        try {
+//            return this.get(--n);
+//        } catch (Exception ex) {
+//            MSLog.fehlerMeldung(203647098, MSLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
+//            return new DatenFilm();
+//        }
+//    }
 
-    public synchronized DatenFilm getFilmByNr(int nr) {
-        // die Zählung beginnt bei 1 !!!!!
-        try {
-            return this.get(--nr);
-        } catch (Exception ex) {
-            MSLog.fehlerMeldung(203647098, MSLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
-            return new DatenFilm();
-        }
-    }
+//    public synchronized DatenFilm getFilmByNr(int nr) {
+//        // die Zählung beginnt bei 1 !!!!!
+//        try {
+//            return this.get(--nr);
+//        } catch (Exception ex) {
+//            MSLog.fehlerMeldung(203647098, MSLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
+//            return new DatenFilm();
+//        }
+//    }
 
     public synchronized String genDate() {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "dd.MM.yyyy, HH:mm"
         String ret;
-        SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+        SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         String date;
         if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
             // noch eine alte Filmliste
             ret = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
         } else {
             date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
-            sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+            sdf_.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
             Date filmDate = null;
             try {
-                filmDate = sdf.parse(date);
+                filmDate = sdf_.parse(date);
             } catch (ParseException ex) {
             }
             if (filmDate == null) {
@@ -491,17 +482,17 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "yyyy.MM.dd__HH:mm"
         String ret;
-        SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+        SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         String date;
         if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
             // noch eine alte Filmliste
             ret = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
         } else {
             date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
-            sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+            sdf_.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
             Date filmDate = null;
             try {
-                filmDate = sdf.parse(date);
+                filmDate = sdf_.parse(date);
             } catch (ParseException ex) {
             }
             if (filmDate == null) {

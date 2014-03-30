@@ -58,16 +58,16 @@ public class MSFilmeSuchen {
     public ListeFilme listeFilmeNeu; // neu angelegte Liste und da kommen die neu gesuchten Filme rein
     public ListeFilme listeFilmeAlt; // ist die "alte" Liste, wird beim Aufruf übergeben und enthält am Ende das Ergebnis
     // private
-    private LinkedList<MediathekReader> mediathekListe = new LinkedList<>();
-    private EventListenerList listeners = new EventListenerList();
-    private MSListeRunSender listeSenderLaufen = new MSListeRunSender();
+    private final LinkedList<MediathekReader> mediathekListe = new LinkedList<>();
+    private final EventListenerList listeners = new EventListenerList();
+    private final MSListeRunSender listeSenderLaufen = new MSListeRunSender();
     private Date startZeit = null;
     private Date stopZeit = null;
-    private ArrayList<String> runde1 = new ArrayList<>();
-    private ArrayList<String> runde2 = new ArrayList<>();
-    private ArrayList<String> runde3 = new ArrayList<>();
-    private String[] titel1 = {"Sender       ", "[min]", "Seiten", "Filme", "Fehler", "FVersuche", "FZeit[s]", "Anz-Proxy"};
-    private String[] titel3 = {"Sender       ", "Geladen[MB]", "Nix", "Deflaet", "Gzip", "AnzGroesse", "Anz-403", "Anz-Proxy"};
+    private final ArrayList<String> runde1 = new ArrayList<>();
+    private final ArrayList<String> runde2 = new ArrayList<>();
+    private final ArrayList<String> runde3 = new ArrayList<>();
+    private final String[] titel1 = {"Sender       ", "[min]", "Seiten", "Filme", "Fehler", "FVersuche", "FZeit[s]", "Anz-Proxy"};
+    private final String[] titel3 = {"Sender       ", "Geladen[MB]", "Nix", "Deflaet", "Gzip", "AnzGroesse", "Anz-403", "Anz-Proxy"};
     private final String TRENNER = " | ";
     private final String TTRENNER = " || ";
     private boolean allStarted = false;
@@ -104,15 +104,13 @@ public class MSFilmeSuchen {
         mediathekListe.add(new MediathekOrf(this, 0));
     }
 
-//    public void infoMeldung() {
-//        MSearchLog.startMeldungen(this.getClass().getName());
-//    }
     public void addAdListener(MSListenerFilmeLaden listener) {
         listeners.add(MSListenerFilmeLaden.class, listener);
     }
 
     /**
      * es werden alle Filme gesucht
+     * @param listeFilme
      */
     public synchronized void filmeBeimSenderLaden(ListeFilme listeFilme) {
         allStarted = false;
@@ -130,6 +128,7 @@ public class MSFilmeSuchen {
      * es wird nur ein Sender aktualisiert
      *
      * @param nameSenderFilmliste
+     * @param listeFilme
      */
     public void updateSender(String nameSenderFilmliste, ListeFilme listeFilme) {
         updateSender(new String[]{nameSenderFilmliste}, listeFilme);
@@ -139,13 +138,12 @@ public class MSFilmeSuchen {
      * es wird nur einige Sender aktualisiert
      *
      * @param nameSender
+     * @param listeFilme
      */
     public void updateSender(String[] nameSender, ListeFilme listeFilme) {
         // nur für den Mauskontext "Sender aktualisieren"
         allStarted = false;
         boolean starten = false;
-//        MSearchConfig.senderAllesLaden = false;
-//        MSearchConfig.updateFilmliste = true;
         initStart(listeFilme);
         Iterator<MediathekReader> it = mediathekListe.iterator();
         while (it.hasNext()) {
@@ -195,7 +193,7 @@ public class MSFilmeSuchen {
 
     public void meldenFertig(String sender) {
         //wird ausgeführt wenn Sender beendet ist
-        String zeile = "";
+        String zeile;
         MSLog.systemMeldung("");
         MSLog.systemMeldung("-------------------------------------------------------------------------------------");
         MSLog.systemMeldung("Fertig " + sender + ": " + DatumZeit.getJetzt_HH_MM_SS() + " Uhr, Filme: " + listeFilmeNeu.countSender(sender));
@@ -235,7 +233,6 @@ public class MSFilmeSuchen {
             notifyProgress(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), false));
         } else {
             // wird einmal aufgerufen, wenn alle Sender fertig sind
-//            MSLog.progressEnde();
             endeMeldung();
             notifyFertig(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), false));
         }
@@ -276,8 +273,7 @@ public class MSFilmeSuchen {
 
     private void endeMeldung() {
         // wird einmal aufgerufen, wenn alle Sender fertig sind
-        String zeile = "";
-//        MSLog.progressEnde();
+        String zeile;
         if (MSConfig.getStop()) {
             // Abbruch melden
             MSLog.systemMeldung("                                                                                     ");
@@ -324,8 +320,6 @@ public class MSFilmeSuchen {
         listeFilmeNeu.sort();
         // FilmlisteMetaDaten
         listeFilmeNeu.metaDatenSchreiben();
-//        listeFilmeAlt.anhaengen(listeFilmeNeu);
-//        listeFilmeNeu = null;
         stopZeit = new Date(System.currentTimeMillis());
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         int sekunden = getDauerSekunden();
@@ -424,7 +418,6 @@ public class MSFilmeSuchen {
 
     private String textLaenge(int max, String text) {
         if (text.length() > max) {
-            //text = text.substring(0, MAX);
             text = text.substring(0, max - 1);
         }
         while (text.length() < max) {
@@ -439,9 +432,6 @@ public class MSFilmeSuchen {
                 ((MSListenerFilmeLaden) l).start(event);
             }
         }
-//        for (MSearchListenerFilmeLaden l : listeners.getListeners(MSearchListenerFilmeLaden.class)) {
-//            l.start(event);
-//        }
     }
 
     private void notifyProgress(MSListenerFilmeLadenEvent event) {
@@ -450,7 +440,6 @@ public class MSFilmeSuchen {
                 ((MSListenerFilmeLaden) l).progress(event);
             }
         }
-
     }
 
     private void notifyFertig(MSListenerFilmeLadenEvent event) {
@@ -459,6 +448,5 @@ public class MSFilmeSuchen {
                 ((MSListenerFilmeLaden) l).fertig(event);
             }
         }
-
     }
 }

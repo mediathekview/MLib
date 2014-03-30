@@ -213,9 +213,11 @@ public class Search implements Runnable {
             ListeFilme diff;
             if (!new MSFilmlisteLesen().filmlisteLesenJson(org, "", tmpListe) || tmpListe.isEmpty()) {
                 // dann ist die komplette Liste das diff
+                MSLog.systemMeldung(" --> Lesefehler: komplette Liste ist Diff!");
                 diff = listeFilme;
             } else if (tmpListe.filmlisteIstAelter(24 * 60 * 60)) {
                 // älter als ein Tag, dann stimmt was nicht!
+                MSLog.systemMeldung(" --> zu alt: komplette Liste ist Diff!");
                 diff = listeFilme;
             } else {
                 // nur dann macht die Arbeit sinn
