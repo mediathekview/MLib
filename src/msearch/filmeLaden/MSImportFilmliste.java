@@ -119,6 +119,9 @@ public class MSImportFilmliste {
                 // nur ein Update laden
                 diff = true;
                 ret = suchen(listeFilmeDiff);
+                if (listeFilmeDiff.isEmpty()) {
+                    ret = false;
+                }
                 if (!ret) {
                     // wenn diff, dann nochmal mit einer kompletten Liste versuchen
                     diff = false;

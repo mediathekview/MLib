@@ -110,6 +110,7 @@ public class MSFilmeSuchen {
 
     /**
      * es werden alle Filme gesucht
+     *
      * @param listeFilme
      */
     public synchronized void filmeBeimSenderLaden(ListeFilme listeFilme) {
@@ -194,14 +195,19 @@ public class MSFilmeSuchen {
     public void meldenFertig(String sender) {
         //wird ausgeführt wenn Sender beendet ist
         String zeile;
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("-------------------------------------------------------------------------------------");
-        MSLog.systemMeldung("Fertig " + sender + ": " + DatumZeit.getJetzt_HH_MM_SS() + " Uhr, Filme: " + listeFilmeNeu.countSender(sender));
-        int sekunden = getDauerSekunden();
-        MSLog.systemMeldung("     -> Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60));
-        MSLog.systemMeldung("     ->       Rest: " + listeSenderLaufen.getSenderRun());
-        MSLog.systemMeldung("-------------------------------------------------------------------------------------");
         MSRunSender run = listeSenderLaufen.senderFertig(sender);
+        if (allStarted && listeSenderLaufen.listeFertig()) {
+            MSLog.progress(""); // zum löschen der Progressbar
+        }
+        zeile = "" + "\n";
+        zeile += "-------------------------------------------------------------------------------------" + "\n";
+        zeile += "Fertig " + sender + ": " + DatumZeit.getJetzt_HH_MM_SS() + " Uhr, Filme: " + listeFilmeNeu.countSender(sender) + "\n";
+        int sekunden = getDauerSekunden();
+        zeile += "     -> Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60) + "\n";
+        zeile += "     ->       Rest: " + listeSenderLaufen.getSenderRun() + "\n";
+        zeile += "-------------------------------------------------------------------------------------" + "\n";
+        MSLog.systemMeldung(zeile);
+        zeile = "";
         if (run != null) {
             String groesse = (MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_BYTE, run.sender) == 0) ? "<1" : Long.toString(MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_BYTE, run.sender));
             String[] ladeart = MSGetUrl.getZaehlerLadeArt(run.sender);

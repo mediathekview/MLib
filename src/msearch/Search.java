@@ -213,12 +213,12 @@ public class Search implements Runnable {
             ListeFilme diff;
             if (!new MSFilmlisteLesen().filmlisteLesenJson(org, "", tmpListe) || tmpListe.isEmpty()) {
                 // dann ist die komplette Liste das diff
-                MSLog.systemMeldung(" --> Lesefehler: komplette Liste ist Diff!");
-                diff = listeFilme;
+                MSLog.systemMeldung(" --> Lesefehler der Orgliste: Diff bleibt leer!");
+                diff = new ListeFilme();;
             } else if (tmpListe.filmlisteIstAelter(24 * 60 * 60)) {
                 // älter als ein Tag, dann stimmt was nicht!
-                MSLog.systemMeldung(" --> zu alt: komplette Liste ist Diff!");
-                diff = listeFilme;
+                MSLog.systemMeldung(" --> Orgliste zu alt: Diff bleibt leer!");
+                diff = new ListeFilme();
             } else {
                 // nur dann macht die Arbeit sinn
                 diff = listeFilme.neueFilme(tmpListe);

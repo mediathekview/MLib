@@ -222,24 +222,30 @@ public class MSLog {
         if (MSConfig.debug) {
             resetProgress();
             System.out.println("|||| " + text);
-            printProgress();
+            setProgress();
         }
     }
 
     public static synchronized void progress(String texte) {
-        progress = true;
-        progressText = texte + "\r";
+        progressText = texte;
         printProgress();
-        progress = false;
     }
 
     private static void printProgress() {
-        System.out.print(progressText);
+        if (progress && !progressText.isEmpty()) {
+            System.out.print(progressText + "\r");
+        }
+    }
+
+    private static void setProgress() {
+        progress = true;
+        printProgress();
     }
 
     private static void resetProgress() {
         // Leerzeite um die Progresszeile zu löschen
         System.out.print("                                                                                           \r");
+        progress = false;
     }
 
     private static void addFehlerNummer(int nr, int art, boolean exception) {
@@ -307,7 +313,7 @@ public class MSLog {
                 System.out.println(z + "           " + texte[i]);
             }
             System.out.println("");
-            printProgress();
+            setProgress();
         }
     }
 
@@ -326,7 +332,7 @@ public class MSLog {
             }
             System.out.println(z + zeile);
         }
-        printProgress();
+        setProgress();
     }
 
 }
