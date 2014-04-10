@@ -230,6 +230,7 @@ public class MSLog {
         progressText = texte;
         if (!progressText.isEmpty()) {
             System.out.print(progressText + "\r");
+//            System.out.print(progressText + "\n");
         }
     }
 

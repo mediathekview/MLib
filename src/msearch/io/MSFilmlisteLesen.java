@@ -62,6 +62,7 @@ public class MSFilmlisteLesen {
         // die Filmliste "vonDateiUrl" (Url oder lokal) wird in die List "listeFilme" eingelesen und 
         // wenn angegeben: in "nachDatei" gespeichert
         boolean ret = false;
+        File tmpFile = null;
         boolean istUrl = MSGuiFunktionen.istUrl(vonDateiUrl);
         try {
             if (istUrl && vonDateiUrl.endsWith(MSConst.FORMAT_XZ)
@@ -76,7 +77,6 @@ public class MSFilmlisteLesen {
             }
             if (istUrl) {
                 // dann erst Download in temp-Datei
-                File tmpFile;
                 if (vonDateiUrl.endsWith(MSConst.FORMAT_XZ)) {
                     tmpFile = File.createTempFile("mediathek", MSConst.FORMAT_XZ);
                 } else if (vonDateiUrl.endsWith(MSConst.FORMAT_BZ2)) {
@@ -121,6 +121,12 @@ public class MSFilmlisteLesen {
             notifyFertig(listeFilme);
         } catch (Exception ex) {
             MSLog.fehlerMeldung(468956200, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", ex, "von: " + vonDateiUrl);
+        }
+        if (tmpFile != null) {
+            try {
+                tmpFile.delete();
+            } catch (Exception ignore) {
+            }
         }
         return ret;
     }
