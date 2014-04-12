@@ -58,11 +58,11 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         }
         bearbeiteAdresseThemen(seite);
         listeSort(listeThemen, 1);
-//////        int maxTage = MSConfig.senderAllesLaden ? 9 : 3;
-////////        for (int i = 0; i < maxTage; ++i) {
-////////            String vorTagen = getGestern(i).toLowerCase();
-////////            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/" + vorTagen, seite);
-////////        }
+        int maxTage = MSConfig.senderAllesLaden ? 9 : 2;
+        for (int i = 0; i < maxTage; ++i) {
+            String vorTagen = getGestern(i).toLowerCase();
+            bearbeiteAdresseTag("http://tvthek.orf.at/schedule/" + vorTagen, seite);
+        }
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
@@ -183,7 +183,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                         thema = nameSenderMReader;
                     }
                 }
-                feedEinerSeiteSuchen(URL + s, thema, true /*themaBehalten*/, false /*nurUrlPruefen*/);
+                feedEinerSeiteSuchen(URL + s, thema, false /*themaBehalten*/, false /*nurUrlPruefen*/);
             }
         }
 
@@ -213,7 +213,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                         thema = nameSenderMReader;
                     }
                 }
-                feedEinerSeiteSuchen(URL + s, thema, true /*themaBehalten*/, false /*nurUrlPruefen*/);
+                feedEinerSeiteSuchen(URL + s, thema, false /*themaBehalten*/, false /*nurUrlPruefen*/);
             }
         }
 
