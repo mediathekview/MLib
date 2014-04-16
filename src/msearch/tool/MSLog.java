@@ -111,6 +111,31 @@ public class MSLog {
         systemMeldung("");
         systemMeldung("");
         systemMeldung("");
+        fehlerMeldungen();
+        // Laufzeit ausgeben
+        stopZeit = new Date(System.currentTimeMillis());
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        int minuten;
+        try {
+            minuten = Math.round((stopZeit.getTime() - startZeit.getTime()) / (1000 * 60));
+        } catch (Exception ex) {
+            minuten = -1;
+        }
+        systemMeldung("");
+        systemMeldung("");
+        systemMeldung("##################################################################################");
+        systemMeldung("   --> Beginn: " + sdf.format(startZeit));
+        systemMeldung("   --> Fertig: " + sdf.format(stopZeit));
+        systemMeldung("   --> Dauer[Min]: " + (minuten == 0 ? "<1" : minuten));
+        systemMeldung("##################################################################################");
+        systemMeldung("");
+        systemMeldung("   und Tschuess");
+        systemMeldung("");
+        systemMeldung("");
+        systemMeldung("##################################################################################");
+    }
+
+    public static synchronized void fehlerMeldungen() {
         systemMeldung("##################################################################################");
         if (fehlerListe.size() == 0) {
             systemMeldung(" Keine Fehler :)");
@@ -165,27 +190,65 @@ public class MSLog {
             }
         }
         systemMeldung("##################################################################################");
-        // Laufzeit ausgeben
-        stopZeit = new Date(System.currentTimeMillis());
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        int minuten;
-        try {
-            minuten = Math.round((stopZeit.getTime() - startZeit.getTime()) / (1000 * 60));
-        } catch (Exception ex) {
-            minuten = -1;
+    }
+
+    public static synchronized String fehlerMeldungen_() {
+        String ret = "\n";
+        ret += "-----------------------------------------------------------\n";
+        if (fehlerListe.size() == 0) {
+            ret += " Keine Fehler :)\n";
+        } else {
+            // Fehler ausgeben
+            int i_1;
+            int i_2;
+            for (int i = 1; i < fehlerListe.size(); ++i) {
+                for (int k = i; k > 0; --k) {
+                    i_1 = fehlerListe.get(k - 1)[1];
+                    i_2 = fehlerListe.get(k)[1];
+                    // if (str1.compareToIgnoreCase(str2) > 0) {
+                    if (i_1 < i_2) {
+                        fehlerListe.add(k - 1, fehlerListe.remove(k));
+                    } else {
+                        break;
+                    }
+                }
+            }
+            Iterator<Integer[]> it = fehlerListe.iterator();
+            while (it.hasNext()) {
+                Integer[] integers = it.next();
+                String z;
+                switch (integers[0]) {
+                    case FEHLER_ART_MREADER:
+                        z = FEHLER_ART_MREADER_TEXT;
+                        break;
+                    case FEHLER_ART_FILME_SUCHEN:
+                        z = FEHLER_ART_FILME_SUCHEN_TEXT;
+                        break;
+                    case FEHLER_ART_GETURL:
+                        z = FEHLER_ART_GETURL_TEXT;
+                        break;
+                    case FEHLER_ART_PROG:
+                        z = FEHLER_ART_PROG_TEXT;
+                        break;
+                    default:
+                        z = "";
+                }
+                boolean ex = integers[3] == 1;
+                String strEx;
+                if (ex) {
+                    strEx = "Ex! ";
+                } else {
+                    strEx = "    ";
+                }
+                if (integers[1] < 0) {
+                    ret += strEx + z + " Fehlernummer: " + integers[1] + " Anzahl: " + integers[2] + "\n";
+                } else {
+                    ret += strEx + z + " Fehlernummer:  " + integers[1] + " Anzahl: " + integers[2] + "\n";
+                }
+            }
         }
-        systemMeldung("");
-        systemMeldung("");
-        systemMeldung("##################################################################################");
-        systemMeldung("   --> Beginn: " + sdf.format(startZeit));
-        systemMeldung("   --> Fertig: " + sdf.format(stopZeit));
-        systemMeldung("   --> Dauer[Min]: " + (minuten == 0 ? "<1" : minuten));
-        systemMeldung("##################################################################################");
-        systemMeldung("");
-        systemMeldung("   und Tschuess");
-        systemMeldung("");
-        systemMeldung("");
-        systemMeldung("##################################################################################");
+        ret += "-----------------------------------------------------------\n";
+        return ret;
     }
 
     // Fehlermeldung mit Exceptions
@@ -239,7 +302,6 @@ public class MSLog {
 //            System.out.print(progressText + "\r");
 //        }
 //    }
-
 //    private static void setProgress() {
 //        progress = true;
 //        printProgress();
