@@ -369,16 +369,16 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // ZDF
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDER + " " + THEMA_LIVE,
-                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de10_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de14_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDER + ".info " + THEMA_LIVE,
-                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de08_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de12_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDER + ".kultur " + THEMA_LIVE,
                 "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de07_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDER + ".neo " + THEMA_LIVE,
-                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de09_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de13_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekKika.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekKika.SENDER + " " + THEMA_LIVE,
                 "rtmp://85.239.122.162/live/mk3w-3faw-3rqf-enc0-kika", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
