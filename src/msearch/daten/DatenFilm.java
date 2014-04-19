@@ -21,6 +21,7 @@ package msearch.daten;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekBr;
 import msearch.filmeSuchen.sender.MediathekMdr;
@@ -272,6 +273,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 break;
             case MediathekZdf.SENDER:
             case MediathekZdfTivi.SENDER:
+            case Mediathek3Sat.SENDER:
                 if (arr[DatenFilm.FILM_URL_NR].startsWith("http://nrodl.zdf.de/de/")
                         || arr[DatenFilm.FILM_URL_NR].startsWith("http://rodl.zdf.de/de/")) {
                     arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
