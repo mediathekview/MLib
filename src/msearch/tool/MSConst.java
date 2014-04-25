@@ -54,5 +54,5 @@ public class MSConst {
     public static final String RTMP_FLVSTREAMER = "-r ";
     public static final int ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE = 3 * 60 * 60; // beim Start des Programms wir die Liste geladen wenn sie älter ist als ..
     public static final String TIME_MAX_AGE_FOR_DIFF = "10"; // Uhrzeit ab der die Diffliste alle Änderungen abdeckt, die Filmliste darf also nicht vor xx erstellt worden sein
-
+    public static final int MAX_BESCHREIBUNG = 300; // max länge der Beschreibung in Zeichen
 }

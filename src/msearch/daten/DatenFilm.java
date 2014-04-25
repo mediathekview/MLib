@@ -463,13 +463,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return ret;
     }
 
-//    public static boolean anzeigen(int i) {
-//        if (spaltenAnzeigen == null) {
-//            return true;
-//        } else {
-//            return spaltenAnzeigen[i];
-//        }
-//    }
     private String getUrlNormalKlein() {
         // liefert die kleine normale URL
         int i;
@@ -573,9 +566,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         if (s.startsWith(",")) {
             s = s.substring(1).trim();
         }
-        final int x = 250;
-        if (s.length() > x) {
-            return s.substring(0, x) + "\n.....";
+        if (s.length() > MSConst.MAX_BESCHREIBUNG) {
+            return s.substring(0, MSConst.MAX_BESCHREIBUNG) + "\n.....";
         } else {
             return s;
         }
@@ -611,7 +603,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
                     MSLog.debugMeldung("DatenFilm.CheckDatum-4 - " + "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
                 } else {
                     arr[FILM_DATUM_NR] = datum;
-//                    arr[FILM_DATUM_LONG_NR] = String.valueOf(filmDate.getTime() / 1000);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(794630593, MSLog.FEHLER_ART_PROG, "DatenFilm.checkDatum-5", ex);
@@ -639,34 +630,4 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return s;
     }
 
-////    public boolean filmEquals_Orf(DatenFilm film) {
-////        // http://apasfpd.apa.at/cms-worldwide/online/30e56502951a39b3dcc07cbd42b93dd8/1386353983/2013-12-06_1830_tl_02_heute-konkret_-3--Beschwerden__7210188__o__0000942829__s7210191___en_ORF2HiRes_18322601P_18362214P_Q6A.mp4
-////        // http://apasfpd.apa.at/cms-worldwide/online/3b0619925919951eede27b73836e05f7/1386353969/2013-12-06_1830_tl_02_heute-konkret_-3--Beschwerden__7210188__o__0000942829__s7210191___en_ORF2HiRes_18322601P_18362214P_Q6A.mp4
-////        // die 2 Nummer nach "/online/" werden nicht verglichen
-////        // Problem wegen gleicher URLs
-////        try {
-////            String tmp = film.arr[DatenFilm.FILM_URL_NR].substring(film.arr[DatenFilm.FILM_URL_NR].indexOf("/online/") + "/online/".length());
-////            if (!tmp.contains("/")) {
-////                return false;
-////            }
-////            tmp = tmp.substring(tmp.indexOf("/") + 1);
-////            if (!tmp.contains("/")) {
-////                return false;
-////            }
-////            tmp = tmp.substring(tmp.indexOf("/") + 1);
-////            if (tmp.isEmpty()) {
-////                return false;
-////            }
-////            if (this.arr[DatenFilm.FILM_URL_NR].endsWith(tmp)) {
-////                if (this.arr[DatenFilm.FILM_THEMA_NR].equals(film.arr[DatenFilm.FILM_THEMA_NR])
-////                        && this.arr[DatenFilm.FILM_TITEL_NR].equals(film.arr[DatenFilm.FILM_TITEL_NR])) {
-////                    // nur wenn auch Thema und Titel gleich sind
-////                    return true;
-////                }
-////            }
-////        } catch (Exception ex) {
-////            MSearchLog.fehlerMeldung(945630124, MSearchLog.FEHLER_ART_PROG, "ListeFilme.getFilmByUrlOrf", "Url: " + film.arr[DatenFilm.FILM_URL_NR]);
-////        }
-////        return false;
-////    }
 }

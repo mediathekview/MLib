@@ -116,21 +116,23 @@ public class MSFilmlistenSuchen {
     public String suchenDiff(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Diff-Filmliste suchen
         String retUrl;
-        ListeDownloadUrlsFilmlisten tmp = new ListeDownloadUrlsFilmlisten();
-        try {
-            // Ausweichen auf andere Listenserver bei Bedarf
-            getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, MSConfig.getUserAgent());
-        } catch (Exception ex) {
-            MSLog.fehlerMeldung(912036790, MSLog.FEHLER_ART_PROG, "FilmUpdateServer.suchenDiff", ex);
+        if (listeDownloadUrlsFilmlisten_diff.isEmpty()) {
+            // da sich die Listen nicht ändern nur eimal pro Start laden
+            ListeDownloadUrlsFilmlisten tmp = new ListeDownloadUrlsFilmlisten();
+            try {
+                getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, MSConfig.getUserAgent());
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(912036790, MSLog.FEHLER_ART_PROG, "FilmUpdateServer.suchenDiff", ex);
+            }
+            if (tmp.size() == 0) {
+                MSLog.systemMeldung(new String[]{"Es ist ein Fehler aufgetreten!",
+                    "Es konnten keine Updateserver (DIFF) zum aktualisieren der Filme",
+                    "gefunden werden."});
+            } else {
+                listeDownloadUrlsFilmlisten_diff = tmp;
+            }
+            listeDownloadUrlsFilmlisten_diff.sort();
         }
-        if (tmp.size() == 0) {
-            MSLog.systemMeldung(new String[]{"Es ist ein Fehler aufgetreten!",
-                "Es konnten keine Updateserver (DIFF) zum aktualisieren der Filme",
-                "gefunden werden."});
-        } else {
-            listeDownloadUrlsFilmlisten_diff = tmp;
-        }
-        listeDownloadUrlsFilmlisten_diff.sort();
         retUrl = listeDownloadUrlsFilmlisten_diff.getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
         if (bereitsVersucht != null) {
             bereitsVersucht.add(retUrl);
