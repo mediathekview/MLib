@@ -164,10 +164,14 @@ public class Search implements Runnable {
         MSLog.systemMeldung("");
         if (!MSConfig.importUrl__anhaengen.isEmpty()) {
             // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
+            MSLog.systemMeldung("");
+            MSLog.systemMeldung("============================================================================");
             MSLog.systemMeldung("Filmliste importieren (anhängen) von: " + MSConfig.importUrl__anhaengen);
+            MSLog.systemMeldung("   --> von Anz. Filme: " + listeFilme.size());
             tmpListe.clear();
             new MSFilmlisteLesen().filmlisteLesenJson(MSConfig.importUrl__anhaengen, "", tmpListe);
             listeFilme.updateListe(tmpListe, false /* nur URL vergleichen */, false /*ersetzen*/);
+            MSLog.systemMeldung("   --> nach Anz. Filme: " + listeFilme.size());
             tmpListe.clear();
             System.gc();
             listeFilme.sort();
@@ -175,7 +179,10 @@ public class Search implements Runnable {
         if (!MSConfig.importUrl__ersetzen.isEmpty()) {
             // wenn eine ImportUrl angegeben, dann noch eine Liste importieren, Filme die es schon gibt
             // werden ersetzt
+            MSLog.systemMeldung("");
+            MSLog.systemMeldung("============================================================================");
             MSLog.systemMeldung("Filmliste importieren (ersetzen) von: " + MSConfig.importUrl__ersetzen);
+            MSLog.systemMeldung("   --> von Anz. Filme: " + listeFilme.size());
             tmpListe.clear();
             new MSFilmlisteLesen().filmlisteLesenJson(MSConfig.importUrl__ersetzen, "", tmpListe);
             /////// toDo
@@ -185,6 +192,7 @@ public class Search implements Runnable {
             System.gc();
             tmpListe.sort(); // jetzt sollte alles passen
             listeFilme = tmpListe;
+            MSLog.systemMeldung("   --> nach Anz. Filme: " + listeFilme.size());
         }
 
         //================================================
@@ -198,8 +206,11 @@ public class Search implements Runnable {
         //================================================
         // Org-Diff
         MSLog.systemMeldung("");
+        MSLog.systemMeldung("Filmeliste fertig: " + listeFilme.size() + " Filme");
         if (MSConfig.orgFilmlisteErstellen) {
             // org-Liste anlegen, typ. erste Liste am Tag
+            MSLog.systemMeldung("");
+            MSLog.systemMeldung("============================================================================");
             MSLog.systemMeldung("Org-Lilste");
             MSLog.systemMeldung("  --> ersellen: " + MSConfig.getPathFilmlist_org());
             new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_org(), listeFilme);
@@ -208,6 +219,8 @@ public class Search implements Runnable {
         if (MSConfig.diffFilmlisteErstellen) {
             // noch das diff erzeugen
             String org = MSConfig.orgFilmliste.isEmpty() ? MSConfig.getPathFilmlist_org() : MSConfig.orgFilmliste;
+            MSLog.systemMeldung("");
+            MSLog.systemMeldung("============================================================================");
             MSLog.systemMeldung("Diff erzeugen, von: " + org + " nach: " + MSConfig.getPathFilmlist_diff());
             tmpListe.clear();
             ListeFilme diff;
@@ -225,6 +238,7 @@ public class Search implements Runnable {
             }
             new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_diff(), diff);
             new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_diff_xz(), diff);
+            MSLog.systemMeldung("   --> Anz. Filme Diff: " + diff.size());
         }
 
         //================================================
