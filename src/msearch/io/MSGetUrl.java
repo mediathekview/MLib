@@ -47,7 +47,7 @@ public class MSGetUrl {
     public static final int LISTE_SEITEN_ZAEHLER_WARTEZEIT_FEHLVERSUCHE = 4;
     public static final int LISTE_SUMME_BYTE = 5;
     public static final int LISTE_SEITEN_PROXY = 6;
-    public static final int LISTE_LADEART = 6;
+    public static final int LISTE_SEITEN_NO_BUFFER = 7;
     private static final long UrlWartenBasis = 500;//ms, Basiswert zu dem dann der Faktor multipliziert wird
 //    private int faktorWarten = 1;
     private int timeout = 10000;
@@ -58,6 +58,7 @@ public class MSGetUrl {
     private static LinkedList<Seitenzaehler> listeSeitenZaehlerWartezeitFehlerVersuche = new LinkedList<>(); // Wartezeit für Wiederholungen [s]
     private static LinkedList<Seitenzaehler> listeSummeByte = new LinkedList<>(); // Summe Daten in Byte für jeden Sender
     private static LinkedList<Seitenzaehler> listeSeitenProxy = new LinkedList<>(); // Anzahl Seiten über Proxy geladen
+    private static LinkedList<Seitenzaehler> listeSeitenNoBuffer = new LinkedList<>(); // Anzahl Seiten bei BufferOverRun
     private static final int LADE_ART_UNBEKANNT = 0;
     private static final int LADE_ART_NIX = 1;
     private static final int LADE_ART_DEFLATE = 2;
@@ -243,6 +244,7 @@ public class MSGetUrl {
         listeSeitenZaehlerWartezeitFehlerVersuche.clear();
         listeSummeByte.clear();
         listeSeitenProxy.clear();
+        listeSeitenNoBuffer.clear();
         summeByte = 0;
     }
 
@@ -263,6 +265,8 @@ public class MSGetUrl {
                 return listeSummeByte;
             case LISTE_SEITEN_PROXY:
                 return listeSeitenProxy;
+            case LISTE_SEITEN_NO_BUFFER:
+                return listeSeitenNoBuffer;
             default:
                 return null;
         }
@@ -408,6 +412,15 @@ public class MSGetUrl {
                 }
                 if (ex.getMessage().equals("Read timed out")) {
                     MSLog.fehlerMeldung(502739817, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri: TimeOut", text);
+                } else if (ex.getMessage().equals("No buffer space available")) {
+                    MSLog.fehlerMeldung(915263697, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri: No buffer space available", text);
+                    try {
+                        // Pause zum Abbauen von Verbindungen
+                        final int WARTEN = 2;
+                        this.wait(WARTEN * 1000);
+                        incSeitenZaehler(LISTE_SEITEN_NO_BUFFER, sender, WARTEN, LADE_ART_UNBEKANNT);
+                    } catch (Exception exx) {
+                    }
                 } else {
                     MSLog.fehlerMeldung(379861049, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, text);
                 }

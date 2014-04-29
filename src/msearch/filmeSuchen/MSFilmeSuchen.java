@@ -66,8 +66,9 @@ public class MSFilmeSuchen {
     private final ArrayList<String> runde1 = new ArrayList<>();
     private final ArrayList<String> runde2 = new ArrayList<>();
     private final ArrayList<String> runde3 = new ArrayList<>();
-    private final String[] titel1 = {"Sender       ", "[min]", "Seiten", "Filme", "Fehler", "FVersuche", "FZeit[s]", "Anz-Proxy"};
-    private final String[] titel3 = {"Sender       ", "Geladen[MB]", "Nix", "Deflaet", "Gzip", "AnzGroesse", "Anz-403", "Anz-Proxy"};
+    private final String[] titel1 = {"Sender laden ", "[min]", "Seiten", "Filme", "Fehler", "FVersuche", "FZeit[s]", "AnzÜberProxy"};
+    private final String[] titel2 = {"Sender laden ", "Geladen[MB]", "Nix", "Deflaet", "Gzip", "noBuff[s]"};
+    private final String[] titel3 = {"Dateigroesse ", "getGroesse:", "mit_403", "OkMitProxy"};
     private final String TRENNER = " | ";
     private final String TTRENNER = " || ";
     private boolean allStarted = false;
@@ -223,16 +224,22 @@ public class MSFilmeSuchen {
             zeile += textLaenge(titel1[7].length(), String.valueOf(MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SEITEN_PROXY, run.sender))) + TRENNER;
             runde1.add(zeile);
             // =================================
+            // Zeile2
+            zeile = textLaenge(titel2[0].length(), run.sender) + TTRENNER;
+            zeile += textLaenge(titel2[1].length(), groesse) + TRENNER;
+            zeile += textLaenge(titel2[2].length(), ladeart[0]) + TRENNER;
+            zeile += textLaenge(titel2[3].length(), ladeart[1]) + TRENNER;
+            zeile += textLaenge(titel2[4].length(), ladeart[2]) + TRENNER;
+            zeile += textLaenge(titel2[5].length(), String.valueOf(MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SEITEN_NO_BUFFER, run.sender))) + TRENNER;
+            runde2.add(zeile);
+            // =================================
             // Zeile3
             zeile = textLaenge(titel3[0].length(), run.sender) + TTRENNER;
-            zeile += textLaenge(titel3[1].length(), groesse) + TRENNER;
-            zeile += textLaenge(titel3[2].length(), ladeart[0]) + TRENNER;
-            zeile += textLaenge(titel3[3].length(), ladeart[1]) + TRENNER;
-            zeile += textLaenge(titel3[4].length(), ladeart[2]) + TRENNER;
-            zeile += textLaenge(titel3[5].length(), String.valueOf(MSUrlDateiGroesse.getZaehler(run.sender))) + TRENNER;
-            zeile += textLaenge(titel3[6].length(), String.valueOf(MSUrlDateiGroesse.getZaehler403(run.sender))) + TRENNER;
-            zeile += textLaenge(titel3[7].length(), String.valueOf(MSUrlDateiGroesse.getZaehlerProxy(run.sender))) + TRENNER;
-            runde3.add(zeile);
+            zeile += textLaenge(titel3[1].length(), String.valueOf(MSUrlDateiGroesse.getZaehler(run.sender))) + TRENNER;
+            zeile += textLaenge(titel3[2].length(), String.valueOf(MSUrlDateiGroesse.getZaehler403(run.sender))) + TRENNER;
+            zeile += textLaenge(titel3[3].length(), String.valueOf(MSUrlDateiGroesse.getZaehlerProxy(run.sender))) + TRENNER;
+            runde3.add(zeile
+            );
         }
         if (!allStarted || !listeSenderLaufen.listeFertig()) {
             //nur ein Sender fertig oder noch nicht alle gestartet
@@ -300,18 +307,27 @@ public class MSFilmeSuchen {
         MSLog.systemMeldung("==  Sender  =====================================================================");
         MSLog.systemMeldung("");
         // Zeile 1 =============================================
-        zeile = titel1[0] + TTRENNER + titel1[1] + TRENNER + titel1[2] + TRENNER + titel1[3] + TRENNER + titel1[4] + TRENNER + titel1[5] + TRENNER + titel1[6] + TRENNER + titel1[7];
+        zeile = titel1[0] + TTRENNER + titel1[1] + TRENNER + titel1[2] + TRENNER + titel1[3] + TRENNER + titel1[4] + TRENNER + titel1[5] + TRENNER + titel1[6] + TRENNER + titel1[7]+ TRENNER ;
         MSLog.systemMeldung(zeile);
-        MSLog.systemMeldung("---------------------------------------------------------------------------------");
+        MSLog.systemMeldung("----------------------------------------------------------------------------------------");
         for (String s : runde1) {
             MSLog.systemMeldung(s);
         }
         MSLog.systemMeldung("");
         MSLog.systemMeldung("");
-        // Zeile 3 =============================================
-        zeile = titel3[0] + TTRENNER + titel3[1] + TRENNER + titel3[2] + TRENNER + titel3[3] + TRENNER + titel3[4] + TRENNER + titel3[5] + TRENNER + titel3[6] + TRENNER + titel3[7];
+        // Zeile 2 =============================================
+        zeile = titel2[0] + TTRENNER + titel2[1] + TRENNER + titel2[2] + TRENNER + titel2[3] + TRENNER + titel2[4] + TRENNER + titel2[5]+ TRENNER ;
         MSLog.systemMeldung(zeile);
-        MSLog.systemMeldung("---------------------------------------------------------------------------------");
+        MSLog.systemMeldung("-----------------------------------------------------------------");
+        for (String s : runde2) {
+            MSLog.systemMeldung(s);
+        }
+        MSLog.systemMeldung("");
+        MSLog.systemMeldung("");
+        // Zeile 3 =============================================
+        zeile = titel3[0] + TTRENNER + titel3[1] + TRENNER + titel3[2] + TRENNER + titel3[3]+ TRENNER ;
+        MSLog.systemMeldung(zeile);
+        MSLog.systemMeldung("-----------------------------------------------------");
         for (String s : runde3) {
             MSLog.systemMeldung(s);
         }
