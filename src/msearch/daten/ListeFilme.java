@@ -78,6 +78,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // ist eine URL,Sender,Thema,Titel schon vorhanden, wird sie verworfen, 
         // der aktuellste Film (werden von jetzt in die Vergangenheit gesucht) bleibt erhalten
         MSFunktionen.unescape(film);
+        // zur Sicherheit: http://sourceforge.net/apps/phpbb/zdfmediathk/viewtopic.php?f=1&t=1111
+        film.arr[DatenFilm.FILM_IMAGE_URL_NR] = "";
         // erst mal schauen obs das schon gibt
         DatenFilm f;
         String idx = film.getIndex();
@@ -440,7 +442,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 //            return new DatenFilm();
 //        }
 //    }
-
 //    public synchronized DatenFilm getFilmByNr(int nr) {
 //        // die Zählung beginnt bei 1 !!!!!
 //        try {
@@ -450,7 +451,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 //            return new DatenFilm();
 //        }
 //    }
-
     public synchronized String genDate() {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "dd.MM.yyyy, HH:mm"
