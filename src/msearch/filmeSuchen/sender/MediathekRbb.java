@@ -32,7 +32,7 @@ import msearch.tool.MSStringBuilder;
 public class MediathekRbb extends MediathekReader implements Runnable {
 
     public static final String SENDER = "RBB";
-    final String ROOTADR = "http://mediathek.rbb-online.de";
+    final static String ROOTADR = "http://mediathek.rbb-online.de";
 
     public MediathekRbb(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
@@ -58,11 +58,10 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     if (!url.equals("")) {
                         seite2 = getUrlIo.getUri_Utf(nameSenderMReader, url, seite2, "");
                         int lpos1 = 0;
-                        int lpos2 = 0;
+                        int lpos2;
                         final String LIST_ITEM = "<a href=\"/sendung/";
                         while ((lpos1 = seite2.indexOf(LIST_ITEM, lpos1)) != -1) {
-                            lpos1 = lpos1 + LIST_ITEM.length();
-                            lpos2 = seite2.indexOf("\"", lpos1);
+                            lpos1 = lpos1 + LIST_ITEM.length();                            lpos2 = seite2.indexOf("\"", lpos1);
                             String listurl = ROOTADRESSE + seite2.substring(lpos1, lpos2);
                             if (!listurl.equals("")) {
                                 String[] add = new String[]{listurl, ""};

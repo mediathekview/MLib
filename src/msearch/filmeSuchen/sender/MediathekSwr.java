@@ -117,7 +117,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         public void run() {
             try {
                 meldungAddThread();
-                String[] link = null;
+                String[] link;
                 while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     themenSeitenSuchen(link[0] /* url */, link[1] /* Thema */);
                     meldungProgress(link[0]);
@@ -215,14 +215,13 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             }
         }
 
-        final String PATTERN_END = "\"";
-        final String HTTP = "http";
+        final static String PATTERN_END = "\"";
+        final static String HTTP = "http";
 
         private String getTitle() {
             final String PATTERN_TITLE_START = "\"entry_title\":\"";
-            final String MUSTER_TITEL_2 = "\"entry_title\":\"\\\"";
-            String title = strSeite2.extract(PATTERN_TITLE_START, PATTERN_END);
-            return title;
+            //final String MUSTER_TITEL_2 = "\"entry_title\":\"\\\"";
+            return strSeite2.extract(PATTERN_TITLE_START, PATTERN_END);
         }
 
         private String getDescription() {
@@ -302,8 +301,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             if (urlWithOutprot.isEmpty()) {
                 return "";
             }
-            String hdUrl = HTTP + urlWithOutprot;
-            return hdUrl;
+            return HTTP + urlWithOutprot;
         }
 
         private String getNormalUrl() {
@@ -312,8 +310,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             if (urlWithOutprot.isEmpty()) {
                 return "";
             }
-            String normalUrl = HTTP + urlWithOutprot;
-            return normalUrl;
+            return HTTP + urlWithOutprot;
         }
 
         private String getRtmpUrl() {
@@ -326,8 +323,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     return "";
                 }
             }
-            String normalUrl = "rtmp" + urlWithOutprot;
-            return normalUrl;
+            return "rtmp" + urlWithOutprot;
         }
 
         private String getSmallUrl() {
@@ -336,15 +332,13 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             if (urlWithOutprot.isEmpty()) {
                 return "";
             }
-            String smallUrl = HTTP + urlWithOutprot;
-            return smallUrl;
+            return HTTP + urlWithOutprot;
         }
 
         private String getSuperSmalUrl() {
             final String PATTTERN_PROT_HTTP_S = "\"entry_media\",\"attr\":{\"val0\":\"h264\",\"val1\":\"1\",\"val2\":\"http";
             String urlWithOutprot = strSeite2.extract(PATTTERN_PROT_HTTP_S, PATTERN_END);
-            String superSmallUrl = HTTP + urlWithOutprot;
-            return superSmallUrl;
+            return HTTP + urlWithOutprot;
         }
 
         private String[] extractKeywords(MSStringBuilder strSeite2) {

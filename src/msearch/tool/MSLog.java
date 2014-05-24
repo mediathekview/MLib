@@ -23,7 +23,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedList;
 import msearch.daten.MSConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -38,16 +37,16 @@ public class MSLog {
     public static final String FEHLER_ART_MREADER_TEXT = "MReader: ";
     public static final int FEHLER_ART_FILME_SUCHEN = 3;
     public static final String FEHLER_ART_FILME_SUCHEN_TEXT = "  Filme: ";
+    private final static String FEHLER = "Fehler(" + MSConst.PROGRAMMNAME + "): ";
+
     // private
     private static LinkedList<Integer[]> fehlerListe = new LinkedList<>(); // [Art, Fehlernummer, Anzahl, Exception(0,1 für ja, nein)]
     private static boolean progress = false;
-    private static String progressText = "";
     private static final Date startZeit = new Date(System.currentTimeMillis());
-    private static Date stopZeit = null;
 
-    public void resetFehlerListe() {
+    /*public void resetFehlerListe() {
         fehlerListe.clear();
-    }
+    }*/
 
     public static synchronized void versionsMeldungen(String classname) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
@@ -113,7 +112,7 @@ public class MSLog {
         systemMeldung("");
         fehlerMeldungen();
         // Laufzeit ausgeben
-        stopZeit = new Date(System.currentTimeMillis());
+        Date stopZeit = new Date(System.currentTimeMillis());
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         int minuten;
         try {
@@ -155,9 +154,7 @@ public class MSLog {
                     }
                 }
             }
-            Iterator<Integer[]> it = fehlerListe.iterator();
-            while (it.hasNext()) {
-                Integer[] integers = it.next();
+            for (Integer[] integers : fehlerListe) {
                 String z;
                 switch (integers[0]) {
                     case FEHLER_ART_MREADER:
@@ -213,9 +210,7 @@ public class MSLog {
                     }
                 }
             }
-            Iterator<Integer[]> it = fehlerListe.iterator();
-            while (it.hasNext()) {
-                Integer[] integers = it.next();
+            for (Integer[] integers : fehlerListe) {
                 String z;
                 switch (integers[0]) {
                     case FEHLER_ART_MREADER:
@@ -290,9 +285,8 @@ public class MSLog {
 
     public static synchronized void progress(String texte) {
         progress = true;
-        progressText = texte;
-        if (!progressText.isEmpty()) {
-            System.out.print(progressText + "\r");
+        if (!texte.isEmpty()) {
+            System.out.print(texte + "\r");
 //            System.out.print(progressText + "\n");
         }
     }
@@ -315,11 +309,9 @@ public class MSLog {
     }
 
     private static void addFehlerNummer(int nr, int art, boolean exception) {
-        Iterator<Integer[]> it = fehlerListe.iterator();
         int ex = exception ? (ex = 1) : (ex = 2);
-        while (it.hasNext()) {
-            Integer[] i = it.next();
-            if (i[1].intValue() == nr) {
+        for (Integer[] i : fehlerListe) {
+            if (i[1] == nr) {
                 i[0] = art;
                 i[2]++;
                 i[3] = ex;
@@ -327,7 +319,7 @@ public class MSLog {
             }
         }
         // dann gibts die Nummer noch nicht
-        fehlerListe.add(new Integer[]{new Integer(art), new Integer(nr), new Integer(1), new Integer(ex)});
+        fehlerListe.add(new Integer[]{art, nr, 1, ex});
     }
 
     private static void fehlermeldung_(int fehlerNummer, int art, String klasse, Exception ex, String[] texte) {
@@ -335,7 +327,6 @@ public class MSLog {
         if (ex != null || MSConfig.debug) {
             // Exceptions immer ausgeben
             resetProgress();
-            final String FEHLER = "Fehler(" + MSConst.PROGRAMMNAME + "): ";
             String x, z;
             if (ex != null) {
                 x = "!";
@@ -360,14 +351,14 @@ public class MSLog {
 
             try {
                 // Stacktrace
-                StringWriter sw = new StringWriter();
-                try (PrintWriter pw = new PrintWriter(sw)) {
-                    ex.printStackTrace(pw);
+                try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)) {
+                    if (ex != null)
+                        ex.printStackTrace(pw);
                     pw.flush();
                     sw.flush();
                     System.out.println(sw.toString());
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
 
             System.out.println(z + " Fehlernr: " + fehlerNummer);
@@ -375,8 +366,8 @@ public class MSLog {
                 System.out.println(z + " Exception: " + ex.getMessage());
             }
             System.out.println(z + " " + FEHLER + klasse);
-            for (int i = 0; i < texte.length; ++i) {
-                System.out.println(z + "           " + texte[i]);
+            for (String aTexte : texte) {
+                System.out.println(z + "           " + aTexte);
             }
             System.out.println("");
         }
@@ -391,8 +382,8 @@ public class MSLog {
             String zeile = "---------------------------------------";
             String txt;
             System.out.println(z + zeile);
-            for (int i = 0; i < texte.length; ++i) {
-                txt = "| " + texte[i];
+            for (String aTexte : texte) {
+                txt = "| " + aTexte;
                 System.out.println(z + txt);
             }
             System.out.println(z + zeile);

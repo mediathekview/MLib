@@ -42,11 +42,10 @@ import org.tukaani.xz.XZOutputStream;
 
 public class MSFilmlisteSchreiben {
 
-    private XMLOutputFactory outFactory;
     private XMLStreamWriter writer;
     private OutputStreamWriter out = null;
-    ZipOutputStream zipOutputStream = null;
-    BZip2CompressorOutputStream bZip2CompressorOutputStream = null;
+    private ZipOutputStream zipOutputStream = null;
+    private BZip2CompressorOutputStream bZip2CompressorOutputStream = null;
 
     public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
         MSLog.systemMeldung("Filme Schreiben (" + listeFilme.size() + " Filme) :");
@@ -148,7 +147,7 @@ public class MSFilmlisteSchreiben {
             }
         }
         MSLog.systemMeldung("   --> Start Schreiben nach: " + datei);
-        outFactory = XMLOutputFactory.newInstance();
+        XMLOutputFactory outFactory = XMLOutputFactory.newInstance();
         if (datei.endsWith(MSConst.FORMAT_BZ2)) {
             bZip2CompressorOutputStream = new BZip2CompressorOutputStream(new FileOutputStream(file), 9 /*Blocksize: 1 - 9*/);
             out = new OutputStreamWriter(bZip2CompressorOutputStream, MSConst.KODIERUNG_UTF);
@@ -195,9 +194,7 @@ public class MSFilmlisteSchreiben {
         iterator = listeFilme.listIterator();
         while (iterator.hasNext()) {
             datenFilm = iterator.next();
-            for (int i = 0; i < datenFilm.arr.length; ++i) {
-                datenFilmSchreiben.arr[i] = datenFilm.arr[i];
-            }
+            System.arraycopy(datenFilm.arr, 0, datenFilmSchreiben.arr, 0, datenFilm.arr.length);
             if (sender.equals(datenFilm.arr[DatenFilm.FILM_SENDER_NR])) {
                 datenFilmSchreiben.arr[DatenFilm.FILM_SENDER_NR] = "";
             } else {

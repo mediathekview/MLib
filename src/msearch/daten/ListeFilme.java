@@ -57,10 +57,9 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public static final int MAX_ELEM = 4;
     public static final String[] COLUMN_NAMES = {FILMLISTE_DATUM, FILMLISTE_DATUM_GMT, FILMLISTE_VERSION, FILMLISTE_PROGRAMM};
     public int nr = 1;
-    public boolean listeClean = false;
     public String[] metaDaten = new String[]{"", "", "", ""};
-    final String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
-    final String DATUM_ZEIT_FORMAT_REV = "yyyy.MM.dd__HH:mm";
+    private final static String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
+    private final static String DATUM_ZEIT_FORMAT_REV = "yyyy.MM.dd__HH:mm";
     SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
     public String[] sender = {""};
     public String[][] themenPerSender = {{""}};
@@ -83,9 +82,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // erst mal schauen obs das schon gibt
         DatenFilm f;
         String idx = film.getIndex();
-        Iterator<DatenFilm> it = this.iterator();
-        while (it.hasNext()) {
-            f = it.next();
+        for (DatenFilm datenFilm : this) {
+            f = datenFilm;
             if (f.getIndex().equals(idx)) {
                 return false;
             }
@@ -217,7 +215,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
     public synchronized void sort() {
-        Collections.<DatenFilm>sort(this);
+        Collections.sort(this);
         // und jetzt noch die Nummerierung in Ordnung bringen
         Iterator<DatenFilm> it = this.iterator();
         DatenFilm film;
@@ -229,17 +227,13 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
     public synchronized void setMeta(ListeFilme listeFilme) {
-        for (int i = 0; i < MAX_ELEM; ++i) {
-            metaDaten[i] = listeFilme.metaDaten[i];
-        }
+        System.arraycopy(listeFilme.metaDaten, 0, metaDaten, 0, MAX_ELEM);
     }
 
     public synchronized DatenFilm istInFilmListe(String sender, String thema, String titel) {
         // prüfen ob es den Film schon gibt
         // und sich evtl. nur die URL geändert hat
-        Iterator<DatenFilm> it = listIterator();
-        while (it.hasNext()) {
-            DatenFilm film = it.next();
+        for (DatenFilm film : this) {
             if (film.arr[DatenFilm.FILM_SENDER_NR].equals(sender)
                     && film.arr[DatenFilm.FILM_THEMA_NR].equalsIgnoreCase(thema)
                     && film.arr[DatenFilm.FILM_TITEL_NR].equalsIgnoreCase(titel)) {
@@ -276,9 +270,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized String getDateiGroesse(String url, String sender) {
         // sucht in der Liste nach der URL und gibt die Dateigröße zurück
         // oder versucht sie übers Web zu ermitteln
-        Iterator<DatenFilm> it = listIterator();
-        while (it.hasNext()) {
-            DatenFilm film = it.next();
+        for (DatenFilm film : this) {
             if (film.arr[DatenFilm.FILM_URL_NR].equals(url)) {
                 if (!film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
                     return film.arr[DatenFilm.FILM_GROESSE_NR];
@@ -466,7 +458,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             Date filmDate = null;
             try {
                 filmDate = sdf_.parse(date);
-            } catch (ParseException ex) {
+            } catch (ParseException ignored) {
             }
             if (filmDate == null) {
                 ret = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
@@ -493,7 +485,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             Date filmDate = null;
             try {
                 filmDate = sdf_.parse(date);
-            } catch (ParseException ex) {
+            } catch (ParseException ignored) {
             }
             if (filmDate == null) {
                 ret = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
@@ -555,7 +547,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             if (filmliste != null) {
                 return filmliste.getTime() < maxDiff.getTime();
             }
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
         return true;
     }
@@ -621,11 +613,9 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             tree[i].add("");
             hashSet[i] = new HashSet<>();
         }
-        DatenFilm film;
-        Iterator<DatenFilm> it = iterator();
+
         //alle Theman
-        while (it.hasNext()) {
-            film = it.next();
+        for (DatenFilm film : this) {
             filmSender = film.arr[DatenFilm.FILM_SENDER_NR];
             filmThema = film.arr[DatenFilm.FILM_THEMA_NR];
             //hinzufügen
@@ -643,7 +633,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             }
         }
         for (int i = 0; i < themenPerSender.length; ++i) {
-            themenPerSender[i] = tree[i].toArray(new String[]{});
+            themenPerSender[i] = tree[i].toArray(new String[tree[i].size()]);
             tree[i].clear();
             hashSet[i].clear();
         }

@@ -46,18 +46,13 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
     private final int todayYear = Calendar.getInstance().get(Calendar.YEAR);
     private final int todayMonth = Calendar.getInstance().get(Calendar.MONTH) + 1;
-    private final int URL_ENTRY = 0;
-    private final int THEME_ENTRY = 1;
+    private final static int URL_ENTRY = 0;
+    private final static int THEME_ENTRY = 1;
 
     /**
      * Class for local Exceptions
      */
     static class SRFException extends Exception {
-
-        public SRFException() {
-            super();
-        }
-
         public SRFException(String message) {
             super(message);
         }
@@ -65,30 +60,22 @@ public class MediathekSrf extends MediathekReader implements Runnable {
         public SRFException(String message, Throwable cause) {
             super(message, cause);
         }
-
-        public SRFException(Throwable cause) {
-            super(cause);
-        }
     }
 
     public static final String SENDER = "SRF";
-    private final int MAX_FILME_THEMA = 5;
+    private final static int MAX_FILME_THEMA = 5;
 
     public MediathekSrf(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 5, /* urlWarten */ 1000, startPrio);
     }
 
-    /**
+    /*
      * Pings a HTTP URL. This effectively sends a GET request (HEAD is blocked)
      * and returns <code>true</code> if the response code is in the 200-399
      * range. Response Codes >=400 are logged for debug purposes (except 404) If
      * the response code is 403, it will be pinged again with a differen
      * base-uri
      *
-     * @param url The HTTP URL to be pinged
-     * @return <code>true</code> if the given HTTP URL has returned response
-     * code 200-399 on a GET request within the given timeout, otherwise
-     * <code>false</code>.
      */
     private static final String OLD_URL = "https://srfvodhd-vh.akamaihd.net";
     private static final String NEW_URL = "http://hdvodsrforigin-f.akamaihd.net";
@@ -168,8 +155,8 @@ public class MediathekSrf extends MediathekReader implements Runnable {
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
 
         private MSStringBuilder film_website = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private final String PATTERN_URL = "\"url\":\"";
-        private final String PATTERN_URL_END = "\"";
+        private final static String PATTERN_URL = "\"url\":\"";
+        private final static String PATTERN_URL_END = "\"";
 
         private MSStringBuilder periodPageFilm = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private final JsonFactory jf = new JsonFactory();
@@ -244,11 +231,6 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
         }
 
-        /**
-         *
-         * @param urlThema
-         * @param dateList
-         */
         private void addFilmsFromPeriod(String urlThema, ArrayList<Date> dateList) {
             Calendar c = Calendar.getInstance();
             String themePageUrl;
@@ -282,7 +264,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             JsonParser parser = jf.createParser(jsonArray);
             JsonToken currentToken = parser.nextToken();
             ArrayList<Date> dateList = new ArrayList<>();
-            String month = "";
+            String month;
             String year = "";
             final int YEAR_LENGTH = 4;
 
@@ -378,8 +360,6 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
                 if (!url_small.isEmpty()) {
                     film.addUrlKlein(url_small, "");
-                } else {
-                    // MSLog.fehlerMeldung(-915263975, MSLog.FEHLER_ART_MREADER, "MediathekArd.SRF", "keine kleine Url für: " + urlWebsite + " : " + url_normal);
                 }
                 if (!urlHd.isEmpty()) {
                     film.addUrlHd(urlHd, "");
@@ -464,9 +444,9 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
             final String MP4 = ".mp4";
             final String QUALITY = "q50,";
-            final String Q10 = "q10,";
+            //final String Q10 = "q10,";
             final String Q20 = "q20,";
-            final String Q30 = "q30";
+            //final String Q30 = "q30";
             String newUrl = "";
             if (m3u8Url.contains(Q20)) {
 
@@ -479,8 +459,8 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
         private boolean isHigherResolutionAvaiable(MSStringBuilder page) {
             final String PATTERN_WIDTH_960 = "\"frame_width\":960";
-            final String PATTERN_WIDTH_640 = "\"frame_width\":640";
-            final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
+            //final String PATTERN_WIDTH_640 = "\"frame_width\":640";
+            //final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
 
             return page.indexOf(PATTERN_WIDTH_960) != -1;
 
@@ -543,8 +523,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             if (isHdAvailable(page)) {
                 film_website = getUrl.getUri_Utf(nameSenderMReader, urlWebsite, film_website, "");
 
-                String dlUrl = subString(PATTERN_DL_URL_START, PATTERN_DL_URL_END, film_website);
-                return dlUrl;
+                return subString(PATTERN_DL_URL_START, PATTERN_DL_URL_END, film_website);
             }
             return "";
         }
@@ -624,9 +603,8 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             final String PATTERN_ID_END = "\",";
 
             String id = subString(PATTERN_ID, PATTERN_ID_END, page);
-            String thumbnail = "http://www.srf.ch/webservice/cvis/segment/thumbnail/" + id + "?width=150";
 
-            return thumbnail;
+            return "http://www.srf.ch/webservice/cvis/segment/thumbnail/" + id + "?width=150";
         }
 
         private String extractDescription(MSStringBuilder page) {

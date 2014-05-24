@@ -73,7 +73,6 @@ public class MSGetUrl {
         long ladeArtNix = 0;
         long ladeArtDeflate = 0;
         long ladeArtGzip = 0;
-        long proxy = 0;
 
         public Seitenzaehler(String ssenderName, long sseitenAnzahl) {
             senderName = ssenderName;
@@ -124,7 +123,7 @@ public class MSGetUrl {
                     // und noch eine Pause vor dem nächsten Versuch
                     this.wait(PAUSE);
                 }
-                letzterVersuch = (aktVer >= maxVersuche) ? true : false;
+                letzterVersuch = (aktVer >= maxVersuche);
                 seite = getUri(sender, addr, seite, kodierung, aktTimeout, meldung, maxVersuche, letzterVersuch);
                 if (seite.length() > 0) {
                     // und nix wie weiter 
@@ -156,11 +155,11 @@ public class MSGetUrl {
         return seite;
     }
 
-    public synchronized void getDummy(String sender) {
+    /*public synchronized void getDummy(String sender) {
         // Dummy zum hochzählen des Seitenzählers
         incSeitenZaehler(LISTE_SEITEN_ZAEHLER, sender, 1, LADE_ART_UNBEKANNT);
         summeByte += 1;
-    }
+    }*/
 
     public void setTimeout(int ttimeout) {
         timeout = ttimeout;
@@ -196,9 +195,8 @@ public class MSGetUrl {
     public static synchronized long getSeitenZaehler(int art) {
         long ret = 0;
         LinkedList<Seitenzaehler> liste = getListe(art);
-        Iterator<Seitenzaehler> it = liste.iterator();
-        while (it.hasNext()) {
-            ret += it.next().seitenAnzahl;
+        for (Seitenzaehler entry : liste) {
+            ret += entry.seitenAnzahl;
         }
         if (art == LISTE_SUMME_BYTE) {
             // Byte in MByte
@@ -207,12 +205,10 @@ public class MSGetUrl {
         return ret;
     }
 
-    public static synchronized String getSeitenZaehlerLadeArt(String sender) {
+    /*public static synchronized String getSeitenZaehlerLadeArt(String sender) {
         String ret = "";
         LinkedList<Seitenzaehler> liste = getListe(LISTE_SUMME_BYTE);
-        Iterator<Seitenzaehler> it = liste.iterator();
-        while (it.hasNext()) {
-            Seitenzaehler sz = it.next();
+        for (Seitenzaehler sz : liste) {
             if (sz.senderName.equals(sender)) {
                 ret = "Nix: " + (sz.ladeArtNix == 0 ? "0" : ((sz.ladeArtNix / 1024 / 1024) == 0 ? "<1" : String.valueOf(sz.ladeArtNix / 1024 / 1024)))
                         + ", Deflaet: " + (sz.ladeArtDeflate == 0 ? "0" : ((sz.ladeArtDeflate / 1024 / 1024) == 0 ? "<1" : String.valueOf(sz.ladeArtDeflate / 1024 / 1024)))
@@ -220,14 +216,12 @@ public class MSGetUrl {
             }
         }
         return ret;
-    }
+    }*/
 
     public static synchronized String[] getZaehlerLadeArt(String sender) {
         String[] ret = {"", "", ""};
         LinkedList<Seitenzaehler> liste = getListe(LISTE_SUMME_BYTE);
-        Iterator<Seitenzaehler> it = liste.iterator();
-        while (it.hasNext()) {
-            Seitenzaehler sz = it.next();
+        for (Seitenzaehler sz : liste) {
             if (sz.senderName.equals(sender)) {
                 ret[0] = (sz.ladeArtNix == 0 ? "0" : ((sz.ladeArtNix / 1024 / 1024) == 0 ? "<1" : String.valueOf(sz.ladeArtNix / 1024 / 1024)));
                 ret[1] = (sz.ladeArtDeflate == 0 ? "0" : ((sz.ladeArtDeflate / 1024 / 1024) == 0 ? "<1" : String.valueOf(sz.ladeArtDeflate / 1024 / 1024)));
@@ -293,14 +287,13 @@ public class MSGetUrl {
                 s.addLadeArt(ladeArt, inc);
                 liste.add(s);
             }
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         } finally {
             lock.unlock();
         }
     }
 
     private synchronized MSStringBuilder getUri(String sender, String addr, MSStringBuilder seite, String kodierung, int timeout, String meldung, int versuch, boolean lVersuch) {
-        int timeo = timeout;
         seite.setLength(0);
         HttpURLConnection conn = null;
         InputStream in = null;
@@ -308,7 +301,7 @@ public class MSGetUrl {
         int retCode;
         int ladeArt = LADE_ART_UNBEKANNT;
         MVInputStream mvIn = null;
-        String encoding = "";
+        String encoding;
         // immer etwas bremsen
         try {
             long w = wartenBasis;// * faktorWarten;
@@ -383,7 +376,7 @@ public class MSGetUrl {
 //                seite.append(zeichen);
 //            }
             char[] buffer = new char[1024];
-            int n = 0;
+            int n;
             while (!MSConfig.getStop() && (n = inReader.read(buffer)) != -1) {
                 // hier wird andlich geladen
                 seite.append(buffer, 0, n);
@@ -406,9 +399,9 @@ public class MSGetUrl {
             if (lVersuch) {
                 String[] text;
                 if (meldung.equals("")) {
-                    text = new String[]{sender + " - timout: " + timeo + " Versuche: " + versuch, addr /*, (proxyB ? "Porxy - " : "")*/};
+                    text = new String[]{sender + " - timout: " + timeout + " Versuche: " + versuch, addr /*, (proxyB ? "Porxy - " : "")*/};
                 } else {
-                    text = new String[]{sender + " - timout: " + timeo + " Versuche: " + versuch, addr, meldung/*, (proxyB ? "Porxy - " : "")*/};
+                    text = new String[]{sender + " - timout: " + timeout + " Versuche: " + versuch, addr, meldung/*, (proxyB ? "Porxy - " : "")*/};
                 }
                 if (ex.getMessage().equals("Read timed out")) {
                     MSLog.fehlerMeldung(502739817, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri: TimeOut", text);
@@ -419,7 +412,7 @@ public class MSGetUrl {
                         final int WARTEN = 2;
                         this.wait(WARTEN * 1000);
                         incSeitenZaehler(LISTE_SEITEN_NO_BUFFER, sender, WARTEN, LADE_ART_UNBEKANNT);
-                    } catch (Exception exx) {
+                    } catch (Exception ignored) {
                     }
                 } else {
                     MSLog.fehlerMeldung(379861049, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, text);
@@ -450,7 +443,7 @@ public class MSGetUrl {
                 if (con != null) {
                     in = con.getInputStream();
                 }
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
 
@@ -458,9 +451,9 @@ public class MSGetUrl {
             return in;
         }
 
-        public long getSumme() {
+        /*public long getSumme() {
             return summe;
-        }
+        }*/
 
         @Override
         public int read() throws IOException {

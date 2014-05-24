@@ -31,9 +31,8 @@ import java.util.Random;
 public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
 
     public boolean addWithCheck(DatenUrlFilmliste film) {
-        ListIterator<DatenUrlFilmliste> it = listIterator();
-        while (it.hasNext()) {
-            if (it.next().arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(film.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR])) {
+        for (DatenUrlFilmliste datenUrlFilmliste : this) {
+            if (datenUrlFilmliste.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(film.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR])) {
                 return false;
             }
         }
@@ -42,14 +41,13 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
 
     public void sort() {
         int nr = 0;
-        Collections.<DatenUrlFilmliste>sort(this);
-        Iterator<DatenUrlFilmliste> it = this.iterator();
-        while (it.hasNext()) {
+        Collections.sort(this);
+        for (DatenUrlFilmliste datenUrlFilmliste : this) {
             String str = String.valueOf(nr++);
             while (str.length() < 3) {
                 str = "0" + str;
             }
-            it.next().arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_NR_NR] = str;
+            datenUrlFilmliste.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_NR_NR] = str;
         }
     }
 
@@ -61,10 +59,7 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
         int i = 0;
         while (iterator.hasNext()) {
             filmUpdate = iterator.next();
-            for (int k = 0; k < MSFilmlistenSuchen.FILM_UPDATE_SERVER_MAX_ELEM; ++k) {
-                // sonst wird anschließend "filmUpdate" überschrieben
-                object[i][k] = filmUpdate.arr[k];
-            }
+            System.arraycopy(filmUpdate.arr, 0, object[i], 0, MSFilmlistenSuchen.FILM_UPDATE_SERVER_MAX_ELEM);
             object[i][MSFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] = filmUpdate.getDateStr(); // lokale Zeit anzeigen
             object[i][MSFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR] = filmUpdate.getTimeStr(); // lokale Zeit anzeigen
             ++i;
@@ -72,11 +67,10 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
         return object;
     }
 
-    public int getNr(String url) {
+    /*public int getNr(String url) {
         int nr = 0;
-        ListIterator<DatenUrlFilmliste> iterator = this.listIterator();
-        while (iterator.hasNext()) {
-            if (iterator.next().arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(url)) {
+        for (DatenUrlFilmliste datenUrlFilmliste : this) {
+            if (datenUrlFilmliste.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(url)) {
                 break;
             }
             ++nr;
@@ -85,13 +79,12 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
             nr = 0;
         }
         return nr;
-    }
+    } */
 
     public DatenUrlFilmliste getDatenUrlFilmliste(String url) {
         DatenUrlFilmliste update;
-        ListIterator<DatenUrlFilmliste> iterator = this.listIterator();
-        while (iterator.hasNext()) {
-            update = iterator.next();
+        for (DatenUrlFilmliste datenUrlFilmliste : this) {
+            update = datenUrlFilmliste;
             if (update.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(url)) {
                 return update;
             }
@@ -127,14 +120,14 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
                 try {
                     d = datenUrlFilmliste.getDate();
                     // debug
-                    SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyy  HH:mm:ss");
-                    String s = sdf_datum_zeit.format(d);
+                    //SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyy  HH:mm:ss");
+                    //String s = sdf_datum_zeit.format(d);
                     long m = today.getTime() - d.getTime();
                     if (m < 0) {
                         m = 0;
                     }
                     minuten = Math.round(m / (1000 * 60));
-                } catch (Exception ex) {
+                } catch (Exception ignored) {
                 }
                 if (minuten < MAXMINUTEN) {
                     listeZeit.add(datenUrlFilmliste);

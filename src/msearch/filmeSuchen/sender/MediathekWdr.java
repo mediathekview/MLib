@@ -34,14 +34,9 @@ import msearch.tool.MSStringBuilder;
 public class MediathekWdr extends MediathekReader implements Runnable {
 
     public static final String SENDER = "WDR";
-    final String ROCKPALAST_URL = "http://www.wdr.de/tv/rockpalast/videos/uebersicht.jsp"; //TH
+    private final static String ROCKPALAST_URL = "http://www.wdr.de/tv/rockpalast/videos/uebersicht.jsp"; //TH
     private MSStringBuilder strSeite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
-    /**
-     *
-     * @param ssearch
-     * @param startPrio
-     */
     public MediathekWdr(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 4, /* urlWarten */ 500, startPrio);
     }
@@ -247,7 +242,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             int ende;
             String url;
             String titel = "";
-            String dauer = "";
+            String dauer;
             String datum = "";
             String thema = "";
             long duration = 0;
@@ -344,9 +339,9 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                                 }
                             }
                         }
-                        if (thema.equals("") || datum.equals("") || titel.equals("") || duration == 0) {
+//                        if (thema.equals("") || datum.equals("") || titel.equals("") || duration == 0) {
 //                            Log.fehlerMeldung(-323569701, Log.FEHLER_ART_MREADER, "MediathekWdr.sendungsSeiteSuchen", strUrl);
-                        }
+//                        }
                         //weiter gehts
                         addFilm1(thema, titel, url, duration, datum);
                     } else {
@@ -426,9 +421,9 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 }
             }
 
-            if (description.equals("") || image.equals("") || keywords.equals("")) {
+//            if (description.equals("") || image.equals("") || keywords.equals("")) {
 //                Log.fehlerMeldung(-649830789, Log.FEHLER_ART_MREADER, "MediathekWdr.addFilm1", new String[]{filmWebsite});
-            }
+//            }
             if (!url.equals("")) {
                 addFilm2(filmWebsite, thema, titel, "http://www1.wdr.de/mediathek/video/sendungen/" + url, dauer, datum, description, keywords, image);
             } else {
@@ -533,8 +528,8 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         private void addFilmeRockpalast(String thema, String titel, String filmWebsite) {
             // ;dslSrc=rtmp://gffstream.fcod.llnwd.net/a792/e1/media/video/2009/02/14/20090214_a40_komplett_big.flv&amp;isdnSrc=rtm
             // <p class="wsArticleAutor">Ein Beitrag von Heinke Schröder, 24.11.2010	</p>
-            final String MUSTER_URL = "dslSrc=";
-            final String MUSTER_DATUM = "<p class=\"wsArticleAutor\">";
+            //final String MUSTER_URL = "dslSrc=";
+            //final String MUSTER_DATUM = "<p class=\"wsArticleAutor\">";
             final String MUSTER_THEMA = "Homepage der Sendung ["; //Homepage der Sendung [west.art]</a>
             final String MUSTER_DURATION_START_0 = "<span class=\"moVideoIcon\">Video:";
             final String MUSTER_DURATION_START_1 = "(";
@@ -558,7 +553,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             int pos1;
             int pos2;
             String url, urlHd;
-            String datum = "";
+            String datum;
             long duration = 0;
             String description = "";
             String thumbnail = "";
@@ -671,7 +666,6 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     thema = nameSenderMReader;
                 }
             }
-            url = "";
             urlHd = "";
             // URL HD suchen
             if ((pos = strSeite2.indexOf(MUSTER_URL_HD)) != -1) {

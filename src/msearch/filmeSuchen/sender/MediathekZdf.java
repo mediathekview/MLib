@@ -31,10 +31,10 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 
     public static final String SENDER = "ZDF";
     private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-    private final int ANZAHL_ZDF_ALLE = 500;
-    private final int ANZAHL_ZDF_MITTEL = 50;
-    private final int ANZAHL_ZDF_UPDATE = 20;
-    private final int ANZAHL_ZDF_KURZ = 10;
+    private final static int ANZAHL_ZDF_ALLE = 500;
+    private final static int ANZAHL_ZDF_MITTEL = 50;
+    private final static int ANZAHL_ZDF_UPDATE = 20;
+    private final static int ANZAHL_ZDF_KURZ = 10;
 
     public MediathekZdf(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, 8 /* threads */, 500 /* urlWarten */, startPrio);
@@ -47,7 +47,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         // Liste von http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz0 bis sat8 holen
         String addr = "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz";
         for (int i = 0; i <= 8; ++i) {
-            addToList_addr(addr + String.valueOf(i), MSConfig.senderAllesLaden ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE);
+            addToList_addr(addr + i, MSConfig.senderAllesLaden ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE);
         }
         // Spartenkanäle einfügen
         addToList_addr("http://www.zdf.de/ZDFmediathek/senderstartseite/sst1/1209122", MSConfig.senderAllesLaden ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE); // zdf-neo
@@ -171,7 +171,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             } else {
                 url = "http://www.zdf.de/ZDFmediathek/kanaluebersicht/aktuellste/" + url;
                 urlThema = url;
-                url += "?teaserListIndex=" + String.valueOf(anz);
+                url += "?teaserListIndex=" + anz;
                 addThemenliste(url, urlThema, thema);
             }
         }
@@ -207,12 +207,12 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         private void addFilme(String url, String urlThema, String thema) {
             final String MUSTER_URL_1 = "<p><b><a href=\"/ZDFmediathek/beitrag/video/";
             String titel = "";
-            String urlFilm = "";
-            boolean ok = false;
+            String urlFilm;
+            boolean ok;
             int pos = 0;
-            int pos1 = 0;
-            int pos2 = 0;
-            int pos3 = 0;
+            int pos1;
+            int pos2;
+            int pos3;
             int anz = 0;
             try {
                 //seite1 = getUrl.getUri(urlThema + "?bc=saz", seite1);
@@ -309,7 +309,9 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         final String DATUM = "<airtime>";
         final String THEMA = "<originChannelTitle>";
         int pos1, pos2;
-        String bild = "", beschreibung = "", laenge = "", datum = "", zeit = "", url = "", urlKlein = "", urlHd = "", urlF4m = "";
+        String bild, beschreibung, laenge, datum;
+        String zeit = "", url = "", urlKlein = "", urlHd = "", urlF4m = "";
+
         strBuffer = getUrl.getUri_Utf(sender, urlId, strBuffer, "url: " + filmWebsite);
         if (strBuffer.length() == 0) {
             MSLog.fehlerMeldung(-398745601, MSLog.FEHLER_ART_MREADER, "MediathekZdf.filmHolen", "url: " + urlId);
@@ -345,9 +347,9 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         final String URL_ANFANG_HD = "<formitaet basetype=\"wmv3_wma9_asf_mms_asx_http\"";
         final String URL_ENDE = "</formitaet>";
         final String URL = "<url>";
-        int posAnfang = 0, posEnde = 0;
+        int posAnfang, posEnde;
         posAnfang = 0;
-        posEnde = 0;
+
         while (true) {
             if ((posAnfang = strBuffer.indexOf(URL_F4M_ANFANG, posAnfang)) == -1) {
                 break;
@@ -376,7 +378,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         //    <url>http://nrodl.zdf.de/none/zdf/13/05/130528_vorschau_afo_1596k_p13v9.mp4</url>
         // </formitaet>
         posAnfang = 0;
-        posEnde = 0;
+
         while (true) {
             if ((posAnfang = strBuffer.indexOf(URL_ANFANG, posAnfang)) == -1) {
                 break;
@@ -404,7 +406,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         }
         // und jetzt nochmal für HD
         posAnfang = 0;
-        posEnde = 0;
+
         while (true) {
             if ((posAnfang = strBuffer.indexOf(URL_ANFANG_HD, posAnfang)) == -1) {
                 break;
@@ -479,7 +481,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         //    <media href="mp4/none/3sat/13/07/130714_zkm_bonus_rundgang_museumscheck_2256k_p14v11.mp4/manifest.f4m?hdcore" bitrate="2200000"/>
         //</manifest>
         final String URL = "<media href=\"";
-        String url = "";
+        String url;
         int pos1 = 0, pos2;
         strBuffer = getUrl.getUri_Utf(sender, urlf4m, strBuffer, "url: " + urlf4m);
         if (strBuffer.length() == 0) {

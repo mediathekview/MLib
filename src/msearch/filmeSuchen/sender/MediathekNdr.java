@@ -128,7 +128,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                         int z = Integer.parseInt(anz);
                         for (int i = 1; i <= z / 10; ++i) {
                             // geht bei 2 los da das ja schon die erste Seite ist!
-                            String url_ = strUrlFeed.replace(".html", "_format-video_page-" + String.valueOf(i) + ".html");
+                            String url_ = strUrlFeed.replace(".html", "_format-video_page-" + i + ".html");
                             url_ = url_.replace("mediatheksuche103", "mediatheksuche105");
                             listeThemen.addUrl(new String[]{url_, tthema});
                             ret = true;
@@ -174,12 +174,12 @@ public class MediathekNdr extends MediathekReader implements Runnable {
             seite1 = getUrlIo.getUri(nameSenderMReader, strUrlFeed, MSConst.KODIERUNG_UTF, 3 /* versuche */, seite1, "Thema: " + tthema/* meldung */);
             int pos = 0;
             String url;
-            String titel = "";
+            String titel;
             String thema = tthema;
             String datum = "";
             String zeit = "";
             long durationInSeconds = 0;
-            String tmp = "";
+            String tmp;
             boolean tage = false;
             try {
                 meldung(strUrlFeed);
@@ -296,7 +296,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
             meldung(filmWebsite);
             int pos1;
             int pos2;
-            String url, tmp;
+            String url;
             try {
                 if ((pos1 = seite2.indexOf(MUSTER_URL)) != -1) {
                     pos1 += MUSTER_URL.length();
