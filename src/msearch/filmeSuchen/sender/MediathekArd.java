@@ -37,6 +37,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
     private static int wiederholungen1 = 0;
     private static int wiederholungen2 = 0;
     private static final int MAX_WIEDERHOLUNGEN = 50;
+    MSStringBuilder seite_1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
     /**
      *
@@ -51,9 +52,8 @@ public class MediathekArd extends MediathekReader implements Runnable {
     void addToList() {
         wiederholungen1 = 0;
         wiederholungen2 = 0;
-        final String ADRESSE = "http://www.ardmediathek.de/ard/servlet/ajax-cache/3551682/view=module/index.html";
-        final String MUSTER_URL = "?documentId=";
-        final String MUSTER_THEMA = "{ \"titel\": \"";
+        final String ADRESSE = "http://www.ardmediathek.de/tv";
+        final String MUSTER_URL = "<a href=\"/tv/sendungen-a-z?buchstabe=";
         listeThemen.clear();
         MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         meldungStart();
@@ -70,34 +70,19 @@ public class MediathekArd extends MediathekReader implements Runnable {
         int pos1;
         int pos2;
         String url = "";
-        String thema = "";
-        while ((pos = seite.indexOf(MUSTER_THEMA, pos)) != -1) {
+        while ((pos = seite.indexOf(MUSTER_URL, pos)) != -1) {
             try {
-                pos += MUSTER_THEMA.length();
+                pos += MUSTER_URL.length();
                 pos1 = pos;
                 pos2 = seite.indexOf("\"", pos);
                 if (pos1 != -1 && pos2 != -1) {
-                    thema = seite.substring(pos1, pos2);
-                }
-                pos2 = seite.indexOf("}", pos);
-                if (pos1 != -1 && pos2 != -1) {
-                    String tmp = seite.substring(pos1, pos2);
-                    if (tmp.contains("/podcast/")) {
-                        // ist dann auch im ARD.Podcast
-                        continue;
-                    }
-                }
-                pos1 = seite.indexOf(MUSTER_URL, pos);
-                pos1 = pos1 + MUSTER_URL.length();
-                pos2 = seite.indexOf("\"", pos1);
-                if (pos1 != -1 && pos2 != -1 && pos1 < pos2) {
                     url = seite.substring(pos1, pos2);
                 }
                 if (url.equals("")) {
                     continue;
                 }
-                String[] add = new String[]{"http://www.ardmediathek.de/ard/servlet/ajax-cache/3516962/view=list/documentId=" + url + "/index.html", thema};
-                listeThemen.addUrl(add);
+                url = "http://www.ardmediathek.de/tv/sendungen-a-z?buchstabe=" + url;
+                feedSuchen1(url);
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-698732167, MSLog.FEHLER_ART_MREADER, "MediathekArd.addToList", ex, "kein Thema");
             }
@@ -114,6 +99,36 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 Thread th = new Thread(new ThemaLaden());
                 th.setName(nameSenderMReader + t);
                 th.start();
+            }
+        }
+    }
+
+    private void feedSuchen1(String strUrlFeed) {
+        final String MUSTER = "<div class=\"media mediaA\">";
+        seite_1 = getUrlIo.getUri(nameSenderMReader, strUrlFeed, MSConst.KODIERUNG_UTF, (wiederholungen1 < MAX_WIEDERHOLUNGEN ? 2 : 1)/*max Versuche*/, seite_1, "");
+        if (seite_1.length() == 0) {
+            MSLog.fehlerMeldung(-207956317, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "Leere Seite: " + strUrlFeed);
+            return;
+        }
+        int pos;
+        String url, thema;
+        long d = 0;
+        pos = 0;
+        pos = seite_1.indexOf(MUSTER);
+        pos += MUSTER.length();
+        while (!MSConfig.getStop() && (pos = seite_1.indexOf(MUSTER, pos)) != -1) {
+            try {
+                pos += MUSTER.length();
+                url = seite_1.extract("<a href=\"/tv/", "\"", pos);
+                if (url.equals("")) {
+                    continue;
+                }
+                url = "http://www.ardmediathek.de/tv/" + url;
+                thema = seite_1.extract("title=\"", "\"", pos);
+                String[] add = new String[]{ url, thema};
+                listeThemen.addUrl(add);
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(-732154698, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", ex, "Weitere Seiten suchen");
             }
         }
     }
@@ -139,6 +154,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
         private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seiteWeiter = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
         @Override
         public synchronized void run() {
@@ -147,7 +163,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 String[] link;
                 while (!MSConfig.getStop() && (link = getListeThemen()) != null) {
                     meldungProgress(link[0]);
-                    feedSuchen(link[0] /* url */, link[1] /* Thema */);
+                    feedSuchen2(link[0] /* url */, link[1]);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-487326921, MSLog.FEHLER_ART_MREADER, "MediathekArdThemaLaden.run", ex);
@@ -155,45 +171,116 @@ public class MediathekArd extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         }
 
-        private void feedSuchen(String strUrlFeed, String thema) {
-            //weitere Seiten:
-            //wenn vorhanden: <option value="
-            //<option value="/ard/servlet/ajax-cache/3516962/view=list/documentId=1175574/goto=2/index.html">2</option>
-            //URL: http://www.ardmediathek.de/ard/servlet/ajax-cache/3516962/view=list/documentId=4106/index.html
-            final String MUSTER = "<option value=\"";
-            //seite1 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, seite1, "Thema: " + thema);
-            seite1 = getUrl.getUri(nameSenderMReader, strUrlFeed, MSConst.KODIERUNG_UTF, (wiederholungen1 < MAX_WIEDERHOLUNGEN ? 2 : 1)/*max Versuche*/, seite1, "Thema: " + thema);
-            if (seite1.length() == 0) {
-                MSLog.fehlerMeldung(-207956317, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "Leere Seite: " + strUrlFeed);
+//        private void feedSuchen1(String strUrlFeed) {
+//            final String MUSTER = "<div class=\"media mediaA\">";
+//            seite1 = getUrl.getUri(nameSenderMReader, strUrlFeed, MSConst.KODIERUNG_UTF, (wiederholungen1 < MAX_WIEDERHOLUNGEN ? 2 : 1)/*max Versuche*/, seite1, "");
+//            if (seite1.length() == 0) {
+//                MSLog.fehlerMeldung(-207956317, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "Leere Seite: " + strUrlFeed);
+//                return;
+//            }
+//            int pos;
+//            String url, thema;
+//            long d = 0;
+//            pos = 0;
+//            pos = seite1.indexOf(MUSTER);
+//            pos += MUSTER.length();
+//            while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER, pos)) != -1) {
+//                try {
+//                    pos += MUSTER.length();
+//                    url = seite1.extract("<a href=\"/tv/", "\"", pos);
+//                    if (url.equals("")) {
+//                        continue;
+//                    }
+//                    url = "http://www.ardmediathek.de/tv/" + url;
+//                    thema = seite1.extract("title=\"", "\"", pos);
+//                    feedSuchen2(url, thema);
+//                } catch (Exception ex) {
+//                    MSLog.fehlerMeldung(-732154698, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", ex, "Weitere Seiten suchen");
+//                }
+//            }
+//        }
+
+        private void feedSuchen2(String strUrlFeed, String thema) {
+            final String MUSTER = "<div class=\"media mediaA\">";
+            final String MUSTER_START = "<h2 class=\"modHeadline\">Videos und Audios der Sendung</h2>";
+            seite2 = getUrl.getUri(nameSenderMReader, strUrlFeed, MSConst.KODIERUNG_UTF, (wiederholungen1 < MAX_WIEDERHOLUNGEN ? 2 : 1)/*max Versuche*/, seite2, "");
+            if (seite2.length() == 0) {
+                MSLog.fehlerMeldung(-765323214, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "Leere Seite: " + strUrlFeed);
                 return;
             }
             int pos;
-            int pos1;
-            int pos2;
-            String url;
-            //erst mal die erste Seite holen
-            feedEinerSeiteSuchen(seite1, strUrlFeed, thema);
-            //nach weitern Seiten schauen
-            if (MSConfig.senderAllesLaden) {
-                pos = 0;
-                while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER, pos)) != -1) {
-                    try {
-                        pos += MUSTER.length();
-                        pos1 = pos;
-                        pos2 = seite1.indexOf("\"", pos);
-                        if (pos1 != -1 && pos2 != -1) {
-                            url = seite1.substring(pos1, pos2);
-                        } else {
-                            break;
-                        }
-                        if (url.equals("")) {
-                            continue;
-                        }
-                        seiteWeiter = getUrl.getUri_Utf(nameSenderMReader, "http://www.ardmediathek.de" + url, seiteWeiter, "Thema: " + thema);
-                        feedEinerSeiteSuchen(seiteWeiter, strUrlFeed, thema);
-                    } catch (Exception ex) {
-                        MSLog.fehlerMeldung(-497321681, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", ex, "Weitere Seiten suchen");
+            String url, datum, zeit = "", titel, dauer, urlSendung;
+            long d = 0;
+            pos = 0;
+            pos = seite2.indexOf(MUSTER_START);
+            pos += MUSTER_START.length();
+            while (!MSConfig.getStop() && (pos = seite2.indexOf(MUSTER, pos)) != -1) {
+                pos += MUSTER.length();
+                url = seite2.extract("documentId=", "&", pos);
+                if (url.equals("")) {
+                    continue;
+                }
+                datum = seite2.extract("<p class=\"dachzeile\">", "<", pos);
+                datum = datum.replace("Uhr", "").trim();
+                if (datum.contains("|")) {
+                    zeit = datum.substring(datum.indexOf("|") + 1).trim();
+                    zeit = zeit + ":00";
+                    datum = datum.substring(0, datum.indexOf("|")).trim();
+                }
+                titel = seite2.extract("<h4 class=\"headline\">", "<", pos);
+                dauer = seite2.extract("<p class=\"subtitle\">", "<", pos);
+                dauer = dauer.replace("min", "").trim();
+                try {
+                    if (dauer.contains(":")) {
+                        String s = dauer.substring(0, dauer.indexOf(":"));
+                        d = Long.parseLong(s);
+                        d *= 60;
+                        s = dauer.substring(dauer.indexOf(":") + 1);
+                        d += Long.parseLong(s);
                     }
+                } catch (Exception ex) {
+                }
+                urlSendung = seite2.extract("<a href=\"/tv/", "\"", pos);
+                if (!urlSendung.isEmpty()) {
+                    urlSendung = "http://www.ardmediathek.de/tv/" + urlSendung;
+                }
+                filmSuchen(url, thema, titel, d, datum, zeit, urlSendung);
+            }
+        }
+
+        private void filmSuchen(String urlFilm_, String thema, String titel, long dauer, String datum, String zeit, String urlSendung) {
+            // URL bauen: http://www.ardmediathek.de/play/media/21528242?devicetype=pc&features=flash
+            String urlFilm = "http://www.ardmediathek.de/play/media/" + urlFilm_ + "?devicetype=pc&features=flash";
+            meldung(urlFilm);
+            seite3 = getUrl.getUri_Utf(nameSenderMReader, urlFilm, seite3, "");
+            if (seite3.length() == 0) {
+                MSLog.fehlerMeldung(-915263621, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "Leere Seite: " + urlFilm);
+                return;
+            }
+            String url, urlKl;
+            urlKl = seite3.extract("flashUrl\":false,\"valid\":true,\"_quality\":1", "\"_stream\":\"", "\"");
+            url = seite3.extract("flashUrl\":false,\"valid\":true,\"_quality\":3", "\"_stream\":\"", "\"");
+            if (!url.isEmpty()) {
+                DatenFilm f = new DatenFilm(nameSenderMReader, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, "" /*description*/,
+                        "" /*imageUrl*/, new String[]{}/*keywords*/);
+                if (!urlKl.isEmpty()) {
+                    f.addUrlKlein(urlKl, "");
+                }
+                addFilm(f);
+            } else {
+                urlFilm = "http://www.ardmediathek.de/play/media/" + urlFilm_ + "?devicetype=pc&features";
+                seite3 = getUrl.getUri_Utf(nameSenderMReader, urlFilm, seite3, "");
+                if (seite3.length() == 0) {
+                    MSLog.fehlerMeldung(-915263621, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "Leere Seite: " + urlFilm);
+                    return;
+                }
+                url = seite3.extract("_quality\":1", "_stream\":\"", "\"");
+                if (!url.isEmpty()) {
+                    DatenFilm f = new DatenFilm(nameSenderMReader, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, "" /*description*/,
+                            "" /*imageUrl*/, new String[]{}/*keywords*/);
+                    addFilm(f);
+                } else {
+                    MSLog.fehlerMeldung(-784512369, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "keine URL: " + urlFilm);
                 }
             }
         }
@@ -321,16 +408,16 @@ public class MediathekArd extends MediathekReader implements Runnable {
             boolean flash;
             String protokoll = "";
             meldung(filmWebsite);
-            seite2 = getUrl.getUri(nameSenderMReader, filmWebsite, MSConst.KODIERUNG_UTF, (wiederholungen2 < MAX_WIEDERHOLUNGEN ? 2 : 1)/*max Versuche*/, seite2, "urlFeed: " + urlFeed);
-            if (seite2.length() == 0) {
+            seite3 = getUrl.getUri(nameSenderMReader, filmWebsite, MSConst.KODIERUNG_UTF, (wiederholungen2 < MAX_WIEDERHOLUNGEN ? 2 : 1)/*max Versuche*/, seite3, "urlFeed: " + urlFeed);
+            if (seite3.length() == 0) {
                 MSLog.fehlerMeldung(-201549307, MSLog.FEHLER_ART_MREADER, "MediathekArd.filmLaden", "leere Seite: " + filmWebsite);
                 return false;
             }
-            long durationInSeconds = extractDuration(seite2);
-            String description = extractDescription(seite2);
-            String[] keywords = extractKeywords(seite2);
-            String thumbnailUrl = extractThumbnailURL(seite2);
-            String imageUrl = extractImageURL(seite2);
+            long durationInSeconds = extractDuration(seite3);
+            String description = extractDescription(seite3);
+            String[] keywords = extractKeywords(seite3);
+            String thumbnailUrl = extractThumbnailURL(seite3);
+            String imageUrl = extractImageURL(seite3);
             // String titel = seite2.extract("<meta property=\"og:title\" content=\"Video &#034;", "&#034;");
             // if (titel.isEmpty()) {
             //    titel = seite2.extract("<meta property=\"og:title\" content=\"Video &#034;&#034;", "&#034;");
@@ -338,7 +425,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             //       Log.fehlerMeldung(-989301245, Log.FEHLER_ART_MREADER, "MediathekArd.filmLaden", "kein Titel: " + filmWebsite);
             //    }
             // }
-            String titel = seite2.extract("<meta name=\"dcterms.title\" content=\"", "\"");
+            String titel = seite3.extract("<meta name=\"dcterms.title\" content=\"", "\"");
             if (titel.contains("&#034;")) {
                 titel = titel.replaceAll("&#034;", "");
             }
@@ -357,35 +444,35 @@ public class MediathekArd extends MediathekReader implements Runnable {
             final String MUSTER_URL3e = "mediaCollection.addMediaStream(1, 0, \"\", \"http://";
             protokoll = "http://";
             flash = false;
-            if ((pos1 = seite2.indexOf(MUSTER_URL3a)) != -1) {
+            if ((pos1 = seite3.indexOf(MUSTER_URL3a)) != -1) {
                 pos1 += MUSTER_URL3a.length();
                 if (filmHolen(f, flash, pos1, protokoll, true /*noch 2. suchen*/)) {
                     addFilm(f);
                     return true;
                 }
             }
-            if ((pos1 = seite2.indexOf(MUSTER_URL3b)) != -1) {
+            if ((pos1 = seite3.indexOf(MUSTER_URL3b)) != -1) {
                 pos1 += MUSTER_URL3b.length();
                 if (filmHolen(f, flash, pos1, protokoll, true /*noch 2. suchen*/)) {
                     addFilm(f);
                     return true;
                 }
             }
-            if ((pos1 = seite2.indexOf(MUSTER_URL3c)) != -1) {
+            if ((pos1 = seite3.indexOf(MUSTER_URL3c)) != -1) {
                 pos1 += MUSTER_URL3c.length();
                 if (filmHolen(f, flash, pos1, protokoll, false /*noch 2. suchen*/)) {
                     addFilm(f);
                     return true;
                 }
             }
-            if ((pos1 = seite2.indexOf(MUSTER_URL3d)) != -1) {
+            if ((pos1 = seite3.indexOf(MUSTER_URL3d)) != -1) {
                 pos1 += MUSTER_URL3d.length();
                 if (filmHolen(f, flash, pos1, protokoll, false /*noch 2. suchen*/)) {
                     addFilm(f);
                     return true;
                 }
             }
-            if ((pos1 = seite2.indexOf(MUSTER_URL3e)) != -1) {
+            if ((pos1 = seite3.indexOf(MUSTER_URL3e)) != -1) {
                 pos1 += MUSTER_URL3e.length();
                 if (filmHolen(f, flash, pos1, protokoll, false /*noch 2. suchen*/)) {
                     addFilm(f);
@@ -398,28 +485,28 @@ public class MediathekArd extends MediathekReader implements Runnable {
             final String MUSTER_URL1b = "mediaCollection.addMediaStream(0, 2, \"rtmp";
             final String MUSTER_URL1c = "mediaCollection.addMediaStream(0, 1, \"rtmp";
             final String MUSTER_URL1d = "mediaCollection.addMediaStream(0, 0, \"rtmp";
-            if ((pos1 = seite2.indexOf(MUSTER_URL1a)) != -1) {
+            if ((pos1 = seite3.indexOf(MUSTER_URL1a)) != -1) {
                 pos1 += MUSTER_URL1a.length();
                 if (filmHolen(f, flash, pos1, protokoll, true /*noch 2. suchen*/)) {
                     addFilm(f);
                     return true;
                 }
             }
-            if ((pos1 = seite2.indexOf(MUSTER_URL1b)) != -1) {
+            if ((pos1 = seite3.indexOf(MUSTER_URL1b)) != -1) {
                 pos1 += MUSTER_URL1b.length();
                 if (filmHolen(f, flash, pos1, protokoll, true /*noch 2. suchen*/)) {
                     addFilm(f);
                     return true;
                 }
             }
-            if ((pos1 = seite2.indexOf(MUSTER_URL1c)) != -1) {
+            if ((pos1 = seite3.indexOf(MUSTER_URL1c)) != -1) {
                 pos1 += MUSTER_URL1c.length();
                 if (filmHolen(f, flash, pos1, protokoll, false /*noch 2. suchen*/)) {
                     addFilm(f);
                     return true;
                 }
             }
-            if ((pos1 = seite2.indexOf(MUSTER_URL1d)) != -1) {
+            if ((pos1 = seite3.indexOf(MUSTER_URL1d)) != -1) {
                 pos1 += MUSTER_URL1d.length();
                 if (filmHolen(f, flash, pos1, protokoll, false /*noch 2. suchen*/)) {
                     addFilm(f);
@@ -427,8 +514,8 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 }
             }
             if (f.arr[DatenFilm.FILM_URL_NR].equals("")) {
-                if (seite2.indexOf("Der Clip ist deshalb nur von 20 bis 6 Uhr verfügbar") == -1
-                        && seite2.indexOf("Der Clip ist deshalb nur von 22 bis 6 Uhr verfügbar") == -1) {
+                if (seite3.indexOf("Der Clip ist deshalb nur von 20 bis 6 Uhr verfügbar") == -1
+                        && seite3.indexOf("Der Clip ist deshalb nur von 22 bis 6 Uhr verfügbar") == -1) {
                     MSLog.fehlerMeldung(-159873540, MSLog.FEHLER_ART_MREADER, "MediathekArd.filmLaden", "keine Url für: " + filmWebsite + " Flash: " + flash);
                 }
             } else {
@@ -445,8 +532,8 @@ public class MediathekArd extends MediathekReader implements Runnable {
             String url1a, url1b = "", url = "";
             String urlOrg = "", urlRtmp = "";
             if (flash) {
-                if ((pos2 = seite2.indexOf("\"", pos1)) != -1) {
-                    url1a = seite2.substring(pos1, pos2);
+                if ((pos2 = seite3.indexOf("\"", pos1)) != -1) {
+                    url1a = seite3.substring(pos1, pos2);
                     if (!url1a.equals("")) {
                         if (url1a.contains("//")) {
                             protokoll = protokoll + url1a.substring(0, url1a.indexOf("//") + 2);
@@ -458,16 +545,16 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     }
                     pos1 = pos2 + 1;
                     //wenn eine url gefunden, dann ...
-                    pos1 = seite2.indexOf("\"", pos1) + 1; //Anfang
-                    pos2 = seite2.indexOf("?", pos1); //entweder Ende
-                    pos3 = seite2.indexOf("\"", pos1); // oder da zu Ende
+                    pos1 = seite3.indexOf("\"", pos1) + 1; //Anfang
+                    pos2 = seite3.indexOf("?", pos1); //entweder Ende
+                    pos3 = seite3.indexOf("\"", pos1); // oder da zu Ende
                     if (pos2 < pos3) {
                         if (pos1 > 1 && pos2 != -1) {
-                            url = seite2.substring(pos1, pos2);
+                            url = seite3.substring(pos1, pos2);
                         }
                     } else {
                         if (pos1 > 1 && pos3 != -1) {
-                            url = seite2.substring(pos1, pos3);
+                            url = seite3.substring(pos1, pos3);
                         }
                     }
                     urlOrg = addsUrl(urlOrg, url);
@@ -480,15 +567,15 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     //DatenFilm(Daten ddaten, String ssender, String tthema, String urlThema, String ttitel, String uurl, String uurlorg, String uurlRtmp, String zziel)
                 }
             } else {
-                if ((pos2 = seite2.indexOf("\"", pos1)) != -1) {
-                    url = seite2.substring(pos1, pos2);
+                if ((pos2 = seite3.indexOf("\"", pos1)) != -1) {
+                    url = seite3.substring(pos1, pos2);
                     if (!url.equals("")) {
                         urlOrg = protokoll + url;
                     }
                 }
                 if (urlOrg.contains(".csmil/master.m3u8")) {
                     // m3uUrlHolen(GetUrl getUrl, String sender, MVStringBuilder strBuffer, String urlM3u) {
-                    urlOrg = m3uUrlHolen(getUrl, nameSenderMReader, seite2, urlOrg);
+                    urlOrg = m3uUrlHolen(getUrl, nameSenderMReader, seite3, urlOrg);
 //                    f.arr[DatenFilm.FILM_TITEL_NR] = f.arr[DatenFilm.FILM_TITEL_NR];
                 }
             }
