@@ -352,14 +352,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 "http://www.wdr.de/wdrlive/media/wdr-fernsehen_web-l.asx", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         // die neuen Livestreams ARD
         addFilmVomSender(new DatenFilm(MediathekArd.SENDER, THEMA_LIVE, ""/* urlThema */,
-                MediathekArd.SENDER + " Small " + THEMA_LIVE,
-                "rtsp://daserste.edges.wowza.gl-systemhaus.de/live/mp4:daserste_int_320", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
-        addFilmVomSender(new DatenFilm(MediathekArd.SENDER, THEMA_LIVE, ""/* urlThema */,
-                MediathekArd.SENDER + " Medium " + THEMA_LIVE,
-                "rtsp://daserste.edges.wowza.gl-systemhaus.de/live/mp4:daserste_int_576", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
-        addFilmVomSender(new DatenFilm(MediathekArd.SENDER, THEMA_LIVE, ""/* urlThema */,
-                MediathekArd.SENDER + " Big " + THEMA_LIVE,
-                "rtsp://daserste.edges.wowza.gl-systemhaus.de/live/mp4:daserste_int_1600", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                MediathekArd.SENDER + " Tagesschau " + THEMA_LIVE,
+                "http://tagesschau-lh.akamaihd.net/i/tagesschau_1@119231/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         // ZDF
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDER + " " + THEMA_LIVE,

@@ -84,6 +84,26 @@ public class MSStringBuilder {
         return "";
     }
 
+    public void extractList(String abMuster, String musterStart, String musterEnde, ArrayList<String> result) {
+        try {
+            pos1 = 0;
+            while ((pos1 = cont.indexOf(abMuster, pos1)) != -1) {
+                pos1 += abMuster.length();
+                if ((pos2 = cont.indexOf(musterStart, pos1)) != -1) {
+                    pos2 += musterStart.length();
+                    if ((pos3 = cont.indexOf(musterEnde, pos2)) != -1) {
+                        result.add(cont.substring(pos2, pos3));
+                        if (result.size() > 100) {
+                            System.out.println("Achtung");
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            MSLog.fehlerMeldung(462310871, MSLog.FEHLER_ART_MREADER, "extractList", ex);
+        }
+    }
+
     public void extractList(String musterStart, String musterEnde, int abPos, String addUrl, ArrayList<String> result) {
         pos1 = abPos;
         while ((pos1 = cont.indexOf(musterStart, pos1)) != -1) {
