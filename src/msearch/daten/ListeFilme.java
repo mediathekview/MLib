@@ -19,6 +19,8 @@
  */
 package msearch.daten;
 
+import java.io.InputStream;
+import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -54,10 +56,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public static final int FILMLISTE_VERSION_NR = 2;
     public static final String FILMLISTE_PROGRAMM = "Filmliste-Programm";
     public static final int FILMLISTE_PRGRAMM_NR = 3;
-    public static final int MAX_ELEM = 4;
-    public static final String[] COLUMN_NAMES = {FILMLISTE_DATUM, FILMLISTE_DATUM_GMT, FILMLISTE_VERSION, FILMLISTE_PROGRAMM};
+    public static final String FILMLISTE_ID = "Filmliste-Id";
+    public static final int FILMLISTE_ID_NR = 4;
+    public static final int MAX_ELEM = 5;
+    public static final String[] COLUMN_NAMES = {FILMLISTE_DATUM, FILMLISTE_DATUM_GMT, FILMLISTE_VERSION, FILMLISTE_PROGRAMM, FILMLISTE_ID};
     public int nr = 1;
-    public String[] metaDaten = new String[]{"", "", "", ""};
+    public String[] metaDaten = new String[]{"", "", "", "", ""};
     private final static String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
     private final static String DATUM_ZEIT_FORMAT_REV = "yyyy.MM.dd__HH:mm";
     SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
@@ -464,6 +468,11 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
+    public synchronized String getId() {
+        // liefert die ID einer Filmliste
+        return metaDaten[ListeFilme.FILMLISTE_ID_NR];
+    }
+
     public synchronized String genDateRev() {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "yyyy.MM.dd__HH:mm"
@@ -562,12 +571,30 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         if (!MSConfig.getStop() /* löschen */) {
             metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = getJetzt_ddMMyyyy_HHmm();
             metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = getJetzt_ddMMyyyy_HHmm_gmt();
+            metaDaten[ListeFilme.FILMLISTE_ID_NR] = checkSum(metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR]);
         } else {
             metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = "";
             metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = "";
+            metaDaten[ListeFilme.FILMLISTE_ID_NR] = "";
         }
         metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSConst.VERSION_FILMLISTE;
         metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = MSFunktionen.getProgVersionString() + " - Compiled: " + MSFunktionen.getCompileDate();
+    }
+
+    private static String checkSum(String input) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(input.getBytes());
+            byte[] digest = md.digest();
+            for (byte b : digest) {
+                sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
+            }
+//            System.out.println("original:" + input);
+//            System.out.println("digested(hex):" + sb.toString());
+        } catch (Exception ex) {
+        }
+        return sb.toString();
     }
 
     private String getJetzt_ddMMyyyy_HHmm() {
