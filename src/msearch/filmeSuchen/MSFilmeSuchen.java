@@ -29,7 +29,6 @@ import msearch.daten.ListeFilme;
 import msearch.daten.MSConfig;
 import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
-import msearch.filmeSuchen.sender.MediathekArdPodcast;
 import msearch.filmeSuchen.sender.MediathekArte_de;
 import msearch.filmeSuchen.sender.MediathekArte_fr;
 import msearch.filmeSuchen.sender.MediathekBr;
@@ -83,7 +82,6 @@ public class MSFilmeSuchen {
     public MSFilmeSuchen() {
         //Reader laden Spaltenweises Laden
         mediathekListe.add(new MediathekArd(this, 0));
-        mediathekListe.add(new MediathekArdPodcast(this, 1));
         mediathekListe.add(new MediathekZdf(this, 0));
         mediathekListe.add(new MediathekZdfTivi(this, 0));
         mediathekListe.add(new MediathekArte_de(this, 1));
