@@ -19,7 +19,6 @@
  */
 package msearch.daten;
 
-import java.io.InputStream;
 import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
