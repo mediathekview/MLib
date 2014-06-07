@@ -194,6 +194,10 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 String link[];
                 meldungAddThread();
                 while (!MSConfig.getStop() && (link = getListeThemen()) != null) {
+////////////                    /////////////////////
+////////////                    if (!link[2].contains("Terra")) {
+////////////                        continue; ////////////////////////////
+////////////                    }
                     seite1.setLength(0);
                     addFilme(link[0]/* url */, link[1]/* urlThema */, link[2]/* Thema */);
                     meldungProgress(link[0]);
@@ -454,6 +458,12 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 if (urlHd.startsWith("http://nrodl.zdf.de")) {
                     urlHd = urlHd.replaceFirst("http://nrodl.zdf.de", "http://rodl.zdf.de");
                 }
+            } else if (!url.isEmpty() && url.endsWith("1596k_p15v9.mp4")) {
+                // Entferne das 1596k_p15v9.mp4 und ersetzte das Ende mit: 3056k_p15v9.mp4
+                urlHd = url.replace("1596k_p15v9.mp4", "3056k_p15v9.mp4");
+            } else if (!url.isEmpty() && url.endsWith("1596k_p13v9.mp4")) {
+                // Entferne das 1596k_p15v9.mp4 und ersetzte das Ende mit: 3056k_p15v9.mp4
+                urlHd = url.replace("1596k_p13v9.mp4", "3056k_p15v9.mp4");
             } else {
                 MSLog.fehlerMeldung(-915230647, MSLog.FEHLER_ART_MREADER, "MediathekZdf.filmHolen", "asx: " + filmWebsite);
             }
