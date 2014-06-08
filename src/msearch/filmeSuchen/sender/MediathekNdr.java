@@ -35,7 +35,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
     private MSStringBuilder seiteAlle = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
     public MediathekNdr(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 3, /* urlWarten */ 500, startPrio);
+        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
     //-> erste Seite:

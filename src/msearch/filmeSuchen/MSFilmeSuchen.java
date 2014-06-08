@@ -84,21 +84,21 @@ public class MSFilmeSuchen {
         mediathekListe.add(new MediathekArd(this, 0));
         mediathekListe.add(new MediathekZdf(this, 0));
         mediathekListe.add(new MediathekZdfTivi(this, 0));
-        mediathekListe.add(new MediathekArte_de(this, 1));
-        mediathekListe.add(new MediathekArte_fr(this, 1));
-        mediathekListe.add(new Mediathek3Sat(this, 0));
-        mediathekListe.add(new MediathekSwr(this, 1));
+        mediathekListe.add(new MediathekArte_de(this, 0));
+        mediathekListe.add(new MediathekArte_fr(this, 0));
+        mediathekListe.add(new Mediathek3Sat(this, 1));
+        mediathekListe.add(new MediathekSwr(this, 0));
         mediathekListe.add(new MediathekNdr(this, 1));
         mediathekListe.add(new MediathekKika(this, 0));
         // Spalte 2
         mediathekListe.add(new MediathekMdr(this, 0));
-        mediathekListe.add(new MediathekWdr(this, 0));
+        mediathekListe.add(new MediathekWdr(this, 1));
         mediathekListe.add(new MediathekHr(this, 0));
         mediathekListe.add(new MediathekRbb(this, 1));
         mediathekListe.add(new MediathekBr(this, 0));
         mediathekListe.add(new MediathekSrf(this, 1));
         mediathekListe.add(new MediathekSrfPod(this, 0));
-        mediathekListe.add(new MediathekOrf(this, 0));
+        mediathekListe.add(new MediathekOrf(this, 1));
     }
 
     public void addAdListener(MSListenerFilmeLaden listener) {
@@ -125,11 +125,10 @@ public class MSFilmeSuchen {
      * es wird nur ein Sender aktualisiert
      *
      */
-/*    public void updateSender(String nameSenderFilmliste, ListeFilme listeFilme) {
-        updateSender(new String[]{nameSenderFilmliste}, listeFilme);
-    }
-*/
-
+    /*    public void updateSender(String nameSenderFilmliste, ListeFilme listeFilme) {
+     updateSender(new String[]{nameSenderFilmliste}, listeFilme);
+     }
+     */
     /**
      * es wird nur einige Sender aktualisiert
      *
@@ -257,13 +256,13 @@ public class MSFilmeSuchen {
     }
 
     private synchronized void mrWarten() {
-        // 3 Minuten warten, alle 10 Sekunden auf STOP prüfen
+        // 4 Minuten warten, alle 10 Sekunden auf STOP prüfen
         try {
-            for (int i = 0; i < 18; ++i) {
+            for (int i = 0; i < 4 * 60; ++i) {
                 if (MSConfig.getStop()) {
                     break;
                 }
-                this.wait(10 * 1000); // 0,5 Min. warten, Sender nach der Gesamtlaufzeit starten
+                this.wait(1000); // warten, Sender nach der Gesamtlaufzeit starten
             }
         } catch (Exception ex) {
             MSLog.fehlerMeldung(978754213, MSLog.FEHLER_ART_PROG, "FilmeSuchenSender.mrWarten", ex);
@@ -293,7 +292,7 @@ public class MSFilmeSuchen {
         MSLog.systemMeldung("==  Sender  =====================================================================");
         MSLog.systemMeldung("");
         // Zeile 1 =============================================
-        zeile = titel1[0] + TTRENNER + titel1[1] + TRENNER + titel1[2] + TRENNER + titel1[3] + TRENNER + titel1[4] + TRENNER + titel1[5] + TRENNER + titel1[6] + TRENNER + titel1[7]+ TRENNER ;
+        zeile = titel1[0] + TTRENNER + titel1[1] + TRENNER + titel1[2] + TRENNER + titel1[3] + TRENNER + titel1[4] + TRENNER + titel1[5] + TRENNER + titel1[6] + TRENNER + titel1[7] + TRENNER;
         MSLog.systemMeldung(zeile);
         MSLog.systemMeldung("----------------------------------------------------------------------------------------");
         for (String s : runde1) {
@@ -302,7 +301,7 @@ public class MSFilmeSuchen {
         MSLog.systemMeldung("");
         MSLog.systemMeldung("");
         // Zeile 2 =============================================
-        zeile = titel2[0] + TTRENNER + titel2[1] + TRENNER + titel2[2] + TRENNER + titel2[3] + TRENNER + titel2[4] + TRENNER + titel2[5]+ TRENNER ;
+        zeile = titel2[0] + TTRENNER + titel2[1] + TRENNER + titel2[2] + TRENNER + titel2[3] + TRENNER + titel2[4] + TRENNER + titel2[5] + TRENNER;
         MSLog.systemMeldung(zeile);
         MSLog.systemMeldung("-----------------------------------------------------------------");
         for (String s : runde2) {
@@ -311,7 +310,7 @@ public class MSFilmeSuchen {
         MSLog.systemMeldung("");
         MSLog.systemMeldung("");
         // Zeile 3 =============================================
-        zeile = titel3[0] + TTRENNER + titel3[1] + TRENNER + titel3[2] + TRENNER + titel3[3]+ TRENNER ;
+        zeile = titel3[0] + TTRENNER + titel3[1] + TRENNER + titel3[2] + TRENNER + titel3[3] + TRENNER;
         MSLog.systemMeldung(zeile);
         MSLog.systemMeldung("-----------------------------------------------------");
         for (String s : runde3) {
@@ -420,7 +419,8 @@ public class MSFilmeSuchen {
             }
             text += " ]  " + MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SEITEN_ZAEHLER) + " Seiten  /  "
                     + proz + "% von " + max + " Themen  /  Filme: " + listeFilmeNeu.size()
-                    + "  /  Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60);
+                    + "  /  Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60)
+                    + "  /  R-Sender: " + listeSenderLaufen.getAnzSenderRun();
             MSLog.progress(text);
         }
     }

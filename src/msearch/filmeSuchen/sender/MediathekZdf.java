@@ -37,7 +37,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
     private final static int ANZAHL_ZDF_KURZ = 10;
 
     public MediathekZdf(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, 8 /* threads */, 500 /* urlWarten */, startPrio);
+        super(ssearch, /* name */ SENDER, 4 /* threads */, 250 /* urlWarten */, startPrio);
     }
 
     @Override

@@ -52,13 +52,13 @@ public class MSGetUrl {
 //    private int faktorWarten = 1;
     private int timeout = 10000;
     private long wartenBasis = UrlWartenBasis;
-    private static LinkedList<Seitenzaehler> listeSeitenZaehler = new LinkedList<>();
-    private static LinkedList<Seitenzaehler> listeSeitenZaehlerFehler = new LinkedList<>();
-    private static LinkedList<Seitenzaehler> listeSeitenZaehlerFehlerVersuche = new LinkedList<>();
-    private static LinkedList<Seitenzaehler> listeSeitenZaehlerWartezeitFehlerVersuche = new LinkedList<>(); // Wartezeit für Wiederholungen [s]
-    private static LinkedList<Seitenzaehler> listeSummeByte = new LinkedList<>(); // Summe Daten in Byte für jeden Sender
-    private static LinkedList<Seitenzaehler> listeSeitenProxy = new LinkedList<>(); // Anzahl Seiten über Proxy geladen
-    private static LinkedList<Seitenzaehler> listeSeitenNoBuffer = new LinkedList<>(); // Anzahl Seiten bei BufferOverRun
+    private static final LinkedList<Seitenzaehler> listeSeitenZaehler = new LinkedList<>();
+    private static final LinkedList<Seitenzaehler> listeSeitenZaehlerFehler = new LinkedList<>();
+    private static final LinkedList<Seitenzaehler> listeSeitenZaehlerFehlerVersuche = new LinkedList<>();
+    private static final LinkedList<Seitenzaehler> listeSeitenZaehlerWartezeitFehlerVersuche = new LinkedList<>(); // Wartezeit für Wiederholungen [s]
+    private static final LinkedList<Seitenzaehler> listeSummeByte = new LinkedList<>(); // Summe Daten in Byte für jeden Sender
+    private static final LinkedList<Seitenzaehler> listeSeitenProxy = new LinkedList<>(); // Anzahl Seiten über Proxy geladen
+    private static final LinkedList<Seitenzaehler> listeSeitenNoBuffer = new LinkedList<>(); // Anzahl Seiten bei BufferOverRun
     private static final int LADE_ART_UNBEKANNT = 0;
     private static final int LADE_ART_NIX = 1;
     private static final int LADE_ART_DEFLATE = 2;
@@ -155,12 +155,6 @@ public class MSGetUrl {
         return seite;
     }
 
-    /*public synchronized void getDummy(String sender) {
-        // Dummy zum hochzählen des Seitenzählers
-        incSeitenZaehler(LISTE_SEITEN_ZAEHLER, sender, 1, LADE_ART_UNBEKANNT);
-        summeByte += 1;
-    }*/
-
     public void setTimeout(int ttimeout) {
         timeout = ttimeout;
     }
@@ -204,19 +198,6 @@ public class MSGetUrl {
         }
         return ret;
     }
-
-    /*public static synchronized String getSeitenZaehlerLadeArt(String sender) {
-        String ret = "";
-        LinkedList<Seitenzaehler> liste = getListe(LISTE_SUMME_BYTE);
-        for (Seitenzaehler sz : liste) {
-            if (sz.senderName.equals(sender)) {
-                ret = "Nix: " + (sz.ladeArtNix == 0 ? "0" : ((sz.ladeArtNix / 1024 / 1024) == 0 ? "<1" : String.valueOf(sz.ladeArtNix / 1024 / 1024)))
-                        + ", Deflaet: " + (sz.ladeArtDeflate == 0 ? "0" : ((sz.ladeArtDeflate / 1024 / 1024) == 0 ? "<1" : String.valueOf(sz.ladeArtDeflate / 1024 / 1024)))
-                        + ", Gzip: " + (sz.ladeArtGzip == 0 ? "0" : ((sz.ladeArtGzip / 1024 / 1024) == 0 ? "<1" : String.valueOf(sz.ladeArtGzip / 1024 / 1024)));
-            }
-        }
-        return ret;
-    }*/
 
     public static synchronized String[] getZaehlerLadeArt(String sender) {
         String[] ret = {"", "", ""};
@@ -452,9 +433,8 @@ public class MSGetUrl {
         }
 
         /*public long getSumme() {
-            return summe;
-        }*/
-
+         return summe;
+         }*/
         @Override
         public int read() throws IOException {
             nr = in.read();

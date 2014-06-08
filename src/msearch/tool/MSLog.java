@@ -45,9 +45,8 @@ public class MSLog {
     private static final Date startZeit = new Date(System.currentTimeMillis());
 
     /*public void resetFehlerListe() {
-        fehlerListe.clear();
-    }*/
-
+     fehlerListe.clear();
+     }*/
     public static synchronized void versionsMeldungen(String classname) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         MSLog.systemMeldung("");
@@ -291,19 +290,10 @@ public class MSLog {
         }
     }
 
-//    private static void printProgress() {
-//        if (progress && !progressText.isEmpty()) {
-//            System.out.print(progressText + "\r");
-//        }
-//    }
-//    private static void setProgress() {
-//        progress = true;
-//        printProgress();
-//    }
     private static void resetProgress() {
         // Leerzeile um die Progresszeile zu löschen
         if (progress) {
-            System.out.print("                                                                                           \r");
+            System.out.print("                                                                                                             \r");
             progress = false;
         }
     }
@@ -347,13 +337,15 @@ public class MSLog {
                 default:
                     z = "*";
             }
-            System.out.println(x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x);
+            System.out.println(x + x + x + x + x + x + x + x + x + x
+                    + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x);
 
             try {
                 // Stacktrace
                 try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)) {
-                    if (ex != null)
+                    if (ex != null) {
                         ex.printStackTrace(pw);
+                    }
                     pw.flush();
                     sw.flush();
                     System.out.println(sw.toString());

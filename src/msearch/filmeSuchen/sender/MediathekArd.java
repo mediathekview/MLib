@@ -39,7 +39,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
      * @param startPrio
      */
     public MediathekArd(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 10, /* urlWarten */ 500, startPrio);
+        super(ssearch, /* name */ SENDER, /* threads */ 5, /* urlWarten */ 250, startPrio);
     }
 
     @Override
