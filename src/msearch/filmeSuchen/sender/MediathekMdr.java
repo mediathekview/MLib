@@ -38,8 +38,8 @@ import msearch.tool.MSStringBuilder;
 public class MediathekMdr extends MediathekReader implements Runnable {
 
     public static final String SENDER = "MDR";
-    private LinkedList<String> listeTage = new LinkedList<String>();
-    private LinkedList<String[]> listeGesucht = new LinkedList<String[]>(); //thema,titel,datum,zeit
+    private final LinkedList<String> listeTage = new LinkedList<>();
+    private final LinkedList<String[]> listeGesucht = new LinkedList<>(); //thema,titel,datum,zeit
 
     /**
      *
@@ -243,7 +243,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             final String MUSTER_START = "<span class=\"ressortHead\">Sendungen von A bis Z</span>";
             final String MUSTER_XML = "{container:'mediathekStage',dataURL:'/mediathek/fernsehen/a-z";
             final String MUSTER_ADD = "http://www.mdr.de/mediathek/fernsehen/a-z/";
-            LinkedList<String> tmpListe = new LinkedList<String>();
+            LinkedList<String> tmpListe = new LinkedList<>();
             seite3 = getUrl.getUri_Utf(nameSenderMReader, urlThema, seite3, "Thema: " + thema);
             int pos;
             int pos1;

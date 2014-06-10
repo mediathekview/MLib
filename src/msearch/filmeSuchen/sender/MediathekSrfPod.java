@@ -50,8 +50,8 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
         meldungStart();
         seite = getUrlIo.getUri_Utf(nameSenderMReader, addr1, seite, "");
         int pos = 0;
-        int pos1 = 0;
-        int pos2 = 0;
+        int pos1;
+        int pos2;
         String url = "";
         while (!MSConfig.getStop() && (pos = seite.indexOf(MUSTER_1, pos)) != -1) {
             pos += MUSTER_1.length();

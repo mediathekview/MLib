@@ -31,7 +31,7 @@ import msearch.tool.MSLog;
 public class MSImportFilmliste {
 
     private EventListenerList listeners;
-    private MSFilmlisteLesen msFilmlisteLesen;
+    private final MSFilmlisteLesen msFilmlisteLesen;
     public MSFilmlistenSuchen msFilmlistenSuchen;
 
     public MSImportFilmliste() {
@@ -97,9 +97,9 @@ public class MSImportFilmliste {
 
     private class FilmeImportierenAutoThread implements Runnable {
 
-        private ListeFilme listeFilme;
-        private ListeFilme listeFilmeDiff;
-        private String ziel;
+        private final ListeFilme listeFilme;
+        private final ListeFilme listeFilmeDiff;
+        private final String ziel;
         private boolean diff = false;
 
         public FilmeImportierenAutoThread(String dateiZiel, ListeFilme llisteFilme, ListeFilme llisteFilmeDiff) {
@@ -178,9 +178,9 @@ public class MSImportFilmliste {
 
     private class FilmeImportierenDateiThread implements Runnable {
 
-        private String pfad;
-        private String ziel;
-        private ListeFilme listeFilme;
+        private final String pfad;
+        private final String ziel;
+        private final ListeFilme listeFilme;
 
         public FilmeImportierenDateiThread(String ppfad, String dateiZiel, ListeFilme llisteFilme) {
             pfad = ppfad;

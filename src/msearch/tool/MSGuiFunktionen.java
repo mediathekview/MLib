@@ -171,7 +171,8 @@ public class MSGuiFunktionen extends MSFunktionen {
     }
 
     public static boolean istUrl(String dateiUrl) {
-        return dateiUrl.startsWith("http") ? true : false || dateiUrl.startsWith("www") ? true : false;
+        //return dateiUrl.startsWith("http") ? true : false || dateiUrl.startsWith("www") ? true : false;
+        return dateiUrl.startsWith("http") || dateiUrl.startsWith("www");
     }
 
     public static String getDateiName(String pfad) {

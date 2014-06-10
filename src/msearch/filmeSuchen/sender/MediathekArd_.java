@@ -151,10 +151,10 @@ public class MediathekArd_ extends MediathekReader implements Runnable {
 
         public ThemaLaden() {
         }
-        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+//        private final MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite4 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+//        private final MSStringBuilder seite4 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
         @Override
         public synchronized void run() {
@@ -249,7 +249,7 @@ public class MediathekArd_ extends MediathekReader implements Runnable {
                     MSLog.fehlerMeldung(-915263621, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "Leere Seite: " + urlFilm);
                     return;
                 }
-                String url, urlKl = "", beschreibung = "";
+                String url, urlKl, beschreibung;
                 beschreibung = seite3.extract("<div class=\"mt-clipinfo\">", "<");
                 url = seite3.extract("data-quality=\"L\"", "src=\"", "\"");
                 urlKl = seite3.extract("data-quality=\"M\"", "src=\"", "\"");

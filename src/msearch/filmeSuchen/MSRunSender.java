@@ -41,7 +41,7 @@ public class MSRunSender {
         String ret = "";
         int sekunden;
         try {
-            if (startZeit != null && endZeit != null) {
+            if (startZeit != null) {
                 sekunden = Math.round((endZeit.getTime() - startZeit.getTime()) / 1000);
                 String min = String.valueOf(sekunden / 60);
                 String sek = String.valueOf(sekunden % 60);

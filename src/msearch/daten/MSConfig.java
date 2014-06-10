@@ -124,6 +124,7 @@ public class MSConfig {
 
     /**
      * Damit kann "stop" gesetzt/rückgesetzt werden
+     * @param set
      */
     public static synchronized void setStop(boolean set) {
         MSConfig.stop = set;

@@ -108,6 +108,7 @@ public class MSFilmeSuchen {
     /**
      * es werden alle Filme gesucht
      *
+     * @param listeFilme
      */
     public synchronized void filmeBeimSenderLaden(ListeFilme listeFilme) {
         allStarted = false;
@@ -122,16 +123,10 @@ public class MSFilmeSuchen {
     }
 
     /**
-     * es wird nur ein Sender aktualisiert
-     *
-     */
-    /*    public void updateSender(String nameSenderFilmliste, ListeFilme listeFilme) {
-     updateSender(new String[]{nameSenderFilmliste}, listeFilme);
-     }
-     */
-    /**
      * es wird nur einige Sender aktualisiert
      *
+     * @param nameSender
+     * @param listeFilme
      */
     public void updateSender(String[] nameSender, ListeFilme listeFilme) {
         // nur für den Mauskontext "Sender aktualisieren"

@@ -235,14 +235,19 @@ public class MSFilmlistenSuchen {
                 event = parser.next();
                 if (event == XMLStreamConstants.START_ELEMENT) {
                     //parsername = parser.getLocalName();
-                    if (parser.getLocalName().equals("URL")) {
-                        serverUrl = parser.getElementText();
-                    } else if (parser.getLocalName().equals("Prio")) {
-                        prio = parser.getElementText();
-                    } else if (parser.getLocalName().equals("Datum")) {
-                        datum = parser.getElementText();
-                    } else if (parser.getLocalName().equals("Zeit")) {
-                        zeit = parser.getElementText();
+                    switch (parser.getLocalName()) {
+                        case "URL":
+                            serverUrl = parser.getElementText();
+                            break;
+                        case "Prio":
+                            prio = parser.getElementText();
+                            break;
+                        case "Datum":
+                            datum = parser.getElementText();
+                            break;
+                        case "Zeit":
+                            zeit = parser.getElementText();
+                            break;
                     }
                 }
                 if (event == XMLStreamConstants.END_ELEMENT) {
@@ -268,7 +273,7 @@ public class MSFilmlistenSuchen {
         File tmpFile = null;
         XMLOutputFactory outFactory;
         XMLStreamWriter writer;
-        OutputStreamWriter out = null;
+        OutputStreamWriter out;
         final String TAG_LISTE = "Mediathek";
         final String TAG_SERVER = "Server";
         final String TAG_SERVER_URL = "URL";

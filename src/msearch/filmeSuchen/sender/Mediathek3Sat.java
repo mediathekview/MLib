@@ -108,7 +108,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
 
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
         private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
         @Override
         public synchronized void run() {

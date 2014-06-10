@@ -49,7 +49,7 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
     }
 
     public MSRunSender senderFertig(String sender) {
-        MSRunSender run = null;
+        MSRunSender run;
         Iterator<MSRunSender> it = iterator();
         while (it.hasNext()) {
             run = it.next();
@@ -99,7 +99,7 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
     public int getProgress() {
         int prog = 0;
         int max = 0;
-        MSRunSender run = null;
+        MSRunSender run;
         Iterator<MSRunSender> it = iterator();
         while (it.hasNext()) {
             run = it.next();

@@ -36,7 +36,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
     private final SimpleDateFormat sdfIn = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     private final SimpleDateFormat sdfOut_date = new SimpleDateFormat("dd.MM.yyyy");
     private final SimpleDateFormat sdfOut_time = new SimpleDateFormat("HH:mm:ss");
-    private LinkedListUrl listeThemen_3 = new LinkedListUrl();
+    private final LinkedListUrl listeThemen_3 = new LinkedListUrl();
 
     public MediathekZdfTivi(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, 2 /* threads */, 500 /* urlWarten */, startPrio);
@@ -220,9 +220,9 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
         }
 
         private void addTivi_(String url) {
-            int pos3 = 0;
-            long dauerL = 0;
-            String titel, thema, urlFilm = "", datum, zeit = "", bild, website, dauer, text;
+            int pos3;
+            long dauerL;
+            String titel, thema, urlFilm, datum, zeit = "", bild, website, dauer, text;
             try {
                 urlFilm = "";
                 // Film laden
@@ -271,7 +271,6 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                 pos3 = 0;
                 while ((pos3 = seite1.indexOf("<ns4:quality>veryhigh</ns4:quality>", pos3)) != -1) {
                     pos3 += 5;
-                    urlFilm = "";
                     urlFilm = seite1.extract("<ns4:url>", "<", pos3);
                     if (urlFilm.startsWith("http") && urlFilm.endsWith("mp4") && !urlFilm.contains("metafilegenerator")) {
                         break;

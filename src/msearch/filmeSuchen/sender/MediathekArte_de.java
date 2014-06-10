@@ -19,12 +19,12 @@
  */
 package msearch.filmeSuchen.sender;
 
-import msearch.filmeSuchen.MSFilmeSuchen;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import msearch.io.MSGetUrl;
-import msearch.daten.MSConfig;
 import msearch.daten.DatenFilm;
+import msearch.daten.MSConfig;
+import msearch.filmeSuchen.MSFilmeSuchen;
+import msearch.io.MSGetUrl;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
@@ -82,8 +82,8 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
     class ThemaLaden implements Runnable {
 
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
         @Override
         public void run() {
@@ -111,7 +111,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         final String MUSTER_THEMA = "\"GEN\":\"";
         String[] arr;
         seite1 = getUrlIo.getUri_Utf(nameSenderMReader, startUrl, seite1, "");
-        int posStart = 0, posStop = 0;
+        int posStart = 0, posStop;
         int pos1;
         int pos2;
         int pos;
@@ -119,9 +119,9 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         String datum;
         String zeit;
         String titel, thema;
-        int count = 1;
+//        int count = 1;
         while ((posStart = seite1.indexOf(MUSTER_START, posStart)) != -1) {
-            ++count;
+//            ++count;
             posStart += MUSTER_START.length();
             posStop = seite1.indexOf(MUSTER_START, posStart);
             urlJson = "";

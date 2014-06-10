@@ -629,7 +629,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         TreeSet<String>[] tree = new TreeSet[sender.length];
         HashSet<String>[] hashSet = new HashSet[sender.length];
         for (int i = 0; i < tree.length; ++i) {
-            tree[i] = new TreeSet<String>(msearch.tool.GermanStringSorter.getInstance());
+            tree[i] = new TreeSet<>(msearch.tool.GermanStringSorter.getInstance());
             tree[i].add("");
             hashSet[i] = new HashSet<>();
         }

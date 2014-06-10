@@ -40,7 +40,7 @@ public class MSLog {
     private final static String FEHLER = "Fehler(" + MSConst.PROGRAMMNAME + "): ";
 
     // private
-    private static LinkedList<Integer[]> fehlerListe = new LinkedList<>(); // [Art, Fehlernummer, Anzahl, Exception(0,1 für ja, nein)]
+    private static final LinkedList<Integer[]> fehlerListe = new LinkedList<>(); // [Art, Fehlernummer, Anzahl, Exception(0,1 für ja, nein)]
     private static boolean progress = false;
     private static final Date startZeit = new Date(System.currentTimeMillis());
 
@@ -299,7 +299,7 @@ public class MSLog {
     }
 
     private static void addFehlerNummer(int nr, int art, boolean exception) {
-        int ex = exception ? (ex = 1) : (ex = 2);
+        int ex = exception ? 1 : 2;
         for (Integer[] i : fehlerListe) {
             if (i[1] == nr) {
                 i[0] = art;

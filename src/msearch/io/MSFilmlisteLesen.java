@@ -49,7 +49,7 @@ import org.tukaani.xz.XZInputStream;
 
 public class MSFilmlisteLesen {
 
-    private EventListenerList listeners = new EventListenerList();
+    private final EventListenerList listeners = new EventListenerList();
     private int max = 0;
     private int progress = 0;
     private static final int TIMEOUT = 10000; //10 Sekunden
@@ -149,8 +149,6 @@ public class MSFilmlisteLesen {
             }
             File fileSrc = new File(dateiFilmliste);
             fileSrc.renameTo(fileDest);
-            fileSrc = null;
-            fileDest = null;
         } catch (Exception ex) {
             MSLog.fehlerMeldung(978451206, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteUmbenennen", ex);
         }
@@ -288,11 +286,7 @@ public class MSFilmlisteLesen {
                     count = 0;
                 }
             }
-            if (MSConfig.getStop()) {
-                ret = false;
-            } else {
-                ret = true;
-            }
+            ret = !MSConfig.getStop();
             try {
                 fOut.close();
                 in.close();
@@ -334,11 +328,7 @@ public class MSFilmlisteLesen {
                     count = 0;
                 }
             }
-            if (MSConfig.getStop()) {
-                ret = false;
-            } else {
-                ret = true;
-            }
+            ret = !MSConfig.getStop();
             try {
                 fOut.close();
                 in.close();

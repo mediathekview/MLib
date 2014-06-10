@@ -31,7 +31,7 @@ import msearch.tool.MSLog;
 public class Search implements Runnable {
 
     private ListeFilme listeFilme = new ListeFilme();
-    private MSFilmeSuchen mSearchFilmeSuchen;
+    private final MSFilmeSuchen mSearchFilmeSuchen;
     private boolean serverLaufen = false;
 
     public Search(String[] ar) {

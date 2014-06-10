@@ -30,7 +30,7 @@ public class MSLong implements Comparable<MSLong> {
     }
 
     public MSLong(long ll) {
-        l = new Long(ll);
+        l = ll;
         s = l.toString();
     }
 
@@ -40,7 +40,7 @@ public class MSLong implements Comparable<MSLong> {
         }
         try {
             if (!film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
-                l = new Long(Long.valueOf(film.arr[DatenFilm.FILM_GROESSE_NR]));
+                l = Long.valueOf(film.arr[DatenFilm.FILM_GROESSE_NR]);
                 s = film.arr[DatenFilm.FILM_GROESSE_NR];
             }
         } catch (Exception ex) {

@@ -151,13 +151,17 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     try {
                         meldungProgress(link[0]);
-                        if (link[1].equals(THEMA_TAG)) {
-                            // dann ist von "Tage zurück"
-                            feedEinerSeiteSuchen(link[0], "", false /*themaBehalten*/, true /*nurUrlPruefen*/);
-                        } else if (link[1].equals(THEMA_SENDUNGEN)) {
-                            sendungen(link[0]);
-                        } else {
-                            themen(link[0] /* url */);
+                        switch (link[1]) {
+                            case THEMA_TAG:
+                                // dann ist von "Tage zurück"
+                                feedEinerSeiteSuchen(link[0], "", false /*themaBehalten*/, true /*nurUrlPruefen*/);
+                                break;
+                            case THEMA_SENDUNGEN:
+                                sendungen(link[0]);
+                                break;
+                            default:
+                                themen(link[0] /* url */);
+                                break;
                         }
                     } catch (Exception ex) {
                         MSLog.fehlerMeldung(-795633581, MSLog.FEHLER_ART_MREADER, "MediathekOrf.OrfThemaLaden.run", ex);

@@ -380,23 +380,30 @@ public class MSGetUrl {
             if (lVersuch) {
                 String[] text;
                 if (meldung.equals("")) {
-                    text = new String[]{sender + " - timout: " + timeout + " Versuche: " + versuch, addr /*, (proxyB ? "Porxy - " : "")*/};
+                    text = new String[]{"Sender: " + sender + " - timout: " + timeout + " Versuche: " + versuch,
+                        "URL: " + addr};
                 } else {
-                    text = new String[]{sender + " - timout: " + timeout + " Versuche: " + versuch, addr, meldung/*, (proxyB ? "Porxy - " : "")*/};
+                    text = new String[]{"Sender: " + sender + " - timout: " + timeout + " Versuche: " + versuch,
+                        "URL: " + addr,
+                        meldung};
                 }
-                if (ex.getMessage().equals("Read timed out")) {
-                    MSLog.fehlerMeldung(502739817, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri: TimeOut", text);
-                } else if (ex.getMessage().equals("No buffer space available")) {
-                    MSLog.fehlerMeldung(915263697, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri: No buffer space available", text);
-                    try {
-                        // Pause zum Abbauen von Verbindungen
-                        final int WARTEN = 2;
-                        this.wait(WARTEN * 1000);
-                        incSeitenZaehler(LISTE_SEITEN_NO_BUFFER, sender, WARTEN, LADE_ART_UNBEKANNT);
-                    } catch (Exception ignored) {
-                    }
-                } else {
-                    MSLog.fehlerMeldung(379861049, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, text);
+                switch (ex.getMessage()) {
+                    case "Read timed out":
+                        MSLog.fehlerMeldung(502739817, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri: TimeOut", text);
+                        break;
+                    case "No buffer space available":
+                        MSLog.fehlerMeldung(915263697, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri: No buffer space available", text);
+                        try {
+                            // Pause zum Abbauen von Verbindungen
+                            final int WARTEN = 2;
+                            this.wait(WARTEN * 1000);
+                            incSeitenZaehler(LISTE_SEITEN_NO_BUFFER, sender, WARTEN, LADE_ART_UNBEKANNT);
+                        } catch (Exception ignored) {
+                        }
+                        break;
+                    default:
+                        MSLog.fehlerMeldung(379861049, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, text);
+                        break;
                 }
             }
         } catch (Exception ex) {

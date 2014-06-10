@@ -505,7 +505,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     private String getUrlFlvstreamerKlein() {
         // liefert die kleine flvstreamer URL
-        String ret = "";
+        String ret;
         if (!arr[DatenFilm.FILM_URL_RTMP_KLEIN_NR].isEmpty()) {
             // es gibt eine kleine RTMP
             try {
