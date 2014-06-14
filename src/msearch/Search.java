@@ -138,7 +138,7 @@ public class Search implements Runnable {
             }
         });
         // laden was es schon gibt
-        new MSFilmlisteLesen().filmlisteLesenJson(MSConfig.getPathFilmlist(false /*aktDate*/), "", listeFilme);
+        new MSFilmlisteLesen().filmlisteLesenJson(MSConfig.getPathFilmlist_json_akt(false /*aktDate*/), "", listeFilme);
         // das eigentliche Suchen der Filme bei den Sendern starten
         if (MSConfig.nurSenderLaden == null) {
             mSearchFilmeSuchen.filmeBeimSenderLaden(listeFilme);
@@ -198,9 +198,9 @@ public class Search implements Runnable {
         //================================================
         // Filmliste schreiben, normal, xz und bz2 komprimiert
         MSLog.systemMeldung("");
-        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist(false /*aktDate*/), listeFilme);
-        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist(true /*aktDate*/), listeFilme);
-        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_xz(), listeFilme);
+        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt(false /*aktDate*/), listeFilme);
+        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt(true /*aktDate*/), listeFilme);
+        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt_xz(), listeFilme);
         new MSFilmlisteSchreiben().filmlisteSchreibenXml(MSConfig.getPathFilmlist_xml_bz2(), listeFilme);
 
         //================================================
@@ -212,16 +212,16 @@ public class Search implements Runnable {
             MSLog.systemMeldung("");
             MSLog.systemMeldung("============================================================================");
             MSLog.systemMeldung("Org-Lilste");
-            MSLog.systemMeldung("  --> ersellen: " + MSConfig.getPathFilmlist_org());
-            new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_org(), listeFilme);
-            new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_org_xz(), listeFilme);
+            MSLog.systemMeldung("  --> ersellen: " + MSConfig.getPathFilmlist_json_org());
+            new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_org(), listeFilme);
+            new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_org_xz(), listeFilme);
         }
         if (MSConfig.diffFilmlisteErstellen) {
             // noch das diff erzeugen
-            String org = MSConfig.orgFilmliste.isEmpty() ? MSConfig.getPathFilmlist_org() : MSConfig.orgFilmliste;
+            String org = MSConfig.orgFilmliste.isEmpty() ? MSConfig.getPathFilmlist_json_org() : MSConfig.orgFilmliste;
             MSLog.systemMeldung("");
             MSLog.systemMeldung("============================================================================");
-            MSLog.systemMeldung("Diff erzeugen, von: " + org + " nach: " + MSConfig.getPathFilmlist_diff());
+            MSLog.systemMeldung("Diff erzeugen, von: " + org + " nach: " + MSConfig.getPathFilmlist_json_diff());
             tmpListe.clear();
             ListeFilme diff;
             if (!new MSFilmlisteLesen().filmlisteLesenJson(org, "", tmpListe) || tmpListe.isEmpty()) {
@@ -236,8 +236,8 @@ public class Search implements Runnable {
                 // nur dann macht die Arbeit sinn
                 diff = listeFilme.neueFilme(tmpListe);
             }
-            new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_diff(), diff);
-            new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_diff_xz(), diff);
+            new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff(), diff);
+            new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff_xz(), diff);
             MSLog.systemMeldung("   --> Anz. Filme Diff: " + diff.size());
         }
 

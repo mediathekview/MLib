@@ -81,7 +81,7 @@ public class MSLog {
         versionsMeldungen(classname);
         MSLog.systemMeldung("##################################################################################");
         MSLog.systemMeldung("Programmpfad: " + MSFunktionen.getPathJar());
-        MSLog.systemMeldung("Filmliste: " + MSConfig.getPathFilmlist(true /*aktDate*/));
+        MSLog.systemMeldung("Filmliste: " + MSConfig.getPathFilmlist_json_akt(true /*aktDate*/));
         MSLog.systemMeldung("Useragent: " + MSConfig.getUserAgent());
         MSLog.systemMeldung("##################################################################################");
         MSLog.systemMeldung("");
