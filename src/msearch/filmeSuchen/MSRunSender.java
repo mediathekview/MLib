@@ -55,4 +55,17 @@ public class MSRunSender {
         }
         return ret;
     }
+
+    public int getLaufzeitSekunden() {
+        Date endZeit = new Date();
+        int sekunden = 0;
+        try {
+            if (startZeit != null) {
+                sekunden = Math.round((endZeit.getTime() - startZeit.getTime()) / 1000);
+            }
+        } catch (Exception ex) {
+            MSLog.fehlerMeldung(976431583, MSLog.FEHLER_ART_PROG, "Suchen.RunSender.getLaufzeitMinuten", ex, sender);
+        }
+        return sekunden;
+    }
 }

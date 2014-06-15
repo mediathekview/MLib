@@ -28,6 +28,7 @@ public class MSConst {
     public static final String ADRESSE_FILMLISTEN_SERVER_XML = "http://zdfmediathk.sourceforge.net/update.xml";
     public static final String ADRESSE_FILMLISTEN_SERVER_JSON = "http://zdfmediathk.sourceforge.net/update-json.xml";
     public static final String ADRESSE_FILMLISTEN_SERVER_DIFF = "http://zdfmediathk.sourceforge.net/diff.xml";
+    public static final String ADRESSE_FILMLISTEN_SERVER_AKT = "http://zdfmediathk.sourceforge.net/akt.xml";
 
     public static final String DATEINAME_LISTE_FILMLISTEN = "filmlisten.xml";
     public static final String ADRESSE_PROGRAMM_VERSION = "http://zdfmediathk.sourceforge.net/version.xml";

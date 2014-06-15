@@ -28,6 +28,7 @@ import java.util.ListIterator;
 import java.util.Random;
 
 public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
+    // ist die Liste mit den URLs zum Download einer Filmliste
 
     public boolean addWithCheck(DatenUrlFilmliste film) {
         for (DatenUrlFilmliste datenUrlFilmliste : this) {

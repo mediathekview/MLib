@@ -45,7 +45,7 @@ public class MSGetUrl {
     public static final int LISTE_SEITEN_ZAEHLER_FEHlER = 2;
     public static final int LISTE_SEITEN_ZAEHLER_FEHLERVERSUCHE = 3;
     public static final int LISTE_SEITEN_ZAEHLER_WARTEZEIT_FEHLVERSUCHE = 4;
-    public static final int LISTE_SUMME_BYTE = 5;
+    public static final int LISTE_SUMME_KBYTE = 5;
     public static final int LISTE_SEITEN_PROXY = 6;
     public static final int LISTE_SEITEN_NO_BUFFER = 7;
     private static final long UrlWartenBasis = 500;//ms, Basiswert zu dem dann der Faktor multipliziert wird
@@ -179,9 +179,9 @@ public class MSGetUrl {
                 ret = sz.seitenAnzahl;
             }
         }
-        if (art == LISTE_SUMME_BYTE) {
-            // Byte in MByte
-            ret = ret / 1024 / 1024;
+        if (art == LISTE_SUMME_KBYTE) {
+            // Byte in kByte
+            ret = ret / 1024;
         }
         return ret;
     }
@@ -192,16 +192,16 @@ public class MSGetUrl {
         for (Seitenzaehler entry : liste) {
             ret += entry.seitenAnzahl;
         }
-        if (art == LISTE_SUMME_BYTE) {
-            // Byte in MByte
-            ret = ret / 1024 / 1024;
+        if (art == LISTE_SUMME_KBYTE) {
+            // Byte in kByte
+            ret = ret / 1024;
         }
         return ret;
     }
 
     public static synchronized String[] getZaehlerLadeArt(String sender) {
         String[] ret = {"", "", ""};
-        LinkedList<Seitenzaehler> liste = getListe(LISTE_SUMME_BYTE);
+        LinkedList<Seitenzaehler> liste = getListe(LISTE_SUMME_KBYTE);
         for (Seitenzaehler sz : liste) {
             if (sz.senderName.equals(sender)) {
                 ret[0] = (sz.ladeArtNix == 0 ? "0" : ((sz.ladeArtNix / 1024 / 1024) == 0 ? "<1" : String.valueOf(sz.ladeArtNix / 1024 / 1024)));
@@ -236,7 +236,7 @@ public class MSGetUrl {
                 return listeSeitenZaehlerFehler;
             case LISTE_SEITEN_ZAEHLER_WARTEZEIT_FEHLVERSUCHE:
                 return listeSeitenZaehlerWartezeitFehlerVersuche;
-            case LISTE_SUMME_BYTE:
+            case LISTE_SUMME_KBYTE:
                 return listeSummeByte;
             case LISTE_SEITEN_PROXY:
                 return listeSeitenProxy;
@@ -362,7 +362,7 @@ public class MSGetUrl {
                 // hier wird andlich geladen
                 seite.append(buffer, 0, n);
             }
-            incSeitenZaehler(LISTE_SUMME_BYTE, sender, mvIn.summe, ladeArt);
+            incSeitenZaehler(LISTE_SUMME_KBYTE, sender, mvIn.summe, ladeArt);
         } catch (IOException ex) {
             if (conn != null) {
                 try {

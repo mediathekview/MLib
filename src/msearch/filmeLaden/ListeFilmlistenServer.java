@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 public class ListeFilmlistenServer extends LinkedList<DatenFilmlistenServer> {
+    // ist die Liste mit den Servern die Listen mit DownloadURLs von Filmlisten haben
 
     private final static int MAX_ALTER = 25; // entspricht 25x laden der update.xml auf sf.net
 

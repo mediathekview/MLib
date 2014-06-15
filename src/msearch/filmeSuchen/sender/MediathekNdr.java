@@ -35,7 +35,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
     private MSStringBuilder seiteAlle = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
     public MediathekNdr(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 250, startPrio);
     }
 
     //-> erste Seite:
@@ -114,32 +114,35 @@ public class MediathekNdr extends MediathekReader implements Runnable {
     private boolean alleSeiteSuchen(String strUrlFeed, String tthema) {
         boolean ret = false;
         seiteAlle = getUrlIo.getUri(nameSenderMReader, strUrlFeed, MSConst.KODIERUNG_UTF, 3 /* versuche */, seiteAlle, "Thema: " + tthema/* meldung */);
-        int pos1;
-        int pos2;
+        int pos1 = 0, pos2, anz1, anz2 = 0;
         try {
-            // http://www.ndr.de/mediathek/mediatheksuche103_broadcast-35.html
-            // http://www.ndr.de/mediathek/mediatheksuche105_broadcast-35_format-video_page-1.html
-            final String WEITER = "Alle zeigen (";
-            if ((pos1 = seiteAlle.indexOf(WEITER)) != -1) {
+            // <a class="square button" href="/mediathek/mediatheksuche105_broadcast-1391_page-5.html" title="Zeige Seite 5">
+            // http://www.ndr.de/mediathek/mediatheksuche105_broadcast-30_page-1.html
+            final String WEITER = " title=\"Zeige Seite ";
+            while ((pos1 = seiteAlle.indexOf(WEITER, pos1)) != -1) {
                 pos1 += WEITER.length();
-                if ((pos2 = seiteAlle.indexOf(")", pos1)) != -1) {
+                if ((pos2 = seiteAlle.indexOf("\"", pos1)) != -1) {
                     String anz = seiteAlle.substring(pos1, pos2);
                     try {
-                        int z = Integer.parseInt(anz);
-                        for (int i = 1; i <= z / 10; ++i) {
-                            // geht bei 2 los da das ja schon die erste Seite ist!
-                            String url_ = strUrlFeed.replace(".html", "_format-video_page-" + i + ".html");
-                            url_ = url_.replace("mediatheksuche103", "mediatheksuche105");
-                            listeThemen.addUrl(new String[]{url_, tthema});
-                            ret = true;
+                        anz1 = Integer.parseInt(anz);
+                        if (anz2 < anz1) {
+                            anz2 = anz1;
                         }
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(-913047821, MSLog.FEHLER_ART_MREADER, "MediathekNdr.feddEinerSeiteSuchen", strUrlFeed);
+                        MSLog.fehlerMeldung(-643208979, MSLog.FEHLER_ART_MREADER, "MediathekNdr.feddEinerSeiteSuchen", strUrlFeed);
                     }
                 }
             }
+            for (int i = 2; i <= anz2 && i <= 10; ++i) {
+                // geht bei 2 los da das ja schon die erste Seite ist!
+                //das:   http://www.ndr.de/mediathek/mediatheksuche105_broadcast-30.html
+                // wird: http://www.ndr.de/mediathek/mediatheksuche105_broadcast-30_page-3.html
+                String url_ = strUrlFeed.replace(".html", "_page-" + i + ".html");
+                listeThemen.addUrl(new String[]{url_, tthema});
+                ret = true;
+            }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-643208979, MSLog.FEHLER_ART_MREADER, "MediathekNdr.feddEinerSeiteSuchen", strUrlFeed);
+            MSLog.fehlerMeldung(-913047821, MSLog.FEHLER_ART_MREADER, "MediathekNdr.feddEinerSeiteSuchen", strUrlFeed);
         }
         return ret;
     }

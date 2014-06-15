@@ -64,7 +64,7 @@ public class MSFilmeSuchen {
     private final ArrayList<String> runde2 = new ArrayList<>();
     private final ArrayList<String> runde3 = new ArrayList<>();
     private final String[] titel1 = {"Sender laden ", "[min]", "Seiten", "Filme", "Fehler", "FVersuche", "FZeit[s]", "AnzÜberProxy"};
-    private final String[] titel2 = {"Sender laden ", "Geladen[MB]", "Nix", "Deflaet", "Gzip", "noBuff[s]"};
+    private final String[] titel2 = {"Sender laden ", "Geladen[MB]", "Nix", "Deflaet", "Gzip", "noBuff[s]", "D-Rate[kByte/s]"};
     private final String[] titel3 = {"Dateigroesse ", "getGroesse:", "mit_403", "OkMitProxy"};
     private final static String TRENNER = " | ";
     private final static String TTRENNER = " || ";
@@ -193,7 +193,15 @@ public class MSFilmeSuchen {
         MSLog.systemMeldung(zeile);
 
         if (run != null) {
-            String groesse = (MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_BYTE, run.sender) == 0) ? "<1" : Long.toString(MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_BYTE, run.sender));
+            int dauerS = run.getLaufzeitSekunden();
+            long groesseKB = MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_KBYTE, run.sender);
+
+            String rate = "<1";
+            if (groesseKB > 0 && dauerS > 0) {
+                rate = String.valueOf(groesseKB / dauerS);
+            }
+            String groesse = (groesseKB / 1000 == 0) ? "<1" : Long.toString(groesseKB / 1000);
+            //String groesse = (MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_KBYTE, run.sender) == 0) ? "<1" : Long.toString(MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_KBYTE, run.sender));
             String[] ladeart = MSGetUrl.getZaehlerLadeArt(run.sender);
             // =================================
             // Zeile1
@@ -214,6 +222,7 @@ public class MSFilmeSuchen {
             zeile += textLaenge(titel2[3].length(), ladeart[1]) + TRENNER;
             zeile += textLaenge(titel2[4].length(), ladeart[2]) + TRENNER;
             zeile += textLaenge(titel2[5].length(), String.valueOf(MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SEITEN_NO_BUFFER, run.sender))) + TRENNER;
+            zeile += textLaenge(titel2[6].length(), rate) + TRENNER;
             runde2.add(zeile);
             // =================================
             // Zeile3
@@ -296,9 +305,9 @@ public class MSFilmeSuchen {
         MSLog.systemMeldung("");
         MSLog.systemMeldung("");
         // Zeile 2 =============================================
-        zeile = titel2[0] + TTRENNER + titel2[1] + TRENNER + titel2[2] + TRENNER + titel2[3] + TRENNER + titel2[4] + TRENNER + titel2[5] + TRENNER;
+        zeile = titel2[0] + TTRENNER + titel2[1] + TRENNER + titel2[2] + TRENNER + titel2[3] + TRENNER + titel2[4] + TRENNER + titel2[5] + TRENNER + titel2[6] + TRENNER;
         MSLog.systemMeldung(zeile);
-        MSLog.systemMeldung("-----------------------------------------------------------------");
+        MSLog.systemMeldung("----------------------------------------------------------------------------------");
         for (String s : runde2) {
             MSLog.systemMeldung(s);
         }
@@ -331,11 +340,11 @@ public class MSFilmeSuchen {
         MSLog.systemMeldung("");
         MSLog.systemMeldung("        Filme geladen: " + anzFilme);
         MSLog.systemMeldung("       Seiten geladen: " + MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SEITEN_ZAEHLER));
-        String groesse = (MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_BYTE) == 0) ? "<1" : Long.toString(MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_BYTE));
+        String groesse = (MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_KBYTE) / 1000 == 0) ? "<1" : Long.toString(MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_KBYTE) / 1000);
         MSLog.systemMeldung("   Summe geladen[MiB]: " + groesse);
         MSLog.systemMeldung("        Traffic [MiB]: " + MSGetUrl.getSummeMegaByte());
         // Durchschnittswerte ausgeben
-        long kb = (MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_BYTE) * 1024) / sekunden;
+        long kb = (MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_KBYTE)) / (sekunden == 0 ? 1 : sekunden);
         MSLog.systemMeldung("     ->   Rate[KiB/s]: " + (kb == 0 ? "<1" : kb));
         MSLog.systemMeldung("     ->    Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60));
         MSLog.systemMeldung("            ->  Start: " + sdf.format(startZeit));
@@ -412,10 +421,10 @@ public class MSFilmeSuchen {
             for (int i = 0; i < (10 - a); ++i) {
                 text += "-";
             }
-            text += " ]  " + MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SEITEN_ZAEHLER) + " Seiten  /  "
-                    + proz + "% von " + max + " Themen  /  Filme: " + listeFilmeNeu.size()
-                    + "  /  Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60)
-                    + "  /  R-Sender: " + listeSenderLaufen.getAnzSenderRun();
+            text += " ]  " + MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SEITEN_ZAEHLER) + " Seiten / "
+                    + proz + "% von " + max + " Themen / Filme: " + listeFilmeNeu.size()
+                    + " / Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60)
+                    + " / R-Sender: " + listeSenderLaufen.getAnzSenderRun();
             MSLog.progress(text);
         }
     }

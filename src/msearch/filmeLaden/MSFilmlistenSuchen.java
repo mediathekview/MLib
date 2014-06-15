@@ -41,6 +41,7 @@ import msearch.tool.DatumZeit;
 import msearch.tool.MSConst;
 import msearch.tool.MSGuiFunktionen;
 import msearch.tool.MSLog;
+import sun.org.mozilla.javascript.Token;
 
 public class MSFilmlistenSuchen {
 
@@ -67,6 +68,7 @@ public class MSFilmlistenSuchen {
     public ListeFilmlistenServer listeFilmlistenServer = new ListeFilmlistenServer();
     // Liste mit den URLs zum Download der Filmliste
     public ListeDownloadUrlsFilmlisten listeDownloadUrlsFilmlisten = new ListeDownloadUrlsFilmlisten();
+    public ListeDownloadUrlsFilmlisten listeDownloadUrlsFilmlisten_akt = new ListeDownloadUrlsFilmlisten();
     public ListeDownloadUrlsFilmlisten listeDownloadUrlsFilmlisten_diff = new ListeDownloadUrlsFilmlisten();
 
     public String suchen(ArrayList<String> bereitsVersucht) {
@@ -113,33 +115,64 @@ public class MSFilmlistenSuchen {
         return retUrl;
     }
 
-    public String suchenDiff(ArrayList<String> bereitsVersucht) {
-        // passende URL zum Laden der Diff-Filmliste suchen
+    public String suchenAktDiff(boolean akt, ArrayList<String> bereitsVersucht) {
+        // passende URL zum Laden der Akt-Filmliste suchen
         String retUrl;
-        if (listeDownloadUrlsFilmlisten_diff.isEmpty()) {
+        String downUrl = akt ? MSConst.ADRESSE_FILMLISTEN_SERVER_AKT : MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF;
+        if ((akt ? listeDownloadUrlsFilmlisten_akt : listeDownloadUrlsFilmlisten_diff).isEmpty()) {
             // da sich die Listen nicht ändern nur eimal pro Start laden
             ListeDownloadUrlsFilmlisten tmp = new ListeDownloadUrlsFilmlisten();
             try {
-                getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, MSConfig.getUserAgent());
+                getDownloadUrlsFilmlisten(downUrl, tmp, MSConfig.getUserAgent());
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(912036790, MSLog.FEHLER_ART_PROG, "FilmUpdateServer.suchenDiff", ex);
+                MSLog.fehlerMeldung(465323104, MSLog.FEHLER_ART_PROG, "FilmUpdateServer.suchenDiff", ex);
             }
             if (tmp.size() == 0) {
                 MSLog.systemMeldung(new String[]{"Es ist ein Fehler aufgetreten!",
-                    "Es konnten keine Updateserver (DIFF) zum aktualisieren der Filme",
+                    "Es konnten keine Updateserver " + (akt ? "(AKT)" : "(DIFF)") + " zum aktualisieren der Filme",
                     "gefunden werden."});
             } else {
-                listeDownloadUrlsFilmlisten_diff = tmp;
+                if (akt) {
+                    listeDownloadUrlsFilmlisten_akt = tmp;
+                } else {
+                    listeDownloadUrlsFilmlisten_diff = tmp;
+                }
             }
-            listeDownloadUrlsFilmlisten_diff.sort();
+            (akt ? listeDownloadUrlsFilmlisten_akt : listeDownloadUrlsFilmlisten_diff).sort();
         }
-        retUrl = listeDownloadUrlsFilmlisten_diff.getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
+        retUrl = (akt ? listeDownloadUrlsFilmlisten_akt : listeDownloadUrlsFilmlisten_diff).getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
         if (bereitsVersucht != null) {
             bereitsVersucht.add(retUrl);
         }
         return retUrl;
     }
 
+//    public String suchenDiff(ArrayList<String> bereitsVersucht) {
+//        // passende URL zum Laden der Diff-Filmliste suchen
+//        String retUrl;
+//        if (listeDownloadUrlsFilmlisten_diff.isEmpty()) {
+//            // da sich die Listen nicht ändern nur eimal pro Start laden
+//            ListeDownloadUrlsFilmlisten tmp = new ListeDownloadUrlsFilmlisten();
+//            try {
+//                getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, MSConfig.getUserAgent());
+//            } catch (Exception ex) {
+//                MSLog.fehlerMeldung(912036790, MSLog.FEHLER_ART_PROG, "FilmUpdateServer.suchenDiff", ex);
+//            }
+//            if (tmp.size() == 0) {
+//                MSLog.systemMeldung(new String[]{"Es ist ein Fehler aufgetreten!",
+//                    "Es konnten keine Updateserver (DIFF) zum aktualisieren der Filme",
+//                    "gefunden werden."});
+//            } else {
+//                listeDownloadUrlsFilmlisten_diff = tmp;
+//            }
+//            listeDownloadUrlsFilmlisten_diff.sort();
+//        }
+//        retUrl = listeDownloadUrlsFilmlisten_diff.getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
+//        if (bereitsVersucht != null) {
+//            bereitsVersucht.add(retUrl);
+//        }
+//        return retUrl;
+//    }
     private void updateListeFilmlistenServer(ListeDownloadUrlsFilmlisten tmp) {
         Iterator<DatenUrlFilmliste> it = tmp.iterator();
         //listeFilmlistenServer.clear();

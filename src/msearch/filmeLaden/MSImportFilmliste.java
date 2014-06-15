@@ -72,7 +72,7 @@ public class MSImportFilmliste {
         // diff: ist die Liste mit den Diffs
         if (listeDiffs) {
             if (update) {
-                msFilmlistenSuchen.suchenDiff(null);
+                msFilmlistenSuchen.suchenAktDiff(false, null);
             }
             return msFilmlistenSuchen.listeDownloadUrlsFilmlisten_diff;
         } else {
@@ -140,7 +140,7 @@ public class MSImportFilmliste {
             //wenn auto-update-url dann erst mal die Updateserver aktualiseren
             boolean ret = false;
             ArrayList<String> versuchteUrls = new ArrayList<>();
-            String updateUrl = diff ? msFilmlistenSuchen.suchenDiff(versuchteUrls) : msFilmlistenSuchen.suchen(versuchteUrls);
+            String updateUrl = diff ? msFilmlistenSuchen.suchenAktDiff(false, versuchteUrls) : msFilmlistenSuchen.suchen(versuchteUrls);
 
             if (!updateUrl.equals("")) {
                 for (int i = 0; i < 5; ++i) {
