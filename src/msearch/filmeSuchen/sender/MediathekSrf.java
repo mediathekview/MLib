@@ -53,6 +53,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
      * Class for local Exceptions
      */
     static class SRFException extends Exception {
+
         public SRFException(String message) {
             super(message);
         }
@@ -66,7 +67,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
     private final static int MAX_FILME_THEMA = 5;
 
     public MediathekSrf(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 250, startPrio);
     }
 
     /*
@@ -279,7 +280,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                         if (!month.isEmpty()) {
 
                             //Ignoring the current year and month, because that is the same as the overview page
-                            if ((Integer.valueOf(year) != todayYear) && (Integer.parseInt(month) != todayMonth)) {
+                            if ((Integer.valueOf(year) != todayYear) || (Integer.parseInt(month) != todayMonth)) {
 
                                 String str_date = year + "-" + month;
 
@@ -289,6 +290,8 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                                 } catch (ParseException ex) {
                                     MSLog.fehlerMeldung(-102306547, MSLog.FEHLER_ART_MREADER, "MediathekSrf.parseJsonArray", ex);
                                 }
+                            } else {
+                                System.out.println("Dann wars das");
                             }
                         }
                     }
