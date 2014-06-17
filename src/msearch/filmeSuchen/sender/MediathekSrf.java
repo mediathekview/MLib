@@ -64,10 +64,10 @@ public class MediathekSrf extends MediathekReader implements Runnable {
     }
 
     public static final String SENDER = "SRF";
-    private final static int MAX_FILME_THEMA = 5;
+    private final static int MAX_FILME_THEMA = 3; //5
 
     public MediathekSrf(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 250, startPrio);
+        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
     /*
@@ -90,6 +90,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             connection.setConnectTimeout(1000); //1000ms timeout for connect, read timeout to infinity
             connection.setReadTimeout(0);
             int responseCode = connection.getResponseCode();
+            connection.disconnect();
             if (responseCode > 399 && responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
 
                 if (responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
@@ -291,7 +292,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                                     MSLog.fehlerMeldung(-102306547, MSLog.FEHLER_ART_MREADER, "MediathekSrf.parseJsonArray", ex);
                                 }
                             } else {
-                                System.out.println("Dann wars das");
+//                                System.out.println("Dann wars das");
                             }
                         }
                     }

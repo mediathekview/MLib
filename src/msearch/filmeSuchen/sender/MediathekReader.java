@@ -76,6 +76,14 @@ public class MediathekReader implements Runnable {
         return startPrio;
     }
 
+    public int getThreads() {
+        return maxThreadLaufen;
+    }
+
+    public long getWaitTime() {
+        return wartenSeiteLaden;
+    }
+
     public boolean checkNameSenderFilmliste(String name) {
         // ist der Name der in der Tabelle Filme angezeigt wird
         return nameSenderMReader.equalsIgnoreCase(name);
