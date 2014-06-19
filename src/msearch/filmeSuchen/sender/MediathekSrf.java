@@ -64,7 +64,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
     }
 
     public static final String SENDER = "SRF";
-    private final static int MAX_FILME_THEMA = 3; //5
+    private final static int MAX_FILME_THEMA = 5;
 
     public MediathekSrf(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 3, /* urlWarten */ 400, startPrio);

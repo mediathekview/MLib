@@ -27,65 +27,51 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
 
-public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
+public class ListeFilmlistenUrls extends LinkedList<DatenFilmlisteUrl> {
     // ist die Liste mit den URLs zum Download einer Filmliste
 
-    public boolean addWithCheck(DatenUrlFilmliste film) {
-        for (DatenUrlFilmliste datenUrlFilmliste : this) {
-            if (datenUrlFilmliste.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(film.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR])) {
+    public boolean addWithCheck(DatenFilmlisteUrl filmliste) {
+        for (DatenFilmlisteUrl datenUrlFilmliste : this) {
+            if (datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR].equals(filmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR])) {
                 return false;
             }
         }
-        return add(film);
+        return add(filmliste);
     }
 
     public void sort() {
         int nr = 0;
         Collections.sort(this);
-        for (DatenUrlFilmliste datenUrlFilmliste : this) {
+        for (DatenFilmlisteUrl datenUrlFilmliste : this) {
             String str = String.valueOf(nr++);
             while (str.length() < 3) {
                 str = "0" + str;
             }
-            datenUrlFilmliste.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_NR_NR] = str;
+            datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_NR_NR] = str;
         }
     }
 
     public String[][] getTableObjectData() {
-        DatenUrlFilmliste filmUpdate;
+        DatenFilmlisteUrl filmUpdate;
         String[][] object;
-        ListIterator<DatenUrlFilmliste> iterator = this.listIterator();
-        object = new String[this.size()][MSFilmlistenSuchen.FILM_UPDATE_SERVER_MAX_ELEM];
+        ListIterator<DatenFilmlisteUrl> iterator = this.listIterator();
+        object = new String[this.size()][DatenFilmlisteUrl.FILM_UPDATE_SERVER_MAX_ELEM];
         int i = 0;
         while (iterator.hasNext()) {
             filmUpdate = iterator.next();
-            System.arraycopy(filmUpdate.arr, 0, object[i], 0, MSFilmlistenSuchen.FILM_UPDATE_SERVER_MAX_ELEM);
-            object[i][MSFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR] = filmUpdate.getDateStr(); // lokale Zeit anzeigen
-            object[i][MSFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR] = filmUpdate.getTimeStr(); // lokale Zeit anzeigen
+            System.arraycopy(filmUpdate.arr, 0, object[i], 0, DatenFilmlisteUrl.FILM_UPDATE_SERVER_MAX_ELEM);
+            object[i][DatenFilmlisteUrl.FILM_UPDATE_SERVER_DATUM_NR] = filmUpdate.getDateStr(); // lokale Zeit anzeigen
+            object[i][DatenFilmlisteUrl.FILM_UPDATE_SERVER_ZEIT_NR] = filmUpdate.getTimeStr(); // lokale Zeit anzeigen
             ++i;
         }
         return object;
     }
 
-    /*public int getNr(String url) {
-        int nr = 0;
-        for (DatenUrlFilmliste datenUrlFilmliste : this) {
-            if (datenUrlFilmliste.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(url)) {
-                break;
-            }
-            ++nr;
-        }
-        if (nr >= this.size()) {
-            nr = 0;
-        }
-        return nr;
-    } */
-
-    public DatenUrlFilmliste getDatenUrlFilmliste(String url) {
-        DatenUrlFilmliste update;
-        for (DatenUrlFilmliste datenUrlFilmliste : this) {
+    public DatenFilmlisteUrl getDatenUrlFilmliste(String url) {
+        DatenFilmlisteUrl update;
+        for (DatenFilmlisteUrl datenUrlFilmliste : this) {
             update = datenUrlFilmliste;
-            if (update.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR].equals(url)) {
+            if (update.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR].equals(url)) {
                 return update;
             }
         }
@@ -100,11 +86,11 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
         }
         String ret = "";
         if (!this.isEmpty()) {
-            DatenUrlFilmliste datenUrlFilmliste;
-            LinkedList<DatenUrlFilmliste> listeZeit = new LinkedList<>();
-            LinkedList<DatenUrlFilmliste> listePrio = new LinkedList<>();
+            DatenFilmlisteUrl datenUrlFilmliste;
+            LinkedList<DatenFilmlisteUrl> listeZeit = new LinkedList<>();
+            LinkedList<DatenFilmlisteUrl> listePrio = new LinkedList<>();
             //aktuellsten auswählen
-            Iterator<DatenUrlFilmliste> it = this.iterator();
+            Iterator<DatenFilmlisteUrl> it = this.iterator();
             Date today = new Date(System.currentTimeMillis());
             Date d;
             int minuten = 200;
@@ -112,7 +98,7 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
             while (it.hasNext()) {
                 datenUrlFilmliste = it.next();
                 if (bereitsGebraucht != null) {
-                    if (bereitsGebraucht.contains(datenUrlFilmliste.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR])) {
+                    if (bereitsGebraucht.contains(datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR])) {
                         // wurde schon versucht
                         continue;
                     }
@@ -141,7 +127,7 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
             it = listeZeit.iterator();
             while (it.hasNext()) {
                 datenUrlFilmliste = it.next();
-                if (datenUrlFilmliste.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_PRIO_NR].equals(MSFilmlistenSuchen.FILM_UPDATE_SERVER_PRIO_1)) {
+                if (datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_NR].equals(DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_1)) {
                     listePrio.add(datenUrlFilmliste);
                 } else {
                     listePrio.add(datenUrlFilmliste);
@@ -155,7 +141,7 @@ public class ListeDownloadUrlsFilmlisten extends LinkedList<DatenUrlFilmliste> {
                 int nr = new Random().nextInt(this.size());
                 datenUrlFilmliste = this.get(nr);
             }
-            ret = datenUrlFilmliste.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR];
+            ret = datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR];
         }
         return ret;
     }

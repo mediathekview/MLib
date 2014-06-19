@@ -41,149 +41,105 @@ import msearch.tool.DatumZeit;
 import msearch.tool.MSConst;
 import msearch.tool.MSGuiFunktionen;
 import msearch.tool.MSLog;
-import sun.org.mozilla.javascript.Token;
 
 public class MSFilmlistenSuchen {
 
     // damit werden die DownloadURLs zum Laden einer Filmliste gesucht
-    //
-    //Tags FilmUpdateServer Filmliste
-    public static final String FILM_UPDATE_SERVER_PRIO_1 = "1";
-    public static final String FILM_UPDATE_SERVER = "film-update-server";
-    public static final int FILM_UPDATE_SERVER_MAX_ELEM = 5;
-    public static final String FILM_UPDATE_SERVER_NR = "film-update-server-nr";
-    public static final int FILM_UPDATE_SERVER_NR_NR = 0;
-    public static final String FILM_UPDATE_SERVER_URL = "film-update-server-url";
-    public static final int FILM_UPDATE_SERVER_URL_NR = 1;
-    public static final String FILM_UPDATE_SERVER_DATUM = "film-update-server-datum"; // Datum in UTC
-    public static final int FILM_UPDATE_SERVER_DATUM_NR = 2;
-    public static final String FILM_UPDATE_SERVER_ZEIT = "film-update-server-zeit"; // Zeit in UTC
-    public static final int FILM_UPDATE_SERVER_ZEIT_NR = 3;
-    public static final String FILM_UPDATE_SERVER_PRIO = "film-update-server-prio";
-    public static final int FILM_UPDATE_SERVER_PRIO_NR = 4;
-    public static final String[] FILM_UPDATE_SERVER_COLUMN_NAMES = {FILM_UPDATE_SERVER_NR, FILM_UPDATE_SERVER_URL,
-        FILM_UPDATE_SERVER_DATUM, FILM_UPDATE_SERVER_ZEIT, FILM_UPDATE_SERVER_PRIO};
-    public static final String[] FILM_UPDATE_SERVER_COLUMN_NAMES_ANZEIGE = {"Nr", "Update-Url", "Datum", "Zeit", "Prio"};
-    // Liste mit den Servern die Filmlisten anbieten
-    public ListeFilmlistenServer listeFilmlistenServer = new ListeFilmlistenServer();
     // Liste mit den URLs zum Download der Filmliste
-    public ListeDownloadUrlsFilmlisten listeDownloadUrlsFilmlisten = new ListeDownloadUrlsFilmlisten();
-    public ListeDownloadUrlsFilmlisten listeDownloadUrlsFilmlisten_akt = new ListeDownloadUrlsFilmlisten();
-    public ListeDownloadUrlsFilmlisten listeDownloadUrlsFilmlisten_diff = new ListeDownloadUrlsFilmlisten();
+    public ListeFilmlistenUrls listeFilmlistenUrls_old = new ListeFilmlistenUrls();
+    public ListeFilmlistenUrls listeFilmlistenUrls_akt = new ListeFilmlistenUrls();
+    public ListeFilmlistenUrls listeFilmlistenUrls_diff = new ListeFilmlistenUrls();
 
-    public String suchen(ArrayList<String> bereitsVersucht) {
+    public String suchenOld(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Filmliste suchen
         String retUrl;
-        ListeDownloadUrlsFilmlisten tmp = new ListeDownloadUrlsFilmlisten();
-        try {
-            // Ausweichen auf andere Listenserver bei Bedarf
-            getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_JSON, tmp, MSConfig.getUserAgent());
-            if (tmp.size() > 0) {
-                // dann die Liste Filmlistenserver aktualisieren
-                updateListeFilmlistenServer(tmp);
-//                MSearchListenerMediathekView.notify(MSearchListenerMediathekView.EREIGNIS_LISTE_FILMLISTEN_SERVER, this.getClass().getSimpleName());
-            }
-            if (tmp.size() == 0) {
-                // mit den Backuplisten versuchen
-                getDownloadUrlsFilmlisten__backuplisten(tmp, MSConfig.getUserAgent());
-            }
-        } catch (Exception ex) {
-            MSLog.fehlerMeldung(347895642, MSLog.FEHLER_ART_PROG, "FilmUpdateServer.suchen", ex);
+        updateURLsFilmlisten(true, false, false);
+        retUrl = listeFilmlistenUrls_old.getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
+        if (bereitsVersucht != null) {
+            bereitsVersucht.add(retUrl);
         }
-        if (tmp.size() == 0) {
+        return retUrl;
+    }
+
+    public String suchenAkt(ArrayList<String> bereitsVersucht) {
+        // passende URL zum Laden der Filmliste suchen
+        String retUrl;
+        if (listeFilmlistenUrls_akt.isEmpty()) {
+            // da sich die Listen nicht ändern nur eimal pro Start laden
+            updateURLsFilmlisten(false, true, false);
+        }
+        retUrl = (listeFilmlistenUrls_akt.getRand(bereitsVersucht, 0)); //eine Zufällige Adresse wählen
+        if (bereitsVersucht != null) {
+            bereitsVersucht.add(retUrl);
+        }
+        return retUrl;
+    }
+
+    public String suchenDiff(ArrayList<String> bereitsVersucht) {
+        // passende URL zum Laden der Filmliste suchen
+        String retUrl;
+        if (listeFilmlistenUrls_diff.isEmpty()) {
+            // da sich die Listen nicht ändern nur eimal pro Start laden
+            updateURLsFilmlisten(false, false, true);
+        }
+        retUrl = (listeFilmlistenUrls_diff.getRand(bereitsVersucht, 0)); //eine Zufällige Adresse wählen
+        if (bereitsVersucht != null) {
+            bereitsVersucht.add(retUrl);
+        }
+        return retUrl;
+    }
+
+    public void updateURLsFilmlisten(boolean old, boolean akt, boolean diff) {
+        ListeFilmlistenUrls tmp = new ListeFilmlistenUrls();
+        if (old) {
+            getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_JSON, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_OLD);
+            if (!tmp.isEmpty()) {
+                listeFilmlistenUrls_old = tmp;
+            }
+            if (listeFilmlistenUrls_old.size() < 5) {
+                // dann gibts ein paar fest hinterlegt URLs
+                listeFilmlistenUrls_old.add(new DatenFilmlisteUrl("http://85.25.49.47/json2/Filmliste-json_16_00.xz", "1", "16:40:00", getTag("09:40:00"), DatenFilmlisteUrl.SERVER_ART_OLD));
+                listeFilmlistenUrls_old.add(new DatenFilmlisteUrl("http://176.28.8.161/json2/Filmliste-json_14_00.xz", "1", "14:40:00", getTag("13:40:00"), DatenFilmlisteUrl.SERVER_ART_OLD));
+                listeFilmlistenUrls_old.add(new DatenFilmlisteUrl("http://176.28.8.161/json2/Filmliste-json_18_00.xz", "1", "18:40:00", getTag("16:40:00"), DatenFilmlisteUrl.SERVER_ART_OLD));
+                listeFilmlistenUrls_old.add(new DatenFilmlisteUrl("http://85.25.49.47/json1/Filmliste-json_19_00.xz", "1", "19:40:00", getTag("19:40:00"), DatenFilmlisteUrl.SERVER_ART_OLD));
+                listeFilmlistenUrls_old.add(new DatenFilmlisteUrl("http://176.28.8.161/json2/Filmliste-json_20_00.xz", "1", "20:40:00", getTag("20:40:00"), DatenFilmlisteUrl.SERVER_ART_OLD));
+                listeFilmlistenUrls_old.add(new DatenFilmlisteUrl("http://176.28.8.161/json1/Filmliste-json_22_00.xz", "1", "22:40:00", getTag("22:40:00"), DatenFilmlisteUrl.SERVER_ART_OLD));
+            }
+            listeFilmlistenUrls_old.sort();
+        }
+        if (akt) {
+            getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_AKT, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
+            if (!tmp.isEmpty()) {
+                listeFilmlistenUrls_akt = tmp;
+            } else if (listeFilmlistenUrls_akt.isEmpty()) {
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://www.wp11128329.server-he.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv.mynews.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv.hostingkunde.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-1.df-kunde.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-2.df-kunde.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-3.df-kunde.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
+            }
+            listeFilmlistenUrls_akt.sort();
+        }
+        if (diff) {
+            getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
+            if (!tmp.isEmpty()) {
+                listeFilmlistenUrls_diff = tmp;
+            } else if (listeFilmlistenUrls_diff.isEmpty()) {
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://www.wp11128329.server-he.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv.mynews.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv.hostingkunde.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-1.df-kunde.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-2.df-kunde.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-3.df-kunde.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
+            }
+            listeFilmlistenUrls_diff.sort();
+        }
+        if (tmp.isEmpty()) {
             MSLog.systemMeldung(new String[]{"Es ist ein Fehler aufgetreten!",
                 "Es konnten keine Updateserver zum aktualisieren der Filme",
                 "gefunden werden."});
-        } else {
-            listeDownloadUrlsFilmlisten = tmp;
         }
-        if (listeDownloadUrlsFilmlisten.size() < 5) {
-            // dann gibts ein paar fest hinterlegt URLs
-            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://85.25.49.47/json2/Filmliste-json_16_00.xz", "1", "16:40:00", getTag("09:40:00")));
-            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/json2/Filmliste-json_14_00.xz", "1", "14:40:00", getTag("13:40:00")));
-            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/json2/Filmliste-json_18_00.xz", "1", "18:40:00", getTag("16:40:00")));
-            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://85.25.49.47/json1/Filmliste-json_19_00.xz", "1", "19:40:00", getTag("19:40:00")));
-            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/json2/Filmliste-json_20_00.xz", "1", "20:40:00", getTag("20:40:00")));
-            listeDownloadUrlsFilmlisten.add(new DatenUrlFilmliste("http://176.28.8.161/json1/Filmliste-json_22_00.xz", "1", "22:40:00", getTag("22:40:00")));
-        }
-        listeDownloadUrlsFilmlisten.sort();
-        retUrl = listeDownloadUrlsFilmlisten.getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
-//        MSearchListenerMediathekView.notify(MSearchListenerMediathekView.EREIGNIS_LISTE_URL_FILMLISTEN, this.getClass().getSimpleName());
-        if (bereitsVersucht != null) {
-            bereitsVersucht.add(retUrl);
-        }
-        return retUrl;
-    }
-
-    public String suchenAktDiff(boolean akt, ArrayList<String> bereitsVersucht) {
-        // passende URL zum Laden der Akt-Filmliste suchen
-        String retUrl;
-        String downUrl = akt ? MSConst.ADRESSE_FILMLISTEN_SERVER_AKT : MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF;
-        if ((akt ? listeDownloadUrlsFilmlisten_akt : listeDownloadUrlsFilmlisten_diff).isEmpty()) {
-            // da sich die Listen nicht ändern nur eimal pro Start laden
-            ListeDownloadUrlsFilmlisten tmp = new ListeDownloadUrlsFilmlisten();
-            try {
-                getDownloadUrlsFilmlisten(downUrl, tmp, MSConfig.getUserAgent());
-            } catch (Exception ex) {
-                MSLog.fehlerMeldung(465323104, MSLog.FEHLER_ART_PROG, "FilmUpdateServer.suchenDiff", ex);
-            }
-            if (tmp.size() == 0) {
-                MSLog.systemMeldung(new String[]{"Es ist ein Fehler aufgetreten!",
-                    "Es konnten keine Updateserver " + (akt ? "(AKT)" : "(DIFF)") + " zum aktualisieren der Filme",
-                    "gefunden werden."});
-            } else {
-                if (akt) {
-                    listeDownloadUrlsFilmlisten_akt = tmp;
-                } else {
-                    listeDownloadUrlsFilmlisten_diff = tmp;
-                }
-            }
-            (akt ? listeDownloadUrlsFilmlisten_akt : listeDownloadUrlsFilmlisten_diff).sort();
-        }
-        retUrl = (akt ? listeDownloadUrlsFilmlisten_akt : listeDownloadUrlsFilmlisten_diff).getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
-        if (bereitsVersucht != null) {
-            bereitsVersucht.add(retUrl);
-        }
-        return retUrl;
-    }
-
-//    public String suchenDiff(ArrayList<String> bereitsVersucht) {
-//        // passende URL zum Laden der Diff-Filmliste suchen
-//        String retUrl;
-//        if (listeDownloadUrlsFilmlisten_diff.isEmpty()) {
-//            // da sich die Listen nicht ändern nur eimal pro Start laden
-//            ListeDownloadUrlsFilmlisten tmp = new ListeDownloadUrlsFilmlisten();
-//            try {
-//                getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, MSConfig.getUserAgent());
-//            } catch (Exception ex) {
-//                MSLog.fehlerMeldung(912036790, MSLog.FEHLER_ART_PROG, "FilmUpdateServer.suchenDiff", ex);
-//            }
-//            if (tmp.size() == 0) {
-//                MSLog.systemMeldung(new String[]{"Es ist ein Fehler aufgetreten!",
-//                    "Es konnten keine Updateserver (DIFF) zum aktualisieren der Filme",
-//                    "gefunden werden."});
-//            } else {
-//                listeDownloadUrlsFilmlisten_diff = tmp;
-//            }
-//            listeDownloadUrlsFilmlisten_diff.sort();
-//        }
-//        retUrl = listeDownloadUrlsFilmlisten_diff.getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
-//        if (bereitsVersucht != null) {
-//            bereitsVersucht.add(retUrl);
-//        }
-//        return retUrl;
-//    }
-    private void updateListeFilmlistenServer(ListeDownloadUrlsFilmlisten tmp) {
-        Iterator<DatenUrlFilmliste> it = tmp.iterator();
-        //listeFilmlistenServer.clear();
-        while (it.hasNext()) {
-            String serverUrl = it.next().arr[FILM_UPDATE_SERVER_URL_NR];
-            String url = serverUrl.replace(MSGuiFunktionen.getDateiName(serverUrl), "");
-            url = MSGuiFunktionen.addUrl(url, MSConst.DATEINAME_LISTE_FILMLISTEN);
-            listeFilmlistenServer.addCheck(new DatenFilmlistenServer(url));
-        }
-        // die Liste der Filmlistenserver aufräumen
-        listeFilmlistenServer.alteLoeschen();
     }
 
     private String getTag(String zeit) {
@@ -201,22 +157,7 @@ public class MSFilmlistenSuchen {
         return DatumZeit.getHeute_dd_MM_yyyy();
     }
 
-    private void getDownloadUrlsFilmlisten__backuplisten(ListeDownloadUrlsFilmlisten sListe, String userAgent) {
-        // für den Notfall fest hinterlegte Downloadserver
-        getDownloadUrlsFilmlisten(MSGuiFunktionen.addUrl("http://176.28.8.161/json1", MSConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
-        getDownloadUrlsFilmlisten(MSGuiFunktionen.addUrl("http://85.25.49.47/json1", MSConst.DATEINAME_LISTE_FILMLISTEN), sListe, userAgent);
-        Iterator<DatenFilmlistenServer> it = listeFilmlistenServer.iterator();
-        while (it.hasNext()) {
-            if (sListe.size() > 100) {
-                // genug
-                break;
-            }
-            DatenFilmlistenServer fs = it.next();
-            getDownloadUrlsFilmlisten(fs.arr[DatenFilmlistenServer.FILM_LISTEN_SERVER_URL_NR], sListe, userAgent);
-        }
-    }
-
-    public static void getDownloadUrlsFilmlisten(String dateiUrl, ListeDownloadUrlsFilmlisten sListe, String userAgent) {
+    public static void getDownloadUrlsFilmlisten(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String userAgent, String art) {
         //String[] ret = new String[]{""/* version */, ""/* release */, ""/* updateUrl */};
         try {
             int event;
@@ -248,7 +189,7 @@ public class MSFilmlistenSuchen {
                     String parsername = parser.getLocalName();
                     if (parsername.equals("Server")) {
                         //wieder ein neuer Server, toll
-                        getServer(parser, sListe);
+                        getServer(parser, listeFilmlistenUrls, art);
                     }
                 }
             }
@@ -257,7 +198,7 @@ public class MSFilmlistenSuchen {
         }
     }
 
-    private static void getServer(XMLStreamReader parser, ListeDownloadUrlsFilmlisten sListe) {
+    private static void getServer(XMLStreamReader parser, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
         String zeit = "";
         String datum = "";
         String serverUrl = "";
@@ -289,9 +230,9 @@ public class MSFilmlistenSuchen {
                         if (!serverUrl.equals("")) {
                             //public DatenFilmUpdate(String url, String prio, String zeit, String datum, String anzahl) {
                             if (prio.equals("")) {
-                                prio = MSFilmlistenSuchen.FILM_UPDATE_SERVER_PRIO_1;
+                                prio = DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_1;
                             }
-                            sListe.addWithCheck(new DatenUrlFilmliste(serverUrl, prio, zeit, datum));
+                            listeFilmlistenUrls.addWithCheck(new DatenFilmlisteUrl(serverUrl, prio, zeit, datum, art));
                         }
                         break;
                     }
@@ -302,7 +243,7 @@ public class MSFilmlistenSuchen {
 
     }
 
-    public static File ListeFilmlistenSchreiben(ListeDownloadUrlsFilmlisten listeFilmUpdateServer) {
+    public static File ListeFilmlistenSchreiben(ListeFilmlistenUrls listeFilmlistenUrls) {
         File tmpFile = null;
         XMLOutputFactory outFactory;
         XMLStreamWriter writer;
@@ -322,29 +263,29 @@ public class MSFilmlistenSuchen {
             writer.writeCharacters("\n");//neue Zeile
             writer.writeStartElement(TAG_LISTE);
             writer.writeCharacters("\n");//neue Zeile
-            Iterator<DatenUrlFilmliste> it = listeFilmUpdateServer.iterator();
+            Iterator<DatenFilmlisteUrl> it = listeFilmlistenUrls.iterator();
             while (it.hasNext()) {
-                DatenUrlFilmliste d = it.next();
+                DatenFilmlisteUrl d = it.next();
                 writer.writeStartElement(TAG_SERVER);
                 writer.writeCharacters("\n");
                 // Tags schreiben: URL
                 writer.writeCharacters("\t");// Tab
                 writer.writeStartElement(TAG_SERVER_URL);
-                writer.writeCharacters(d.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_URL_NR]);
+                writer.writeCharacters(d.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR]);
                 writer.writeEndElement();
                 writer.writeCharacters("\n");
                 // fertig
                 // Tags schreiben: Datum
                 writer.writeCharacters("\t");// Tab
                 writer.writeStartElement(TAG_SERVER_DATUM);
-                writer.writeCharacters(d.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_DATUM_NR]);
+                writer.writeCharacters(d.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_DATUM_NR]);
                 writer.writeEndElement();
                 writer.writeCharacters("\n");
                 // fertig
                 // Tags schreiben: Zeit
                 writer.writeCharacters("\t");// Tab
                 writer.writeStartElement(TAG_SERVER_ZEIT);
-                writer.writeCharacters(d.arr[MSFilmlistenSuchen.FILM_UPDATE_SERVER_ZEIT_NR]);
+                writer.writeCharacters(d.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_ZEIT_NR]);
                 writer.writeEndElement();
                 writer.writeCharacters("\n");
                 // fertig
