@@ -495,7 +495,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         int pos1 = 0, pos2;
         strBuffer = getUrl.getUri_Utf(sender, urlf4m, strBuffer, "url: " + urlf4m);
         if (strBuffer.length() == 0) {
-            MSLog.fehlerMeldung(-610123987, MSLog.FEHLER_ART_MREADER, "MediathekZdf.f4mUrlHolen", "url: " + urlf4m);
+            // MSLog.fehlerMeldung(-610123987, MSLog.FEHLER_ART_MREADER, "MediathekZdf.f4mUrlHolen", "url: " + urlf4m);
             return "";
         }
         while (true) {

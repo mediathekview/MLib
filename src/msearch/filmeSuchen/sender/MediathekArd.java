@@ -294,7 +294,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     addFilm(f);
                 } else {
                     if (!urlKl.isEmpty()) {
-                        MSLog.fehlerMeldung(-695412340, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "nurUrlKlein: " + urlFilm);
+                        // MSLog.fehlerMeldung(-695412340, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "nurUrlKlein: " + urlFilm);
                         String beschreibung = beschreibung(urlSendung);
                         DatenFilm f = new DatenFilm(nameSenderMReader, thema, urlSendung, titel, urlKl, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
                                 "" /*imageUrl*/, new String[]{}/*keywords*/);
