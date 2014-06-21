@@ -96,15 +96,6 @@ public class MSFilmlistenSuchen {
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_old = tmp;
             }
-            if (listeFilmlistenUrls_old.size() < 5) {
-                // dann gibts ein paar fest hinterlegt URLs
-                listeFilmlistenUrls_old.add(new DatenFilmlisteUrl("http://85.25.49.47/json2/Filmliste-json_16_00.xz", "1", "16:40:00", getTag("09:40:00"), DatenFilmlisteUrl.SERVER_ART_OLD));
-                listeFilmlistenUrls_old.add(new DatenFilmlisteUrl("http://176.28.8.161/json2/Filmliste-json_14_00.xz", "1", "14:40:00", getTag("13:40:00"), DatenFilmlisteUrl.SERVER_ART_OLD));
-                listeFilmlistenUrls_old.add(new DatenFilmlisteUrl("http://176.28.8.161/json2/Filmliste-json_18_00.xz", "1", "18:40:00", getTag("16:40:00"), DatenFilmlisteUrl.SERVER_ART_OLD));
-                listeFilmlistenUrls_old.add(new DatenFilmlisteUrl("http://85.25.49.47/json1/Filmliste-json_19_00.xz", "1", "19:40:00", getTag("19:40:00"), DatenFilmlisteUrl.SERVER_ART_OLD));
-                listeFilmlistenUrls_old.add(new DatenFilmlisteUrl("http://176.28.8.161/json2/Filmliste-json_20_00.xz", "1", "20:40:00", getTag("20:40:00"), DatenFilmlisteUrl.SERVER_ART_OLD));
-                listeFilmlistenUrls_old.add(new DatenFilmlisteUrl("http://176.28.8.161/json1/Filmliste-json_22_00.xz", "1", "22:40:00", getTag("22:40:00"), DatenFilmlisteUrl.SERVER_ART_OLD));
-            }
             listeFilmlistenUrls_old.sort();
         }
         if (akt) {
@@ -142,21 +133,20 @@ public class MSFilmlistenSuchen {
         }
     }
 
-    private String getTag(String zeit) {
-        Date tmp;
-        SimpleDateFormat sdf_zeit = new SimpleDateFormat("dd.MM.yyyy__HH:mm:ss");
-        try {
-            tmp = sdf_zeit.parse(DatumZeit.getHeute_dd_MM_yyyy() + "__" + zeit);
-            if (tmp.compareTo(new Date()) > 0) {
-                return DatumZeit.getGestern_dd_MM_yyyy();
-            } else {
-                return DatumZeit.getHeute_dd_MM_yyyy();
-            }
-        } catch (Exception ex) {
-        }
-        return DatumZeit.getHeute_dd_MM_yyyy();
-    }
-
+//    private String getTag(String zeit) {
+//        Date tmp;
+//        SimpleDateFormat sdf_zeit = new SimpleDateFormat("dd.MM.yyyy__HH:mm:ss");
+//        try {
+//            tmp = sdf_zeit.parse(DatumZeit.getHeute_dd_MM_yyyy() + "__" + zeit);
+//            if (tmp.compareTo(new Date()) > 0) {
+//                return DatumZeit.getGestern_dd_MM_yyyy();
+//            } else {
+//                return DatumZeit.getHeute_dd_MM_yyyy();
+//            }
+//        } catch (Exception ex) {
+//        }
+//        return DatumZeit.getHeute_dd_MM_yyyy();
+//    }
     public static void getDownloadUrlsFilmlisten(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String userAgent, String art) {
         //String[] ret = new String[]{""/* version */, ""/* release */, ""/* updateUrl */};
         try {
