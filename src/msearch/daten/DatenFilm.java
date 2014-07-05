@@ -199,18 +199,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
-    public boolean addUrlKlein(String url, String urlRtmp) {
-        boolean ret = true;
+    public void addUrlKlein(String url, String urlRtmp) {
         arr[FILM_URL_KLEIN_NR] = url.isEmpty() ? "" : getKlein(arr[FILM_URL_NR], url);
         arr[FILM_URL_RTMP_KLEIN_NR] = urlRtmp.isEmpty() ? "" : getKlein(arr[FILM_URL_RTMP_NR], urlRtmp);
-        return ret;
     }
 
-    public boolean addUrlHd(String url, String urlRtmp) {
-        boolean ret = true;
+    public void addUrlHd(String url, String urlRtmp) {
         arr[FILM_URL_HD_NR] = url.isEmpty() ? "" : getKlein(arr[FILM_URL_NR], url);
         arr[FILM_URL_RTMP_HD_NR] = urlRtmp.isEmpty() ? "" : getKlein(arr[FILM_URL_RTMP_NR], urlRtmp);
-        return ret;
     }
 
     public String getUrlFuerAufloesung(String aufloesung) {
@@ -353,9 +349,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     public DatenFilm getCopy() {
         DatenFilm ret = new DatenFilm();
-        for (int i = 0; i < arr.length; ++i) {
-            ret.arr[i] = new String(this.arr[i]);
-        }
+        System.arraycopy(this.arr, 0, ret.arr, 0, arr.length);
         ret.datumFilm = this.datumFilm;
         ret.nr = this.nr;
         ret.dateigroesseL = this.dateigroesseL;
@@ -470,7 +464,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             try {
                 i = Integer.parseInt(arr[DatenFilm.FILM_URL_KLEIN_NR].substring(0, arr[DatenFilm.FILM_URL_KLEIN_NR].indexOf("|")));
                 return arr[DatenFilm.FILM_URL_NR].substring(0, i) + arr[DatenFilm.FILM_URL_KLEIN_NR].substring(arr[DatenFilm.FILM_URL_KLEIN_NR].indexOf("|") + 1);
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
         return arr[DatenFilm.FILM_URL_NR];
@@ -483,7 +477,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             try {
                 i = Integer.parseInt(arr[DatenFilm.FILM_URL_HD_NR].substring(0, arr[DatenFilm.FILM_URL_HD_NR].indexOf("|")));
                 return arr[DatenFilm.FILM_URL_NR].substring(0, i) + arr[DatenFilm.FILM_URL_HD_NR].substring(arr[DatenFilm.FILM_URL_HD_NR].indexOf("|") + 1);
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
         return arr[DatenFilm.FILM_URL_NR];
@@ -511,7 +505,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             try {
                 int i = Integer.parseInt(arr[DatenFilm.FILM_URL_RTMP_KLEIN_NR].substring(0, arr[DatenFilm.FILM_URL_RTMP_KLEIN_NR].indexOf("|")));
                 return arr[DatenFilm.FILM_URL_RTMP_NR].substring(0, i) + arr[DatenFilm.FILM_URL_RTMP_KLEIN_NR].substring(arr[DatenFilm.FILM_URL_RTMP_KLEIN_NR].indexOf("|") + 1);
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
         // es gibt keine kleine RTMP
@@ -536,7 +530,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             try {
                 int i = Integer.parseInt(arr[DatenFilm.FILM_URL_RTMP_HD_NR].substring(0, arr[DatenFilm.FILM_URL_RTMP_HD_NR].indexOf("|")));
                 return arr[DatenFilm.FILM_URL_RTMP_NR].substring(0, i) + arr[DatenFilm.FILM_URL_RTMP_HD_NR].substring(arr[DatenFilm.FILM_URL_RTMP_HD_NR].indexOf("|") + 1);
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
         // es gibt keine HD RTMP
