@@ -171,6 +171,9 @@ public class MediathekArd extends MediathekReader implements Runnable {
         }
 
         private void filmSuchen1(String strUrlFeed, String thema, boolean weiter) {
+////            if (!thema.equalsIgnoreCase("FIFA WM 2014")) {
+////                return;
+////            }
             final String MUSTER = "<div class=\"mediaCon\">";
             final String MUSTER_START = "<h2 class=\"modHeadline\">Videos und Audios der Sendung</h2>";
             final String MUSTER_START_2 = "Diese Sendung per RSS-Feed abonnieren";
@@ -231,8 +234,12 @@ public class MediathekArd extends MediathekReader implements Runnable {
             if (weiter && MSConfig.senderAllesLaden) {
                 // dann gehts weiter
                 int maxWeiter = 0;
+                int maxTh = 10;
+                if (thema.equalsIgnoreCase("FIFA WM 2014")) {
+                    maxTh = 50;
+                }
                 String urlWeiter = strUrlFeed + "&mcontents=page.";
-                for (int i = 2; i < 10; ++i) {
+                for (int i = 2; i < maxTh; ++i) {
                     ///tv/Abendschau/Sendung?documentId=14913430&amp;bcastId=14913430&amp;mcontents=page.2"
                     if (seite2.indexOf("&amp;mcontents=page." + i) != -1) {
                         maxWeiter = i;
@@ -240,7 +247,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                         break;
                     }
                 }
-                for (int i = 2; i < 20; ++i) {
+                for (int i = 2; i < maxTh; ++i) {
                     if (i <= maxWeiter) {
                         filmSuchen1(urlWeiter + i, thema, false);
                     } else {
