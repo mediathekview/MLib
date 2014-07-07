@@ -414,32 +414,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-//    public synchronized DatenFilm getFilmByNr(String nr) {
-//        //////////////////////
-//        // die Zählung beginnt bei 1 !!!!!
-//        int n = 0;
-//        try {
-//            n = Integer.parseInt(nr);
-//        } catch (Exception ex) {
-//            MSLog.fehlerMeldung(936254978, MSLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
-//            return null;
-//        }
-//        try {
-//            return this.get(--n);
-//        } catch (Exception ex) {
-//            MSLog.fehlerMeldung(203647098, MSLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
-//            return new DatenFilm();
-//        }
-//    }
-//    public synchronized DatenFilm getFilmByNr(int nr) {
-//        // die Zählung beginnt bei 1 !!!!!
-//        try {
-//            return this.get(--nr);
-//        } catch (Exception ex) {
-//            MSLog.fehlerMeldung(203647098, MSLog.FEHLER_ART_PROG, "ListeFilme.getFilmByNr", "Nr: " + nr);
-//            return new DatenFilm();
-//        }
-//    }
     public synchronized String genDate() {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "dd.MM.yyyy, HH:mm"
@@ -589,9 +563,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             for (byte b : digest) {
                 sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
             }
-//            System.out.println("original:" + input);
-//            System.out.println("digested(hex):" + sb.toString());
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
         return sb.toString();
     }
@@ -621,7 +593,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 treeSet.add(str);
             }
         }
-        sender = treeSet.toArray(new String[]{});
+        sender = treeSet.toArray(new String[treeSet.size()]);
         treeSet.clear();
         //für den Sender "" sind alle Themen im themenPerSender[0]
         themenPerSender = new String[sender.length][];
