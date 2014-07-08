@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.SimpleTimeZone;
 import java.util.TreeSet;
+import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekKika;
 import msearch.filmeSuchen.sender.MediathekNdr;
@@ -373,6 +374,16 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         addFilmVomSender(new DatenFilm(MediathekKika.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekKika.SENDER + " " + THEMA_LIVE,
                 "rtmp://85.239.122.162/live/mk3w-3faw-3rqf-enc0-kika", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+
+        
+        // 3sat
+        addFilmVomSender(new DatenFilm(Mediathek3Sat.SENDER, THEMA_LIVE, ""/* urlThema */,
+                Mediathek3Sat.SENDER + " " + THEMA_LIVE,
+                "http://zdf_hds_dach-f.akamaihd.net/i/dach10_v1@87031/master.m3u8?b=0-710&dw=0", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+//        addFilmVomSender(new DatenFilm(Mediathek3Sat.SENDER, THEMA_LIVE, ""/* urlThema */,
+//                Mediathek3Sat.SENDER + " " + THEMA_LIVE,
+//                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/dach10_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+
         // RBB
         addFilmVomSender(new DatenFilm(MediathekRbb.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekRbb.SENDER + " " + THEMA_LIVE,
