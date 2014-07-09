@@ -21,6 +21,7 @@ package msearch.filmeSuchen.sender;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.xml.stream.events.StartDocument;
 import msearch.daten.DatenFilm;
 import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
@@ -49,13 +50,30 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
     @Override
     public void addToList() {
         meldungStart();
-        addTage();
+////        addTage();
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
-            meldungThreadUndFertig();
+            if (MSConfig.senderAllesLaden) {
+                Thread th = new Thread(new ConcertLaden(0, 20));
+                th.setName(nameSenderMReader + "Concert-0");
+                th.start();
+                th = new Thread(new ConcertLaden(20, 40));
+                th.setName(nameSenderMReader + "Concert-1");
+                th.start();
+            } else {
+                meldungThreadUndFertig();
+            }
         } else {
             meldungAddMax(listeThemen.size());
+            if (MSConfig.senderAllesLaden) {
+                Thread th = new Thread(new ConcertLaden(0, 20));
+                th.setName(nameSenderMReader + "Concert-0");
+                th.start();
+                th = new Thread(new ConcertLaden(20, 40));
+                th.setName(nameSenderMReader + "Concert-1");
+                th.start();
+            }
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
@@ -79,6 +97,88 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         }
     }
 
+    class ConcertLaden implements Runnable {
+
+        private final int start, anz;
+        MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+
+        public ConcertLaden(int start, int anz) {
+            this.start = start;
+            this.anz = anz;
+        }
+
+        @Override
+        public void run() {
+            try {
+                meldungAddThread();
+                addConcert(start, anz);
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(-787452309, MSLog.FEHLER_ART_MREADER, "MediathekARTE.ConcertLaden.run", ex, "");
+            }
+            meldungThreadUndFertig();
+        }
+
+        private void addConcert(int start, int anz) {
+            final String ADRESSE = "http://concert.arte.tv/de/videos/all";
+            final String MUSTER_START = "<div class=\"header-article \">";
+            String urlStart;
+            meldungAddMax(anz);
+            for (int i = start; !MSConfig.getStop() && i < anz; ++i) {
+                if (i > 0) {
+                    urlStart = ADRESSE + "?page=" + i;
+                } else {
+                    urlStart = ADRESSE;
+                }
+                meldungProgress(urlStart);
+                seite1 = getUrlIo.getUri_Utf(nameSenderMReader, urlStart, seite1, "");
+                int pos1 = 0;
+                String url, urlWeb, titel, urlHd, beschreibung, datum, dauer;
+                while (!MSConfig.getStop() && (pos1 = seite1.indexOf(MUSTER_START, pos1)) != -1) {
+                    pos1 += MUSTER_START.length();
+                    try {
+                        url = seite1.extract("<a href=\"", "\"", pos1);
+                        titel = seite1.extract("title=\"", "\"", pos1);
+                        datum = seite1.extract("<span class=\"date-container\">", "<", pos1).trim();
+                        beschreibung = seite1.extract("property=\"content:encoded\">", "<", pos1);
+                        dauer = seite1.extract("<span class=\"time-container\">", "<", pos1).trim();
+                        dauer = dauer.replace("\"", "");
+                        int duration = 0;
+                        if (!dauer.equals("")) {
+                            String[] parts = dauer.split(":");
+                            duration = 0;
+                            long power = 1;
+                            for (int ii = parts.length - 1; ii >= 0; ii--) {
+                                duration += Long.parseLong(parts[ii]) * power;
+                                power *= 60;
+                            }
+                        }
+                        if (url.equals("")) {
+                            MSLog.fehlerMeldung(-825241452, MSLog.FEHLER_ART_MREADER, "MediathekARTE.addConcert", "keine URL");
+                        } else {
+                            urlWeb = "http://concert.arte.tv" + url;
+                            meldung(urlWeb);
+                            seite2 = getUrlIo.getUri_Utf(nameSenderMReader, urlWeb, seite2, "");
+                            url = seite2.extract("arte_vp_url=\"", "\"");
+                            if (url.isEmpty()) {
+                                MSLog.fehlerMeldung(-784512698, MSLog.FEHLER_ART_MREADER, "MediathekARTE.addConcert", "keine URL");
+                            } else {
+                                seite2 = getUrlIo.getUri_Utf(nameSenderMReader, url, seite2, "");
+                                urlHd = seite2.extractLast("\"url\":\"", "\"");
+                                urlHd = urlHd.replace("\\", "");
+                                DatenFilm film = new DatenFilm(nameSenderMReader, "Concert", urlWeb, titel, urlHd, "" /*urlRtmp*/,
+                                        datum, "" /*zeit*/, duration, beschreibung, ""/*bild*/, new String[]{});
+                                addFilm(film);
+                            }
+                        }
+                    } catch (Exception ex) {
+                        MSLog.fehlerMeldung(-465623121, MSLog.FEHLER_ART_MREADER, "MediathekARTE.addConcert", ex);
+                    }
+                }
+            }
+        }
+    }
+
     class ThemaLaden implements Runnable {
 
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
@@ -95,7 +195,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                     addTheman(seite1, seite2, link[0]);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-894330854, MSLog.FEHLER_ART_MREADER, "MediathekHr.ThemaLaden.run", ex, "");
+                MSLog.fehlerMeldung(-894330854, MSLog.FEHLER_ART_MREADER, "MediathekARTE.ThemaLaden.run", ex, "");
             }
             meldungThreadUndFertig();
         }
