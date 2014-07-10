@@ -21,7 +21,6 @@ package msearch.filmeSuchen.sender;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.xml.stream.events.StartDocument;
 import msearch.daten.DatenFilm;
 import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
@@ -38,6 +37,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
     SimpleDateFormat sdfZeit = new SimpleDateFormat("HH:mm:ss");
     SimpleDateFormat sdfDatum = new SimpleDateFormat("dd.MM.yyyy");
     String URL_ARTE = "http://www.arte.tv/papi/tvguide/epg/schedule/D/L3/";
+    String URL_CONCERT = "http://concert.arte.tv/de/videos/all";
 
     public MediathekArte_de(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER_ARTE_DE, /* threads */ 2, /* urlWarten */ 500, startPrio);
@@ -50,30 +50,20 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
     @Override
     public void addToList() {
         meldungStart();
-////        addTage();
+        addTage();
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             if (MSConfig.senderAllesLaden) {
-                Thread th = new Thread(new ConcertLaden(0, 20));
-                th.setName(nameSenderMReader + "Concert-0");
-                th.start();
-                th = new Thread(new ConcertLaden(20, 40));
-                th.setName(nameSenderMReader + "Concert-1");
-                th.start();
+                addConcert();
             } else {
                 meldungThreadUndFertig();
             }
         } else {
-            meldungAddMax(listeThemen.size());
             if (MSConfig.senderAllesLaden) {
-                Thread th = new Thread(new ConcertLaden(0, 20));
-                th.setName(nameSenderMReader + "Concert-0");
-                th.start();
-                th = new Thread(new ConcertLaden(20, 40));
-                th.setName(nameSenderMReader + "Concert-1");
-                th.start();
+                addConcert();
             }
+            meldungAddMax(listeThemen.size());
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
@@ -81,6 +71,15 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                 th.start();
             }
         }
+    }
+
+    private void addConcert() {
+        Thread th = new Thread(new ConcertLaden(0, 20));
+        th.setName(nameSenderMReader + "Concert-0");
+        th.start();
+        th = new Thread(new ConcertLaden(20, 40));
+        th.setName(nameSenderMReader + "Concert-1");
+        th.start();
     }
 
     private void addTage() {
@@ -120,20 +119,19 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         }
 
         private void addConcert(int start, int anz) {
-            final String ADRESSE = "http://concert.arte.tv/de/videos/all";
             final String MUSTER_START = "<div class=\"header-article \">";
             String urlStart;
             meldungAddMax(anz);
             for (int i = start; !MSConfig.getStop() && i < anz; ++i) {
                 if (i > 0) {
-                    urlStart = ADRESSE + "?page=" + i;
+                    urlStart = URL_CONCERT + "?page=" + i;
                 } else {
-                    urlStart = ADRESSE;
+                    urlStart = URL_CONCERT;
                 }
                 meldungProgress(urlStart);
                 seite1 = getUrlIo.getUri_Utf(nameSenderMReader, urlStart, seite1, "");
                 int pos1 = 0;
-                String url, urlWeb, titel, urlHd, beschreibung, datum, dauer;
+                String url, urlWeb, titel, urlHd, urlLow, urlNormal, beschreibung, datum, dauer;
                 while (!MSConfig.getStop() && (pos1 = seite1.indexOf(MUSTER_START, pos1)) != -1) {
                     pos1 += MUSTER_START.length();
                     try {
@@ -164,11 +162,36 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                                 MSLog.fehlerMeldung(-784512698, MSLog.FEHLER_ART_MREADER, "MediathekARTE.addConcert", "keine URL");
                             } else {
                                 seite2 = getUrlIo.getUri_Utf(nameSenderMReader, url, seite2, "");
-                                urlHd = seite2.extractLast("\"url\":\"", "\"");
-                                urlHd = urlHd.replace("\\", "");
-                                DatenFilm film = new DatenFilm(nameSenderMReader, "Concert", urlWeb, titel, urlHd, "" /*urlRtmp*/,
-                                        datum, "" /*zeit*/, duration, beschreibung, ""/*bild*/, new String[]{});
-                                addFilm(film);
+                                urlLow = seite2.extract("\"bitrate\":800", "\"url\":\"", "\"").replace("\\", "");
+                                if (urlLow.endsWith(".m3u8")) {
+                                    urlLow = seite2.extractLast("\"bitrate\":800", "\"url\":\"", "\"").replace("\\", "");
+                                }
+                                urlNormal = seite2.extract("\"bitrate\":1500", "\"url\":\"", "\"").replace("\\", "");
+                                if (urlNormal.endsWith(".m3u8")) {
+                                    urlNormal = seite2.extractLast("\"bitrate\":1500", "\"url\":\"", "\"").replace("\\", "");
+                                }
+                                urlHd = seite2.extract("\"bitrate\":2200", "\"url\":\"", "\"").replace("\\", "");
+                                if (urlHd.endsWith(".m3u8")) {
+                                    urlHd = seite2.extractLast("\"bitrate\":2200", "\"url\":\"", "\"").replace("\\", "");
+                                }
+                                if (urlNormal.isEmpty()) {
+                                    urlNormal = urlLow;
+                                    urlLow = "";
+                                    MSLog.fehlerMeldung(-951236487, MSLog.FEHLER_ART_MREADER, "MediathekARTE.addConcert", "keine URL");
+                                }
+                                if (urlNormal.isEmpty()) {
+                                    MSLog.fehlerMeldung(-989562301, MSLog.FEHLER_ART_MREADER, "MediathekARTE.addConcert", "keine URL");
+                                } else {
+                                    DatenFilm film = new DatenFilm(nameSenderMReader, "Concert", urlWeb, titel, urlNormal, "" /*urlRtmp*/,
+                                            datum, "" /*zeit*/, duration, beschreibung, ""/*bild*/, new String[]{});
+                                    if (!urlHd.isEmpty()) {
+                                        film.addUrlHd(urlHd, "");
+                                    }
+//                                    if (!urlLow.isEmpty()) {
+//                                        film.addUrlKlein(urlLow, "");
+//                                    }
+                                    addFilm(film);
+                                }
                             }
                         }
                     } catch (Exception ex) {

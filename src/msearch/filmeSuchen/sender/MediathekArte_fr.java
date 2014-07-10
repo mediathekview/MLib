@@ -32,5 +32,6 @@ public class MediathekArte_fr extends MediathekArte_de implements Runnable {
         super(ssearch, startPrio);
         nameSenderMReader = SENDER_ARTE_FR;
         URL_ARTE = "http://www.arte.tv/papi/tvguide/epg/schedule/F/L3/";
+        URL_CONCERT = "http://concert.arte.tv/fr/videos/all";
     }
 }
