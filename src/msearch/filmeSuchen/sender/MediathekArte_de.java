@@ -303,8 +303,13 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
             if ((pos1 = seite1.indexOf(MUSTER_TITEL, posStart)) != -1) {
                 pos1 += MUSTER_TITEL.length();
                 if (posStop == -1 || pos1 < posStop) {
-                    if ((pos2 = seite1.indexOf("\"", pos1)) != -1) {
+                    if ((pos2 = seite1.indexOf("\",", pos1)) != -1) {
                         titel = seite1.substring(pos1, pos2);
+//                        //"TIT":"\"Somewhere over the Rainbow\" "
+//                        if (titel.equals("\\")) {
+//                            titel = seite1.extract("\"TIT\":\"\\\"", "\"", posStart);
+                            titel = titel.replace("\\", "");
+//                        }
                     }
                 }
             }
