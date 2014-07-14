@@ -304,8 +304,6 @@ public class MSGetUrl {
             if ((retCode = conn.getResponseCode()) < 400) {
                 mvIn = new MVInputStream(conn);
             } else {
-                MSLog.fehlerMeldung(302160789, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri",
-                        new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
                 if (retCode == 403 || retCode == 408) {
                     if (!MSConfig.proxyUrl.isEmpty() && MSConfig.proxyPort > 0) {
                         // nur dann verwenden
@@ -329,6 +327,10 @@ public class MSGetUrl {
                         mvIn = new MVInputStream(conn);
                         incSeitenZaehler(LISTE_SEITEN_PROXY, sender, 1, ladeArt);
                     }
+                } else {
+                    // dann wars das
+                    MSLog.fehlerMeldung(956230147, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri",
+                            new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
                 }
             }
             if (mvIn == null) {

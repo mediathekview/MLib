@@ -299,16 +299,14 @@ public class MediathekArd extends MediathekReader implements Runnable {
                         f.addUrlKlein(urlKl, "");
                     }
                     addFilm(f);
+                } else if (!urlKl.isEmpty()) {
+                    // MSLog.fehlerMeldung(-695412340, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "nurUrlKlein: " + urlFilm);
+                    String beschreibung = beschreibung(urlSendung);
+                    DatenFilm f = new DatenFilm(nameSenderMReader, thema, urlSendung, titel, urlKl, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
+                            "" /*imageUrl*/, new String[]{}/*keywords*/);
+                    addFilm(f);
                 } else {
-                    if (!urlKl.isEmpty()) {
-                        // MSLog.fehlerMeldung(-695412340, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "nurUrlKlein: " + urlFilm);
-                        String beschreibung = beschreibung(urlSendung);
-                        DatenFilm f = new DatenFilm(nameSenderMReader, thema, urlSendung, titel, urlKl, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
-                                "" /*imageUrl*/, new String[]{}/*keywords*/);
-                        addFilm(f);
-                    } else {
-                        MSLog.fehlerMeldung(-784512369, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "keine URL: " + urlFilm);
-                    }
+                    MSLog.fehlerMeldung(-784512369, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "keine URL: " + urlFilm);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-762139874, MSLog.FEHLER_ART_MREADER, "MediathekArdThemaLaden.run", ex);

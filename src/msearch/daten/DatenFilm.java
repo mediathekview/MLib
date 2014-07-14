@@ -249,21 +249,15 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public void setGeo() {
         switch (arr[DatenFilm.FILM_SENDER_NR]) {
             case MediathekArd.SENDER:
+            case MediathekSwr.SENDER:
+            case MediathekMdr.SENDER:
+            case MediathekBr.SENDER:
                 if (arr[DatenFilm.FILM_URL_NR].startsWith("http://mvideos-geo.daserste.de/")
                         || arr[DatenFilm.FILM_URL_NR].startsWith("http://media.ndr.de/progressive_geo/")
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://cdn-storage.br.de/geo/")
                         || arr[DatenFilm.FILM_URL_NR].startsWith("http://cdn-sotschi.br.de/geo/b7/")
-                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://pd-ondemand.swr.de/geo/de/")) {
-                    arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
-                }
-                break;
-            case MediathekBr.SENDER:
-                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://cdn-storage.br.de/geo/")
-                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://cdn-sotschi.br.de/geo/b7/")) {
-                    arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
-                }
-                break;
-            case MediathekMdr.SENDER:
-                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://ondemandgeo.mdr.de/")) {
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://pd-ondemand.swr.de/geo/de/")
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://ondemandgeo.mdr.de/")) {
                     arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
                 }
                 break;
@@ -290,11 +284,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
             case MediathekSrfPod.SENDER:
                 if (arr[DatenFilm.FILM_URL_NR].startsWith("http://podcasts.srf.ch/ch/audio/")) {
                     arr[DatenFilm.FILM_GEO_NR] = GEO_CH;
-                }
-                break;
-            case MediathekSwr.SENDER:
-                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://pd-ondemand.swr.de/geo/de/")) {
-                    arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
                 }
                 break;
         }
