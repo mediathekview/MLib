@@ -194,7 +194,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             while (!MSConfig.getStop() && (pos = seite2.indexOf(MUSTER, pos)) != -1) {
                 ++count;
                 if (!MSConfig.senderAllesLaden) {
-                    if (count > 5) {
+                    if (count > 5 && !thema.equalsIgnoreCase("FIFA WM 2014")) {
                         break;
                     }
                 }
@@ -231,7 +231,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 }
                 filmSuchen2(url, thema, titel, d, datum, zeit, urlSendung);
             }
-            if (weiter && MSConfig.senderAllesLaden) {
+            if (weiter && MSConfig.senderAllesLaden || weiter && thema.equalsIgnoreCase("FIFA WM 2014")) {
                 // dann gehts weiter
                 int maxWeiter = 0;
                 int maxTh = 10;
