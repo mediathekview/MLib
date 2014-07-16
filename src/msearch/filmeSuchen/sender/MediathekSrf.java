@@ -43,7 +43,7 @@ import msearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekSrf extends MediathekReader implements Runnable {
-
+    
     private final int todayYear = Calendar.getInstance().get(Calendar.YEAR);
     private final int todayMonth = Calendar.getInstance().get(Calendar.MONTH) + 1;
     private final static int URL_ENTRY = 0;
@@ -53,19 +53,19 @@ public class MediathekSrf extends MediathekReader implements Runnable {
      * Class for local Exceptions
      */
     static class SRFException extends Exception {
-
+        
         public SRFException(String message) {
             super(message);
         }
-
+        
         public SRFException(String message, Throwable cause) {
             super(message, cause);
         }
     }
-
+    
     public static final String SENDER = "SRF";
     private final static int MAX_FILME_THEMA = 5;
-
+    
     public MediathekSrf(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 3, /* urlWarten */ 400, startPrio);
     }
@@ -80,9 +80,9 @@ public class MediathekSrf extends MediathekReader implements Runnable {
      */
     private static final String OLD_URL = "https://srfvodhd-vh.akamaihd.net";
     private static final String NEW_URL = "http://hdvodsrforigin-f.akamaihd.net";
-
+    
     public static boolean ping(String url) throws SRFException {
-
+        
         url = url.replaceFirst("https", "http"); // Otherwise an exception may be thrown on invalid SSL certificates.
 
         try {
@@ -92,7 +92,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             int responseCode = connection.getResponseCode();
             connection.disconnect();
             if (responseCode > 399 && responseCode != HttpURLConnection.HTTP_NOT_FOUND) {
-
+                
                 if (responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
                     throw new SRFException("TEST");
                 }
@@ -100,12 +100,12 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 return false;
             }
             return (200 <= responseCode && responseCode <= 399);
-
+            
         } catch (IOException exception) {
             return false;
         }
     }
-
+    
     @Override
     public void addToList() {
         //Liste von http://www.srf.ch/player/tv/sendungen?displayedKey=Alle holen
@@ -128,7 +128,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
         while ((pos = seite.indexOf(MUSTER, pos)) != -1) {
             pos1 = pos;
             pos += MUSTER.length();
-
+            
             url = URL_PREFIX + seite.extract(MUSTER, PATTERN_END, pos1);
             thema = seite.extract(THEME_PATTERN_START, THEME_PATTERN_END, pos1);
             listeThemen.addUrl(new String[]{url, thema});
@@ -137,7 +137,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 //            System.out.println(pos);
 
         }
-
+        
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
@@ -151,24 +151,24 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             }
         }
     }
-
+    
     private class ThemaLaden implements Runnable {
-
+        
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-
+        
         private MSStringBuilder film_website = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private final static String PATTERN_URL = "\"url\":\"";
         private final static String PATTERN_URL_END = "\"";
-
+        
         private MSStringBuilder periodPageFilm = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private final JsonFactory jf = new JsonFactory();
-
+        
         @Override
         public void run() {
             try {
                 meldungAddThread();
                 String link[];
-
+                
                 while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[URL_ENTRY] /* url */);
                     addFilme(link[THEME_ENTRY], link[URL_ENTRY] /* url */);
@@ -178,9 +178,9 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             }
             meldungThreadUndFertig();
         }
-
+        
         private void addFilme(String thema, final String strUrlFeed) {
-
+            
             final String PATTERN_JSON_ARRAY_START = "var calendarGroupYearMonth = $.parseJSON('";
             final String PATTERN_JSON_ARRAY_END = "')";
             MSStringBuilder overviewPageFilm = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
@@ -192,10 +192,10 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     int pos = 0;
                     while (!MSConfig.getStop()
                             && ((pos = overviewPageFilm.indexOf(PATTERN_JSON_ARRAY_START, pos)) != -1)) {
-
+                        
                         String jsonArray = overviewPageFilm.extract(PATTERN_JSON_ARRAY_START, PATTERN_JSON_ARRAY_END, pos - 1);
                         pos += jsonArray.length();
-
+                        
                         ArrayList<Date> dateList = parseJsonArray(jsonArray);
                         Collections.sort(dateList, Collections.reverseOrder());
 
@@ -203,7 +203,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                         if (dateList.size() >= MAX_FILME_THEMA) {
                             dateList.subList(MAX_FILME_THEMA, dateList.size()).clear();
                         }
-
+                        
                         addFilmsFromPeriod(strUrlFeed, dateList); //To change body of generated methods, choose Tools | Templates.
                     }
                 }
@@ -211,7 +211,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 MSLog.fehlerMeldung(-195926364, MSLog.FEHLER_ART_MREADER, "MediathekSrf.addFilme", ex);
             }
         }
-
+        
         private void addFilmsFromPage(MSStringBuilder page, String themePageUrl) {
             final String PATTERN_ID_START = "/player/tv/popupvideoplayer?id=";
             final String PATTERN_ID_END = "\">";
@@ -220,23 +220,27 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             final String THEME_PATTERN_START = "<meta property=\"og:title\" content=\"";
             final String THEME_PATTERN_END = "\"";
             int pos = 0;
-            String theme = page.extract(THEME_PATTERN_START, THEME_PATTERN_END);
 
+            //String theme = page.extract(THEME_PATTERN_START, THEME_PATTERN_END);
+            String theme = page.extract("<title>", "<");
+            if (theme.contains("- TV")) {
+                theme = theme.substring(0, theme.indexOf("- TV")).trim();
+            }
             while (!MSConfig.getStop() && ((pos = page.indexOf(PATTERN_ID_START, pos)) != -1)) {
                 String id = page.extract(PATTERN_ID_START, PATTERN_ID_END, pos);
                 pos += PATTERN_ID_START.length();
-
+                
                 String jsonMovieUrl = BASE_URL_JSON + id + END_URL_JSON;
-
+                
                 addFilms(jsonMovieUrl, themePageUrl, theme);
             }
-
+            
         }
-
+        
         private void addFilmsFromPeriod(String urlThema, ArrayList<Date> dateList) {
             Calendar c = Calendar.getInstance();
             String themePageUrl;
-
+            
             for (Date d : dateList) {
                 if (MSConfig.getStop()) {
                     break;
@@ -248,11 +252,11 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 themePageUrl = urlThema + urlPart;
                 periodPageFilm = getUrl.getUri_Utf(nameSenderMReader, themePageUrl, periodPageFilm, "");
                 addFilmsFromPage(periodPageFilm, themePageUrl);
-
+                
             }
-
+            
         }
-
+        
         private final DateFormat df = new SimpleDateFormat("yyyy-M");
 
         /**
@@ -269,7 +273,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             String month;
             String year = "";
             final int YEAR_LENGTH = 4;
-
+            
             while (parser.hasCurrentToken()) {
                 if (currentToken == JsonToken.FIELD_NAME) {  //JSON FieldNames are enclosed in ""
                     String text = parser.getText();
@@ -277,14 +281,14 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                         year = text;
                     } else {
                         month = text;
-
+                        
                         if (!month.isEmpty()) {
 
                             //Ignoring the current year and month, because that is the same as the overview page
                             if ((Integer.valueOf(year) != todayYear) || (Integer.parseInt(month) != todayMonth)) {
-
+                                
                                 String str_date = year + "-" + month;
-
+                                
                                 try {
                                     Date d = df.parse(str_date);
                                     dateList.add(d);
@@ -298,15 +302,15 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     }
                 }
                 currentToken = parser.nextToken();
-
+                
             }
             return dateList;
         }
-
+        
         private String getPeriodPartYearMonth(String year, String month) {
             final String PERIOD = "&period=";
             final String PERIOD_DELIM = "-";
-
+            
             return PERIOD + year + PERIOD_DELIM + month;
         }
 
@@ -318,13 +322,13 @@ public class MediathekSrf extends MediathekReader implements Runnable {
          * @param theme the theme name of the film
          */
         private void addFilms(String urlFilm, String urlWebsite, String theme) {
-
+            
             meldung(urlFilm);
-
+            
             MSStringBuilder filmPage = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
             filmPage = getUrl.getUri_Utf(nameSenderMReader, urlFilm, filmPage, "");
             try {
-
+                
                 String date_str = "";
                 String time = "";
                 Date date = extractDateAndTime(filmPage);
@@ -334,7 +338,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     dfDayMonthYear = new SimpleDateFormat("hh:mm:ss");
                     time = dfDayMonthYear.format(date);
                 }
-
+                
                 String[] keywords = extractKeywords(filmPage);
                 String thumbOrImage = extractThumbnail(filmPage);
                 long duration = extractDuration(filmPage);
@@ -343,11 +347,11 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 String urlHd = extractHdUrl(filmPage, urlWebsite);
                 String url_normal = getNormalUrlFromM3u8(filmPage);
                 String url_small = getSmallUrlFromM3u8(filmPage);
-
+                
                 urlHd = urlHd.isEmpty() ? getHdUrlFromM3u8(filmPage) : urlHd;
                 url_normal = url_normal.isEmpty() ? extractUrl(filmPage) : url_normal;
                 url_small = url_small.isEmpty() ? extractSmallUrl(filmPage) : url_small;
-
+                
                 if (url_normal.isEmpty()) {
                     if (!url_small.isEmpty()) {
                         url_normal = url_small;
@@ -358,10 +362,10 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                         return;
                     }
                 }
-
+                
                 DatenFilm film = new DatenFilm(nameSenderMReader, theme, urlWebsite, title, url_normal, ""/*rtmpURL*/, date_str, time, duration, description,
                         thumbOrImage, keywords);
-
+                
                 if (!url_small.isEmpty()) {
                     film.addUrlKlein(url_small, "");
                 }
@@ -373,14 +377,14 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 MSLog.fehlerMeldung(-556320087, MSLog.FEHLER_ART_MREADER, "MediathekSf.addFilme2", ex);
             }
         }
-
+        
         private String getSmallUrlFromM3u8(MSStringBuilder page) {
             final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
             final String PATTERN_RESOLUTION = "RESOLUTION=320x180"; //480x272
 
             final String INDEX_0 = "index_0_av.m3u8";
             final String INDEX_1 = "index_1_av.m3u8";
-
+            
             String m3u8Url = normalizeJsonUrl(subString(PATTERN_QUALITY_100, PATTERN_URL, PATTERN_URL_END, page));
             if (!m3u8Url.isEmpty()) {
                 String newResolutionUrl = getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_1);
@@ -389,22 +393,22 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 }
                 return newResolutionUrl;
             }
-
+            
             return "";
         }
-
+        
         private String getNormalUrlFromM3u8(MSStringBuilder page) {
             final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
             final String PATTERN_RESOLUTION = "RESOLUTION=640x360";
             final String INDEX_3 = "index_3_av.m3u8";
             final String INDEX_2 = "index_2_av.m3u8";
-
+            
             String m3u8Url = normalizeJsonUrl(subString(PATTERN_QUALITY_100, PATTERN_URL, PATTERN_URL_END, page));
             if (!m3u8Url.isEmpty()) {
                 String higherQuality = getHiqherQualityUrl(page);
                 if (higherQuality.isEmpty()) {
                     String newUrlResolution = getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_3);
-
+                    
                     if (newUrlResolution.isEmpty()) {
                         return getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_2);
                     }
@@ -413,19 +417,19 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 return higherQuality;
             }
             return "";
-
+            
         }
-
+        
         private String getHiqherQualityUrl(MSStringBuilder page) {
             final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
             final String INDEX_4 = "index_4_av.m3u8";
             final String INDEX_3 = "index_3_av.m3u8";
-
+            
             final String PATTERN_RESOLUTION = "RESOLUTION=960x544";
             if (isHigherResolutionAvaiable(page)) {
                 String m3u8Url = normalizeJsonUrl(subString(PATTERN_QUALITY_100, PATTERN_URL, PATTERN_URL_END, page));
                 m3u8Url = buildHqUrlM3u8(m3u8Url);
-
+                
                 if (!m3u8Url.isEmpty()) {
                     String newResolutionUrl = getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_4);
                     if (newResolutionUrl.isEmpty()) {
@@ -433,7 +437,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     }
                     return newResolutionUrl;
                 }
-
+                
             }
             return "";
         }
@@ -445,7 +449,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
          * @return Returns the build hiqh quality url
          */
         private String buildHqUrlM3u8(String m3u8Url) {
-
+            
             final String MP4 = ".mp4";
             final String QUALITY = "q50,";
             //final String Q10 = "q10,";
@@ -453,30 +457,30 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             //final String Q30 = "q30";
             String newUrl = "";
             if (m3u8Url.contains(Q20)) {
-
+                
                 int posMp4 = m3u8Url.indexOf(MP4);
                 newUrl = m3u8Url.substring(0, posMp4);
                 newUrl = newUrl + QUALITY + m3u8Url.substring(posMp4, m3u8Url.length());
             }
             return newUrl;
         }
-
+        
         private boolean isHigherResolutionAvaiable(MSStringBuilder page) {
             final String PATTERN_WIDTH_960 = "\"frame_width\":960";
             //final String PATTERN_WIDTH_640 = "\"frame_width\":640";
             //final String PATTERN_QUALITY_100 = "\"quality\":\"100\",";
 
             return page.indexOf(PATTERN_WIDTH_960) != -1;
-
+            
         }
-
+        
         private String getHdUrlFromM3u8(MSStringBuilder page) {
             final String PATTERN_QUALITY_200 = "\"quality\":\"200\",";
             final String PATTERN_RESOLUTION = "RESOLUTION=1280x720";
-
+            
             final String INDEX_5 = "index_5_av.m3u8";
             final String INDEX_4 = "index_4_av.m3u8";
-
+            
             String m3u8Url = normalizeJsonUrl(subString(PATTERN_QUALITY_200, PATTERN_URL, PATTERN_URL_END, page));
             if (!m3u8Url.isEmpty()) {
                 String hdUrl = getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_5);
@@ -484,22 +488,22 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 {
                     hdUrl = getUrlFromM3u8(m3u8Url, PATTERN_RESOLUTION, INDEX_4);
                 }
-
+                
                 return hdUrl;
             }
-
+            
             return "";
-
+            
         }
-
+        
         private String getUrlFromM3u8(String m3u8Url, String resolutionPattern, String qualityIndex) {
-
+            
             final String CSMIL = "csmil/";
             String url = m3u8Url.substring(0, m3u8Url.indexOf(CSMIL)) + CSMIL + qualityIndex;
-
+            
             return checkPing(url);
         }
-
+        
         private String checkPing(String url) {
             try {
                 if (ping(url)) {
@@ -515,54 +519,54 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     MSLog.fehlerMeldung(-646490237, MSLog.FEHLER_ART_FILME_SUCHEN, "MediathekSf.checkPing", ex);
                 }
             }
-
+            
             return "";
         }
-
+        
         private String extractHdUrl(MSStringBuilder page, String urlWebsite) {
-
+            
             final String PATTERN_DL_URL_START = "button_download_img offset\" href=\"";
             final String PATTERN_DL_URL_END = "\"";
-
+            
             if (isHdAvailable(page)) {
                 film_website = getUrl.getUri_Utf(nameSenderMReader, urlWebsite, film_website, "");
-
+                
                 return subString(PATTERN_DL_URL_START, PATTERN_DL_URL_END, film_website);
             }
             return "";
         }
-
+        
         private boolean isHdAvailable(MSStringBuilder page) {
             final String PATTERN_HD_WIDTH = "\"frame_width\":1280";
             final String PATTERN_QUALITY_200 = "\"quality\":\"200\",";
-
+            
             return page.indexOf(PATTERN_HD_WIDTH) != -1 || page.indexOf(PATTERN_QUALITY_200) != -1;
-
+            
         }
-
+        
         private String extractUrl(MSStringBuilder page) {
             final String PATTERN_WIDTH_640 = "\"frame_width\":640";
-
+            
             return normalizeJsonUrl(subString(PATTERN_WIDTH_640, PATTERN_URL, PATTERN_URL_END, page));
         }
-
+        
         private String extractSmallUrl(MSStringBuilder page) {
             final String PATTERN_WIDTH_320 = "\"frame_width\":320";
             final String PATTERN_WIDTH_384 = "\"frame_width\":384";
-
+            
             String url = subString(PATTERN_WIDTH_320, PATTERN_URL, PATTERN_URL_END, page);
             if (url.isEmpty()) {
                 url = subString(PATTERN_WIDTH_384, PATTERN_URL, PATTERN_URL_END, page);
             }
             return normalizeJsonUrl(url);
-
+            
         }
-
+        
         private long extractDuration(MSStringBuilder page) {
             int pos1, pos2;
             long duration = 0;
             final String PATTERN_DURATION = "\"mark_out\":";
-
+            
             if ((pos1 = page.indexOf(PATTERN_DURATION)) != -1) {
                 pos1 += PATTERN_DURATION.length();
                 if ((pos2 = page.indexOf(",", pos1)) != -1) {
@@ -583,56 +587,56 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             }
             return duration;
         }
-
+        
         private Date extractDateAndTime(MSStringBuilder page) {
             final String PATTERN_DATE_TIME = "\"time_published\":\"";
             final String PATTERN_END = "\"";
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-
+            
             String date_str = page.extract(PATTERN_DATE_TIME, PATTERN_END);
-
+            
             Date date = null;
             try {
                 date = formatter.parse(date_str);
             } catch (ParseException ex) {
                 MSLog.fehlerMeldung(-784512304, MSLog.FEHLER_ART_MREADER, "MediathekSrf.extractDateAndTime", ex, "DAte_STR " + date_str);
             }
-
+            
             return date;
         }
-
+        
         private String extractThumbnail(MSStringBuilder page) {
-
+            
             final String PATTERN_ID = "\"id\":\"";
             final String PATTERN_ID_END = "\",";
-
+            
             String id = subString(PATTERN_ID, PATTERN_ID_END, page);
-
+            
             return "http://www.srf.ch/webservice/cvis/segment/thumbnail/" + id + "?width=150";
         }
-
+        
         private String extractDescription(MSStringBuilder page) {
             final String PATTERN_DESCRIPTION = "\"description_lead\":\"";
             final String PATTERN_DESC_END = "\",";
             final String PATTERN_DESC_ALTERNATIVE = "\"description\":\"";
-
+            
             String description = subString(PATTERN_DESCRIPTION, PATTERN_DESC_END, page);
             if (description.isEmpty()) {
                 description = subString(PATTERN_DESC_ALTERNATIVE, PATTERN_DESC_END, page);
             }
-
+            
             return StringEscapeUtils.unescapeJava(description).trim();
         }
-
+        
         private String extractTitle(MSStringBuilder page) {
-
+            
             final String PATTERN_TITLE = "\"description_title\":\"";
             final String PATTERN_TITLE_END = "\",";
-
+            
             String title = subString(PATTERN_TITLE, PATTERN_TITLE_END, page);
             return StringEscapeUtils.unescapeJava(title).trim();
         }
-
+        
         private String[] extractKeywords(MSStringBuilder string) {
             LinkedList<String> l = new LinkedList<>();
 
@@ -655,7 +659,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             final String PATTERN_TAGS_START = "\"tags\":{";
             final String PATTERN_TAGS_END = "]},";
             final String PATTERN_TAG_START = "\"name\":\"";
-
+            
             int pos0 = string.indexOf(PATTERN_TAGS_START);
             if (pos0 != -1) {
                 pos0 += PATTERN_TAGS_START.length();
@@ -673,23 +677,23 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             }
             return l.toArray(new String[l.size()]);
         }
-
+        
         private String subString(String searchPattern, String patternStart, String patternEnd, MSStringBuilder page) {
             int posSearch, pos1, pos2;
             String extracted = "";
             if ((posSearch = page.indexOf(searchPattern)) != -1) {
                 if ((pos1 = page.indexOf(patternStart, posSearch)) != -1) {
                     pos1 += patternStart.length();
-
+                    
                     if ((pos2 = page.indexOf(patternEnd, pos1)) != -1) {
                         extracted = page.substring(pos1, pos2);
-
+                        
                     }
                 }
             }
             return extracted;
         }
-
+        
         private String subString(String patternStart, String patternEnd, MSStringBuilder page) {
             int pos1, pos2;
             String extracted = "";
@@ -701,13 +705,13 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             }
             return extracted;
         }
-
+        
         private String normalizeJsonUrl(String jsonurl) {
             final String SEARCH_PATTERN = "\\/";
             final String REPLACE_PATTERN = "/";
-
+            
             return jsonurl.replace(SEARCH_PATTERN, REPLACE_PATTERN);
         }
     }
-
+    
 }
