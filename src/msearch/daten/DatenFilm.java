@@ -25,6 +25,7 @@ import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekBr;
 import msearch.filmeSuchen.sender.MediathekMdr;
+import msearch.filmeSuchen.sender.MediathekNdr;
 import msearch.filmeSuchen.sender.MediathekOrf;
 import msearch.filmeSuchen.sender.MediathekSrfPod;
 import msearch.filmeSuchen.sender.MediathekSwr;
@@ -284,6 +285,11 @@ public class DatenFilm implements Comparable<DatenFilm> {
             case MediathekSrfPod.SENDER:
                 if (arr[DatenFilm.FILM_URL_NR].startsWith("http://podcasts.srf.ch/ch/audio/")) {
                     arr[DatenFilm.FILM_GEO_NR] = GEO_CH;
+                }
+                break;
+            case MediathekNdr.SENDER:
+                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://media.ndr.de/progressive_geo")) {
+                    arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
                 }
                 break;
         }
