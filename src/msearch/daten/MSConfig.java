@@ -44,7 +44,7 @@ public class MSConfig {
     public static boolean debug = false; // Debugmodus
     // Verzeichnis zum Speichern der Programmeinstellungen
     public static String dirFilme = ""; // Pfad mit den Filmlisten
-    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    //public static final String LINE_SEPARATOR = System.getProperty("line.separator");
     private static boolean stop = false; // damit kannn das Laden gestoppt werden
 
     // Namen der Filmlisten im: Konfig-Ordner/filmlisten/
@@ -71,16 +71,15 @@ public class MSConfig {
         }
     }
 
-    public static String getUserAgent_dynamic() {
-        int zufall = 1 + (int) (Math.random() * 10000); // 1 - 10000
-        //String user = " user-" + zufall;
-        if (userAgent == null) {
-            return MSConst.USER_AGENT_DEFAULT + " user-" + zufall;
-        } else {
-            return userAgent + " user-" + zufall;
-        }
-    }
-
+    /*public static String getUserAgent_dynamic() {
+     int zufall = 1 + (int) (Math.random() * 10000); // 1 - 10000
+     //String user = " user-" + zufall;
+     if (userAgent == null) {
+     return MSConst.USER_AGENT_DEFAULT + " user-" + zufall;
+     } else {
+     return userAgent + " user-" + zufall;
+     }
+     }*/
     public static String getPathFilmlist_json_akt(boolean aktDate) {
         if (aktDate) {
             return MSGuiFunktionen.addsPfad(dirFilme, DatumZeit.getJetzt_yyyy_MM_dd__HH_mm_ss() + "__" + nameAktFilmlist);

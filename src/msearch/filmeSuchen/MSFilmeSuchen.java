@@ -166,7 +166,7 @@ public class MSFilmeSuchen {
                     return String.valueOf(aMediathekListe.getThreads());
                 }
             }
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
         return "";
     }
@@ -179,7 +179,7 @@ public class MSFilmeSuchen {
                     return String.valueOf(aMediathekListe.getWaitTime());
                 }
             }
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
         return "";
     }
@@ -369,7 +369,7 @@ public class MSFilmeSuchen {
         }
         listeFilmeNeu.sort();
         // FilmlisteMetaDaten
-        listeFilmeNeu.metaDatenSchreiben();
+        listeFilmeNeu.writeMetaData();
         Date stopZeit = new Date(System.currentTimeMillis());
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         int sekunden = getDauerSekunden();

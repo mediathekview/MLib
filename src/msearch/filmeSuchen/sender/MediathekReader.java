@@ -43,7 +43,6 @@ public class MediathekReader implements Runnable {
     LinkedListUrl listeThemen = new LinkedListUrl();
     MSGetUrl getUrlIo;
     MSFilmeSuchen mSearchFilmeSuchen;
-    static boolean stop = false;
 
     public MediathekReader(MSFilmeSuchen mmSearchFilmeSuchen, String nameMreader, int ssenderMaxThread, int ssenderWartenSeiteLaden, int sstartPrio) {
         mSearchFilmeSuchen = mmSearchFilmeSuchen;
@@ -70,7 +69,7 @@ public class MediathekReader implements Runnable {
         synchronized String[] getListeThemen() {
             return this.pollFirst();
         }
-    };
+    }
 
     public int getStartPrio() {
         return startPrio;
@@ -94,7 +93,7 @@ public class MediathekReader implements Runnable {
     }
 
     public void delSenderInAlterListe(String sender) {
-        mSearchFilmeSuchen.listeFilmeAlt.delSender(sender);
+        mSearchFilmeSuchen.listeFilmeAlt.deleteAllFilms(sender);
     }
 
     @Override

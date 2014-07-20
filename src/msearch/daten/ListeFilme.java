@@ -206,10 +206,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
     public synchronized void check() {
-        Iterator<DatenFilm> it = this.iterator();
-        DatenFilm film;
-        while (it.hasNext()) {
-            film = it.next();
+        for (DatenFilm film : this) {
             film.arr[DatenFilm.FILM_THEMA_NR] = MSGuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
             film.arr[DatenFilm.FILM_TITEL_NR] = MSGuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
             if (film.arr[DatenFilm.FILM_URL_NR].contains(" ")) {
@@ -218,14 +215,46 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         }
     }
 
+    public synchronized void nurDoppelteAnzeigen(boolean index) {
+     // zum Debuggen: URLs die doppelt sind, in die History eintragen
+        // damit sie markiert werden
+        DatenFilm film;
+        HashSet<String> hashDoppelt = new HashSet<>();
+        HashSet<String> hash = new HashSet<>();
+        Iterator<DatenFilm> it = this.iterator();
+        while (it.hasNext()) {
+            film = it.next();
+            if (index) {
+                if (!hash.contains(film.getIndex())) {
+                    hash.add(film.getIndex());
+                } else {
+                    // dann ist er mind. doppelt in der Liste
+                    hashDoppelt.add(film.arr[DatenFilm.FILM_URL_NR]);
+                }
+            } else {
+                if (!hash.contains(film.arr[DatenFilm.FILM_URL_NR])) {
+                    hash.add(film.arr[DatenFilm.FILM_URL_NR]);
+                } else {
+                    // dann ist er mind. doppelt in der Liste
+                    hashDoppelt.add(film.arr[DatenFilm.FILM_URL_NR]);
+                }
+            }
+        }
+        it = this.iterator();
+        while (it.hasNext()) {
+            if (!hashDoppelt.contains(it.next().arr[DatenFilm.FILM_URL_NR])) {
+                it.remove();
+            }
+        }
+        hash.clear();
+        hashDoppelt.clear();
+    }
+
     public synchronized void sort() {
         Collections.sort(this);
         // und jetzt noch die Nummerierung in Ordnung bringen
-        Iterator<DatenFilm> it = this.iterator();
-        DatenFilm film;
         int i = 1;
-        while (it.hasNext()) {
-            film = it.next();
+        for (DatenFilm film : this) {
             film.nr = i++;
         }
     }
@@ -287,54 +316,29 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return MSUrlDateiGroesse.laengeString(url, sender);
     }
 
-    public synchronized void nurDoppelteAnzeigen(boolean index) {
-        // zum Debuggen: URLs die doppelt sind, in die History eintragen
-        // damit sie markiert werden
-        DatenFilm film;
-        HashSet<String> hashDoppelt = new HashSet<>();
-        HashSet<String> hash = new HashSet<>();
-        Iterator<DatenFilm> it = this.iterator();
-        while (it.hasNext()) {
-            film = it.next();
-            if (index) {
-                if (!hash.contains(film.getIndex())) {
-                    hash.add(film.getIndex());
-                } else {
-                    // dann ist er mind. doppelt in der Liste
-                    hashDoppelt.add(film.arr[DatenFilm.FILM_URL_NR]);
-                }
-            } else {
-                if (!hash.contains(film.arr[DatenFilm.FILM_URL_NR])) {
-                    hash.add(film.arr[DatenFilm.FILM_URL_NR]);
-                } else {
-                    // dann ist er mind. doppelt in der Liste
-                    hashDoppelt.add(film.arr[DatenFilm.FILM_URL_NR]);
-                }
-            }
-        }
-        it = this.iterator();
-        while (it.hasNext()) {
-            if (!hashDoppelt.contains(it.next().arr[DatenFilm.FILM_URL_NR])) {
-                it.remove();
-            }
-        }
-        hash.clear();
-        hashDoppelt.clear();
-    }
-
-    public synchronized int countSender(String sender) {
+    /**
+     * Count the number of films belonging to a sender.
+     *
+     * @param sender The sender name.
+     * @return Number of films.
+     */
+    public synchronized int countSender(final String sender) {
         int ret = 0;
-        ListIterator<DatenFilm> it = this.listIterator(0);
-        while (it.hasNext()) {
-            if (it.next().arr[DatenFilm.FILM_SENDER_NR].equalsIgnoreCase(sender)) {
-                ++ret;
+        for (DatenFilm film : this) {
+            if (film.arr[DatenFilm.FILM_SENDER_NR].equalsIgnoreCase(sender)) {
+                ret++;
             }
         }
+
         return ret;
     }
 
-    public synchronized void delSender(String sender) {
-        // alle Filme VOM SENDER löschen
+    /**
+     * Delete all films from specified sender.
+     *
+     * @param sender Sender which films are to be deleted.
+     */
+    public synchronized void deleteAllFilms(String sender) {
         DatenFilm film;
         ListIterator<DatenFilm> it = this.listIterator(0);
         while (it.hasNext()) {
@@ -375,7 +379,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 MediathekKika.SENDER + " " + THEMA_LIVE,
                 "rtmp://85.239.122.162/live/mk3w-3faw-3rqf-enc0-kika", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
 
-        
         // 3sat
         addFilmVomSender(new DatenFilm(Mediathek3Sat.SENDER, THEMA_LIVE, ""/* urlThema */,
                 Mediathek3Sat.SENDER + " " + THEMA_LIVE,
@@ -390,18 +393,13 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 "http://rbb_live-lh.akamaihd.net/i/rbb_berlin@108248/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
     }
 
-    public synchronized DatenFilm getFilmByUrl(String url) {
-        // Problem wegen gleicher URLs
-        DatenFilm ret = null;
-        ListIterator<DatenFilm> it = this.listIterator(0);
-        while (it.hasNext()) {
-            DatenFilm f = it.next();
-            if (f.arr[DatenFilm.FILM_URL_NR].equals(url)) {
-                ret = f;
-                break;
+    public synchronized DatenFilm getFilmByUrl(final String url) {
+        for (DatenFilm film : this) {
+            if (film.arr[DatenFilm.FILM_URL_NR].equalsIgnoreCase(url)) {
+                return film;
             }
         }
-        return ret;
+        return null;
     }
 
     public synchronized DatenFilm getFilmByUrl_klein_hoch_hd(String url) {
@@ -484,13 +482,17 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    public synchronized int alterFilmlisteSek() {
-        // Alter der Filmliste in Sekunden
+    /**
+     * Get the age of the film list.
+     *
+     * @return Age in seconds.
+     */
+    public synchronized int getAge() {
         int ret = 0;
-        Date jetzt = new Date(System.currentTimeMillis());
-        Date filmDate = alterFilmlisteDate();
+        Date now = new Date(System.currentTimeMillis());
+        Date filmDate = getAgeAsDate();
         if (filmDate != null) {
-            ret = Math.round((jetzt.getTime() - filmDate.getTime()) / (1000));
+            ret = Math.round((now.getTime() - filmDate.getTime()) / (1000));
             if (ret < 0) {
                 ret = 0;
             }
@@ -498,8 +500,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    public synchronized Date alterFilmlisteDate() {
-        // liefert das Datum der Filmliste
+    /**
+     * Get the age of the film list.
+     *
+     * @return Age as a {@link java.util.Date} object.
+     */
+    public synchronized Date getAgeAsDate() {
         String date;
         if (!metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
             date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
@@ -507,30 +513,37 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         } else {
             date = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
         }
-        Date filmDate;
+        Date filmDate = null;
         try {
             filmDate = sdf.parse(date);
-        } catch (ParseException ex) {
-            filmDate = null;
+        } catch (ParseException ignored) {
         }
+
         return filmDate;
     }
 
-    public synchronized boolean filmlisteZuAlt() {
-        if (this.size() == 0) {
-            return true;
-        }
-        return filmlisteIstAelter(MSConst.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE);
+    /**
+     * Check if available Filmlist is older than a specified value.
+     *
+     * @return true if too old or if the list is empty.
+     */
+    public synchronized boolean isTooOld() {
+        return (isEmpty()) || (isOlderThan(MSConst.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE));
     }
 
-    public synchronized boolean toOldForDiff() {
-        if (this.size() == 0) {
+    /**
+     * Check if Filmlist is too old for using a diff list.
+     *
+     * @return true if empty or too old.
+     */
+    public synchronized boolean isTooOldForDiff() {
+        if (isEmpty()) {
             return true;
         }
         try {
-            String d = new SimpleDateFormat("yyyy.MM.dd__").format(new Date()) + MSConst.TIME_MAX_AGE_FOR_DIFF + ":00:00";
-            Date maxDiff = new SimpleDateFormat("yyyy.MM.dd__HH:mm:ss").parse(d);
-            Date filmliste = alterFilmlisteDate();
+            final String d = new SimpleDateFormat("yyyy.MM.dd__").format(new Date()) + MSConst.TIME_MAX_AGE_FOR_DIFF + ":00:00";
+            final Date maxDiff = new SimpleDateFormat("yyyy.MM.dd__HH:mm:ss").parse(d);
+            final Date filmliste = getAgeAsDate();
             if (filmliste != null) {
                 return filmliste.getTime() < maxDiff.getTime();
             }
@@ -539,23 +552,28 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return true;
     }
 
-    public synchronized boolean filmlisteIstAelter(int sekunden) {
-        int ret = alterFilmlisteSek();
+    /**
+     * Check if list is older than specified parameter.
+     *
+     * @param sekunden The age in seconds.
+     * @return true if older.
+     */
+    public synchronized boolean isOlderThan(int sekunden) {
+        int ret = getAge();
         if (ret != 0) {
             MSLog.systemMeldung("Die Filmliste ist " + ret / 60 + " Minuten alt");
         }
         return ret > sekunden;
     }
 
-    public synchronized void metaDatenSchreiben() {
-        // FilmlisteMetaDaten
+    public synchronized void writeMetaData() {
         for (int i = 0; i < metaDaten.length; ++i) {
             metaDaten[i] = "";
         }
 //        if (!MSConfig.getStop() /* löschen */) {
         metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = getJetzt_ddMMyyyy_HHmm();
         metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = getJetzt_ddMMyyyy_HHmm_gmt();
-        metaDaten[ListeFilme.FILMLISTE_ID_NR] = checkSum(metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR]);
+        metaDaten[ListeFilme.FILMLISTE_ID_NR] = createChecksum(metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR]);
 //        } else {
 //            metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = "";
 //            metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = "";
@@ -565,7 +583,13 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = MSFunktionen.getProgVersionString() + " - Compiled: " + MSFunktionen.getCompileDate();
     }
 
-    private static String checkSum(String input) {
+    /**
+     * Create a checksum string as a unique identifier.
+     *
+     * @param input The base string for the checksum.
+     * @return MD5-hashed checksum string.
+     */
+    private String createChecksum(String input) {
         StringBuilder sb = new StringBuilder();
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -590,25 +614,28 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return formatter.format(new Date());
     }
 
+    /**
+     * Erstellt ein StringArray der Themen eines Senders oder wenn "sender" leer, aller Sender.
+     * Ist für die Filterfelder in GuiFilme.
+     */
+    @SuppressWarnings("unchecked")
     public synchronized void themenLaden() {
-        // erstellt ein StringArray der Themen eines Senders oder wenn "sender" leer, aller Sender
-        // ist für die Filterfelder im GuiFilme
-        // doppelte Einträge (bei der Groß- und Kleinschribung) werden entfernt
+        TreeSet<String> senderSet = new TreeSet<>();
         // der erste Sender ist ""
-        TreeSet<String> treeSet = new TreeSet<>();
-        treeSet.add("");
+        senderSet.add("");
         // Sendernamen gibts nur in einer Schreibweise
+        // doppelte Einträge nicht hinzufügen.
         for (DatenFilm film : this) {
-            String str = film.arr[DatenFilm.FILM_SENDER_NR];
-            if (!treeSet.contains(str)) {
-                treeSet.add(str);
+            final String str = film.arr[DatenFilm.FILM_SENDER_NR];
+            if (!senderSet.contains(str)) {
+                senderSet.add(str);
             }
         }
-        sender = treeSet.toArray(new String[treeSet.size()]);
-        treeSet.clear();
+        sender = senderSet.toArray(new String[senderSet.size()]);
+        senderSet.clear();
+
         //für den Sender "" sind alle Themen im themenPerSender[0]
         themenPerSender = new String[sender.length][];
-        String filmThema, filmSender;
         TreeSet<String>[] tree = new TreeSet[sender.length];
         HashSet<String>[] hashSet = new HashSet[sender.length];
         for (int i = 0; i < tree.length; ++i) {
@@ -617,7 +644,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             hashSet[i] = new HashSet<>();
         }
 
-        //alle Theman
+        //alle Themen
+        String filmThema, filmSender;
         for (DatenFilm film : this) {
             filmSender = film.arr[DatenFilm.FILM_SENDER_NR];
             filmThema = film.arr[DatenFilm.FILM_THEMA_NR];

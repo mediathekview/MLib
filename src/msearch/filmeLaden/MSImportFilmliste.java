@@ -87,7 +87,7 @@ public class MSImportFilmliste {
         @Override
         public void run() {
             boolean ret;
-            if (listeFilme.toOldForDiff()) {
+            if (listeFilme.isTooOldForDiff()) {
                 // dann eine komplette Liste laden
                 state = STATE_AKT;
                 listeFilme.clear();
@@ -151,7 +151,7 @@ public class MSImportFilmliste {
                     if (ret_) {
                         // hat geklappt, nix wie weiter
                         ret = true; // keine Fehlermeldung
-                        if (i < 3 && liste.filmlisteIstAelter(5 * 60 * 60 /*sekunden*/)) {
+                        if (i < 3 && liste.isOlderThan(5 * 60 * 60 /*sekunden*/)) {
                             MSLog.systemMeldung("Filmliste zu alt, neuer Versuch");
                         } else {
                             // 3 Versuche mit einer alten Liste sind genug
