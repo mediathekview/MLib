@@ -216,7 +216,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
     public synchronized void nurDoppelteAnzeigen(boolean index) {
-     // zum Debuggen: URLs die doppelt sind, in die History eintragen
+        // zum Debuggen: URLs die doppelt sind, in die History eintragen
         // damit sie markiert werden
         DatenFilm film;
         HashSet<String> hashDoppelt = new HashSet<>();
@@ -354,10 +354,10 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         //DatenFilm(Daten ddaten, String ssender, String tthema, String urlThema, String ttitel, String uurl, String datum, String zeit) {
         addFilmVomSender(new DatenFilm(MediathekNdr.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekNdr.SENDER + " " + THEMA_LIVE,
-                "http://www.ndr.de/resources/metadaten/ndr_fs_nds_hi_wmv.asx", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                "http://ndr_fs-lh.akamaihd.net/i/ndrfs_nds@119224/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekWdr.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekWdr.SENDER + " " + THEMA_LIVE,
-                "http://www.wdr.de/wdrlive/media/wdr-fernsehen_web-l.asx", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                "rtsp://rtspgen.api.core-cdn.net/10177xwdrsw04/sw04_ww_webl", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         // die neuen Livestreams ARD
         addFilmVomSender(new DatenFilm(MediathekArd.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekArd.SENDER + " Tagesschau " + THEMA_LIVE,
@@ -371,10 +371,14 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de12_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDER + ".kultur " + THEMA_LIVE,
-                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de07_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de11_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDER + ".neo " + THEMA_LIVE,
                 "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de13_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+        addFilmVomSender(new DatenFilm(MediathekZdf.SENDER, THEMA_LIVE, ""/* urlThema */,
+                MediathekZdf.SENDER + ".heute " + THEMA_LIVE,
+                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/none01_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+
         addFilmVomSender(new DatenFilm(MediathekKika.SENDER, THEMA_LIVE, ""/* urlThema */,
                 MediathekKika.SENDER + " " + THEMA_LIVE,
                 "rtmp://85.239.122.162/live/mk3w-3faw-3rqf-enc0-kika", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
@@ -383,9 +387,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         addFilmVomSender(new DatenFilm(Mediathek3Sat.SENDER, THEMA_LIVE, ""/* urlThema */,
                 Mediathek3Sat.SENDER + " " + THEMA_LIVE,
                 "http://zdf_hds_dach-f.akamaihd.net/i/dach10_v1@87031/master.m3u8?b=0-710&dw=0", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
-//        addFilmVomSender(new DatenFilm(Mediathek3Sat.SENDER, THEMA_LIVE, ""/* urlThema */,
-//                Mediathek3Sat.SENDER + " " + THEMA_LIVE,
-//                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/dach10_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
 
         // RBB
         addFilmVomSender(new DatenFilm(MediathekRbb.SENDER, THEMA_LIVE, ""/* urlThema */,
