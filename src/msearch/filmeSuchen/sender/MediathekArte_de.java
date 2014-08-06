@@ -38,6 +38,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
     SimpleDateFormat sdfDatum = new SimpleDateFormat("dd.MM.yyyy");
     String URL_ARTE = "http://www.arte.tv/papi/tvguide/epg/schedule/D/L3/";
     String URL_CONCERT = "http://concert.arte.tv/de/videos/all";
+    String URL_CONCERT_NOT_CONTAIN = "-STF";
 
     public MediathekArte_de(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER_ARTE_DE, /* threads */ 2, /* urlWarten */ 500, startPrio);
@@ -131,8 +132,11 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                 meldungProgress(urlStart);
                 seite1 = getUrlIo.getUri_Utf(nameSenderMReader, urlStart, seite1, "");
                 int pos1 = 0;
-                String url, urlWeb, titel, urlHd, urlLow, urlNormal, beschreibung, datum, dauer;
+                String url, urlWeb, titel, urlHd = "", urlLow = "", urlNormal = "", beschreibung, datum, dauer;
                 while (!MSConfig.getStop() && (pos1 = seite1.indexOf(MUSTER_START, pos1)) != -1) {
+                    urlHd = "";
+                    urlLow = "";
+                    urlNormal = "";
                     pos1 += MUSTER_START.length();
                     try {
                         url = seite1.extract("<a href=\"", "\"", pos1);
@@ -162,18 +166,48 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                                 MSLog.fehlerMeldung(-784512698, MSLog.FEHLER_ART_MREADER, "MediathekARTE.addConcert", "keine URL");
                             } else {
                                 seite2 = getUrlIo.getUri_Utf(nameSenderMReader, url, seite2, "");
-                                urlLow = seite2.extract("\"bitrate\":800", "\"url\":\"", "\"").replace("\\", "");
-                                if (urlLow.endsWith(".m3u8")) {
-                                    urlLow = seite2.extractLast("\"bitrate\":800", "\"url\":\"", "\"").replace("\\", "");
+                                int p1 = 0;
+                                String a = "\"bitrate\":800";
+                                String b = "\"url\":\"";
+                                String c = "\"";
+                                while ((p1 = seite2.indexOf(a, p1)) != -1) {
+                                    p1 += a.length();
+                                    urlLow = seite2.extract(b, c, p1).replace("\\", "");
+                                    if (urlLow.endsWith(".m3u8")) {
+                                        urlLow = "";
+                                        continue;
+                                    }
+                                    if (!urlLow.contains(URL_CONCERT_NOT_CONTAIN)) {
+                                        break;
+                                    }
                                 }
-                                urlNormal = seite2.extract("\"bitrate\":1500", "\"url\":\"", "\"").replace("\\", "");
-                                if (urlNormal.endsWith(".m3u8")) {
-                                    urlNormal = seite2.extractLast("\"bitrate\":1500", "\"url\":\"", "\"").replace("\\", "");
+                                a = "\"bitrate\":1500";
+                                p1 = 0;
+                                while ((p1 = seite2.indexOf(a, p1)) != -1) {
+                                    p1 += a.length();
+                                    urlNormal = seite2.extract(b, c, p1).replace("\\", "");
+                                    if (urlNormal.endsWith(".m3u8")) {
+                                        urlNormal = "";
+                                        continue;
+                                    }
+                                    if (!urlNormal.contains(URL_CONCERT_NOT_CONTAIN)) {
+                                        break;
+                                    }
                                 }
-                                urlHd = seite2.extract("\"bitrate\":2200", "\"url\":\"", "\"").replace("\\", "");
-                                if (urlHd.endsWith(".m3u8")) {
-                                    urlHd = seite2.extractLast("\"bitrate\":2200", "\"url\":\"", "\"").replace("\\", "");
+                                a = "\"bitrate\":2200";
+                                p1 = 0;
+                                while ((p1 = seite2.indexOf(a, p1)) != -1) {
+                                    p1 += a.length();
+                                    urlHd = seite2.extract(b, c, p1).replace("\\", "");
+                                    if (urlHd.endsWith(".m3u8")) {
+                                        urlHd = "";
+                                        continue;
+                                    }
+                                    if (!urlHd.contains(URL_CONCERT_NOT_CONTAIN)) {
+                                        break;
+                                    }
                                 }
+
                                 if (urlNormal.isEmpty()) {
                                     urlNormal = urlLow;
                                     urlLow = "";
@@ -308,7 +342,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
 //                        //"TIT":"\"Somewhere over the Rainbow\" "
 //                        if (titel.equals("\\")) {
 //                            titel = seite1.extract("\"TIT\":\"\\\"", "\"", posStart);
-                            titel = titel.replace("\\", "");
+                        titel = titel.replace("\\", "");
 //                        }
                     }
                 }
