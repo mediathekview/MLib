@@ -19,6 +19,7 @@
  */
 package msearch.filmeSuchen.sender;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import msearch.daten.DatenFilm;
 import msearch.daten.MSConfig;
@@ -109,6 +110,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         MSGetUrl getUrlThemaLaden = new MSGetUrl(MSConfig.senderAllesLaden ? wartenLang : wartenKurz);
         private MSStringBuilder strSeite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder strSeite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        ArrayList<String> gefunden = new ArrayList<>();
 
         public ThemaLaden() {
         }
@@ -129,7 +131,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         }
 
         private void themenSeitenSuchen(String strUrlFeed, String thema) {
-            final String MUSTER_URL = "<li><a class=\"plLink\" href=\"player.htm?show=";
+            final String MUSTER_URL = "<a href=\"/player.htm?show=";
             //strSeite1 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, strSeite1, thema);
             strSeite1 = getUrlThemaLaden.getUri(nameSenderMReader, strUrlFeed, MSConst.KODIERUNG_UTF, 2 /* versuche */, strSeite1, thema);
             meldung(strUrlFeed);
@@ -137,6 +139,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             int pos2;
             String url;
             int max = 0;
+            gefunden.clear();
             while (!MSConfig.getStop() && (pos1 = strSeite1.indexOf(MUSTER_URL, pos1)) != -1) {
                 if (!MSConfig.senderAllesLaden) {
                     ++max;
@@ -152,6 +155,14 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                 pos1 += MUSTER_URL.length();
                 if ((pos2 = strSeite1.indexOf("\"", pos1)) != -1) {
                     url = strSeite1.substring(pos1, pos2);
+                    if (gefunden.contains(url)) {
+                        if (max > 0) {
+                            --max;
+                        }
+                        continue;
+                    } else {
+                        gefunden.add(url);
+                    }
                     if (url.equals("")) {
                         MSLog.fehlerMeldung(-875012369, MSLog.FEHLER_ART_MREADER, "MediathekSwr.addFilme2", "keine URL, Thema: " + thema);
                     } else {
@@ -160,8 +171,8 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     }
 
                 }
-
             }
+            gefunden.clear();
         }
 
         private void json(String strUrlFeed, String thema, String urlJson) {
