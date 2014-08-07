@@ -49,7 +49,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         meldungStart();
         //Theman suchen
         listeThemen.clear();
-        addToList__("http://swrmediathek.de/tvlist.htm");
+        addToList__();
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
@@ -68,39 +68,30 @@ public class MediathekSwr extends MediathekReader implements Runnable {
     //===================================
     // private
     //===================================
-    private void addToList__(String ADRESSE) {
+    private void addToList__() {
         //Theman suchen
+        final String MUSTER_START = "<div style=\"\" class=\"media mediaA\">";
         final String MUSTER_URL = "<a href=\"tvshow.htm?show=";
         final String MUSTER_THEMA = "title=\"";
         MSStringBuilder strSeite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        strSeite = getUrlIo.getUri(nameSenderMReader, ADRESSE, MSConst.KODIERUNG_UTF, 2, strSeite, "");
+        strSeite = getUrlIo.getUri(nameSenderMReader, "http://swrmediathek.de/tvlist.htm", MSConst.KODIERUNG_UTF, 2, strSeite, "");
         int pos = 0;
-        int pos1;
-        int pos2;
         String url;
-        String thema = "";
-        while (!MSConfig.getStop() && (pos = strSeite.indexOf(MUSTER_URL, pos)) != -1) {
-            pos += MUSTER_URL.length();
-            pos1 = pos;
-            pos2 = strSeite.indexOf("\"", pos);
-            if (pos1 != -1 && pos2 != -1 && pos1 != pos2) {
-                url = strSeite.substring(pos1, pos2);
-                pos = pos2;
-                pos = strSeite.indexOf(MUSTER_THEMA, pos);
-                pos += MUSTER_THEMA.length();
-                pos1 = pos;
-                pos2 = strSeite.indexOf("\"", pos);
-                if (pos1 != -1 && pos2 != -1) {
-                    thema = strSeite.substring(pos1, pos2);
-                    thema = StringEscapeUtils.unescapeHtml4(thema.trim()); //wird gleich benutzt und muss dann schon stimmen
+        String thema;
+        while (!MSConfig.getStop() && (pos = strSeite.indexOf(MUSTER_START, pos)) != -1) {
+            pos += MUSTER_START.length();
+                url = strSeite.extract(MUSTER_URL, "\"",pos);
+                thema = strSeite.extract(MUSTER_THEMA, "\"", pos);
+                thema = StringEscapeUtils.unescapeHtml4(thema.trim()); //wird gleich benutzt und muss dann schon stimmen
+                if (thema.isEmpty()) {
+                    MSLog.fehlerMeldung(-915263078, MSLog.FEHLER_ART_MREADER, "MediathekSwr.addToList__", "kein Thema");
                 }
-                if (url.equals("")) {
+                if (url.isEmpty()) {
                     MSLog.fehlerMeldung(-163255009, MSLog.FEHLER_ART_MREADER, "MediathekSwr.addToList__", "keine URL");
                 } else {
                     //url = url.replace("&amp;", "&");
                     String[] add = new String[]{"http://swrmediathek.de/tvshow.htm?show=" + url, thema};
                     listeThemen.addUrl(add);
-                }
             }
         }
     }
