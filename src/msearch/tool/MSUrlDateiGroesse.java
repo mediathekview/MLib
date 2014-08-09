@@ -55,6 +55,29 @@ public class MSUrlDateiGroesse {
         return 0;
     }
 
+    public static boolean urlExists(String url) {
+        // liefert liefert true, wenn es die URL gibt
+        int retCode;
+        if (!url.toLowerCase().startsWith("http")) {
+            return false;
+        }
+        try {
+            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
+            conn.setReadTimeout(2*TIMEOUT);
+            conn.setConnectTimeout(2*TIMEOUT);
+            if ((retCode = conn.getResponseCode()) < 400) {
+                return true;
+            } else if (retCode == 403) {
+                // aber sie gibt es :)
+                return true;
+            }
+            conn.disconnect();
+        } catch (Exception ignored) {
+        }
+        return false;
+    }
+
     public static String laengeString(String url) {
         // liefert die Dateigröße einer URL in MB!!
         // Anzeige der Größe in MB und deshalb: Faktor 1000
@@ -75,10 +98,6 @@ public class MSUrlDateiGroesse {
         return groesseStr;
     }
 
-    public static long laenge(String url) {
-        return laenge(url, "");
-    }
-
     private static long laenge(String url, String ssender) {
         // liefert die Dateigröße einer URL in BYTE!
         // oder -1
@@ -93,35 +112,32 @@ public class MSUrlDateiGroesse {
             conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
             conn.setReadTimeout(TIMEOUT);
             conn.setConnectTimeout(TIMEOUT);
-            if ((retCode = conn.getResponseCode()) < 400) {
+            retCode = conn.getResponseCode();
+            if (retCode < 400) {
                 ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
-                // ret = conn.getContentLength();
-                conn.disconnect();
-            } else {
-                if (retCode == 403) {
-                    countArray(anz403, ssender);
-                    if (!MSConfig.proxyUrl.isEmpty() && MSConfig.proxyPort > 0) {
-                        // nur dann verwenden
-                        try {
-                            // ein anderer Versuch
-                            // wenn möglich, einen Proxy einrichten
-                            //SocketAddress saddr = new InetSocketAddress("localhost", 9050);
-                            SocketAddress saddr = new InetSocketAddress(MSConfig.proxyUrl, MSConfig.proxyPort);
-                            Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
-                            conn = (HttpURLConnection) new URL(url).openConnection(proxy);
-                            conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
-                            conn.setReadTimeout(TIMEOUT);
-                            conn.setConnectTimeout(TIMEOUT);
-                            ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
-                            //ret = conn.getContentLength();
-                            conn.disconnect();
-                            if (ret > 0) {
-                                countArray(anzProxy, ssender);
-                            }
-                        } catch (Exception ex) {
-                            ret = -1;
-                            MSLog.fehlerMeldung(963215478, MSLog.FEHLER_ART_PROG, "MVUrlDateiGroesse.laenge", ex);
+            }
+            conn.disconnect();
+            
+            // dann über eine Proxy
+            if (retCode == 403) {
+                countArray(anz403, ssender);
+                if (!MSConfig.proxyUrl.isEmpty() && MSConfig.proxyPort > 0) {
+                    // nur dann verwenden, wenn ein Proxy angegeben
+                    try {
+                        SocketAddress saddr = new InetSocketAddress(MSConfig.proxyUrl, MSConfig.proxyPort);
+                        Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
+                        conn = (HttpURLConnection) new URL(url).openConnection(proxy);
+                        conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
+                        conn.setReadTimeout(TIMEOUT);
+                        conn.setConnectTimeout(TIMEOUT);
+                        ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
+                        conn.disconnect();
+                        if (ret > 0) {
+                            countArray(anzProxy, ssender);
                         }
+                    } catch (Exception ex) {
+                        ret = -1;
+                        MSLog.fehlerMeldung(963215478, MSLog.FEHLER_ART_PROG, "MVUrlDateiGroesse.laenge", ex);
                     }
                 }
             }
