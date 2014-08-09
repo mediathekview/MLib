@@ -117,7 +117,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                 String[] link;
                 while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
-                    laden(link[0] /* url */, link[1] /* Thema */);
+                    laden(link[0] /* url */, link[1] /* Thema */, true);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-987452384, MSLog.FEHLER_ART_MREADER, "Mediathek3Sat.ThemaLaden.run", ex);
@@ -125,7 +125,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         }
 
-        void laden(String urlThema, String thema) {
+        void laden(String urlThema, String thema, boolean weiter) {
 
             final String MUSTER_START = "<div class=\"BoxPicture MediathekListPic\">";
             String url;
@@ -137,6 +137,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                     url = urlThema;
                     i = 9999;
                 } else {
+                    weiter = false;
                     url = urlThema + "&mode=verpasst" + i;
                 }
                 meldung(url);
@@ -179,6 +180,10 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                         MSLog.fehlerMeldung(-462313269, MSLog.FEHLER_ART_MREADER, "Mediathek3sat.laden", "Thema: " + url);
                     }
                 }
+            }
+            if (weiter && seite1.indexOf("mode=verpasst1") != -1) {
+                // dann gibts eine weitere Seite
+                laden(urlThema+"&mode=verpasst1", thema, false);
             }
         }
     }
