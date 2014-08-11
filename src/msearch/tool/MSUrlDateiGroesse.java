@@ -9,7 +9,7 @@ import msearch.daten.MSConfig;
 
 public class MSUrlDateiGroesse {
 
-    final static int TIMEOUT = 2500; // ms
+    final static int TIMEOUT = 3000; // ms //ToDo evtl. wieder kürzen!!
     //private static int anz = 0;
     private static String[] sender;
     private static int[] anz;
@@ -64,8 +64,8 @@ public class MSUrlDateiGroesse {
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
-            conn.setReadTimeout(2*TIMEOUT);
-            conn.setConnectTimeout(2*TIMEOUT);
+            conn.setReadTimeout(2 * TIMEOUT);
+            conn.setConnectTimeout(2 * TIMEOUT);
             if ((retCode = conn.getResponseCode()) < 400) {
                 return true;
             } else if (retCode == 403) {
@@ -117,7 +117,7 @@ public class MSUrlDateiGroesse {
                 ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
             }
             conn.disconnect();
-            
+
             // dann über eine Proxy
             if (retCode == 403) {
                 countArray(anz403, ssender);

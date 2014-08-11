@@ -293,15 +293,18 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         if (film.arr[DatenFilm.FILM_URL_NR].endsWith("1456k_p13v11.mp4")) {
             String url_ = film.arr[DatenFilm.FILM_URL_NR].substring(0, film.arr[DatenFilm.FILM_URL_NR].lastIndexOf("1456k_p13v11.mp4")) + "2256k_p14v11.mp4";
             String l = mSFilmeSuchen.listeFilmeAlt.getDateiGroesse(url_, film.arr[DatenFilm.FILM_SENDER_NR]);
-            if (!l.isEmpty()) {
-                film.arr[DatenFilm.FILM_GROESSE_NR] = l;
-                film.arr[DatenFilm.FILM_URL_NR] = url_;
-            } else if (MSUrlDateiGroesse.urlExists(url_)) {
-                // dann wars wohl nur ein "403er"
-                film.arr[DatenFilm.FILM_URL_NR] = url_;
-            } else {
-                MSLog.fehlerMeldung(-820369741, MSLog.FEHLER_ART_MREADER, "MediathekZdf.urlTauschen", "Dateigröße: " + urlSeite);
-            }
+            // zum Testen immer machen!!
+            film.arr[DatenFilm.FILM_GROESSE_NR] = l;
+            film.arr[DatenFilm.FILM_URL_NR] = url_;
+//            if (!l.isEmpty()) {
+//                film.arr[DatenFilm.FILM_GROESSE_NR] = l;
+//                film.arr[DatenFilm.FILM_URL_NR] = url_;
+//            } else if (MSUrlDateiGroesse.urlExists(url_)) {
+//                // dann wars wohl nur ein "403er"
+//                film.arr[DatenFilm.FILM_URL_NR] = url_;
+//            } else {
+//                MSLog.fehlerMeldung(-820369741, MSLog.FEHLER_ART_MREADER, "MediathekZdf.urlTauschen", "Dateigröße: " + urlSeite);
+//            }
         }
     }
 
