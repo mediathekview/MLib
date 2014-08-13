@@ -59,10 +59,12 @@ public class Main {
                         if (s.equalsIgnoreCase("-v")) {
                             MSLog.versionsMeldungen(this.getClass().getName());
                             System.exit(0);
+                        } else if (s.equalsIgnoreCase("-gui")) {
+                            MSLog.versionsMeldungen(this.getClass().getName());
+                            new SearchGui(args).setVisible(true);
                         }
                     }
                 }
-////                new Search(args).starten();
             }
         });
     }
