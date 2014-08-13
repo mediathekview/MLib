@@ -19,6 +19,7 @@
  */
 package msearch;
 
+import msearch.gui.SearchPanel;
 import java.awt.BorderLayout;
 
 public final class SearchGui extends javax.swing.JFrame {
@@ -39,6 +40,8 @@ public final class SearchGui extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
