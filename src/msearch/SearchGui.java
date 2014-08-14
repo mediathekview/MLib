@@ -19,18 +19,23 @@
  */
 package msearch;
 
-import msearch.gui.SearchPanel;
 import java.awt.BorderLayout;
+import msearch.gui.SearchPanel;
 
 public final class SearchGui extends javax.swing.JFrame {
 
+    String pfad = "";
+
     public SearchGui(String[] ar) {
         initComponents();
+        if (ar != null && ar.length > 0 && !ar[0].startsWith("-")) {
+            pfad = ar[0];
+        }
         initTabs();
     }
 
     private void initTabs() {
-        SearchPanel searchPanel = new SearchPanel();
+        SearchPanel searchPanel = new SearchPanel(pfad);
         jPanel1.setLayout(new BorderLayout());
         jPanel1.add(searchPanel, BorderLayout.CENTER);
     }

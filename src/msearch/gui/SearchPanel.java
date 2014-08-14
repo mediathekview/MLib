@@ -33,18 +33,22 @@ import msearch.gui.PanelSenderLaden;
 import msearch.io.MSFilmlisteSchreiben;
 
 public class SearchPanel extends JPanel {
-
+    
     private ListeFilme listeFilme;
     private FilmeLaden filmeLaden;
-
-    public SearchPanel() {
+    
+    public SearchPanel(String pfad) {
         super();
         initComponents();
         listeFilme = new ListeFilme();
         filmeLaden = new FilmeLaden(listeFilme);
-        jTextFieldFilmliste.setText(System.getProperty("user.home") + File.separator + ".mediathek3" + File.separator + "filme.json");
+        if (pfad.isEmpty()) {
+            jTextFieldFilmliste.setText(System.getProperty("user.home") + File.separator + ".mediathek3" + File.separator + "filme.json");
+        } else {
+            jTextFieldFilmliste.setText(pfad);
+        }
         jPanelSenderLaden.add(new PanelSenderLaden(filmeLaden));
-
+        
         jButtonFilmlisteLoeschen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -57,7 +61,7 @@ public class SearchPanel extends JPanel {
                 listeFilme.check();
             }
         });
-
+        
         jToggleButtonSetAlles.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -76,7 +80,7 @@ public class SearchPanel extends JPanel {
             }
         });
         jButtonSpeichern.addActionListener(new ActionListener() {
-
+            
             @Override
             public void actionPerformed(ActionEvent e) {
                 new MSFilmlisteSchreiben().filmlisteSchreibenJson(jTextFieldFilmliste.getText(), listeFilme);
@@ -229,7 +233,7 @@ public class SearchPanel extends JPanel {
     // End of variables declaration//GEN-END:variables
 
     private class BeobPfad implements ActionListener {
-
+        
         @Override
         public void actionPerformed(ActionEvent e) {
             int returnVal;
@@ -249,5 +253,5 @@ public class SearchPanel extends JPanel {
             }
         }
     }
-
+    
 }
