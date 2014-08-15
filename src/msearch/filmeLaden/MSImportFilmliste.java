@@ -224,7 +224,7 @@ public class MSImportFilmliste {
 
     private synchronized void fertigMelden(boolean ok) {
         for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-            l.fertig(new MSListenerFilmeLadenEvent("", "", 0, 0, !ok));
+            l.fertig(new MSListenerFilmeLadenEvent("", "", 0, 0, 0, !ok));
         }
     }
 }

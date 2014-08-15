@@ -26,12 +26,14 @@ public class MSListenerFilmeLadenEvent {
     public int max = 0;
     public int progress = 0;
     public boolean fehler = false;
+    public int count = 0;
 
-    public MSListenerFilmeLadenEvent(String ssender, String ttext, int mmax, int pprogress, boolean ffehler) {
+    public MSListenerFilmeLadenEvent(String ssender, String ttext, int mmax, int pprogress, int ccount, boolean ffehler) {
         sender = ssender;
         text = ttext;
         max = mmax;
         progress = pprogress;
+        count = ccount;
         fehler = ffehler;
     }
 }

@@ -34,36 +34,8 @@ public class Search implements Runnable {
     private final MSFilmeSuchen mSearchFilmeSuchen;
     private boolean serverLaufen = false;
 
-    public Search(String[] ar) {
+    public Search() {
         mSearchFilmeSuchen = new MSFilmeSuchen();
-        if (ar != null) {
-            for (int i = 0; i < ar.length; ++i) {
-                if (ar[i].equals(Main.STARTP_ALLES)) {
-                    MSConfig.senderAllesLaden = true;
-                }
-                if (ar[i].equals(Main.STARTP_UPDATE)) {
-                    MSConfig.updateFilmliste = true;
-                }
-                if (ar[i].equalsIgnoreCase(Main.STARTP_DIR_FILMS)) {
-                    if (ar.length > i) {
-                        MSConfig.dirFilme = (ar[i + 1]);
-                    }
-                }
-                if (ar[i].equalsIgnoreCase(Main.STARTP_USER_AGENT)) {
-                    if (ar.length > i) {
-                        MSConfig.setUserAgent(ar[i + 1]);
-                    }
-                }
-                if (ar[i].equalsIgnoreCase(Main.STARTP_SENDER)) {
-                    if (ar.length > i) {
-                        MSConfig.nurSenderLaden = new String[]{ar[i + 1]};
-                    }
-                }
-                if (ar[i].equalsIgnoreCase(Main.STARTP_DEBUG)) {
-                    MSConfig.debug = true;
-                }
-            }
-        }
     }
 
     @Override
@@ -99,10 +71,10 @@ public class Search implements Runnable {
         } catch (Exception ex) {
             MSLog.fehlerMeldung(496378742, MSLog.FEHLER_ART_FILME_SUCHEN, Search.class.getName(), "run()");
         }
-        undTschuess(false /* exit */);
+        undTschuess();
     }
 
-    private void undTschuess(boolean exit) {
+    private void undTschuess() {
         listeFilme = mSearchFilmeSuchen.getErgebnis();
         ListeFilme tmpListe = new ListeFilme();
 
@@ -191,9 +163,5 @@ public class Search implements Runnable {
         //================================================
         // fertig
         MSLog.endeMeldung();
-        // nur dann das Programm beenden
-        if (exit) {
-            System.exit(listeFilme.isEmpty() ? 1 : 0);
-        }
     }
 }

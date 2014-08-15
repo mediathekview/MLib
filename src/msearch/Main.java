@@ -23,28 +23,6 @@ import msearch.tool.MSLog;
 
 public class Main {
 
-    public static final String STARTP_ALLES = "-alles";
-    public static final String STARTP_UPDATE = "-update";
-    public static final String STARTP_USER_AGENT = "-agent";
-    public static final String STARTP_DIR_FILMS = "-dirFilms";
-    public static final String STARTP_SENDER = "-sender";
-    public static final String STARTP_DEBUG = "-d";
-
-    /*
-     * Aufruf:
-     * java -jar Mediathek [Pfad zur Konfigdatei, sonst homeverzeichnis] [Schalter]
-     *
-     * Programmschalter:
-     * -alles       die Filmliste wird komplett gesucht, sons nur die aktuellsten Filme
-     * -update      die Filmliste wird aktualisiert, sonst vorher geleert
-     * -agent       der verwendete UserAgent bei http-Aufrufen
-     * -filmliste   Datei mit der Filmliste (wird gelesen und das Ergebnis dort gespeichert
-     * -sender      es wird nur der eine Sender aktualisiert
-     * -D Debugmode
-     *
-     * */
-    public Main() {
-    }
 
     /**
      * @param args the command line arguments

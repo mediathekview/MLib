@@ -19,11 +19,9 @@
  */
 package msearch.gui;
 
-import java.util.HashSet;
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
-import msearch.daten.DatenFilm;
-import msearch.daten.ListeFilme;
+import msearch.SearchGui;
 import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
@@ -31,10 +29,6 @@ import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 
 public class FilmeLaden {
 
-    private final HashSet<String> hashSet = new HashSet<>();
-    private final ListeFilme diffListe = new ListeFilme();
-    private ListeFilme listeFilme = null;
-    boolean debug = true;
 
     private enum ListenerMelden {
 
@@ -45,8 +39,7 @@ public class FilmeLaden {
     private final EventListenerList listeners = new EventListenerList();
     private boolean istAmLaufen = false;
 
-    public FilmeLaden(ListeFilme listeFilme_) {
-        this.listeFilme = listeFilme_;
+    public FilmeLaden() {
         mSearchFilmeSuchen = new MSFilmeSuchen();
         mSearchFilmeSuchen.addAdListener(new MSListenerFilmeLaden() {
             @Override
@@ -62,7 +55,7 @@ public class FilmeLaden {
             @Override
             public synchronized void fertig(MSListenerFilmeLadenEvent event) {
                 // Ergebnisliste listeFilme eintragen -> Feierabend!
-                listeFilme = mSearchFilmeSuchen.listeFilmeNeu;
+                SearchGui.listeFilme = mSearchFilmeSuchen.listeFilmeNeu;
                 undEnde(event);
             }
         });
@@ -76,14 +69,9 @@ public class FilmeLaden {
         if (!istAmLaufen) {
             // nicht doppelt starten
             istAmLaufen = true;
-            hashSet.clear();
-            listeFilme.neueFilme = false;
-
-            fillHash(listeFilme);
             MSConfig.senderAllesLaden = senderAllesLaden;
             MSConfig.updateFilmliste = filmlisteUpdate;
-            MSConfig.debug = debug;
-            mSearchFilmeSuchen.filmeBeimSenderLaden(listeFilme);
+            mSearchFilmeSuchen.filmeBeimSenderLaden(SearchGui.listeFilme);
         }
     }
 
@@ -92,12 +80,7 @@ public class FilmeLaden {
         if (!istAmLaufen) {
             // nicht doppelt starten
             istAmLaufen = true;
-            hashSet.clear();
-            listeFilme.neueFilme = false;
-
-            fillHash(listeFilme);
-            MSConfig.debug = debug;
-            mSearchFilmeSuchen.updateSender(sender, listeFilme);
+            mSearchFilmeSuchen.updateSender(sender, SearchGui.listeFilme);
         }
     }
 
@@ -112,45 +95,9 @@ public class FilmeLaden {
     }
 
     private void undEnde(MSListenerFilmeLadenEvent event) {
-        // Abos eintragen in der gesamten Liste vor Blacklist da das nur beim Ändern der Filmliste oder
-        // beim Ändern von Abos gemacht wird
-
-        // wenn nur ein Update
-        if (!diffListe.isEmpty()) {
-            listeFilme.updateListe(diffListe, true/* Vergleich über Index, sonst nur URL */, true /*ersetzen*/);
-            listeFilme.metaDaten = diffListe.metaDaten;
-            listeFilme.sort(); // jetzt sollte alles passen
-            diffListe.clear();
-        }
-
-        searchHash(listeFilme);
-        listeFilme.themenLaden();
-
         istAmLaufen = false;
-        if (event.fehler) {
-        } else {
-        }
         notifyFertig(event);
         System.gc();
-    }
-
-    private void fillHash(ListeFilme listeFilme) {
-        for (DatenFilm film : listeFilme) {
-            hashSet.add(film.getUrlHistory());
-        }
-    }
-
-    private void searchHash(ListeFilme listeFilme) {
-        listeFilme.neueFilme = false;
-        for (DatenFilm film : listeFilme) {
-            if (!hashSet.contains(film.getUrlHistory())) {
-                film.neuerFilm = true;
-                listeFilme.neueFilme = true;
-            } else {
-                film.neuerFilm = false;
-            }
-        }
-        hashSet.clear();
     }
 
     // ###########################

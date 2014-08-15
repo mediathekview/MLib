@@ -24,29 +24,28 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import msearch.SearchGui;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 
 public class PanelSenderLaden extends JPanel {
 
     private JButton[] buttonSender;
-    private String[] senderArray;
+    private final String[] senderArray;
     private FilmeLaden filmeLaden;
 
     public PanelSenderLaden(FilmeLaden filmeLaden_) {
         super();
         initComponents();
         filmeLaden = filmeLaden_;
-        init();
-    }
-
-    private void init() {
+        jLabelAnzahl.setText("");
         senderArray = filmeLaden.getSenderNamen();
         buttonSender = new JButton[senderArray.length];
         for (int i = 0; i < filmeLaden.getSenderNamen().length; ++i) {
             buttonSender[i] = new JButton(senderArray[i]);
             buttonSender[i].addActionListener(new BeobSenderLaden(senderArray[i]));
         }
+
         addSender();
 
         jButtonStop.addActionListener(new ActionListener() {
@@ -73,6 +72,7 @@ public class PanelSenderLaden extends JPanel {
                     jProgressBar1.setStringPainted(true);
                 }
                 jLabelProgress.setText(textLaenge(80, event.text, true /* mitte */, false /*addVorne*/));
+                jLabelAnzahl.setText(event.count + "");
             }
 
             @Override
@@ -83,6 +83,7 @@ public class PanelSenderLaden extends JPanel {
                 jProgressBar1.setValue(0);
                 jProgressBar1.setStringPainted(false);
                 jLabelProgress.setText("");
+                SearchGui.jLabelAnzahl.setText(SearchGui.listeFilme.size() + "");
 
                 for (JButton button : buttonSender) {
                     button.setEnabled(true);
@@ -131,10 +132,11 @@ public class PanelSenderLaden extends JPanel {
     private void initComponents() {
 
         panelSender = new javax.swing.JPanel();
-        javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
         jProgressBar1 = new javax.swing.JProgressBar();
         jLabelProgress = new javax.swing.JLabel();
         jButtonStop = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabelAnzahl = new javax.swing.JLabel();
 
         panelSender.setBorder(javax.swing.BorderFactory.createTitledBorder("Sender"));
 
@@ -146,15 +148,17 @@ public class PanelSenderLaden extends JPanel {
         );
         panelSenderLayout.setVerticalGroup(
             panelSenderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 73, Short.MAX_VALUE)
+            .addGap(0, 72, Short.MAX_VALUE)
         );
-
-        jLabel1.setText("Filme von den Websiten der Sender laden, kann etwas dauern!");
 
         jLabelProgress.setText("Fortschritt!");
 
         jButtonStop.setText("Stop");
         jButtonStop.setToolTipText("Abbrechen");
+
+        jLabel1.setText("Anzahl Filme (Suchen):");
+
+        jLabelAnzahl.setText("-1");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -165,29 +169,34 @@ public class PanelSenderLaden extends JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabelProgress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 507, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonStop))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(panelSender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel1))
-                        .addGap(0, 132, Short.MAX_VALUE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabelAnzahl)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(panelSender, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 143, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 262, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonStop))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabelProgress)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabelAnzahl))
                 .addContainerGap())
         );
 
@@ -196,6 +205,8 @@ public class PanelSenderLaden extends JPanel {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonStop;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabelAnzahl;
     private javax.swing.JLabel jLabelProgress;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JPanel panelSender;
@@ -212,6 +223,7 @@ public class PanelSenderLaden extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             jLabelProgress.setText("");
+            jLabelAnzahl.setText("");
             for (JButton aButtonSender : buttonSender) {
                 aButtonSender.setEnabled(false);
             }

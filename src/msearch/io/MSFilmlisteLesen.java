@@ -344,7 +344,7 @@ public class MSFilmlisteLesen {
         max = mmax;
         progress = 0;
         for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-            l.start(new MSListenerFilmeLadenEvent("", "", max, 0, false));
+            l.start(new MSListenerFilmeLadenEvent("", "", max, 0, 0, false));
         }
     }
 
@@ -353,7 +353,7 @@ public class MSFilmlisteLesen {
             progress += 1;
         }
         for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-            l.progress(new MSListenerFilmeLadenEvent("", text, max, progress, false));
+            l.progress(new MSListenerFilmeLadenEvent("", text, max, progress, 0, false));
         }
     }
 
@@ -361,7 +361,7 @@ public class MSFilmlisteLesen {
         MSLog.systemMeldung("Liste Filme gelesen: " + DatumZeit.getHeute_dd_MM_yyyy() + " " + DatumZeit.getJetzt_HH_MM_SS());
         MSLog.systemMeldung("Anzahl Filme: " + liste.size());
         for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-            l.fertig(new MSListenerFilmeLadenEvent("", "", max, progress, false));
+            l.fertig(new MSListenerFilmeLadenEvent("", "", max, progress, 0, false));
         }
     }
 }
