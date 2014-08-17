@@ -97,7 +97,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         }
     }
 
-    class ConcertLaden implements Runnable {
+    private class ConcertLaden implements Runnable {
 
         private final int start, anz;
         MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);

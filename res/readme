@@ -1,32 +1,5 @@
-Das Programm "MSearch.jar" 
+Die Lib "MSearch.jar" 
 dient zum Erstellen der Filmliste.
-
-
-Aufruf:
-
-java -jar MSearch.jar -filmliste /home/user/filme.xml
-
-
-Parameter:
--alles
--update
--agent
--filmliste
--sender
-
--alles: Es wird die komplette Filmliste gesucht (kann über 1 Stunde dauern)
-Standardwert ist, nur ein Update, etwas 10 Minuten
-
--update Die Filmliste die beim Programmstart übergeben wird, bleibt erhalten, die
-gefundenen Filme werden in die bestehende Liste einsortiert
-Standardwert ist, die Liste wird neu erstellt
-
--agent: Der Useragent
-Standardwert: ROGRAMMNAME + " " + VERSION;
-
--filmliste: Ist der Pfad/Dateiname der Filmliste
-
--sender: Wird ein Sender angegben zB: "-sender ZDF" wird nur der Sender akutalisiert, 
-die Filmliste wird dabei nur aktualisiert
+für das Projekt "MediathekView"
 
 
