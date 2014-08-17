@@ -302,7 +302,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 // einzelne Themen verlängern
                 if (urlThema.equals("http://www.br.de/mediathek/video/sendungen/spielfilme-im-br/spielfilme-im-br110.html")
                         || urlThema.equals("http://www.br.de/mediathek/video/sendungen/alpha-centauri/alpha-centauri104.html")) {
-                    max = 40;
+                    max = 60;
                 }
                 // dann mit der ganzen Seite arbeiten
                 String u = seite.extract("<a class=\"button large\" href=\"", "\"");
