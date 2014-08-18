@@ -51,7 +51,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
     @Override
     public void addToList() {
         meldungStart();
-        addTage();
+////////        addTage();
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
@@ -120,6 +120,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         }
 
         private void addConcert(int start, int anz) {
+            final String THEMA = "Concert";
             final String MUSTER_START = "<div class=\"header-article \">";
             String urlStart;
             meldungAddMax(anz);
@@ -161,6 +162,11 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                             urlWeb = "http://concert.arte.tv" + url;
                             meldung(urlWeb);
                             seite2 = getUrlIo.getUri_Utf(nameSenderMReader, urlWeb, seite2, "");
+                            // genre: <span class="tag tag-link"><a href="/de/videos/rockpop">rock/pop</a></span> 
+                            String genre = seite2.extract("<span class=\"tag tag-link\">", "\">", "<");
+                            if (!genre.isEmpty()) {
+                                beschreibung = genre + "\n" + DatenFilm.cleanDescription(beschreibung, THEMA, titel);
+                            }
                             url = seite2.extract("arte_vp_url=\"", "\"");
                             if (url.isEmpty()) {
                                 MSLog.fehlerMeldung(-784512698, MSLog.FEHLER_ART_MREADER, "MediathekARTE.addConcert", "keine URL");
@@ -216,7 +222,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                                 if (urlNormal.isEmpty()) {
                                     MSLog.fehlerMeldung(-989562301, MSLog.FEHLER_ART_MREADER, "MediathekARTE.addConcert", "keine URL");
                                 } else {
-                                    DatenFilm film = new DatenFilm(nameSenderMReader, "Concert", urlWeb, titel, urlNormal, "" /*urlRtmp*/,
+                                    DatenFilm film = new DatenFilm(nameSenderMReader, THEMA, urlWeb, titel, urlNormal, "" /*urlRtmp*/,
                                             datum, "" /*zeit*/, duration, beschreibung, ""/*bild*/, new String[]{});
                                     if (!urlHd.isEmpty()) {
                                         film.addUrlHd(urlHd, "");

@@ -184,7 +184,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         arr[FILM_WEBSEITE_NR] = filmWebsite;
         checkDatum(datum, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
         checkZeit(arr[FILM_DATUM_NR], zeit, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
-        arr[FILM_BESCHREIBUNG_NR] = beschreibung(description, tthema, ttitel);
+        arr[FILM_BESCHREIBUNG_NR] = cleanDescription(description, tthema, ttitel);
         arr[FILM_IMAGE_URL_NR] = imageUrl;
 //        // Schlüsselwörter
 //        arr[FILM_KEYWORDS_NR] = keywordsToString(keywords);
@@ -532,7 +532,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return getUrlFlvstreamer();
     }
 
-    private String beschreibung(String s, String thema, String titel) {
+    public static String cleanDescription(String s, String thema, String titel) {
         // die Beschreibung auf x Zeichen beschränken
         if (s.startsWith(titel)) {
             s = s.substring(titel.length()).trim();
@@ -553,6 +553,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
             s = s.substring(1).trim();
         }
         if (s.startsWith(",")) {
+            s = s.substring(1).trim();
+        }
+        if (s.startsWith("\n")) {
             s = s.substring(1).trim();
         }
         if (s.length() > MSConst.MAX_BESCHREIBUNG) {

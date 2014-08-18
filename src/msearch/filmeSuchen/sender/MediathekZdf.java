@@ -35,8 +35,8 @@ public class MediathekZdf extends MediathekReader implements Runnable {
     private final static int ANZAHL_ZDF_MITTEL = 50;
     private final static int ANZAHL_ZDF_UPDATE = 20;
     private final static int ANZAHL_ZDF_KURZ = 10;
-    static int count_asx = 0;
-    static int count_f4m = 0;
+//    static int count_asx = 0;
+//    static int count_f4m = 0;
 
     public MediathekZdf(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, 4 /* threads */, 250 /* urlWarten */, startPrio);
@@ -208,8 +208,8 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 MSLog.fehlerMeldung(-496583200, MSLog.FEHLER_ART_MREADER, "MediathekZdf.ZdfThemaLaden.run", ex);
             }
             meldungThreadUndFertig();
-            System.out.println("ASX: " + count_asx);
-            System.out.println("f4m: " + count_f4m);
+//            System.out.println("ASX: " + count_asx);
+//            System.out.println("f4m: " + count_f4m);
         }
 
         private void addFilme(String url, String urlThema, String thema) {
@@ -453,9 +453,9 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             urlKlein = "";
         }
         if (!urlF4m.isEmpty()) {
-            ++count_f4m;
-            System.out.println("ASX: " + count_asx);
-            System.out.println("f4m: " + count_f4m);
+//            ++count_f4m;
+//            System.out.println("ASX: " + count_asx);
+//            System.out.println("f4m: " + count_f4m);
 
             String u = f4mUrlHolen(getUrl, sender, strBuffer, urlF4m);
             if (!u.isEmpty()) {
@@ -467,9 +467,9 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             }
         }
         if (urlHd.endsWith("asx")) {
-            ++count_asx;
-            System.out.println("ASX: " + count_asx);
-            System.out.println("f4m: " + count_f4m);
+//            ++count_asx;
+//            System.out.println("ASX: " + count_asx);
+//            System.out.println("f4m: " + count_f4m);
 
             if (!url.isEmpty() && url.endsWith("vh.mp4")) {
                 urlHd = url.replace("vh.mp4", "hd.mp4");
