@@ -91,7 +91,7 @@ public class FilmeLaden {
     }
 
     public String[] getSenderNamen() {
-        return mSearchFilmeSuchen.getNamenSender();
+        return MSFilmeSuchen.getNamenSender();
     }
 
     private void undEnde(MSListenerFilmeLadenEvent event) {

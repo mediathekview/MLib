@@ -100,6 +100,33 @@ public class MSFilmeSuchen {
         mediathekListe.add(new MediathekOrf(this, 1));
     }
 
+    public static String[] getNamenSender() {
+        // liefert eine Array mit allen Sendernamen
+        LinkedList<String> liste = new LinkedList<>();
+        liste.add(MediathekArd.SENDER);
+        liste.add(MediathekZdf.SENDER);
+        liste.add(MediathekZdfTivi.SENDER);
+        liste.add(MediathekArte_de.SENDER_ARTE_DE);
+        liste.add(MediathekArte_fr.SENDER_ARTE_FR);
+        liste.add(Mediathek3Sat.SENDER);
+        liste.add(MediathekSwr.SENDER);
+        liste.add(MediathekNdr.SENDER);
+        liste.add(MediathekKika.SENDER);
+        // Spalte 2
+        liste.add(MediathekMdr.SENDER);
+        liste.add(MediathekWdr.SENDER);
+        liste.add(MediathekHr.SENDER);
+        liste.add(MediathekRbb.SENDER);
+        liste.add(MediathekBr.SENDER);
+        liste.add(MediathekSrf.SENDER);
+        liste.add(MediathekSrfPod.SENDER);
+        liste.add(MediathekOrf.SENDER);
+
+        GermanStringSorter sorter = GermanStringSorter.getInstance();
+        Collections.sort(liste, sorter);
+        return liste.toArray(new String[liste.size()]);
+    }
+
     public void addAdListener(MSListenerFilmeLaden listener) {
         listeners.add(MSListenerFilmeLaden.class, listener);
     }
@@ -147,17 +174,16 @@ public class MSFilmeSuchen {
         }
     }
 
-    public String[] getNamenSender() {
-        // liefert eine Array mit allen Sendernamen
-        LinkedList<String> liste = new LinkedList<>();
-        for (MediathekReader aMediathekListe : mediathekListe) {
-            liste.add(aMediathekListe.getNameSender());
-        }
-        GermanStringSorter sorter = GermanStringSorter.getInstance();
-        Collections.sort(liste, sorter);
-        return liste.toArray(new String[liste.size()]);
-    }
-
+//    public String[] getNamenSender() {
+//        // liefert eine Array mit allen Sendernamen
+//        LinkedList<String> liste = new LinkedList<>();
+//        for (MediathekReader aMediathekListe : mediathekListe) {
+//            liste.add(aMediathekListe.getNameSender());
+//        }
+//        GermanStringSorter sorter = GermanStringSorter.getInstance();
+//        Collections.sort(liste, sorter);
+//        return liste.toArray(new String[liste.size()]);
+//    }
     private String getThreads(String sender) {
         // liefert die Anzahl Threads des Senders
         try {
@@ -194,10 +220,10 @@ public class MSFilmeSuchen {
             listeSenderLaufen.add(new MSRunSender(sender, max, progress));
             //wird beim Start des Senders aufgerufen, 1x
             if (listeSenderLaufen.size() <= 1 /* erster Aufruf */) {
-                notifyStart(new MSListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(),listeFilmeNeu.size(), false));
+                notifyStart(new MSListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
             }
         }
-        notifyProgress(new MSListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(),listeFilmeNeu.size(), false));
+        notifyProgress(new MSListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
         progressBar();
     }
 
@@ -262,11 +288,11 @@ public class MSFilmeSuchen {
         }
         if (!allStarted || !listeSenderLaufen.listeFertig()) {
             //nur ein Sender fertig oder noch nicht alle gestartet
-            notifyProgress(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(),listeFilmeNeu.size(), false));
+            notifyProgress(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
         } else {
             // wird einmal aufgerufen, wenn alle Sender fertig sind
             endeMeldung();
-            notifyFertig(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(),false));
+            notifyFertig(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
         }
     }
 
