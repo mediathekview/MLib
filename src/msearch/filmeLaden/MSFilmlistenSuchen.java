@@ -26,9 +26,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
@@ -37,7 +35,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import msearch.daten.MSConfig;
-import msearch.tool.DatumZeit;
 import msearch.tool.MSConst;
 import msearch.tool.MSGuiFunktionen;
 import msearch.tool.MSLog;
@@ -133,20 +130,6 @@ public class MSFilmlistenSuchen {
         }
     }
 
-//    private String getTag(String zeit) {
-//        Date tmp;
-//        SimpleDateFormat sdf_zeit = new SimpleDateFormat("dd.MM.yyyy__HH:mm:ss");
-//        try {
-//            tmp = sdf_zeit.parse(DatumZeit.getHeute_dd_MM_yyyy() + "__" + zeit);
-//            if (tmp.compareTo(new Date()) > 0) {
-//                return DatumZeit.getGestern_dd_MM_yyyy();
-//            } else {
-//                return DatumZeit.getHeute_dd_MM_yyyy();
-//            }
-//        } catch (Exception ex) {
-//        }
-//        return DatumZeit.getHeute_dd_MM_yyyy();
-//    }
     public static void getDownloadUrlsFilmlisten(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String userAgent, String art) {
         //String[] ret = new String[]{""/* version */, ""/* release */, ""/* updateUrl */};
         try {
