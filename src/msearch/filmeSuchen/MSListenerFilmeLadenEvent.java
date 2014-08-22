@@ -21,7 +21,7 @@ package msearch.filmeSuchen;
 
 public class MSListenerFilmeLadenEvent {
 
-    public String sender = "";
+    public String senderUrl = "";
     public String text = "";
     public int max = 0;
     public int progress = 0;
@@ -29,7 +29,7 @@ public class MSListenerFilmeLadenEvent {
     public int count = 0;
 
     public MSListenerFilmeLadenEvent(String ssender, String ttext, int mmax, int pprogress, int ccount, boolean ffehler) {
-        sender = ssender;
+        senderUrl = ssender;
         text = ttext;
         max = mmax;
         progress = pprogress;

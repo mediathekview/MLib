@@ -22,9 +22,14 @@ package msearch.io;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -48,28 +53,24 @@ public class MSFilmlisteLesen {
     private int max = 0;
     private int progress = 0;
     private static final int TIMEOUT = 10000; //10 Sekunden
+    private String quelle = "";
 
     public void addAdListener(MSListenerFilmeLaden listener) {
         listeners.add(MSListenerFilmeLaden.class, listener);
     }
 
     public boolean filmlisteLesenJson(String vonDateiUrl, String nachDatei, ListeFilme listeFilme) {
-        // die Filmliste "vonDateiUrl" (Url oder lokal) wird in die List "listeFilme" eingelesen und 
+        // die Filmliste "vonDateiUrl" (Url oder lokal) wird in die List "listeFilme" eingelesen und
         // wenn angegeben: in "nachDatei" gespeichert
+        // URLs werden vorher in eine tmp-Datei geladen und dann erst entpackt/gelesen
+        // Progress wird von 0 auf 300 gezählt
+        // Download, Lesen, in Datei schreiben
         boolean ret = false;
         File tmpFile = null;
         boolean istUrl = MSGuiFunktionen.istUrl(vonDateiUrl);
+        quelle = vonDateiUrl;
         try {
-            if (istUrl && vonDateiUrl.endsWith(MSConst.FORMAT_XZ)
-                    || istUrl && vonDateiUrl.endsWith(MSConst.FORMAT_BZ2)
-                    || istUrl && vonDateiUrl.endsWith(MSConst.FORMAT_ZIP)) {
-                // da wird eine temp-Datei benutzt
-                this.notifyStart(300);
-                this.notifyProgress(vonDateiUrl);
-            } else {
-                this.notifyStart(200);
-                this.notifyProgress(vonDateiUrl);
-            }
+            this.notifyStart(quelle, 100); // für den Downlaod/das Laden der Datei
             if (istUrl) {
                 // dann erst Download in temp-Datei
                 if (vonDateiUrl.endsWith(MSConst.FORMAT_XZ)) {
@@ -84,12 +85,15 @@ public class MSFilmlisteLesen {
                 if (filmlisteDownload(vonDateiUrl, tmpFile)) {
                     // dann einlesen
                     if (nachDatei.isEmpty()) {
+                        this.notifyProgress(quelle, "Lesen", 100);
                         if (filmlisteJsonEinlesen(tmpFile, listeFilme)) {
                             ret = true;
                         }
                     } else {
                         File ziel = new File(nachDatei);
+                        this.notifyProgress(quelle, "Entpacken", 100);
                         if (filmlisteEntpackenKopieren(tmpFile, ziel)) {
+                            this.notifyProgress(quelle, "Lesen", 100);
                             if (filmlisteJsonEinlesen(ziel, listeFilme)) {
                                 ret = true;
                             }
@@ -99,12 +103,15 @@ public class MSFilmlisteLesen {
             } else {
                 // lokale Datei
                 if (nachDatei.isEmpty()) {
+                    this.notifyProgress(quelle, "Lesen", 100);
                     if (filmlisteJsonEinlesen(new File(vonDateiUrl), listeFilme)) {
                         ret = true;
                     }
                 } else {
                     File ziel = new File(nachDatei);
+                    this.notifyProgress(quelle, "Entpacken", 100); // dann gibts keinen Downlaod
                     if (filmlisteEntpackenKopieren(new File(vonDateiUrl), ziel)) {
+                        this.notifyProgress(quelle, "Lesen", 100);
                         if (filmlisteJsonEinlesen(ziel, listeFilme)) {
                             ret = true;
                         }
@@ -112,15 +119,14 @@ public class MSFilmlisteLesen {
                 }
             }
             // ##########################################################
-            // und jetzt die Liste einlesen
-            notifyFertig(listeFilme);
+            notifyFertig(quelle, listeFilme);
         } catch (Exception ex) {
             MSLog.fehlerMeldung(468956200, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", ex, "von: " + vonDateiUrl);
         }
         if (tmpFile != null) {
             try {
-                Files.delete(tmpFile.toPath());
-            } catch (IOException ignore) {
+                tmpFile.delete();
+            } catch (Exception ignore) {
             }
         }
         return ret;
@@ -155,33 +161,31 @@ public class MSFilmlisteLesen {
     // ##############################
     private boolean filmlisteJsonEinlesen(File vonDatei, ListeFilme listeFilme) {
         boolean ret = false;
+        BZip2CompressorInputStream bZip2CompressorInputStream;
         JsonFactory jsonF = new JsonFactory();
+        JsonParser jp = null;
         JsonToken jsonToken;
         String sender = "", thema = "";
-
-        // ##########################################################
-        // und jetzt die Liste einlesen, URL kann es jetzt schon nicht mehr sein!
-        if (!vonDatei.exists()) {
-            MSLog.fehlerMeldung(702030698, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", "Datei existiert nicht: " + vonDatei.getName());
-            return false;
-        }
-        InputStream is = null;
         try {
+            // ##########################################################
+            // und jetzt die Liste einlesen, URL kann es jetzt schon nicht mehr sein!
+            if (!vonDatei.exists()) {
+                MSLog.fehlerMeldung(702030698, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", "Datei existiert nicht: " + vonDatei.getName());
+                return false;
+            }
             if (vonDatei.getName().endsWith(MSConst.FORMAT_XZ)) {
-                is = new XZInputStream(new FileInputStream(vonDatei));
+                XZInputStream xZInputStream = new XZInputStream(new FileInputStream(vonDatei));
+                jp = jsonF.createParser(new InputStreamReader(xZInputStream, MSConst.KODIERUNG_UTF));
             } else if (vonDatei.getName().endsWith(MSConst.FORMAT_BZ2)) {
-                is = new BZip2CompressorInputStream(new FileInputStream(vonDatei));
+                bZip2CompressorInputStream = new BZip2CompressorInputStream(new FileInputStream(vonDatei));
+                jp = jsonF.createParser(new InputStreamReader(bZip2CompressorInputStream, MSConst.KODIERUNG_UTF));
             } else if (vonDatei.getName().endsWith(MSConst.FORMAT_ZIP)) {
                 ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(vonDatei));
                 zipInputStream.getNextEntry();
-                is = zipInputStream;
+                jp = jsonF.createParser(new InputStreamReader(zipInputStream, MSConst.KODIERUNG_UTF));
             } else {
-                is = new FileInputStream(vonDatei);
+                jp = jsonF.createParser(vonDatei); // geht so am schnellsten
             }
-        } catch (IOException ignored) {
-        }
-
-        try (JsonParser jp = jsonF.createParser(is)) {
             if (jp.nextToken() != JsonToken.START_OBJECT) {
                 throw new IOException("Expected data to start with an Object");
             }
@@ -219,12 +223,12 @@ public class MSFilmlisteLesen {
                             datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] = "";
                         }
                     }
-                    if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].isEmpty()) {
+                    if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals("")) {
                         datenFilm.arr[DatenFilm.FILM_SENDER_NR] = sender;
                     } else {
                         sender = datenFilm.arr[DatenFilm.FILM_SENDER_NR];
                     }
-                    if (datenFilm.arr[DatenFilm.FILM_THEMA_NR].isEmpty()) {
+                    if (datenFilm.arr[DatenFilm.FILM_THEMA_NR].equals("")) {
                         datenFilm.arr[DatenFilm.FILM_THEMA_NR] = thema;
                     } else {
                         thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
@@ -232,7 +236,7 @@ public class MSFilmlisteLesen {
                     listeFilme.importFilmliste(datenFilm);
                 }
             }
-
+            jp.close();
             ret = true;
         } catch (Exception ex) {
             MSLog.fehlerMeldung(468956200, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", ex, "von: " + vonDatei.getName());
@@ -243,53 +247,36 @@ public class MSFilmlisteLesen {
     private boolean filmlisteEntpackenKopieren(File vonDatei, File nachDatei) {
         boolean ret = false;
         String vonDateiName = vonDatei.getName();
+        BufferedInputStream in;
         if (vonDateiName.equals(nachDatei.getName())) {
             return true;
         }
-
-        InputStream in;
-        try (FileOutputStream fOut = new FileOutputStream(nachDatei);
-             FileInputStream fi = new FileInputStream(vonDatei)) {
+        try {
             if (vonDatei.getName().endsWith(MSConst.FORMAT_XZ)) {
-                in = new XZInputStream(fi);
+                in = new BufferedInputStream(new XZInputStream(new FileInputStream(vonDatei)));
             } else if (vonDateiName.endsWith(MSConst.FORMAT_BZ2)) {
-                in = new BZip2CompressorInputStream(fi);
+                in = new BufferedInputStream(new BZip2CompressorInputStream(new FileInputStream(vonDatei)));
             } else if (vonDateiName.endsWith(MSConst.FORMAT_ZIP)) {
-                ZipInputStream zipInputStream = new ZipInputStream(fi);
+                ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(vonDatei));
                 zipInputStream.getNextEntry();
-                in = zipInputStream;
+                in = new BufferedInputStream(zipInputStream);
             } else {
                 Files.copy(Paths.get(vonDatei.getPath()), Paths.get(nachDatei.getPath()), StandardCopyOption.REPLACE_EXISTING);
                 return true;
+                //in = new BufferedInputStream(new FileInputStream(vonDatei));
             }
-
-            int count = 0;
-            int countMax;
-            if (vonDateiName.endsWith(MSConst.FORMAT_XZ)
-                    || vonDateiName.endsWith(MSConst.FORMAT_BZ2)
-                    || vonDateiName.endsWith(MSConst.FORMAT_ZIP)) {
-                countMax = 44;
-            } else {
-                countMax = 250;
-            }
-
-
-            this.notifyProgress(vonDateiName);
-
-            int n;
-            final byte[] buffer = new byte[1024];
+            FileOutputStream fOut;
+            byte[] buffer = new byte[1024];
+            int n = 0;
+            fOut = new FileOutputStream(nachDatei);
             while (!MSConfig.getStop() && (n = in.read(buffer)) != -1) {
                 fOut.write(buffer, 0, n);
-                ++count;
-                if (count > countMax) {
-                    this.notifyProgress(vonDateiName);
-                    count = 0;
-                }
             }
             ret = !MSConfig.getStop();
             try {
+                fOut.close();
                 in.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
             }
         } catch (Exception ex) {
             MSLog.fehlerMeldung(915236765, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteEntpackenKopieren", ex);
@@ -298,77 +285,73 @@ public class MSFilmlisteLesen {
     }
 
     private boolean filmlisteDownload(String uurl, File nachDatei) {
+        // Filmliste von URL laden und in Datei speichern
+        // laden liefert 10 mal Progress
         boolean ret = false;
-        InputStream in = null;
-
-        try (FileOutputStream fOut = new FileOutputStream(nachDatei))
-        {
-            URLConnection conn = new URL(uurl).openConnection();
+        long size = -1, aktSize = 0;
+        long progress = 0, oldProgress = 0;
+        try {
+            HttpURLConnection conn = (HttpURLConnection) new URL(uurl).openConnection();
             conn.setConnectTimeout(TIMEOUT);
             conn.setReadTimeout(TIMEOUT);
             conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
-            in = conn.getInputStream();
 
-            int count = 0;
-            int countMax;
-            if (uurl.endsWith(MSConst.FORMAT_XZ)
-                    || uurl.endsWith(MSConst.FORMAT_BZ2)
-                    || uurl.endsWith(MSConst.FORMAT_ZIP)) {
-                countMax = 44;
-            } else {
-                countMax = 250;
+            if (conn.getResponseCode() < 400) {
+                size = conn.getContentLengthLong();
             }
 
-
-            this.notifyProgress(uurl);
-
-            int n;
-            final byte[] buffer = new byte[1024];
+            BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
+            FileOutputStream fOut;
+            byte[] buffer = new byte[1024];
+            int n = 0;
+            fOut = new FileOutputStream(nachDatei);
             while (!MSConfig.getStop() && (n = in.read(buffer)) != -1) {
                 fOut.write(buffer, 0, n);
-                ++count;
-                if (count > countMax) {
-                    this.notifyProgress(uurl);
-                    count = 0;
+                if (size > 0) {
+                    // macht nur dann Sinn
+                    aktSize += n;
+                    progress = aktSize * 100 / size;
+                    if (progress != oldProgress) {
+                        oldProgress = progress;
+                        this.notifyProgress(quelle, "Download", (int) progress);
+                    }
                 }
             }
             ret = !MSConfig.getStop();
+            try {
+                fOut.close();
+                in.close();
+            } catch (Exception e) {
+            }
         } catch (Exception ex) {
             MSLog.fehlerMeldung(952163678, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteDownload", ex);
         }
-        finally {
-            try {
-                if (in != null)
-                    in.close();
-            } catch (Exception ignored) {
-            }
-        }
-
         return ret;
     }
 
-    private void notifyStart(int mmax) {
+    private void notifyStart(String url, int mmax) {
         max = mmax;
         progress = 0;
         for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-            l.start(new MSListenerFilmeLadenEvent("", "", max, 0, 0, false));
+            l.start(new MSListenerFilmeLadenEvent(url, "", max, 0, 0, false));
         }
     }
 
-    private void notifyProgress(String text) {
-        if (progress < max) {
-            progress += 1;
+    private void notifyProgress(String url, String text, int p) {
+        progress = p;
+        if (progress > max) {
+            progress = max;
         }
         for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-            l.progress(new MSListenerFilmeLadenEvent("", text, max, progress, 0, false));
+            l.progress(new MSListenerFilmeLadenEvent(url, text, max, progress, 0, false));
         }
     }
 
-    private void notifyFertig(ListeFilme liste) {
+    private void notifyFertig(String url, ListeFilme liste) {
         MSLog.systemMeldung("Liste Filme gelesen: " + DatumZeit.getHeute_dd_MM_yyyy() + " " + DatumZeit.getJetzt_HH_MM_SS());
         MSLog.systemMeldung("Anzahl Filme: " + liste.size());
         for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-            l.fertig(new MSListenerFilmeLadenEvent("", "", max, progress, 0, false));
+            l.fertig(new MSListenerFilmeLadenEvent(url, "", max, progress, 0, false));
         }
     }
 }
