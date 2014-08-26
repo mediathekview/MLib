@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.Locale;
 import msearch.daten.DatenFilm;
 import msearch.daten.MSConfig;
@@ -31,6 +32,7 @@ import msearch.io.MSGetUrl;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekBr extends MediathekReader implements Runnable {
 
@@ -38,7 +40,8 @@ public class MediathekBr extends MediathekReader implements Runnable {
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.ENGLISH);//08.11.2013, 18:00
     private final SimpleDateFormat sdfOutTime = new SimpleDateFormat("HH:mm:ss");
     private final SimpleDateFormat sdfOutDay = new SimpleDateFormat("dd.MM.yyyy");
-    LinkedListUrl listeTage = new LinkedListUrl();
+    private final LinkedListUrl listeTage = new LinkedListUrl();
+    private final LinkedList<String> listeAllThemen = new LinkedList();
 
     public MediathekBr(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, /* name */ SENDER, /* threads */ 3, /* urlWarten */ 100, startPrio);
@@ -47,7 +50,9 @@ public class MediathekBr extends MediathekReader implements Runnable {
     @Override
     void addToList() {
         final String ADRESSE = "http://www.br.de/mediathek/video/sendungen/index.html";
-        final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
+        final String MUSTER_URL = "<a href=\"/mediathek/video/";
+        final String MUSTER_URL_1 = "sendungen/";
+        final String MUSTER_URL_2 = "video/";
         if (MSConfig.senderAllesLaden) {
             maxThreadLaufen = 8;
         }
@@ -65,7 +70,14 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     if ((pos2 = seite.indexOf("\"", pos1)) != -1) {
                         url = seite.substring(pos1, pos2);
                     }
-                    if (url.equals("")) {
+                    String thema = seite.extract("<span>", "<", pos1);
+                    thema = StringEscapeUtils.unescapeXml(thema.trim());
+                    thema = StringEscapeUtils.unescapeHtml4(thema.trim());
+                    if (!listeAllThemen.contains(thema)) {
+                        listeAllThemen.add(thema);
+                    }
+                    if (url.equals("")
+                            || url.startsWith(MUSTER_URL_1) && url.startsWith(MUSTER_URL_2)) {
                         continue;
                     }
                     /// der BR ist etwas zu langsam dafür????
@@ -77,7 +89,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
 //                        add = new String[]{"http://www.br.de/mediathek/video/sendungen/" + url, ""};
 //                    }
                     // in die Liste eintragen
-                    String[] add = new String[]{"http://www.br.de/mediathek/video/sendungen/" + url, ""};
+                    String[] add = new String[]{"http://www.br.de/mediathek/video/sendungen/" + url, thema};
                     listeThemen.addUrl(add);
                 } catch (Exception ex) {
                     MSLog.fehlerMeldung(-821213698, MSLog.FEHLER_ART_MREADER, this.getClass().getSimpleName(), ex);
@@ -159,6 +171,16 @@ public class MediathekBr extends MediathekReader implements Runnable {
         }
     }
 
+    private String checkThema(String thema, String def) {
+        thema = StringEscapeUtils.unescapeXml(thema.trim());
+        thema = StringEscapeUtils.unescapeHtml4(thema.trim());
+        if (listeAllThemen.contains(thema)) {
+            return thema;
+        } else {
+            return def;
+        }
+    }
+
     private class ThemaLaden implements Runnable {
 
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
@@ -174,11 +196,11 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 String[] link;
                 while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
-                    laden(link[0] /* url */, seite1, true);
+                    laden(link[0] /* url */, link[1]/*thema*/, seite1, true);
                 }
                 while (!MSConfig.getStop() && (link = listeTage.getListeThemen()) != null) {
                     meldungProgress(link[0]);
-                    laden(link[0] /* url */, seite1, false);
+                    laden(link[0] /* url */, link[1]/*thema*/, seite1, false);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-989632147, MSLog.FEHLER_ART_MREADER, "MediathekBr.ThemaLaden.run", ex);
@@ -186,10 +208,13 @@ public class MediathekBr extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         }
 
-        void laden(String urlThema, MSStringBuilder seite, boolean weitersuchen) {
+        void laden(String urlThema, String thema, MSStringBuilder seite, boolean weitersuchen) {
             seite = getUrlIo.getUri_Utf(nameSenderMReader, urlThema, seite, "");
+            if (seite.length() == 0) {
+                return;
+            }
             String urlXml;
-            String thema;
+            String thema_;
             String datum;
             String zeit = "";
             String dauer;
@@ -204,9 +229,16 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 // MSearchLog.fehlerMeldung(-120364780, MSearchLog.FEHLER_ART_MREADER, "MediathekBr.laden", "keine Videos: " + urlThema);
                 return;
             }
-            thema = seite.extract("<h3>", "<"); //<h3>Abendschau</h3>
-            titel = seite.extract("<li class=\"title\">", "<"); //<li class="title">Spionageabwehr auf Bayerisch! - Folge 40</li>
-            //<time class="start" datetime="2013-11-08T18:00:00+01:00">08.11.2013, 18:00 Uhr</time>
+            thema_ = seite.extract("<h3>", "<"); //<h3>Abendschau</h3>
+            if (thema.isEmpty()) {
+                thema = checkThema(thema_, SENDER);
+            }
+            if (!thema.equals(thema_)) {
+                // dann wird das Thema der Titel
+                titel = thema_;
+            } else {
+                titel = seite.extract("<li class=\"title\">", "<"); //<li class="title">Spionageabwehr auf Bayerisch! - Folge 40</li>
+            }            //<time class="start" datetime="2013-11-08T18:00:00+01:00">08.11.2013, 18:00 Uhr</time>
             datum = seite.extract("<time class=\"start\" datetime=\"", ">", "<");
             datum = datum.replace("Uhr", "").trim();
             if (!datum.isEmpty()) {
@@ -326,7 +358,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
 //                            MSearchLog.debugMeldung("MediathekBr.laden" + " ------> count max erreicht: " + urlThema);
                             break;
                         }
-                        laden(urlWeiter, seite2, false);
+                        laden(urlWeiter, thema, seite2, false);
                     }
                 }
             }
@@ -465,6 +497,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 if (thema.endsWith(":")) {
                     thema = thema.substring(0, thema.lastIndexOf(":"));
                 }
+                thema = checkThema(thema, "Archiv");
                 titel = seiteArchiv1.extract("teaser_title\">", "<", pos, stop);
                 // <p class="search_date">23.08.2013 | BR-alpha</p>
                 datum = seiteArchiv1.extract("search_date\">", "<", pos, stop);
