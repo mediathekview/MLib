@@ -532,8 +532,23 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return getUrlFlvstreamer();
     }
 
+    private static final String[] GERMAN_ONLY = {
+        "+++ Aus rechtlichen Gründen ist der Film nur innerhalb von Deutschland abrufbar. +++",
+        "+++ Aus rechtlichen Gründen ist diese Sendung nur innerhalb von Deutschland abrufbar. +++",
+        "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland abrufbar. +++",
+        "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland verfügbar. +++",
+        "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++ Due to legal reasons the video is only available in Germany.+++",
+        "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++",
+        "+++ Due to legal reasons the video is only available in Germany.+++"
+    };
+
     public static String cleanDescription(String s, String thema, String titel) {
         // die Beschreibung auf x Zeichen beschränken
+        for (String g : GERMAN_ONLY) {
+            if (s.startsWith(g)) {
+                s = s.substring(g.length()).trim();
+            }
+        }
         if (s.startsWith(titel)) {
             s = s.substring(titel.length()).trim();
         }
@@ -565,21 +580,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
-//    private String keywordsToString(String[] keywords) {
-//        final int x = 200;
-//        String k = "";
-//        for (String kk : keywords) {
-//            if (k.length() + kk.length() > x) {
-//                // nicht mehr als x zeichen lang!
-//                break;
-//            }
-//            if (k.length() > 0) {
-//                k += ",";
-//            }
-//            k += kk;
-//        }
-//        return k;
-//    }
     private void checkDatum(String datum, String fehlermeldung) {
         //Datum max. 100 Tage in der Zukunft
         final long MAX = 1000L * 60L * 60L * 24L * 100L;
