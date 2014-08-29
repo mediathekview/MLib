@@ -22,13 +22,11 @@ package msearch.io;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.zip.ZipInputStream;
 import javax.swing.event.EventListenerList;
 import msearch.daten.DatenFilm;
@@ -47,40 +45,44 @@ public class MSFilmlisteLesen {
     private int max = 0;
     private int progress = 0;
     private static final int TIMEOUT = 10_000; //10 Sekunden
+    private static final int PROGRESS_MAX = 100;
 
     public void addAdListener(MSListenerFilmeLaden listener) {
         listeners.add(MSListenerFilmeLaden.class, listener);
     }
 
-    private InputStream getInputStreamForLocation(URI fromLocation) throws Exception {
+    private InputStream getInputStreamForLocation(String source) throws Exception {
         InputStream in;
         long size = 0;
-        if (fromLocation.getScheme() != null) {
+        final URI uri;
+        if (source.startsWith("http")) {
+            uri = new URI(source);
             //remote address for internet download
-            HttpURLConnection conn = (HttpURLConnection) fromLocation.toURL().openConnection();
+            HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
             conn.setConnectTimeout(TIMEOUT);
             conn.setReadTimeout(TIMEOUT);
             if (conn.getResponseCode() < 400) {
                 size = conn.getContentLengthLong();
             }
-            in = new SizeInputStream(conn.getInputStream(), size, fromLocation.toASCIIString());
+            in = new SizeInputStream(conn.getInputStream(), size, uri.toASCIIString());
         } else {
             //local file
-            URI localUri = new URI("file://" + fromLocation.toASCIIString());
-            Path filmPath = Paths.get(localUri);
-            in = Files.newInputStream(filmPath);
+//            uri = new URI(AbsoluteFromRelativeURI.getAbsoluteURIFromRelative(source));
+//            Path filmPath = Paths.get(uri);
+//            in = Files.newInputStream(filmPath);
+            notifyProgress(source, "Download", PROGRESS_MAX);
+            in = new FileInputStream(source);
         }
 
         return in;
     }
 
-    private InputStream selectDecompressor(final URI uri, InputStream in) throws Exception {
-        final String strPath = uri.getPath();
-        if (strPath.endsWith(MSConst.FORMAT_XZ)) {
+    private InputStream selectDecompressor(String source, InputStream in) throws Exception {
+        if (source.endsWith(MSConst.FORMAT_XZ)) {
             in = new XZInputStream(in);
-        } else if (strPath.endsWith(MSConst.FORMAT_BZ2)) {
+        } else if (source.endsWith(MSConst.FORMAT_BZ2)) {
             in = new BZip2CompressorInputStream(in);
-        } else if (strPath.endsWith(MSConst.FORMAT_ZIP)) {
+        } else if (source.endsWith(MSConst.FORMAT_ZIP)) {
             ZipInputStream zipInputStream = new ZipInputStream(in);
             zipInputStream.getNextEntry();
             in = zipInputStream;
@@ -88,14 +90,12 @@ public class MSFilmlisteLesen {
         return in;
     }
 
-    public void readFilmListe(String sourceUri, final ListeFilme listeFilme) {
+    public void readFilmListe(String source, final ListeFilme listeFilme) {
         JsonToken jsonToken;
         String sender = "", thema = "";
-        this.notifyStart(sourceUri, 100); // für die Progressanzeige
+        this.notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
         try {
-            final URI uri = new URI(sourceUri);
-
-            InputStream in = selectDecompressor(uri, getInputStreamForLocation(uri));
+            InputStream in = selectDecompressor(source, getInputStreamForLocation(source));
             JsonParser jp = new JsonFactory().createParser(in);
             if (jp.nextToken() != JsonToken.START_OBJECT) {
                 throw new IllegalStateException("Expected data to start with an Object");
@@ -149,10 +149,10 @@ public class MSFilmlisteLesen {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(945123641, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.readFilmListe", ex);
+            MSLog.fehlerMeldung(945123641, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.readFilmListe: " + source, ex);
             listeFilme.clear();
         }
-        notifyFertig(sourceUri, listeFilme);
+        notifyFertig(source, listeFilme);
     }
 
     private void notifyStart(String url, int mmax) {

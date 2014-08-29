@@ -19,7 +19,6 @@
  */
 package msearch.filmeLaden;
 
-import java.net.URI;
 import java.util.ArrayList;
 import javax.swing.event.EventListenerList;
 import msearch.daten.ListeFilme;
