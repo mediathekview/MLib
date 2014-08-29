@@ -51,7 +51,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
     @Override
     public void addToList() {
         meldungStart();
-////////        addTage();
+        addTage();
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
