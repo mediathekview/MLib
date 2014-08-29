@@ -96,7 +96,7 @@ public class MSFunktionen {
     }
 
     public static String getProgVersionString() {
-        return MSConst.PROGRAMMNAME + " [Rel: " + getBuildNr() + "]";
+        return " [Rel: " + getBuildNr() + "]";
     }
 
     public static String[] getJavaVersion() {

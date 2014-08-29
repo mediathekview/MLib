@@ -213,7 +213,10 @@ public class MSImportFilmliste {
         try {
             if (!dateiUrl.equals("")) {
                 MSLog.systemMeldung("Filmliste laden von: " + dateiUrl);
-                ret = msFilmlisteLesen.filmlisteLesenJson(dateiUrl, dateiZiel, listeFilme);
+                msFilmlisteLesen.readFilmListe(dateiUrl, listeFilme);
+                if (!listeFilme.isEmpty()) {
+                    ret = true;
+                }
             }
         } catch (Exception ex) {
             MSLog.fehlerMeldung(965412378, MSLog.FEHLER_ART_PROG, "ImportListe.urlLaden: ", ex);

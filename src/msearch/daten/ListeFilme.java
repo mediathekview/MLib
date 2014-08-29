@@ -581,7 +581,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 //            metaDaten[ListeFilme.FILMLISTE_ID_NR] = "";
 //        }
         metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSConst.VERSION_FILMLISTE;
-        metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = MSFunktionen.getProgVersionString() + " - Compiled: " + MSFunktionen.getCompileDate();
+        metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = MSConst.PROGRAMMNAME + MSFunktionen.getProgVersionString() + " - Compiled: " + MSFunktionen.getCompileDate();
     }
 
     /**

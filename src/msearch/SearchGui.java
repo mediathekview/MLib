@@ -53,7 +53,7 @@ public final class SearchGui extends javax.swing.JFrame {
         } else {
             jTextFieldFilmliste.setText(pfad);
         }
-        new MSFilmlisteLesen().filmlisteLesenJson(jTextFieldFilmliste.getText(), "", listeFilme);
+        new MSFilmlisteLesen().readFilmListe(jTextFieldFilmliste.getText(), listeFilme);
         jLabelAnzahl.setText(SearchGui.listeFilme.size() + "");
 
         jButtonFilmlisteLoeschen.addActionListener(new ActionListener() {

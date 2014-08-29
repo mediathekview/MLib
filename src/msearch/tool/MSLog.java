@@ -64,7 +64,7 @@ public class MSLog {
         MSLog.systemMeldung("freeMemory: " + freeMem / (1024L * 1024L) + " MiB");
         MSLog.systemMeldung("##################################################################################");
         //Version
-        MSLog.systemMeldung(MSFunktionen.getProgVersionString());
+        MSLog.systemMeldung(MSConst.PROGRAMMNAME + MSFunktionen.getProgVersionString());
         MSLog.systemMeldung("Compiled: " + MSFunktionen.getCompileDate());
         MSLog.systemMeldung("##################################################################################");
         MSLog.systemMeldung("Java");

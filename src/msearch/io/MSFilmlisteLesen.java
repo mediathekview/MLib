@@ -22,27 +22,19 @@ package msearch.io;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.net.URI;
 import java.util.zip.ZipInputStream;
 import javax.swing.event.EventListenerList;
 import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
-import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import msearch.tool.DatumZeit;
 import msearch.tool.MSConst;
-import msearch.tool.MSGuiFunktionen;
 import msearch.tool.MSLog;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.tukaani.xz.XZInputStream;
@@ -52,143 +44,63 @@ public class MSFilmlisteLesen {
     private final EventListenerList listeners = new EventListenerList();
     private int max = 0;
     private int progress = 0;
-    private static final int TIMEOUT = 10000; //10 Sekunden
-    private String quelle = "";
+    private static final int TIMEOUT = 10_000; //10 Sekunden
+    private static final int PROGRESS_MAX = 100;
 
     public void addAdListener(MSListenerFilmeLaden listener) {
         listeners.add(MSListenerFilmeLaden.class, listener);
     }
 
-    public boolean filmlisteLesenJson(String vonDateiUrl, String nachDatei, ListeFilme listeFilme) {
-        // die Filmliste "vonDateiUrl" (Url oder lokal) wird in die List "listeFilme" eingelesen und
-        // wenn angegeben: in "nachDatei" gespeichert
-        // URLs werden vorher in eine tmp-Datei geladen und dann erst entpackt/gelesen
-        // Progress wird von 0 auf 300 gezählt
-        // Download, Lesen, in Datei schreiben
-        boolean ret = false;
-        File tmpFile = null;
-        boolean istUrl = MSGuiFunktionen.istUrl(vonDateiUrl);
-        quelle = vonDateiUrl;
-        try {
-            this.notifyStart(quelle, 100); // für den Downlaod/das Laden der Datei
-            if (istUrl) {
-                // dann erst Download in temp-Datei
-                if (vonDateiUrl.endsWith(MSConst.FORMAT_XZ)) {
-                    tmpFile = File.createTempFile("mediathek", MSConst.FORMAT_XZ);
-                } else if (vonDateiUrl.endsWith(MSConst.FORMAT_BZ2)) {
-                    tmpFile = File.createTempFile("mediathek", MSConst.FORMAT_BZ2);
-                } else if (vonDateiUrl.endsWith(MSConst.FORMAT_ZIP)) {
-                    tmpFile = File.createTempFile("mediathek", MSConst.FORMAT_ZIP);
-                } else {
-                    tmpFile = File.createTempFile("mediathek", null);
-                }
-                if (filmlisteDownload(vonDateiUrl, tmpFile)) {
-                    // dann einlesen
-                    if (nachDatei.isEmpty()) {
-                        this.notifyProgress(quelle, "Lesen", 100);
-                        if (filmlisteJsonEinlesen(tmpFile, listeFilme)) {
-                            ret = true;
-                        }
-                    } else {
-                        File ziel = new File(nachDatei);
-                        this.notifyProgress(quelle, "Entpacken", 100);
-                        if (filmlisteEntpackenKopieren(tmpFile, ziel)) {
-                            this.notifyProgress(quelle, "Lesen", 100);
-                            if (filmlisteJsonEinlesen(ziel, listeFilme)) {
-                                ret = true;
-                            }
-                        }
-                    }
-                }
-            } else {
-                // lokale Datei
-                if (nachDatei.isEmpty()) {
-                    this.notifyProgress(quelle, "Lesen", 100);
-                    if (filmlisteJsonEinlesen(new File(vonDateiUrl), listeFilme)) {
-                        ret = true;
-                    }
-                } else {
-                    File ziel = new File(nachDatei);
-                    this.notifyProgress(quelle, "Entpacken", 100); // dann gibts keinen Downlaod
-                    if (filmlisteEntpackenKopieren(new File(vonDateiUrl), ziel)) {
-                        this.notifyProgress(quelle, "Lesen", 100);
-                        if (filmlisteJsonEinlesen(ziel, listeFilme)) {
-                            ret = true;
-                        }
-                    }
-                }
+    private InputStream getInputStreamForLocation(String source) throws Exception {
+        InputStream in;
+        long size = 0;
+        final URI uri;
+        if (source.startsWith("http")) {
+            uri = new URI(source);
+            //remote address for internet download
+            HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
+            conn.setConnectTimeout(TIMEOUT);
+            conn.setReadTimeout(TIMEOUT);
+            if (conn.getResponseCode() < 400) {
+                size = conn.getContentLengthLong();
             }
-            // ##########################################################
-            notifyFertig(quelle, listeFilme);
-        } catch (Exception ex) {
-            MSLog.fehlerMeldung(468956200, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", ex, "von: " + vonDateiUrl);
+            in = new SizeInputStream(conn.getInputStream(), size, uri.toASCIIString());
+        } else {
+            //local file
+//            uri = new URI(AbsoluteFromRelativeURI.getAbsoluteURIFromRelative(source));
+//            Path filmPath = Paths.get(uri);
+//            in = Files.newInputStream(filmPath);
+            notifyProgress(source, "Download", PROGRESS_MAX);
+            in = new FileInputStream(source);
         }
-        if (tmpFile != null) {
-            try {
-                tmpFile.delete();
-            } catch (Exception ignore) {
-            }
-        }
-        return ret;
+
+        return in;
     }
 
-    public String filmlisteUmbenennen(String dateiFilmliste, ListeFilme listeFilme) {
-        String dest = "";
-        try {
-            if (listeFilme.isEmpty()) {
-                MSLog.fehlerMeldung(312126987, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteUmbenennen", "Die Filmliste ist leer.");
-                return "";
-            }
-            dest = dateiFilmliste + listeFilme.genDateRev();
-            if (dateiFilmliste.equals(dest)) {
-                return "";
-            }
-            File fileDest = new File(dest);
-            if (fileDest.exists()) {
-                MSLog.systemMeldung(new String[]{"Filmliste umbenennen: ", "Es gibt schon eine Liste mit dem Datum."});
-                return "";
-            }
-            File fileSrc = new File(dateiFilmliste);
-            fileSrc.renameTo(fileDest);
-        } catch (Exception ex) {
-            MSLog.fehlerMeldung(978451206, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteUmbenennen", ex);
+    private InputStream selectDecompressor(String source, InputStream in) throws Exception {
+        if (source.endsWith(MSConst.FORMAT_XZ)) {
+            in = new XZInputStream(in);
+        } else if (source.endsWith(MSConst.FORMAT_BZ2)) {
+            in = new BZip2CompressorInputStream(in);
+        } else if (source.endsWith(MSConst.FORMAT_ZIP)) {
+            ZipInputStream zipInputStream = new ZipInputStream(in);
+            zipInputStream.getNextEntry();
+            in = zipInputStream;
         }
-        return dest;
+        return in;
     }
 
-    // ##############################
-    // private
-    // ##############################
-    private boolean filmlisteJsonEinlesen(File vonDatei, ListeFilme listeFilme) {
-        boolean ret = false;
-        BZip2CompressorInputStream bZip2CompressorInputStream;
-        JsonFactory jsonF = new JsonFactory();
-        JsonParser jp = null;
+    public void readFilmListe(String source, final ListeFilme listeFilme) {
         JsonToken jsonToken;
         String sender = "", thema = "";
+        this.notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
         try {
-            // ##########################################################
-            // und jetzt die Liste einlesen, URL kann es jetzt schon nicht mehr sein!
-            if (!vonDatei.exists()) {
-                MSLog.fehlerMeldung(702030698, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", "Datei existiert nicht: " + vonDatei.getName());
-                return false;
-            }
-            if (vonDatei.getName().endsWith(MSConst.FORMAT_XZ)) {
-                XZInputStream xZInputStream = new XZInputStream(new FileInputStream(vonDatei));
-                jp = jsonF.createParser(new InputStreamReader(xZInputStream, MSConst.KODIERUNG_UTF));
-            } else if (vonDatei.getName().endsWith(MSConst.FORMAT_BZ2)) {
-                bZip2CompressorInputStream = new BZip2CompressorInputStream(new FileInputStream(vonDatei));
-                jp = jsonF.createParser(new InputStreamReader(bZip2CompressorInputStream, MSConst.KODIERUNG_UTF));
-            } else if (vonDatei.getName().endsWith(MSConst.FORMAT_ZIP)) {
-                ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(vonDatei));
-                zipInputStream.getNextEntry();
-                jp = jsonF.createParser(new InputStreamReader(zipInputStream, MSConst.KODIERUNG_UTF));
-            } else {
-                jp = jsonF.createParser(vonDatei); // geht so am schnellsten
-            }
+            InputStream in = selectDecompressor(source, getInputStreamForLocation(source));
+            JsonParser jp = new JsonFactory().createParser(in);
             if (jp.nextToken() != JsonToken.START_OBJECT) {
-                throw new IOException("Expected data to start with an Object");
+                throw new IllegalStateException("Expected data to start with an Object");
             }
+
             while ((jsonToken = jp.nextToken()) != null) {
                 if (jsonToken == JsonToken.END_OBJECT) {
                     break;
@@ -223,12 +135,12 @@ public class MSFilmlisteLesen {
                             datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] = "";
                         }
                     }
-                    if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals("")) {
+                    if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].isEmpty()) {
                         datenFilm.arr[DatenFilm.FILM_SENDER_NR] = sender;
                     } else {
                         sender = datenFilm.arr[DatenFilm.FILM_SENDER_NR];
                     }
-                    if (datenFilm.arr[DatenFilm.FILM_THEMA_NR].equals("")) {
+                    if (datenFilm.arr[DatenFilm.FILM_THEMA_NR].isEmpty()) {
                         datenFilm.arr[DatenFilm.FILM_THEMA_NR] = thema;
                     } else {
                         thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
@@ -236,97 +148,11 @@ public class MSFilmlisteLesen {
                     listeFilme.importFilmliste(datenFilm);
                 }
             }
-            jp.close();
-            ret = true;
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(468956200, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteLesen", ex, "von: " + vonDatei.getName());
+            MSLog.fehlerMeldung(945123641, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.readFilmListe: " + source, ex);
+            listeFilme.clear();
         }
-        return ret;
-    }
-
-    private boolean filmlisteEntpackenKopieren(File vonDatei, File nachDatei) {
-        boolean ret = false;
-        String vonDateiName = vonDatei.getName();
-        BufferedInputStream in;
-        if (vonDateiName.equals(nachDatei.getName())) {
-            return true;
-        }
-        try {
-            if (vonDatei.getName().endsWith(MSConst.FORMAT_XZ)) {
-                in = new BufferedInputStream(new XZInputStream(new FileInputStream(vonDatei)));
-            } else if (vonDateiName.endsWith(MSConst.FORMAT_BZ2)) {
-                in = new BufferedInputStream(new BZip2CompressorInputStream(new FileInputStream(vonDatei)));
-            } else if (vonDateiName.endsWith(MSConst.FORMAT_ZIP)) {
-                ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(vonDatei));
-                zipInputStream.getNextEntry();
-                in = new BufferedInputStream(zipInputStream);
-            } else {
-                Files.copy(Paths.get(vonDatei.getPath()), Paths.get(nachDatei.getPath()), StandardCopyOption.REPLACE_EXISTING);
-                return true;
-                //in = new BufferedInputStream(new FileInputStream(vonDatei));
-            }
-            FileOutputStream fOut;
-            byte[] buffer = new byte[1024];
-            int n = 0;
-            fOut = new FileOutputStream(nachDatei);
-            while (!MSConfig.getStop() && (n = in.read(buffer)) != -1) {
-                fOut.write(buffer, 0, n);
-            }
-            ret = !MSConfig.getStop();
-            try {
-                fOut.close();
-                in.close();
-            } catch (Exception e) {
-            }
-        } catch (Exception ex) {
-            MSLog.fehlerMeldung(915236765, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteEntpackenKopieren", ex);
-        }
-        return ret;
-    }
-
-    private boolean filmlisteDownload(String uurl, File nachDatei) {
-        // Filmliste von URL laden und in Datei speichern
-        // laden liefert 10 mal Progress
-        boolean ret = false;
-        long size = -1, aktSize = 0;
-        long progress = 0, oldProgress = 0;
-        try {
-            HttpURLConnection conn = (HttpURLConnection) new URL(uurl).openConnection();
-            conn.setConnectTimeout(TIMEOUT);
-            conn.setReadTimeout(TIMEOUT);
-            conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
-
-            if (conn.getResponseCode() < 400) {
-                size = conn.getContentLengthLong();
-            }
-
-            BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
-            FileOutputStream fOut;
-            byte[] buffer = new byte[1024];
-            int n = 0;
-            fOut = new FileOutputStream(nachDatei);
-            while (!MSConfig.getStop() && (n = in.read(buffer)) != -1) {
-                fOut.write(buffer, 0, n);
-                if (size > 0) {
-                    // macht nur dann Sinn
-                    aktSize += n;
-                    progress = aktSize * 100 / size;
-                    if (progress != oldProgress) {
-                        oldProgress = progress;
-                        this.notifyProgress(quelle, "Download", (int) progress);
-                    }
-                }
-            }
-            ret = !MSConfig.getStop();
-            try {
-                fOut.close();
-                in.close();
-            } catch (Exception e) {
-            }
-        } catch (Exception ex) {
-            MSLog.fehlerMeldung(952163678, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.filmlisteDownload", ex);
-        }
-        return ret;
+        notifyFertig(source, listeFilme);
     }
 
     private void notifyStart(String url, int mmax) {
@@ -354,4 +180,65 @@ public class MSFilmlisteLesen {
             l.fertig(new MSListenerFilmeLadenEvent(url, "", max, progress, 0, false));
         }
     }
+
+    private class SizeInputStream extends InputStream {
+
+        // The number of bytes that can be read from the InputStream
+        private final long size;
+        // The number of bytes that have been read from the InputStream
+        private long bytesRead = 0;
+
+        private InputStream in = null;
+        private long progress, oldProgress;
+        private final String from;
+
+        public SizeInputStream(InputStream in, long size, String from) {
+            this.in = in;
+            this.size = size;
+            this.from = from;
+        }
+
+        @Override
+        public int available() {
+            return (int) (size - bytesRead);
+        }
+
+        @Override
+        public int read() throws IOException {
+            int b = in.read();
+            if (b != -1) {
+                bytesRead++;
+                progress();
+            }
+            return b;
+        }
+
+        @Override
+        public int read(byte[] b) throws IOException {
+            int read = in.read(b);
+            bytesRead += read;
+            progress();
+            return read;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            int read = in.read(b, off, len);
+            bytesRead += read;
+            progress();
+            return read;
+        }
+
+        private void progress() {
+            if (size > 0) {
+                // macht nur dann Sinn
+                progress = bytesRead * 100 / size;
+                if (progress != oldProgress) {
+                    oldProgress = progress;
+                    notifyProgress(from, "Download", (int) progress);
+                }
+            }
+        }
+    }
+
 }
