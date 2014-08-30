@@ -538,6 +538,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland abrufbar. +++",
         "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland verfügbar. +++",
         "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++ Due to legal reasons the video is only available in Germany.+++",
+        "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++ Due to legal reasons the video is only available in Germany.+++",
         "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++",
         "+++ Due to legal reasons the video is only available in Germany.+++"
     };
@@ -545,8 +546,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static String cleanDescription(String s, String thema, String titel) {
         // die Beschreibung auf x Zeichen beschränken
         for (String g : GERMAN_ONLY) {
-            if (s.startsWith(g)) {
-                s = s.substring(g.length()).trim();
+            if (s.contains(g)) {
+                s = s.replace(g, ""); // steht auch mal in der Mitte
             }
         }
         if (s.startsWith(titel)) {
@@ -572,6 +573,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
         if (s.startsWith("\n")) {
             s = s.substring(1).trim();
+        }
+        if (s.contains("\\\"")) { // wegen " in json-Files
+            s = s.replace("\\\"", "\"");
         }
         if (s.length() > MSConst.MAX_BESCHREIBUNG) {
             return s.substring(0, MSConst.MAX_BESCHREIBUNG) + "\n.....";
