@@ -571,15 +571,9 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         for (int i = 0; i < metaDaten.length; ++i) {
             metaDaten[i] = "";
         }
-//        if (!MSConfig.getStop() /* löschen */) {
         metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = getJetzt_ddMMyyyy_HHmm();
         metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = getJetzt_ddMMyyyy_HHmm_gmt();
         metaDaten[ListeFilme.FILMLISTE_ID_NR] = createChecksum(metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR]);
-//        } else {
-//            metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = "";
-//            metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = "";
-//            metaDaten[ListeFilme.FILMLISTE_ID_NR] = "";
-//        }
         metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSConst.VERSION_FILMLISTE;
         metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = MSConst.PROGRAMMNAME + MSFunktionen.getProgVersionString() + " - Compiled: " + MSFunktionen.getCompileDate();
     }
