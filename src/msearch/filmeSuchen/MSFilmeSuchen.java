@@ -103,24 +103,24 @@ public class MSFilmeSuchen {
     public static String[] getNamenSender() {
         // liefert eine Array mit allen Sendernamen
         LinkedList<String> liste = new LinkedList<>();
-        liste.add(MediathekArd.SENDER);
-        liste.add(MediathekZdf.SENDER);
-        liste.add(MediathekZdfTivi.SENDER);
-        liste.add(MediathekArte_de.SENDER_ARTE_DE);
-        liste.add(MediathekArte_fr.SENDER_ARTE_FR);
-        liste.add(Mediathek3Sat.SENDER);
-        liste.add(MediathekSwr.SENDER);
-        liste.add(MediathekNdr.SENDER);
-        liste.add(MediathekKika.SENDER);
+        liste.add(MediathekArd.SENDERNAME);
+        liste.add(MediathekZdf.SENDERNAME);
+        liste.add(MediathekZdfTivi.SENDERNAME);
+        liste.add(MediathekArte_de.SENDERNAME);
+        liste.add(MediathekArte_fr.SENDERNAME);
+        liste.add(Mediathek3Sat.SENDERNAME);
+        liste.add(MediathekSwr.SENDERNAME);
+        liste.add(MediathekNdr.SENDERNAME);
+        liste.add(MediathekKika.SENDERNAME);
         // Spalte 2
-        liste.add(MediathekMdr.SENDER);
-        liste.add(MediathekWdr.SENDER);
-        liste.add(MediathekHr.SENDER);
-        liste.add(MediathekRbb.SENDER);
-        liste.add(MediathekBr.SENDER);
-        liste.add(MediathekSrf.SENDER);
-        liste.add(MediathekSrfPod.SENDER);
-        liste.add(MediathekOrf.SENDER);
+        liste.add(MediathekMdr.SENDERNAME);
+        liste.add(MediathekWdr.SENDERNAME);
+        liste.add(MediathekHr.SENDERNAME);
+        liste.add(MediathekRbb.SENDERNAME);
+        liste.add(MediathekBr.SENDERNAME);
+        liste.add(MediathekSrf.SENDERNAME);
+        liste.add(MediathekSrfPod.SENDERNAME);
+        liste.add(MediathekOrf.SENDERNAME);
 
         GermanStringSorter sorter = GermanStringSorter.getInstance();
         Collections.sort(liste, sorter);
@@ -174,16 +174,6 @@ public class MSFilmeSuchen {
         }
     }
 
-//    public String[] getNamenSender() {
-//        // liefert eine Array mit allen Sendernamen
-//        LinkedList<String> liste = new LinkedList<>();
-//        for (MediathekReader aMediathekListe : mediathekListe) {
-//            liste.add(aMediathekListe.getNameSender());
-//        }
-//        GermanStringSorter sorter = GermanStringSorter.getInstance();
-//        Collections.sort(liste, sorter);
-//        return liste.toArray(new String[liste.size()]);
-//    }
     private String getThreads(String sender) {
         // liefert die Anzahl Threads des Senders
         try {
@@ -227,7 +217,7 @@ public class MSFilmeSuchen {
         progressBar();
     }
 
-    public void meldenFertig(String sender) {
+    public synchronized void meldenFertig(String sender) {
         //wird ausgeführt wenn Sender beendet ist
         String zeile;
         MSRunSender run = listeSenderLaufen.senderFertig(sender);

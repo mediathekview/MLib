@@ -31,10 +31,10 @@ import msearch.tool.MSStringBuilder;
 
 public class Mediathek3Sat extends MediathekReader implements Runnable {
 
-    public static final String SENDER = "3Sat";
+    public final static String SENDERNAME = "3Sat";
 
     public Mediathek3Sat(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch, SENDERNAME, /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
+                th.setName(SENDERNAME + t);
                 th.start();
             }
         }
@@ -74,7 +74,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
         final String ADRESSE = "http://www.3sat.de/mediathek/";
         final String MUSTER_URL = "<a class=\"SubItem\" href=\"?red=";
         MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        seite = getUrlIo.getUri_Utf(nameSenderMReader, ADRESSE, seite, "");
+        seite = getUrlIo.getUri_Utf(SENDERNAME, ADRESSE, seite, "");
         int pos1 = 0;
         int pos2;
         String url = "", thema = "";
@@ -141,7 +141,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                     url = urlThema + "&mode=verpasst" + i;
                 }
                 meldung(url);
-                seite1 = getUrlIo.getUri_Utf(nameSenderMReader, url, seite1, "");
+                seite1 = getUrlIo.getUri_Utf(SENDERNAME, url, seite1, "");
                 if (seite1.indexOf(MUSTER_START) == -1) {
                     // dann gibts keine weiteren
                     break;
@@ -166,7 +166,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                         //http://www.3sat.de/mediathek/xmlservice/web/beitragsDetails?ak=web&id=40860
                         urlId = "http://www.3sat.de/mediathek/xmlservice/web/beitragsDetails?ak=web&id=" + urlId;
                         //meldung(id);
-                        DatenFilm film = MediathekZdf.filmHolenId(getUrl, seite2, nameSenderMReader, thema, titel, urlFilm, urlId);
+                        DatenFilm film = MediathekZdf.filmHolenId(getUrl, seite2, SENDERNAME, thema, titel, urlFilm, urlId);
                         if (film != null) {
                             // dann wars gut
                             // jetzt noch manuell die Auflösung hochsetzen
@@ -183,7 +183,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
             }
             if (weiter && seite1.indexOf("mode=verpasst1") != -1) {
                 // dann gibts eine weitere Seite
-                laden(urlThema+"&mode=verpasst1", thema, false);
+                laden(urlThema + "&mode=verpasst1", thema, false);
             }
         }
     }

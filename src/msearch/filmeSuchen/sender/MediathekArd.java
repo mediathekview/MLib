@@ -30,7 +30,7 @@ import msearch.tool.MSStringBuilder;
 
 public class MediathekArd extends MediathekReader implements Runnable {
 
-    public static final String SENDER = "ARD";
+    public final static String SENDERNAME = "ARD";
     MSStringBuilder seite_1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
     /**
@@ -39,7 +39,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
      * @param startPrio
      */
     public MediathekArd(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 5, /* urlWarten */ 250, startPrio);
+        super(ssearch, SENDERNAME,/* threads */ 5, /* urlWarten */ 250, startPrio);
     }
 
     @Override
@@ -49,11 +49,11 @@ public class MediathekArd extends MediathekReader implements Runnable {
         listeThemen.clear();
         MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         meldungStart();
-        seite = getUrlIo.getUri(nameSenderMReader, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
+        seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
         if (seite.length() == 0) {
             MSLog.systemMeldung("ARD: Versuch 2");
             warten(2 * 60 /*Sekunden*/);
-            seite = getUrlIo.getUri(nameSenderMReader, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
+            seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
             if (seite.length() == 0) {
                 MSLog.fehlerMeldung(-104689736, MSLog.FEHLER_ART_MREADER, "MediathekArd.addToList", "wieder nichts gefunden");
             }
@@ -89,7 +89,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             for (int t = 0; t < maxThreadLaufen; ++t) {
 //////            for (int t = 0; t < 1; ++t) {
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
+                th.setName(SENDERNAME + t);
                 th.start();
             }
         }
@@ -97,7 +97,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
 
     private void feedSuchen1(String strUrlFeed) {
         final String MUSTER = "<div class=\"media mediaA\">";
-        seite_1 = getUrlIo.getUri(nameSenderMReader, strUrlFeed, MSConst.KODIERUNG_UTF, 2/*max Versuche*/, seite_1, "");
+        seite_1 = getUrlIo.getUri(SENDERNAME, strUrlFeed, MSConst.KODIERUNG_UTF, 2/*max Versuche*/, seite_1, "");
         if (seite_1.length() == 0) {
             MSLog.fehlerMeldung(-207956317, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "Leere Seite: " + strUrlFeed);
             return;
@@ -177,7 +177,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             final String MUSTER = "<div class=\"mediaCon\">";
             final String MUSTER_START = "<h2 class=\"modHeadline\">Videos und Audios der Sendung</h2>";
             final String MUSTER_START_2 = "Diese Sendung per RSS-Feed abonnieren";
-            seite2 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, seite2, "");
+            seite2 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite2, "");
             if (seite2.length() == 0) {
                 MSLog.fehlerMeldung(-765323214, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "Leere Seite: " + strUrlFeed);
                 return;
@@ -263,7 +263,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             try {
                 String urlFilm = "http://www.ardmediathek.de/play/media/" + urlFilm_ + "?devicetype=pc&features=flash";
                 meldung(urlFilm);
-                seite3 = getUrl.getUri_Utf(nameSenderMReader, urlFilm, seite3, "");
+                seite3 = getUrl.getUri_Utf(SENDERNAME, urlFilm, seite3, "");
                 if (seite3.length() == 0) {
                     MSLog.fehlerMeldung(-915263621, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "Leere Seite: " + urlFilm);
                     return;
@@ -293,7 +293,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 }
                 if (!url.isEmpty() && url.startsWith("http")) {
                     String beschreibung = beschreibung(urlSendung);
-                    DatenFilm f = new DatenFilm(nameSenderMReader, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
+                    DatenFilm f = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
                             "" /*imageUrl*/, new String[]{}/*keywords*/);
                     if (!urlKl.isEmpty()) {
                         f.addUrlKlein(urlKl, "");
@@ -302,7 +302,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 } else if (!urlKl.isEmpty()) {
                     // MSLog.fehlerMeldung(-695412340, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "nurUrlKlein: " + urlFilm);
                     String beschreibung = beschreibung(urlSendung);
-                    DatenFilm f = new DatenFilm(nameSenderMReader, thema, urlSendung, titel, urlKl, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
+                    DatenFilm f = new DatenFilm(SENDERNAME, thema, urlSendung, titel, urlKl, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
                             "" /*imageUrl*/, new String[]{}/*keywords*/);
                     addFilm(f);
                 } else {
@@ -314,7 +314,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
         }
 
         private String beschreibung(String strUrlFeed) {
-            seite4 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, seite4, "");
+            seite4 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite4, "");
             if (seite4.length() == 0) {
                 MSLog.fehlerMeldung(-784512036, MSLog.FEHLER_ART_MREADER, "MediathekArd.beschreibung", "Leere Seite: " + strUrlFeed);
                 return "";

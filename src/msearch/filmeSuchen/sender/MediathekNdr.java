@@ -31,11 +31,11 @@ import msearch.tool.MSStringBuilder;
 
 public class MediathekNdr extends MediathekReader implements Runnable {
 
-    public static final String SENDER = "NDR";
+    public final static String SENDERNAME = "NDR";
     private MSStringBuilder seiteAlle = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
     public MediathekNdr(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 250, startPrio);
+        super(ssearch, SENDERNAME , /* threads */ 2, /* urlWarten */ 250, startPrio);
     }
 
     //-> erste Seite:
@@ -48,7 +48,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
         listeThemen.clear();
         meldungStart();
         MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        seite = getUrlIo.getUri(nameSenderMReader, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, ""/* meldung */);
+        seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, ""/* meldung */);
         int pos = 0;
         int pos1;
         int pos2;
@@ -105,7 +105,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
             meldungAddMax(listeThemen.size());
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
+                th.setName(SENDERNAME + t);
                 th.start();
             }
         }
@@ -113,7 +113,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
 
     private boolean alleSeiteSuchen(String strUrlFeed, String tthema) {
         boolean ret = false;
-        seiteAlle = getUrlIo.getUri(nameSenderMReader, strUrlFeed, MSConst.KODIERUNG_UTF, 3 /* versuche */, seiteAlle, "Thema: " + tthema/* meldung */);
+        seiteAlle = getUrlIo.getUri(SENDERNAME, strUrlFeed, MSConst.KODIERUNG_UTF, 3 /* versuche */, seiteAlle, "Thema: " + tthema/* meldung */);
         int pos1 = 0, pos2, anz1, anz2 = 0;
         try {
             // <a class="square button" href="/mediathek/mediatheksuche105_broadcast-1391_page-5.html" title="Zeige Seite 5">
@@ -174,7 +174,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
 
         void feedEinerSeiteSuchen(String strUrlFeed, String tthema) {
             final String MUSTER_URL = "<a href=\"/";
-            seite1 = getUrlIo.getUri(nameSenderMReader, strUrlFeed, MSConst.KODIERUNG_UTF, 3 /* versuche */, seite1, "Thema: " + tthema/* meldung */);
+            seite1 = getUrlIo.getUri(SENDERNAME, strUrlFeed, MSConst.KODIERUNG_UTF, 3 /* versuche */, seite1, "Thema: " + tthema/* meldung */);
             int pos = 0;
             String url;
             String titel;
@@ -291,7 +291,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
             // http://media.ndr.de/progressive/2012/0820/TV-20120820-2300-0701.hi.mp4
             // rtmpt://cp160844.edgefcs.net/ondemand/mp4:flashmedia/streams/ndr/2012/0820/TV-20120820-2300-0701.hq.mp4
             final String MUSTER_URL = "3: {src:'http://";
-            seite2 = getUrl.getUri_Utf(nameSenderMReader, filmWebsite, seite2, "strUrlThema: " + strUrlThema);
+            seite2 = getUrl.getUri_Utf(SENDERNAME, filmWebsite, seite2, "strUrlThema: " + strUrlThema);
             //long durationInSeconds = extractDuration(seite2);
             String description = extractDescription(seite2);
             String[] keywords = extractKeywords(seite2);
@@ -329,7 +329,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                                     thema = "NDR";
                                 }
                             }
-                            DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, zeit, durationInSeconds, description,
+                            DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, zeit, durationInSeconds, description,
                                     imageUrl, keywords);
                             if (url.contains(".hq.")) {
                                 String urlKlein = url.replace(".hq.", ".hi.");

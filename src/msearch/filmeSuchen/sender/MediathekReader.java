@@ -28,34 +28,35 @@ import msearch.io.MSGetUrl;
 import msearch.tool.DatumZeit;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSLog;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekReader implements Runnable {
 
-    String nameSenderMReader = ""; // ist der Name, den der Mediathekreader hat, der ist eindeutig
+    public String sendername = ""; // ist der Name, den der Mediathekreader hat, der ist eindeutig
     int maxThreadLaufen = 4;
-    long wartenSeiteLaden = 500;//ms, Basiswert zu dem dann der Faktor multipliziert wird
-    //boolean senderOn = true;
+    long wartenSeiteLaden = 500; //ms, Basiswert zu dem dann der Faktor multipliziert wird
     boolean updateOn = false;
     int threads = 0;
     int max = 0;
     int progress = 0;
     int startPrio = 1; // es gibt die Werte: 0->startet sofort, 1->später und 2->zuletzt
     LinkedListUrl listeThemen = new LinkedListUrl();
+    LinkedList<String> listeAllThemen = new LinkedList<>();
     MSGetUrl getUrlIo;
     MSFilmeSuchen mSearchFilmeSuchen;
 
-    public MediathekReader(MSFilmeSuchen mmSearchFilmeSuchen, String nameMreader, int ssenderMaxThread, int ssenderWartenSeiteLaden, int sstartPrio) {
+    public MediathekReader(MSFilmeSuchen mmSearchFilmeSuchen, String name, int ssenderMaxThread, int ssenderWartenSeiteLaden, int sstartPrio) {
         mSearchFilmeSuchen = mmSearchFilmeSuchen;
         wartenSeiteLaden = ssenderWartenSeiteLaden;
         getUrlIo = new MSGetUrl(ssenderWartenSeiteLaden);
-        nameSenderMReader = nameMreader;
+        sendername = name;
         maxThreadLaufen = ssenderMaxThread;
         startPrio = sstartPrio;
     }
+
     //===================================
     // public 
     //===================================
-
     class LinkedListUrl extends LinkedList<String[]> {
 
         synchronized boolean addUrl(String[] e) {
@@ -85,11 +86,11 @@ public class MediathekReader implements Runnable {
 
     public boolean checkNameSenderFilmliste(String name) {
         // ist der Name der in der Tabelle Filme angezeigt wird
-        return nameSenderMReader.equalsIgnoreCase(name);
+        return sendername.equalsIgnoreCase(name);
     }
 
     public String getNameSender() {
-        return nameSenderMReader;
+        return sendername;
     }
 
     public void delSenderInAlterListe(String sender) {
@@ -104,7 +105,7 @@ public class MediathekReader implements Runnable {
             threads = 0;
             addToList();
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-397543600, MSLog.FEHLER_ART_MREADER, "MediathekReader.run", ex, nameSenderMReader);
+            MSLog.fehlerMeldung(-397543600, MSLog.FEHLER_ART_MREADER, "MediathekReader.run", ex, sendername);
         }
     }
 
@@ -159,45 +160,55 @@ public class MediathekReader implements Runnable {
         return ret;
     }
 
+    String checkThema(String thema) {
+        thema = StringEscapeUtils.unescapeXml(thema.trim());
+        thema = StringEscapeUtils.unescapeHtml4(thema.trim());
+        if (listeAllThemen.contains(thema)) {
+            return thema;
+        } else {
+            return sendername;
+        }
+    }
+
     // Meldungen
     synchronized void meldungStart() {
         max = 0;
         progress = 0;
         MSLog.systemMeldung("===============================================================");
-        MSLog.systemMeldung("Starten[" + ((MSConfig.senderAllesLaden) ? "alles" : "update") + "] " + nameSenderMReader + ": " + DatumZeit.getJetzt_HH_MM_SS());
+        MSLog.systemMeldung("Starten[" + ((MSConfig.senderAllesLaden) ? "alles" : "update") + "] " + sendername + ": " + DatumZeit.getJetzt_HH_MM_SS());
         MSLog.systemMeldung("   maxThreadLaufen: " + maxThreadLaufen);
         MSLog.systemMeldung("   wartenSeiteLaden: " + wartenSeiteLaden);
         MSLog.systemMeldung("");
-        mSearchFilmeSuchen.melden(nameSenderMReader, max, progress, "" /* text */);
+        mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
     }
 
     synchronized void meldungAddMax(int mmax) {
         max += mmax;
-        mSearchFilmeSuchen.melden(nameSenderMReader, max, progress, "" /* text */);
+        mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
     }
 
     synchronized void meldungAddThread() {
         ++threads;
-        mSearchFilmeSuchen.melden(nameSenderMReader, max, progress, "" /* text */);
+        mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
     }
 
     synchronized void meldungProgress(String text) {
         ++progress;
-        mSearchFilmeSuchen.melden(nameSenderMReader, max, progress, text);
+        mSearchFilmeSuchen.melden(sendername, max, progress, text);
     }
 
     synchronized void meldung(String text) {
-        mSearchFilmeSuchen.melden(nameSenderMReader, max, progress, text);
+        mSearchFilmeSuchen.melden(sendername, max, progress, text);
     }
 
     synchronized void meldungThreadUndFertig() {
         --threads;
         if (threads <= 0) {
             //wird erst ausgeführt wenn alle Threads beendet sind
-            mSearchFilmeSuchen.meldenFertig(nameSenderMReader);
+            mSearchFilmeSuchen.meldenFertig(sendername);
         } else {
             // läuft noch was
-            mSearchFilmeSuchen.melden(nameSenderMReader, max, progress, "" /* text */);
+            mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
         }
     }
 

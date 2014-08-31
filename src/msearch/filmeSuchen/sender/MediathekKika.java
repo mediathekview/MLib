@@ -32,13 +32,13 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekKika extends MediathekReader implements Runnable {
 
-    public static final String SENDER = "KiKA";
+    public final static String SENDERNAME = "KiKA";
     private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
     LinkedListUrl listeThemenHttp = new LinkedListUrl();
     LinkedListUrl listeThemenKaninchen = new LinkedListUrl();
 
     public MediathekKika(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch, SENDERNAME , /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
     @Override
@@ -54,14 +54,14 @@ public class MediathekKika extends MediathekReader implements Runnable {
         } else {
             // dann den Sender aus der alten Liste löschen
             // URLs laufen nur begrenzte Zeit
-            delSenderInAlterListe(nameSenderMReader);
+            delSenderInAlterListe(SENDERNAME);
             listeSort(listeThemen, 1);
             listeSort(listeThemenHttp, 1);
             meldungAddMax(listeThemen.size() + listeThemenHttp.size() + listeThemenKaninchen.size());
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
+                th.setName(SENDERNAME + t);
                 th.start();
             }
 
@@ -78,7 +78,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
         final String MUSTER_DATUM = "title=\"Sendung vom ";
         listeThemen.clear();
         seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        seite = getUrlIo.getUri(nameSenderMReader, ADRESSE, MSConst.KODIERUNG_UTF, 3, seite, "KiKA: Startseite");
+        seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 3, seite, "KiKA: Startseite");
         int pos = 0;
         int pos1, pos2, stop, pDatum1, pDatum2, pTitel1, pTitel2;
         String url, thema, datum, titel;
@@ -151,7 +151,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
         int pos1 = 0, pos2, start = 0, stop = 0;
         String id = "", thema = "", url = "";
         for (String alter : ALTER) {
-            seite = getUrlIo.getUri(nameSenderMReader, ADRESSE_1 + alter + ADRESSE_2, MSConst.KODIERUNG_UTF, 3, seite, "KiKA: Startseite");
+            seite = getUrlIo.getUri(SENDERNAME, ADRESSE_1 + alter + ADRESSE_2, MSConst.KODIERUNG_UTF, 3, seite, "KiKA: Startseite");
             if ((start = seite.indexOf(MUSTER_START)) != -1) {
                 start += MUSTER_START.length();
                 pos1 = start;
@@ -196,7 +196,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
         seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         int start;
         String jpg, url;
-        seite = getUrlIo.getUri(nameSenderMReader, ADRESSE, MSConst.KODIERUNG_UTF, 3, seite, "KiKA: Kaninchen");
+        seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 3, seite, "KiKA: Kaninchen");
         if ((start = seite.indexOf(MUSTER_START)) != -1) {
             start += MUSTER_START.length();
             while ((start = seite.indexOf(MUSTER_FILM_START, start)) != -1) {
@@ -247,7 +247,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             final String MUSTER_URL_1 = "so.addVariable(\"fullscreenPfad\", \"";
             final String MUSTER_URL_2 = "so.addVariable(\"pfad\", \"";
             final String MUSTER_ID = "xajax.config.requestURI = \"";
-            seite1 = getUrlIo.getUri(nameSenderMReader, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, thema + " " + titel);
+            seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, thema + " " + titel);
             String id;
             String urlFilm = "";
             id = seite1.extract(MUSTER_ID, "\"");
@@ -256,10 +256,10 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 urlFilm = seite1.extract(MUSTER_URL_2, "\"");
             }
             if (!urlFilm.equals("")) {
-                DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, urlFilm, "-r " + urlFilm + " --flashVer WIN11,4,402,265"/* urlRtmp */,
+                DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, urlFilm, "-r " + urlFilm + " --flashVer WIN11,4,402,265"/* urlRtmp */,
                         datum/*datum*/, ""/*zeit*/, 0, "", "", new String[]{""});
                 MSFunktionen.unescape(film);
-                if (istInFilmListe(nameSenderMReader, film.arr[DatenFilm.FILM_THEMA_NR], film.arr[DatenFilm.FILM_TITEL_NR]) == null) {
+                if (istInFilmListe(SENDERNAME, film.arr[DatenFilm.FILM_THEMA_NR], film.arr[DatenFilm.FILM_TITEL_NR]) == null) {
                     meldung(urlFilm);
                     addFilm(film);
 //                } else {
@@ -275,7 +275,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             // >25420<4<165<23. Die b
             // <http://www.kikaplus.net/clients/kika/mediathek/previewpic/1355302530-f80b463888fd4602d925b2ef2c861928 9.jpg<
             final String MUSTER_BILD = "<http://www.";
-            seite1 = getUrlIo.getUri(nameSenderMReader, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, thema);
+            seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, thema);
             String nummer, url, bild, urlFilm, titel;
             nummer = seite1.extract(">", "<");
             bild = seite1.extract(MUSTER_BILD, "<");
@@ -286,7 +286,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             // http://www.kikaplus.net/clients/kika/kikaplus/hbbtv/index.php?cmd=video&age=10&id=25420&page=az
             if (!nummer.isEmpty()) {
                 url = "http://www.kikaplus.net/clients/kika/kikaplus/hbbtv/index.php?cmd=video&age=" + alter + "&id=" + nummer + "&page=az";
-                seite1 = getUrlIo.getUri(nameSenderMReader, url, MSConst.KODIERUNG_UTF, 1, seite1, thema);
+                seite1 = getUrlIo.getUri(SENDERNAME, url, MSConst.KODIERUNG_UTF, 1, seite1, thema);
                 final String MUSTER_URL = "var videofile = \"";
                 final String MUSTER_TITEL = "var videotitle = \"";
                 urlFilm = seite1.extract(MUSTER_URL, "\"");
@@ -299,11 +299,11 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     DatenFilm film = null;
                     thema = MSGuiFunktionen.utf8(thema);
                     titel = MSGuiFunktionen.utf8(titel);
-                    if ((film = istInFilmListe(nameSenderMReader, thema, titel)) != null) {
+                    if ((film = istInFilmListe(SENDERNAME, thema, titel)) != null) {
                         film.addUrlKlein(urlFilm, "");
                     } else {
                         // dann gibs ihn noch nicht
-                        addFilm(new DatenFilm(nameSenderMReader, thema, "http://www.kika.de/fernsehen/mediathek/index.shtml", titel, urlFilm, ""/* urlRtmp */,
+                        addFilm(new DatenFilm(SENDERNAME, thema, "http://www.kika.de/fernsehen/mediathek/index.shtml", titel, urlFilm, ""/* urlRtmp */,
                                 ""/*datum*/, ""/*zeit*/,
                                 0, "", bild, new String[]{""}));
                     }
@@ -319,7 +319,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             // >25420<4<165<23. Die b
             // <http://www.kikaplus.net/clients/kika/mediathek/previewpic/1355302530-f80b463888fd4602d925b2ef2c861928 9.jpg<
             final String MUSTER_VIDEO = "<type>Video</type>";
-            seite1 = getUrlIo.getUri(nameSenderMReader, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "");
+            seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "");
             String url, titel, datum, zeit = "", thema;
             int start = 0;
             meldung(filmWebsite);
@@ -349,11 +349,11 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 //            String datum, String zeit,
                 //            long dauerSekunden, String description, String imageUrl, String[] keywords) {
                 if (!url.isEmpty()) {
-                    DatenFilm film = new DatenFilm(nameSenderMReader, thema, "http://www.kikaninchen.de/kikaninchen/filme/index.html", titel, url, ""/* urlRtmp */,
+                    DatenFilm film = new DatenFilm(SENDERNAME, thema, "http://www.kikaninchen.de/kikaninchen/filme/index.html", titel, url, ""/* urlRtmp */,
                             datum, zeit,
                             0, "", jpg, new String[]{""});
                     MSFunktionen.unescape(film);
-                    if (istInFilmListe(nameSenderMReader, film.arr[DatenFilm.FILM_THEMA_NR], film.arr[DatenFilm.FILM_TITEL_NR]) == null) {
+                    if (istInFilmListe(SENDERNAME, film.arr[DatenFilm.FILM_THEMA_NR], film.arr[DatenFilm.FILM_TITEL_NR]) == null) {
                         // ansonsten gibt es den Film schon
                         addFilm(film);
 //                    } else {

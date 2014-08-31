@@ -33,12 +33,12 @@ import msearch.tool.MSStringBuilder;
 
 public class MediathekWdr extends MediathekReader implements Runnable {
 
-    public static final String SENDER = "WDR";
+    public final static String SENDERNAME = "WDR";
     private final static String ROCKPALAST_URL = "http://www.wdr.de/tv/rockpalast/videos/uebersicht.jsp"; //TH
     private MSStringBuilder strSeite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
     public MediathekWdr(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 3, /* urlWarten */ 500, startPrio);
+        super(ssearch,  SENDERNAME ,/* threads */ 3, /* urlWarten */ 500, startPrio);
     }
 
     //===================================
@@ -75,7 +75,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
+                th.setName(SENDERNAME + t);
                 th.start();
             }
         }
@@ -89,7 +89,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         //Theman suchen
         final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/abisz-";
         MSStringBuilder strSeite_ = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        strSeite_ = getUrlIo.getUri_Iso(nameSenderMReader, ADRESSE, strSeite_, "");
+        strSeite_ = getUrlIo.getUri_Iso(SENDERNAME, ADRESSE, strSeite_, "");
         int pos1 = 0;
         int pos2;
         String url;
@@ -125,7 +125,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         int pos1;
         int pos2;
         String url;
-        strSeite = getUrlIo.getUri_Iso(nameSenderMReader, strUrlFeed, strSeite, "");
+        strSeite = getUrlIo.getUri_Iso(SENDERNAME, strUrlFeed, strSeite, "");
         meldung(strUrlFeed);
         if ((pos1 = strSeite.indexOf(MUSTER_START)) == -1) {
             MSLog.fehlerMeldung(-460857479, MSLog.FEHLER_ART_MREADER, "MediathekWdr.themenSeiteSuchen", "keine Url" + strUrlFeed);
@@ -189,7 +189,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 // dann wars das
                 return;
             }
-            strSeite1 = getUrl.getUri_Utf(nameSenderMReader, strUrl, strSeite1, "");
+            strSeite1 = getUrl.getUri_Utf(SENDERNAME, strUrl, strSeite1, "");
             // weitere Seiten suchen
             if ((pos1 = strSeite1.indexOf("<ul class=\"pageCounterNavi\">")) == -1) {
                 return;
@@ -252,7 +252,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 // brauchts nicht
                 return;
             }
-            strSeite2 = getUrl.getUri_Utf(nameSenderMReader, strUrl, strSeite2, "");
+            strSeite2 = getUrl.getUri_Utf(SENDERNAME, strUrl, strSeite2, "");
             meldung(strUrl);
             // Thema suchen
             // <title>Lokalzeit aus Bonn - WDR MEDIATHEK</title>
@@ -362,7 +362,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
 
             final String MUSTER_KEYWORDS = "<meta name=\"Keywords\" content=\"";
             meldung(filmWebsite);
-            strSeite3 = getUrl.getUri_Utf(nameSenderMReader, filmWebsite, strSeite3, "");
+            strSeite3 = getUrl.getUri_Utf(SENDERNAME, filmWebsite, strSeite3, "");
             int pos1;
             int pos2;
             String url = "";
@@ -439,7 +439,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             final String MUSTER_URL_M = "<a rel=\"webM\"  href=\"";
             final String MUSTER_URL_S = "<a rel=\"webS\"  href=\"";
             meldung(urlFilmSuchen);
-            strSeite4 = getUrl.getUri_Utf(nameSenderMReader, urlFilmSuchen, strSeite4, "");
+            strSeite4 = getUrl.getUri_Utf(SENDERNAME, urlFilmSuchen, strSeite4, "");
             int pos1;
             int pos2;
             String url = "";
@@ -487,7 +487,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 // urlKlein = urlKlein.replace("http://mobile-ondemand.wdr.de/", "rtmp://gffstream.fcod.llnwd.net/a792/e2/mp4:");
                 //public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String datum, String zeit,
                 //long duration, String description, String thumbnailUrl, String imageUrl, String[] keywords) {
-                DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, ""/* zeit */,
+                DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, ""/* zeit */,
                         dauer, beschreibung, image, keyword);
                 film.addUrlKlein(urlKlein, "");
                 addFilm(film);
@@ -502,7 +502,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             final String ITEM_1 = "<a href=\"/tv/rockpalast/extra/videos";
             // <li><a href="/tv/rockpalast/extra/videos/2009/0514/trail_of_dead.jsp">...And you will know us by the Trail Of Dead (2009)</a></li>
             int pos = 0;
-            strVideoSeite = getUrl.getUri_Iso(nameSenderMReader, ROCKPALAST_URL, strVideoSeite, "");
+            strVideoSeite = getUrl.getUri_Iso(SENDERNAME, ROCKPALAST_URL, strVideoSeite, "");
             try {
                 while (!MSConfig.getStop() && (pos = strVideoSeite.indexOf(ITEM_1, pos)) != -1) {
                     int pos1 = pos + 9;
@@ -548,7 +548,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             final String MUSTER_URL_HD = "class=\"hqOpenLink\" href=\"http://www.wdr.de/themen/global/flashplayer/fscreen.jsp?dslSrc=";
             final String MUSTER_END = "&";
             meldung(filmWebsite);
-            strSeite2 = getUrl.getUri_Iso(nameSenderMReader, filmWebsite, strSeite2, "");
+            strSeite2 = getUrl.getUri_Iso(SENDERNAME, filmWebsite, strSeite2, "");
             int pos;
             int pos1;
             int pos2;
@@ -663,7 +663,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 }
                 if (thema.equals("")) {
                     // dann gehts halt nicht
-                    thema = nameSenderMReader;
+                    thema = SENDERNAME;
                 }
             }
             urlHd = "";
@@ -686,11 +686,11 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                             // DatenFilm(Daten ddaten, String ssender, String tthema, String urlThema, String ttitel, String uurl, String uurlorg, String zziel) {
                             //DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, datum, ""/* zeit */);
                             if (urlHd.isEmpty()) {
-                                DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, ""/* zeit */, duration, description,
+                                DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, ""/* zeit */, duration, description,
                                         image.isEmpty() ? thumbnail : image, keywords);
                                 addFilm(film);
                             } else {
-                                DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, urlHd, ""/*rtmpURL*/, datum, ""/* zeit */, duration, description,
+                                DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, urlHd, ""/*rtmpURL*/, datum, ""/* zeit */, duration, description,
                                         image.isEmpty() ? thumbnail : image, keywords);
                                 addFilm(film);
                                 film.addUrlKlein(url, "");

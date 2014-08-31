@@ -30,12 +30,11 @@ import msearch.tool.MSStringBuilder;
 
 public class MediathekSrfPod extends MediathekReader implements Runnable {
 
-    //public static final String SENDER = "SF.Podcast";
-    public static final String SENDER = "SRF.Podcast";
+    public final static String SENDERNAME = "SRF.Podcast";
     private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
     public MediathekSrfPod(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 1000, startPrio);
+        super(ssearch,  SENDERNAME ,/* threads */ 2, /* urlWarten */ 1000, startPrio);
     }
 
     @Override
@@ -48,7 +47,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
         String addr1 = "http://www.srf.ch/podcasts";
         listeThemen.clear();
         meldungStart();
-        seite = getUrlIo.getUri_Utf(nameSenderMReader, addr1, seite, "");
+        seite = getUrlIo.getUri_Utf(SENDERNAME, addr1, seite, "");
         int pos = 0;
         int pos1;
         int pos2;
@@ -93,7 +92,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
+                th.setName(SENDERNAME + t);
                 th.start();
             }
         }
@@ -143,7 +142,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
             String[] keywords = {};
             try {
                 meldung(strUrlFeed);
-                seite = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, seite, "Thema: " + thema);
+                seite = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite, "Thema: " + thema);
                 if ((pos1 = seite.indexOf(MUSTER_THEMA_1)) != -1) {
                     pos1 = pos1 + MUSTER_THEMA_1.length();
                 }
@@ -243,7 +242,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                             } else {
                                 // public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String datum, String zeit,
                                 //      long duration, String description, String thumbnailUrl, String imageUrl, String[] keywords) {
-                                addFilm(new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, ""/*rtmpURL*/, datum, zeit,
+                                addFilm(new DatenFilm(SENDERNAME, thema, strUrlFeed, titel, url, ""/*rtmpURL*/, datum, zeit,
                                         duration, description, image, keywords));
                             }
                         }

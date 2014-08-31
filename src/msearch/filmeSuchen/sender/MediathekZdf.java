@@ -29,7 +29,7 @@ import msearch.tool.MSStringBuilder;
 
 public class MediathekZdf extends MediathekReader implements Runnable {
 
-    public static final String SENDER = "ZDF";
+    public final static String SENDERNAME = "ZDF";
     private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
     private final static int ANZAHL_ZDF_ALLE = 500;
     private final static int ANZAHL_ZDF_MITTEL = 50;
@@ -39,7 +39,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 //    static int count_f4m = 0;
 
     public MediathekZdf(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, 4 /* threads */, 250 /* urlWarten */, startPrio);
+        super(ssearch,  SENDERNAME ,4 /* threads */, 250 /* urlWarten */, startPrio);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
+                th.setName(SENDERNAME + t);
                 th.start();
             }
         }
@@ -105,7 +105,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         //GetUrl(int ttimeout, long wwartenBasis) {
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
         MSStringBuilder seiteR = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        seiteR = getUrl.getUri(nameSenderMReader, addr, MSConst.KODIERUNG_UTF, 6 /* versuche */, seiteR, "" /* Meldung */);
+        seiteR = getUrl.getUri(SENDERNAME, addr, MSConst.KODIERUNG_UTF, 6 /* versuche */, seiteR, "" /* Meldung */);
         if (seiteR.length() == 0) {
             MSLog.fehlerMeldung(-774200364, MSLog.FEHLER_ART_MREADER, "MediathekZdf.addToList_addr", "Leere Seite für URL: " + addr);
         }
@@ -136,7 +136,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         final String MUSTER_URL = "<p><b><a href=\"/ZDFmediathek/kanaluebersicht/aktuellste/";
         //GetUrl(int ttimeout, long wwartenBasis) {
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        seite = getUrl.getUri(nameSenderMReader, addr, MSConst.KODIERUNG_UTF, 6 /* versuche */, seite, "" /* Meldung */);
+        seite = getUrl.getUri(SENDERNAME, addr, MSConst.KODIERUNG_UTF, 6 /* versuche */, seite, "" /* Meldung */);
         if (seite.length() == 0) {
             MSLog.fehlerMeldung(-596004563, MSLog.FEHLER_ART_MREADER, "MediathekZdf.addToList_addr", "Leere Seite für URL: " + addr);
         }
@@ -224,7 +224,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             int anz = 0;
             try {
                 //seite1 = getUrl.getUri(urlThema + "?bc=saz", seite1);
-                seite1 = getUrl.getUri_Utf(nameSenderMReader, url, seite1, "Thema: " + thema);
+                seite1 = getUrl.getUri_Utf(SENDERNAME, url, seite1, "Thema: " + thema);
                 while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER_URL_1, pos)) != -1) {
                     ok = false;
                     ++anz;
@@ -265,7 +265,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                         if (!urlId.isEmpty()) {
                             urlId = "http://www.zdf.de/ZDFmediathek/xmlservice/web/beitragsDetails?ak=web&id=" + urlId;
                             meldung(urlId);
-                            DatenFilm film = filmHolenId(getUrl, seite2, nameSenderMReader, thema, titel, urlFilm, urlId);
+                            DatenFilm film = filmHolenId(getUrl, seite2, SENDERNAME, thema, titel, urlFilm, urlId);
                             if (film != null) {
                                 // dann wars gut
                                 // jetzt noch manuell die Auflösung hochsetzen

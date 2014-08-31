@@ -23,14 +23,15 @@ import msearch.filmeSuchen.MSFilmeSuchen;
 
 public class MediathekArte_fr extends MediathekArte_de implements Runnable {
 
+    public final static String SENDERNAME = "ARTE.FR";
+
     /**
      *
      * @param ssearch
      * @param startPrio
      */
     public MediathekArte_fr(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, startPrio);
-        nameSenderMReader = SENDER_ARTE_FR;
+        super(ssearch, startPrio, SENDERNAME);
         URL_ARTE = "http://www.arte.tv/papi/tvguide/epg/schedule/F/L3/";
         URL_CONCERT = "http://concert.arte.tv/fr/videos/all";
         URL_CONCERT_NOT_CONTAIN = "-STA";

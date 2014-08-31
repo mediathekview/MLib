@@ -35,10 +35,10 @@ public class MediathekSwr extends MediathekReader implements Runnable {
     private static final int wartenKurz = 2000;
     private static final int wartenLang = 4000;
 
-    public static final String SENDER = "SWR";
+    public final static String SENDERNAME = "SWR";
 
     public MediathekSwr(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ wartenLang, startPrio);
+        super(ssearch, SENDERNAME , /* threads */ 2, /* urlWarten */ wartenLang, startPrio);
     }
 
     //===================================
@@ -59,7 +59,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
+                th.setName(SENDERNAME + t);
                 th.start();
             }
         }
@@ -74,24 +74,24 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         final String MUSTER_URL = "<a href=\"tvshow.htm?show=";
         final String MUSTER_THEMA = "title=\"";
         MSStringBuilder strSeite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        strSeite = getUrlIo.getUri(nameSenderMReader, "http://swrmediathek.de/tvlist.htm", MSConst.KODIERUNG_UTF, 2, strSeite, "");
+        strSeite = getUrlIo.getUri(SENDERNAME, "http://swrmediathek.de/tvlist.htm", MSConst.KODIERUNG_UTF, 2, strSeite, "");
         int pos = 0;
         String url;
         String thema;
         while (!MSConfig.getStop() && (pos = strSeite.indexOf(MUSTER_START, pos)) != -1) {
             pos += MUSTER_START.length();
-                url = strSeite.extract(MUSTER_URL, "\"",pos);
-                thema = strSeite.extract(MUSTER_THEMA, "\"", pos);
-                thema = StringEscapeUtils.unescapeHtml4(thema.trim()); //wird gleich benutzt und muss dann schon stimmen
-                if (thema.isEmpty()) {
-                    MSLog.fehlerMeldung(-915263078, MSLog.FEHLER_ART_MREADER, "MediathekSwr.addToList__", "kein Thema");
-                }
-                if (url.isEmpty()) {
-                    MSLog.fehlerMeldung(-163255009, MSLog.FEHLER_ART_MREADER, "MediathekSwr.addToList__", "keine URL");
-                } else {
-                    //url = url.replace("&amp;", "&");
-                    String[] add = new String[]{"http://swrmediathek.de/tvshow.htm?show=" + url, thema};
-                    listeThemen.addUrl(add);
+            url = strSeite.extract(MUSTER_URL, "\"", pos);
+            thema = strSeite.extract(MUSTER_THEMA, "\"", pos);
+            thema = StringEscapeUtils.unescapeHtml4(thema.trim()); //wird gleich benutzt und muss dann schon stimmen
+            if (thema.isEmpty()) {
+                MSLog.fehlerMeldung(-915263078, MSLog.FEHLER_ART_MREADER, "MediathekSwr.addToList__", "kein Thema");
+            }
+            if (url.isEmpty()) {
+                MSLog.fehlerMeldung(-163255009, MSLog.FEHLER_ART_MREADER, "MediathekSwr.addToList__", "keine URL");
+            } else {
+                //url = url.replace("&amp;", "&");
+                String[] add = new String[]{"http://swrmediathek.de/tvshow.htm?show=" + url, thema};
+                listeThemen.addUrl(add);
             }
         }
     }
@@ -124,7 +124,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         private void themenSeitenSuchen(String strUrlFeed, String thema) {
             final String MUSTER_URL = "<a href=\"/player.htm?show=";
             //strSeite1 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, strSeite1, thema);
-            strSeite1 = getUrlThemaLaden.getUri(nameSenderMReader, strUrlFeed, MSConst.KODIERUNG_UTF, 2 /* versuche */, strSeite1, thema);
+            strSeite1 = getUrlThemaLaden.getUri(SENDERNAME, strUrlFeed, MSConst.KODIERUNG_UTF, 2 /* versuche */, strSeite1, thema);
             meldung(strUrlFeed);
             int pos1 = 0;
             int pos2;
@@ -174,7 +174,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             // :"entry_media","attr":{"val0":"flashmedia","val1":"1","val2":"rtmp://fc-ondemand.swr.de/a4332/e6/swr-fernsehen/eisenbahn-romantik/381104.s.flv","val3":"rtmp://fc-ondemand.swr.de/a4332/e6/"},"sub":[]},{"name":"entry_media","attr":{"val0":"flashmedia","val1":"2","val2":"rtmp://fc-ondemand.swr.de/a4332/e6/swr-fernsehen/eisenbahn-romantik/381104.m.flv","val3":"rtmp://fc-ondemand.swr.de/a4332/e6/"},"sub":[]
             // "entry_title":"\"Troika-Tragödie - Verspielt die Regierung unser Steuergeld?\"
             try {
-                strSeite2 = getUrlThemaLaden.getUri_Utf(nameSenderMReader, urlJson, strSeite2, "");
+                strSeite2 = getUrlThemaLaden.getUri_Utf(SENDERNAME, urlJson, strSeite2, "");
                 if (strSeite2.length() == 0) {
                     MSLog.fehlerMeldung(-95623451, MSLog.FEHLER_ART_MREADER, "MediathekSwr.json", "Seite leer: " + urlJson);
                     return;
@@ -201,7 +201,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     if (smallUrl.isEmpty()) {
                         smallUrl = getSuperSmalUrl();
                     }
-                    DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, title, normalUrl, ""/*rtmpURL*/, date, time, duration, description,
+                    DatenFilm film = new DatenFilm(SENDERNAME, thema, strUrlFeed, title, normalUrl, ""/*rtmpURL*/, date, time, duration, description,
                             thumbNailUrl, keywords);
 
                     if (!urldHd.isEmpty()) {

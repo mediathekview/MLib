@@ -37,7 +37,7 @@ import msearch.tool.MSStringBuilder;
  */
 public class MediathekHr extends MediathekReader implements Runnable {
 
-    public static final String SENDER = "HR";
+    public final static String SENDERNAME = "HR";
     private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
     private MSStringBuilder rubrikSeite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
@@ -47,7 +47,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
      * @param startPrio
      */
     public MediathekHr(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch, SENDERNAME , /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
     /**
@@ -57,7 +57,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
     public void addToList() {
         final String MUSTER = "sendEvent('load','";
         meldungStart();
-        seite = getUrlIo.getUri_Utf(nameSenderMReader, "http://www.hr-online.de/website/fernsehen/sendungen/index.jsp", seite, "");
+        seite = getUrlIo.getUri_Utf(SENDERNAME, "http://www.hr-online.de/website/fernsehen/sendungen/index.jsp", seite, "");
         int pos = 0;
         int pos1;
         int pos2;
@@ -105,7 +105,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
+                th.setName(SENDERNAME + t);
                 th.start();
             }
         }
@@ -118,7 +118,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
         final String MUSTER = "\"http%3A%2F%2Fwww.hr-online.de%2Fwebsite%2Fincludes%2Fmedianew-playlist.xml.jsp%3Flogic%3Dstart_multimedia_document_logic";
         final String MUSTER_TITEL = "<meta property=\"og:title\" content=\"";
 
-        rubrikSeite = getUrlIo.getUri_Iso(nameSenderMReader, rubrikUrl, rubrikSeite, "");
+        rubrikSeite = getUrlIo.getUri_Iso(SENDERNAME, rubrikUrl, rubrikSeite, "");
         int pos = 0;
         int pos2;
         String url;
@@ -182,7 +182,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
         }
 
         // 4. dort Verweise auf XML Einträge finden
-        rubrikSeite = getUrlIo.getUri_Iso(nameSenderMReader, videoUrl, rubrikSeite, "");
+        rubrikSeite = getUrlIo.getUri_Iso(SENDERNAME, videoUrl, rubrikSeite, "");
         pos = 0;
         final String PLAYER_MUSTER = "<a href=\"mediaplayer.jsp?mkey=";
         while ((pos = rubrikSeite.indexOf(PLAYER_MUSTER, pos)) != -1) {
@@ -244,7 +244,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
             final String MUSTER_IMAGE = "<media:thumbnail url=\"";
             final String MUSTER_IMAGE_END = "\"";
             meldung(filmWebsite);
-            seite1 = getUrl.getUri_Utf(nameSenderMReader, filmWebsite, seite1, "");
+            seite1 = getUrl.getUri_Utf(SENDERNAME, filmWebsite, seite1, "");
             try {
                 int posItem1 = 0;
                 int pos1;
@@ -321,7 +321,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                         }
                         // DatenFilm(String ssender, String tthema, String urlThema, String ttitel, String uurl, String uurlorg, String uurlRtmp, String datum, String zeit) {
                         //DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, furl, datum, "");
-                        DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, url, furl, datum, "", duration, description,
+                        DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, furl, datum, "", duration, description,
                                 image, new String[]{});
                         addFilm(film);
                     } else {

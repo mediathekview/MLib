@@ -35,7 +35,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekOrf extends MediathekReader implements Runnable {
 
-    public static final String SENDER = "ORF";
+    public final static String SENDERNAME = "ORF";
     private static final String THEMA_TAG = "-1";
     private static final String THEMA_SENDUNGEN = "-2";
 
@@ -45,7 +45,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
      * @param startPrio
      */
     public MediathekOrf(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch, SENDERNAME , /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
+                th.setName(SENDERNAME + t);
                 th.start();
             }
         }
@@ -80,7 +80,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
     private void bearbeiteAdresseTag(String adresse, MSStringBuilder seite) {
         // <a href="http://tvthek.orf.at/program/Kultur-heute/3078759/Kultur-Heute/7152535" class="item_inner clearfix">
-        seite = getUrlIo.getUri(nameSenderMReader, adresse, MSConst.KODIERUNG_UTF, 2, seite, "");
+        seite = getUrlIo.getUri(SENDERNAME, adresse, MSConst.KODIERUNG_UTF, 2, seite, "");
         ArrayList<String> al = new ArrayList<>();
         seite.extractList("<a href=\"http://tvthek.orf.at/program/", "\"", 0, "http://tvthek.orf.at/program/", al);
         for (String s : al) {
@@ -93,7 +93,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
     private void bearbeiteAdresseThemen(MSStringBuilder seite) {
         final String URL = "http://tvthek.orf.at/programs/genre/";
-        seite = getUrlIo.getUri(nameSenderMReader, "http://tvthek.orf.at/programs", MSConst.KODIERUNG_UTF, 3, seite, "");
+        seite = getUrlIo.getUri(SENDERNAME, "http://tvthek.orf.at/programs", MSConst.KODIERUNG_UTF, 3, seite, "");
         ArrayList<String> al = new ArrayList<>();
         String thema;
         try {
@@ -103,7 +103,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 if (s.contains("/")) {
                     thema = s.substring(0, s.indexOf("/"));
                     if (thema.isEmpty()) {
-                        thema = nameSenderMReader;
+                        thema = SENDERNAME;
                     }
                 }
                 String[] add = new String[]{URL + s, thema};
@@ -118,7 +118,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
     private void bearbeiteAdresseSendung(MSStringBuilder seite) {
         final String URL = "http://tvthek.orf.at/programs/letter/";
-        seite = getUrlIo.getUri(nameSenderMReader, "http://tvthek.orf.at/programs", MSConst.KODIERUNG_UTF, 3, seite, "");
+        seite = getUrlIo.getUri(SENDERNAME, "http://tvthek.orf.at/programs", MSConst.KODIERUNG_UTF, 3, seite, "");
         ArrayList<String> al = new ArrayList<>();
         String thema;
         try {
@@ -175,7 +175,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
         private void sendungen(String url) {
             final String URL = "http://tvthek.orf.at/program/";
-            seite1 = getUrlIo.getUri(nameSenderMReader, url, MSConst.KODIERUNG_UTF, 2, seite1, "");
+            seite1 = getUrlIo.getUri(SENDERNAME, url, MSConst.KODIERUNG_UTF, 2, seite1, "");
             alSendung.clear();
             String thema;
             seite1.extractList(URL, "\"", 0, "", alSendung);
@@ -184,7 +184,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 if (s.contains("/")) {
                     thema = s.substring(0, s.indexOf("/"));
                     if (thema.isEmpty()) {
-                        thema = nameSenderMReader;
+                        thema = SENDERNAME;
                     }
                 }
                 feedEinerSeiteSuchen(URL + s, thema, false /*themaBehalten*/, false /*nurUrlPruefen*/);
@@ -193,7 +193,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
         private void themen(String url) {
             final String URL = "http://tvthek.orf.at/program/";
-            seite1 = getUrlIo.getUri(nameSenderMReader, url, MSConst.KODIERUNG_UTF, 2, seite1, "");
+            seite1 = getUrlIo.getUri(SENDERNAME, url, MSConst.KODIERUNG_UTF, 2, seite1, "");
             alSendung.clear();
             String thema, themaAlt = "";
             int count = 0, max = 3;
@@ -214,7 +214,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                         count = 0;
                     }
                     if (thema.isEmpty()) {
-                        thema = nameSenderMReader;
+                        thema = SENDERNAME;
                     }
                 }
                 feedEinerSeiteSuchen(URL + s, thema, false /*themaBehalten*/, false /*nurUrlPruefen*/);
@@ -223,7 +223,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
         private void feedEinerSeiteSuchen(String strUrlFeed, String thema, boolean themaBehalten, boolean nurUrlPruefen) {
             //<title> ORF TVthek: a.viso - 28.11.2010 09:05 Uhr</title>
-            seite2 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, seite2, "");
+            seite2 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite2, "");
             String datum = "";
             String zeit = "";
             long duration = 0;
@@ -352,12 +352,12 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                     }
                     if (!url.isEmpty()) {
                         if (thema.isEmpty()) {
-                            thema = nameSenderMReader;
+                            thema = SENDERNAME;
                         }
                         if (titel.isEmpty()) {
-                            titel = nameSenderMReader;
+                            titel = SENDERNAME;
                         }
-                        DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, urlRtmp, datum, zeit, duration, description,
+                        DatenFilm film = new DatenFilm(SENDERNAME, thema, strUrlFeed, titel, url, urlRtmp, datum, zeit, duration, description,
                                 thumbnail, new String[]{});
                         if (!urlKlein.isEmpty()) {
                             film.addUrlKlein(urlKlein, urlRtmpKlein);

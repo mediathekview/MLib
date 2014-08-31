@@ -31,11 +31,11 @@ import msearch.tool.MSStringBuilder;
 
 public class MediathekRbb extends MediathekReader implements Runnable {
 
-    public static final String SENDER = "RBB";
+    public final static String SENDERNAME = "RBB";
     final static String ROOTADR = "http://mediathek.rbb-online.de";
 
     public MediathekRbb(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch,  SENDERNAME ,/* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
     @Override
@@ -50,18 +50,19 @@ public class MediathekRbb extends MediathekReader implements Runnable {
         final String ROOTADRESSE = "http://mediathek.rbb-online.de/sendung/";
         meldungStart();
         try {
-            seite1 = getUrlIo.getUri_Utf(nameSenderMReader, ADRESSE, seite1, "");
+            seite1 = getUrlIo.getUri_Utf(SENDERNAME, ADRESSE, seite1, "");
             while ((pos1 = seite1.indexOf(ITEM_1, pos1)) != -1) {
                 pos1 = pos1 + ITEM_1.length();
                 if ((pos2 = seite1.indexOf("\"", pos1)) != -1) {
                     String url = ITEM_URL + seite1.substring(pos1, pos2).replace("view=switch", "view=list");
                     if (!url.equals("")) {
-                        seite2 = getUrlIo.getUri_Utf(nameSenderMReader, url, seite2, "");
+                        seite2 = getUrlIo.getUri_Utf(SENDERNAME, url, seite2, "");
                         int lpos1 = 0;
                         int lpos2;
                         final String LIST_ITEM = "<a href=\"/sendung/";
                         while ((lpos1 = seite2.indexOf(LIST_ITEM, lpos1)) != -1) {
-                            lpos1 = lpos1 + LIST_ITEM.length();                            lpos2 = seite2.indexOf("\"", lpos1);
+                            lpos1 = lpos1 + LIST_ITEM.length();
+                            lpos2 = seite2.indexOf("\"", lpos1);
                             String listurl = ROOTADRESSE + seite2.substring(lpos1, lpos2);
                             if (!listurl.equals("")) {
                                 String[] add = new String[]{listurl, ""};
@@ -86,7 +87,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
+                th.setName(SENDERNAME + t);
                 th.start();
             }
         }
@@ -119,7 +120,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 // Hierin nun einen RSS feed URL extrahieren
                 final String RSS_ITEM = "<a href=\"/export/rss/";
                 seite1.setLength(0);
-                seite1 = getUrlIo.getUri_Utf(nameSenderMReader, url, seite1, "");
+                seite1 = getUrlIo.getUri_Utf(SENDERNAME, url, seite1, "");
                 int rpos = seite1.indexOf(RSS_ITEM);
                 if (rpos > 0) {
                     int rpos1 = rpos + 9;
@@ -128,7 +129,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
 
                     // Diesen RSS feed laden
                     seite2.setLength(0);
-                    seite2 = getUrlIo.getUri_Utf(nameSenderMReader, rssurl, seite2, "");
+                    seite2 = getUrlIo.getUri_Utf(SENDERNAME, rssurl, seite2, "");
                     rpos = 0;
                     int count = 0;
                     while ((rpos = seite2.indexOf("<link>", rpos)) != -1) {
@@ -145,7 +146,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
 
                         // Wir haben den URL der Sendung
                         seite3.setLength(0);
-                        seite3 = getUrlIo.getUri_Utf(nameSenderMReader, showurl, seite3, "");
+                        seite3 = getUrlIo.getUri_Utf(SENDERNAME, showurl, seite3, "");
 
                         long durationInSeconds = extractDuration(seite3);
                         String description = extractDescription(seite3);
@@ -205,12 +206,12 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                                 MSLog.fehlerMeldung(-316498587, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addFilme", "keine URL für: " + showurl);
                             } else if (urlMp4.isEmpty()) {
                                 // DatenFilm film = new DatenFilm(nameSenderMReader, thema, showurl, title, urlOrg, urlRtmp, datum, ""/* zeit */);
-                                DatenFilm film = new DatenFilm(nameSenderMReader, thema, showurl, title, urlOrg, urlRtmp,
-                                        datum, ""/* zeit */, durationInSeconds, description,   imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords);
+                                DatenFilm film = new DatenFilm(SENDERNAME, thema, showurl, title, urlOrg, urlRtmp,
+                                        datum, ""/* zeit */, durationInSeconds, description, imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords);
                                 addFilm(film);
                             } else {
-                                DatenFilm film = new DatenFilm(nameSenderMReader, thema, showurl, title, urlMp4, "" /*urlRtmp*/,
-                                        datum, ""/* zeit */, durationInSeconds, description,   imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords);
+                                DatenFilm film = new DatenFilm(SENDERNAME, thema, showurl, title, urlMp4, "" /*urlRtmp*/,
+                                        datum, ""/* zeit */, durationInSeconds, description, imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords);
                                 addFilm(film);
                             }
                         }

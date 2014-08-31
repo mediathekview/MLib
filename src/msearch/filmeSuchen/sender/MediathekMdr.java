@@ -37,7 +37,7 @@ import msearch.tool.MSStringBuilder;
  */
 public class MediathekMdr extends MediathekReader implements Runnable {
 
-    public static final String SENDER = "MDR";
+    public final static String SENDERNAME = "MDR";
     private final LinkedList<String> listeTage = new LinkedList<>();
     private final LinkedList<String[]> listeGesucht = new LinkedList<>(); //thema,titel,datum,zeit
 
@@ -47,7 +47,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
      * @param startPrio
      */
     public MediathekMdr(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, /* name */ SENDER, /* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch, SENDERNAME , /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
     /**
@@ -66,7 +66,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
         listeTage.clear();
         listeGesucht.clear();
         meldungStart();
-        seite = getUrlIo.getUri_Utf(nameSenderMReader, URL_SENDUNGEN, seite, "");
+        seite = getUrlIo.getUri_Utf(SENDERNAME, URL_SENDUNGEN, seite, "");
         int pos = 0;
         int pos1;
         int pos2;
@@ -85,7 +85,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                 listeThemen.addUrl(new String[]{url});
             }
         }
-        seite = getUrlIo.getUri_Utf(nameSenderMReader, URL_TAGE, seite, "");
+        seite = getUrlIo.getUri_Utf(SENDERNAME, URL_TAGE, seite, "");
         pos = 0;
         url = "";
         while ((pos = seite.indexOf(MUSTER_TAGE, pos)) != -1) {
@@ -114,7 +114,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(nameSenderMReader + t);
+                th.setName(SENDERNAME + t);
                 th.start();
             }
         }
@@ -159,7 +159,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             String url;
             String thema;
             try {
-                seite1 = getUrl.getUri_Utf(nameSenderMReader, urlSeite, seite1, "");
+                seite1 = getUrl.getUri_Utf(SENDERNAME, urlSeite, seite1, "");
                 posStop = seite1.indexOf("title=\"Was ist das?\">Empfehlen</a>");
                 while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER_START_1, pos)) != -1) {
                     if (posStop > 0 && pos > posStop) {
@@ -189,7 +189,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
 
         private void addSendugTage(String strUrlFeed, String thema, String urlThema) {
             final String MUSTER_ADD = "http://www.mdr.de/mediathek/fernsehen/";
-            seite5 = getUrl.getUri_Utf(nameSenderMReader, urlThema, seite5, "Thema: " + thema);
+            seite5 = getUrl.getUri_Utf(SENDERNAME, urlThema, seite5, "Thema: " + thema);
             String url = seite5.extract("dataURL:'/mediathek/fernsehen/", "'");
             if (url.equals("")) {
                 MSLog.fehlerMeldung(-701025498, MSLog.FEHLER_ART_MREADER, "MediathekMdr.addSendugTage", new String[]{"keine URL: " + urlThema, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
@@ -211,7 +211,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             String thema = "";
             String url;
             try {
-                seite2 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, seite2, "");
+                seite2 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite2, "");
                 while (!MSConfig.getStop() && (pos = seite2.indexOf(MUSTER_URL, pos)) != -1) {
                     pos += MUSTER_URL.length();
                     pos2 = seite2.indexOf("\"", pos);
@@ -244,7 +244,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             final String MUSTER_XML = "{container:'mediathekStage',dataURL:'/mediathek/fernsehen/a-z";
             final String MUSTER_ADD = "http://www.mdr.de/mediathek/fernsehen/a-z/";
             LinkedList<String> tmpListe = new LinkedList<>();
-            seite3 = getUrl.getUri_Utf(nameSenderMReader, urlThema, seite3, "Thema: " + thema);
+            seite3 = getUrl.getUri_Utf(SENDERNAME, urlThema, seite3, "Thema: " + thema);
             int pos;
             int pos1;
             int pos2;
@@ -303,7 +303,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             String imageUrl;
             int widthAlt;
             try {
-                seite4 = getUrl.getUri_Utf(nameSenderMReader, filmWebsite, seite4, "Thema: " + thema);
+                seite4 = getUrl.getUri_Utf(SENDERNAME, filmWebsite, seite4, "Thema: " + thema);
                 if ((pos = seite4.indexOf(MUSTER_START)) == -1) {
                     MSLog.fehlerMeldung(-903656532, MSLog.FEHLER_ART_MREADER, "MediathekMdr.addXml", filmWebsite);
                     return;
@@ -428,7 +428,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                         //<flashMediaServerURL>mp4:4100mp4dynonl/FCMS-1582b584-bb95-4fd2-94d8-389e10a4e1bd-8442e17c3177.mp4</flashMediaServerURL>
                         if (!existiertSchon(thema, titel, datum, zeit)) {
                             meldung(urlMp4);
-                            DatenFilm film = new DatenFilm(nameSenderMReader, thema, filmWebsite, titel, urlMp4, ""/*rtmpUrl*/, datum, zeit, duration, description,
+                            DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, urlMp4, ""/*rtmpUrl*/, datum, zeit, duration, description,
                                     imageUrl.isEmpty() ? thumbnailUrl : imageUrl, new String[]{});
                             film.addUrlKlein(urlMp4_klein, "");
                             addFilm(film);
