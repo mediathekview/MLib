@@ -78,6 +78,7 @@ public class MSLog {
     }
 
     public static synchronized void startMeldungen(String classname) {
+        startZeit.setTime(System.currentTimeMillis());
         versionsMeldungen(classname);
         MSLog.systemMeldung("##################################################################################");
         MSLog.systemMeldung("Programmpfad: " + MSFunktionen.getPathJar());
