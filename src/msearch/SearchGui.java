@@ -46,6 +46,7 @@ public final class SearchGui extends javax.swing.JFrame {
         if (ar != null && ar.length > 0 && !ar[0].startsWith("-")) {
             pfad = ar[0];
         }
+        MSConfig.debug = true; // ist nur zum Debug
         listeFilme = new ListeFilme();
         filmeLaden = new FilmeLaden();
         if (pfad.isEmpty()) {

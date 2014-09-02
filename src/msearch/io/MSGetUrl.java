@@ -329,7 +329,7 @@ public class MSGetUrl {
                     }
                 } else {
                     // dann wars das
-                    MSLog.fehlerMeldung(956230147, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri",
+                    MSLog.fehlerMeldung(974532107, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri",
                             new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
                 }
             }
