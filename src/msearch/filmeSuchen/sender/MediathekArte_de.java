@@ -73,7 +73,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
-                th.setName(SENDERNAME + t);
+                th.setName(sendername + t);
                 th.start();
             }
         }
@@ -81,10 +81,10 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
 
     private void addConcert() {
         Thread th = new Thread(new ConcertLaden(0, 20));
-        th.setName(SENDERNAME + "Concert-0");
+        th.setName(sendername + "Concert-0");
         th.start();
         th = new Thread(new ConcertLaden(20, 40));
-        th.setName(SENDERNAME + "Concert-1");
+        th.setName(sendername + "Concert-1");
         th.start();
     }
 
@@ -136,7 +136,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                     urlStart = URL_CONCERT;
                 }
                 meldungProgress(urlStart);
-                seite1 = getUrlIo.getUri_Utf(SENDERNAME, urlStart, seite1, "");
+                seite1 = getUrlIo.getUri_Utf(sendername, urlStart, seite1, "");
                 int pos1 = 0;
                 String url, urlWeb, titel, urlHd = "", urlLow = "", urlNormal = "", beschreibung, datum, dauer;
                 while (!MSConfig.getStop() && (pos1 = seite1.indexOf(MUSTER_START, pos1)) != -1) {
@@ -166,7 +166,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                         } else {
                             urlWeb = "http://concert.arte.tv" + url;
                             meldung(urlWeb);
-                            seite2 = getUrlIo.getUri_Utf(SENDERNAME, urlWeb, seite2, "");
+                            seite2 = getUrlIo.getUri_Utf(sendername, urlWeb, seite2, "");
                             // genre: <span class="tag tag-link"><a href="/de/videos/rockpop">rock/pop</a></span> 
                             String genre = seite2.extract("<span class=\"tag tag-link\">", "\">", "<");
                             if (!genre.isEmpty()) {
@@ -176,7 +176,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                             if (url.isEmpty()) {
                                 MSLog.fehlerMeldung(-784512698, MSLog.FEHLER_ART_MREADER, "MediathekARTE.addConcert", "keine URL");
                             } else {
-                                seite2 = getUrlIo.getUri_Utf(SENDERNAME, url, seite2, "");
+                                seite2 = getUrlIo.getUri_Utf(sendername, url, seite2, "");
                                 int p1 = 0;
                                 String a = "\"bitrate\":800";
                                 String b = "\"url\":\"";
@@ -227,7 +227,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                                 if (urlNormal.isEmpty()) {
                                     MSLog.fehlerMeldung(-989562301, MSLog.FEHLER_ART_MREADER, "MediathekARTE.addConcert", "keine URL");
                                 } else {
-                                    DatenFilm film = new DatenFilm(SENDERNAME, THEMA, urlWeb, titel, urlNormal, "" /*urlRtmp*/,
+                                    DatenFilm film = new DatenFilm(sendername, THEMA, urlWeb, titel, urlNormal, "" /*urlRtmp*/,
                                             datum, "" /*zeit*/, duration, beschreibung, ""/*bild*/, new String[]{});
                                     if (!urlHd.isEmpty()) {
                                         film.addUrlHd(urlHd, "");
@@ -278,7 +278,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         final String MUSTER_TITEL = "\"TIT\":\"";
         final String MUSTER_THEMA = "\"GEN\":\"";
         String[] arr;
-        seite1 = getUrlIo.getUri_Utf(SENDERNAME, startUrl, seite1, "");
+        seite1 = getUrlIo.getUri_Utf(sendername, startUrl, seite1, "");
         int posStart = 0, posStop;
         int pos1;
         int pos2;
@@ -401,7 +401,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
             return;
         }
         meldung(arr[0]);
-        seite = getUrlIo.getUri_Utf(SENDERNAME, arr[0], seite, "");
+        seite = getUrlIo.getUri_Utf(sendername, arr[0], seite, "");
         if ((pos1 = seite.indexOf(MUSTER_BILD)) != -1) {
             pos1 += MUSTER_BILD.length();
             if ((pos2 = seite.indexOf("\"", pos1)) != -1) {
@@ -467,7 +467,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
             if (!url.endsWith("EXTRAIT.mp4")) {
                 // http://artestras.vo.llnwxd.net/o35/nogeo/HBBTV/042975-013-B_EXT_SQ_1_VA_00604871_MP4-2200_AMM-HBBTV_EXTRAIT.mp4
                 // sind nur Trailer
-                DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, "" /*urlRtmp*/,
+                DatenFilm film = new DatenFilm(sendername, thema, filmWebsite, titel, url, "" /*urlRtmp*/,
                         datum, zeit, dauer, beschreibung, bild, new String[]{});
                 if (!urlKlein.isEmpty()) {
                     film.addUrlKlein(urlKlein, "");
@@ -478,14 +478,14 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                 addFilm(film);
             }
         } else if (!urlKlein.isEmpty()) {
-            DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, urlKlein, "" /*urlRtmp*/,
+            DatenFilm film = new DatenFilm(sendername, thema, filmWebsite, titel, urlKlein, "" /*urlRtmp*/,
                     datum, zeit, dauer, beschreibung, bild, new String[]{});
             if (!urlHd.isEmpty()) {
                 film.addUrlHd(urlHd, "");
             }
             addFilm(film);
         } else if (!urlHd.isEmpty()) {
-            DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, urlHd, "" /*urlRtmp*/,
+            DatenFilm film = new DatenFilm(sendername, thema, filmWebsite, titel, urlHd, "" /*urlRtmp*/,
                     datum, zeit, dauer, beschreibung, bild, new String[]{});
             addFilm(film);
         } else {
