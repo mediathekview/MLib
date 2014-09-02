@@ -181,6 +181,7 @@ public class MSFilmlisteLesen {
         }
     }
 
+    @SuppressWarnings("NullableProblems")
     private class SizeInputStream extends InputStream {
 
         // The number of bytes that can be read from the InputStream
@@ -199,8 +200,13 @@ public class MSFilmlisteLesen {
         }
 
         @Override
-        public int available() {
-            return (int) (size - bytesRead);
+        public void close() throws IOException {
+            in.close();
+        }
+
+        @Override
+        public int available() throws IOException {
+            return in.available();
         }
 
         @Override
