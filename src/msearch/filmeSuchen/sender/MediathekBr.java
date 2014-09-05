@@ -247,69 +247,6 @@ public class MediathekBr extends MediathekReader implements Runnable {
             } else {
                 urlXml = "http://www.br.de" + urlXml;
                 loadXml(seiteXml, urlXml, urlThema, thema, titel, description, datum, zeit);
-
-////                seiteXml = getUrlIo.getUri_Utf(SENDERNAME, urlXml, seiteXml, "");
-////
-////                try {
-////                    //<duration>00:03:07</duration>
-////                    dauer = seiteXml.extract("<duration>", "<");
-////                    if (!dauer.equals("")) {
-////                        String[] parts = dauer.split(":");
-////                        duration = 0;
-////                        long power = 1;
-////                        for (int i = parts.length - 1; i >= 0; i--) {
-////                            duration += Long.parseLong(parts[i]) * power;
-////                            power *= 60;
-////                        }
-////                    }
-////                } catch (NumberFormatException ex) {
-////                    MSLog.fehlerMeldung(-735216703, MSLog.FEHLER_ART_MREADER, "MediathekBr.laden", ex, urlThema);
-////                }
-////                //<asset type="STANDARD">
-////                //<asset type="LARGE">
-////                //<asset type="PREMIUM">
-////                //<readableSize>40 MB</readableSize>
-////                //<downloadUrl>http://cdn-storage.br.de/MUJIuUOVBwQIbtC2uKJDM6OhuLnC_2rc_H1S/_AiS/_yb69Ab6/3325d7de-b41b-49cc-8684-eb957219a070_C.mp4</downloadUrl>
-////                // oder
-////                //<serverPrefix>rtmp://cdn-vod-fc.br.de/ondemand/</serverPrefix>
-////                //<fileName>mp4:MUJIuUOVBwQIbtC2uKJDM6OhuLnC_2rc_H1S/_AiS/_yb69Ab6/3325d7de-b41b-49cc-8684-eb957219a070_B.mp4</fileName>
-////
-////                String urlVerySmall = getVerySmallUrl(seiteXml);
-////                String urlSmall = getSmallUrl(seiteXml);
-////                String urlNormal = getNormalUrl(seiteXml);
-////                String urlHd = getHDUrl(seiteXml);
-////                //public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
-////                //String datum, String zeit,
-////                //long dauerSekunden, String description, String imageUrl, String[] keywords) {
-////                if (urlNormal.isEmpty()) {
-////                    if (!urlSmall.isEmpty()) {
-////                        urlNormal = urlSmall;
-////                        urlSmall = "";
-////                    } else if (!urlVerySmall.isEmpty()) {
-////                        urlNormal = urlVerySmall;
-////                        urlVerySmall = "";
-////                    }
-////                }
-////                if (urlSmall.isEmpty()) {
-////                    if (!urlVerySmall.isEmpty()) {
-////                        urlSmall = urlVerySmall;
-////                    }
-////                }
-////                if (!urlNormal.isEmpty()) {
-////                    DatenFilm film = new DatenFilm(SENDERNAME, thema, urlThema, titel, urlNormal, "" /*urlRtmp*/,
-////                            datum, zeit,
-////                            duration, description, imageUrl, new String[]{});
-////                    if (!urlSmall.isEmpty()) {
-////                        film.addUrlKlein(urlSmall, "");
-////                    }
-////                    if (!urlHd.isEmpty()) {
-////                        film.addUrlHd(urlHd, "");
-////                    }
-////                    addFilm(film);
-////                    meldung(film.arr[DatenFilm.FILM_URL_NR]);
-////                } else {
-////                    MSLog.fehlerMeldung(-612136978, MSLog.FEHLER_ART_MREADER, "MediathekBr.laden", "keine URL: " + urlXml);
-////                }
             }
             if (!weitersuchen) {
                 return;
@@ -319,6 +256,11 @@ public class MediathekBr extends MediathekReader implements Runnable {
             // <a href="/mediathek/video/sendungen/abendschau/der-grosse-max-spionageabwehr-100.html" class="teaser link_video contenttype_podcast der-grosse-max-spionageabwehr-100" title="zur Detailseite">
             int pos1, count = 0;
             int max = (MSConfig.senderAllesLaden ? 20 : 0);
+            final String STOP = "<h3>Besucher, die dieses Video angesehen haben, sahen auch</h3>";
+            int stop = seite.indexOf(STOP);
+            if (stop < 0) {
+                System.out.println("Test");
+            }
             if (max > 0) {
                 // einzelne Themen verlängern
                 if (urlThema.equals("http://www.br.de/mediathek/video/sendungen/spielfilme-im-br/spielfilme-im-br110.html")
@@ -326,18 +268,25 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     max = 60;
                 }
                 // dann mit der ganzen Seite arbeiten
-                String u = seite.extract("<a class=\"button large\" href=\"", "\"");
+                String u = seite.extract("<a class=\"button large\" href=\"", "\"", 0, stop);
                 if (!u.isEmpty()) {
                     u = "http://www.br.de" + u;
                     seite3 = getUrlIo.getUri_Utf(SENDERNAME, u, seite, "");
                     if (seite3.length() != 0) {
                         seite = seite3;
+                        stop = seite.indexOf(STOP);
+                        if (stop < 0) {
+                            System.out.println("Test");
+                        }
                     }
                 }
             }
             final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
             if ((pos1 = seite.indexOf("<h3>Mehr von <strong>")) != -1) {
                 while (!MSConfig.getStop() && (pos1 = seite.indexOf(MUSTER_URL, pos1)) != -1) {
+                    if (pos1 > stop) {
+                        break;
+                    }
                     String urlWeiter = seite.extract(MUSTER_URL, "\"", pos1);
                     pos1 += MUSTER_URL.length();
                     if (!urlWeiter.isEmpty()) {

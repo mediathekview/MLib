@@ -365,19 +365,19 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // ZDF
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDERNAME + " " + THEMA_LIVE,
-                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de14_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                "http://zdf_hds_de-f.akamaihd.net/i/de14_v1@147090/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDERNAME + ".info " + THEMA_LIVE,
-                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de12_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                "http://zdf_hds_de-f.akamaihd.net/i/de12_v1@87013/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDERNAME + ".kultur " + THEMA_LIVE,
-                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de11_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                "http://zdf_hds_de-f.akamaihd.net/i/de11_v1@87013/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDERNAME + ".neo " + THEMA_LIVE,
-                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/de13_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                "http://zdf_hds_de-f.akamaihd.net/i/de13_v1@147090/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
         addFilmVomSender(new DatenFilm(MediathekZdf.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
                 MediathekZdf.SENDERNAME + ".heute " + THEMA_LIVE,
-                "rtsp://3gp-livestreaming1.zdf.de/liveedge2/none01_v1_710.sdp", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+                "http://zdf_hds_ng-f.akamaihd.net/i/none01_v1@87014/master.m3u8?dw=0", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
 
         addFilmVomSender(new DatenFilm(MediathekKika.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
                 MediathekKika.SENDERNAME + " " + THEMA_LIVE,
