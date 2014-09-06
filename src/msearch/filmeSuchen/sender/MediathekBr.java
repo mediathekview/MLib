@@ -357,7 +357,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 return;
             }
             String urlXml;
-            final String thema = "BR-KLASSIK";
+            final String thema = "BR-Klassik";
             String datum;
             String zeit = "";
             String description1, description2;

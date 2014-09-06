@@ -32,6 +32,7 @@ import java.util.SimpleTimeZone;
 import java.util.TreeSet;
 import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
+import msearch.filmeSuchen.sender.MediathekBr;
 import msearch.filmeSuchen.sender.MediathekKika;
 import msearch.filmeSuchen.sender.MediathekNdr;
 import msearch.filmeSuchen.sender.MediathekRbb;
@@ -171,6 +172,35 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             }
         }
         hash.clear();
+    }
+
+    public void cleanList() {
+        // für den BR: alle Filme mit Thema "BR" die es auch in einem anderen Thema gibt löschen
+        int count = 0;
+        MSLog.systemMeldung("cleanList start: " + sdf.format(System.currentTimeMillis()));
+        ListeFilme tmp = new ListeFilme();
+        for (DatenFilm datenFilm : this) {
+            if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekBr.SENDERNAME)) {
+                if (datenFilm.arr[DatenFilm.FILM_THEMA_NR].equals(MediathekBr.SENDERNAME)) {
+                    tmp.add(datenFilm);
+                }
+            }
+        }
+        for (DatenFilm tFilm : tmp) {
+            for (DatenFilm datenFilm : this) {
+                if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekBr.SENDERNAME)) {
+                    if (!datenFilm.arr[DatenFilm.FILM_THEMA_NR].equals(MediathekBr.SENDERNAME)) {
+                        if (datenFilm.arr[DatenFilm.FILM_URL_NR].equals(tFilm.arr[DatenFilm.FILM_URL_NR])) {
+                            this.remove(tFilm);
+                            ++count;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        MSLog.systemMeldung("cleanList stop: " + sdf.format(System.currentTimeMillis()));
+        MSLog.systemMeldung("cleanList count: " + count);
     }
 
     public synchronized boolean importFilmliste(DatenFilm film) {
