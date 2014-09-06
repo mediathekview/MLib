@@ -53,16 +53,50 @@ public class MediathekBr extends MediathekReader implements Runnable {
 
     @Override
     void addToList() {
+        if (MSConfig.senderAllesLaden) {
+            maxThreadLaufen = 8;
+        }
+        meldungStart();
+        getTheman(); // Themen suchen
+        getTage(); // Programm der letzten Tage absuchen
+        if (MSConfig.senderAllesLaden) {
+            // Archiv durchsuchen
+            Thread thArchiv;
+            thArchiv = new Thread(new ArchivLaden(1, 100));
+            thArchiv.setName(SENDERNAME);
+            thArchiv.start();
+            thArchiv = new Thread(new ArchivLaden(101, 200));
+            thArchiv.setName(SENDERNAME);
+            thArchiv.start();
+            thArchiv = new Thread(new ArchivLaden(201, 300));
+            thArchiv.setName(SENDERNAME);
+            thArchiv.start();
+            thArchiv = new Thread(new ArchivLaden(301, 400));
+            thArchiv.setName(SENDERNAME);
+            thArchiv.start();
+        }
+        new Thread(new KlassikLaden(), SENDERNAME).start(); // Klassik braucht auch eine einzelbehandlung
+        if (MSConfig.getStop()) {
+            meldungThreadUndFertig();
+        } else if (listeThemen.isEmpty() && listeTage.isEmpty()) {
+            meldungThreadUndFertig();
+        } else {
+            meldungAddMax(listeThemen.size() + listeTage.size());
+            for (int t = 0; t < maxThreadLaufen; ++t) {
+                Thread th = new Thread(new ThemaLaden());
+                th.setName(SENDERNAME + t);
+                th.start();
+            }
+        }
+    }
+
+    private void getTheman() {
         final String ADRESSE = "http://www.br.de/mediathek/video/sendungen/index.html";
         final String MUSTER_URL = "<a href=\"/mediathek/video/";
         final String MUSTER_URL_1 = "sendungen/";
         final String MUSTER_URL_2 = "video/";
-        if (MSConfig.senderAllesLaden) {
-            maxThreadLaufen = 8;
-        }
         listeThemen.clear();
         MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        meldungStart();
         seite = getUrlIo.getUri_Utf(SENDERNAME, ADRESSE, seite, "");
         int pos1 = 0;
         int pos2;
@@ -98,34 +132,6 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 } catch (Exception ex) {
                     MSLog.fehlerMeldung(-821213698, MSLog.FEHLER_ART_MREADER, this.getClass().getSimpleName(), ex);
                 }
-            }
-        }
-        getTage();
-        if (MSConfig.senderAllesLaden) {
-            Thread thArchiv;
-            thArchiv = new Thread(new ArchivLaden(1, 100));
-            thArchiv.setName(SENDERNAME);
-            thArchiv.start();
-            thArchiv = new Thread(new ArchivLaden(101, 200));
-            thArchiv.setName(SENDERNAME);
-            thArchiv.start();
-            thArchiv = new Thread(new ArchivLaden(201, 300));
-            thArchiv.setName(SENDERNAME);
-            thArchiv.start();
-            thArchiv = new Thread(new ArchivLaden(301, 400));
-            thArchiv.setName(SENDERNAME);
-            thArchiv.start();
-        }
-        if (MSConfig.getStop()) {
-            meldungThreadUndFertig();
-        } else if (listeThemen.isEmpty() && listeTage.isEmpty()) {
-            meldungThreadUndFertig();
-        } else {
-            meldungAddMax(listeThemen.size() + listeTage.size());
-            for (int t = 0; t < maxThreadLaufen; ++t) {
-                Thread th = new Thread(new ThemaLaden());
-                th.setName(SENDERNAME + t);
-                th.start();
             }
         }
     }
@@ -300,6 +306,114 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     }
                 }
             }
+        }
+
+        private String convertDatum(String datum) {
+            //<time class="start" datetime="2013-11-08T18:00:00+01:00">08.11.2013, 18:00 Uhr</time>
+            try {
+                Date filmDate = sdf.parse(datum);
+                datum = sdfOutDay.format(filmDate);
+            } catch (ParseException ex) {
+                MSLog.fehlerMeldung(-915364789, MSLog.FEHLER_ART_PROG, "MediathekBr.convertDatum: " + datum, ex);
+            }
+            return datum;
+        }
+
+        private String convertTime(String zeit) {
+            //<time class="start" datetime="2013-11-08T18:00:00+01:00">08.11.2013, 18:00 Uhr</time>
+            try {
+                Date filmDate = sdf.parse(zeit);
+                zeit = sdfOutTime.format(filmDate);
+            } catch (ParseException ex) {
+                MSLog.fehlerMeldung(-312154879, MSLog.FEHLER_ART_PROG, "MediathekBr.convertTime: " + zeit, ex);
+            }
+            return zeit;
+        }
+    }
+
+    private class KlassikLaden implements Runnable {
+
+        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
+        private final MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder seiteXml = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+
+        @Override
+        public synchronized void run() {
+            try {
+                meldungAddThread();
+                laden();
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(-954123458, MSLog.FEHLER_ART_MREADER, "MediathekBr.KlassikLaden.run", ex);
+            }
+            meldungThreadUndFertig();
+        }
+
+        void laden() {
+            MSStringBuilder seite = seite1;
+            getUrlIo.getUri_Utf(SENDERNAME, "http://www.br.de/mediathek/video/br-klassik-mediathek-100.html", seite, "");
+            if (seite.length() == 0) {
+                return;
+            }
+            String urlXml;
+            final String thema = "BR-KLASSIK";
+            String datum;
+            String zeit = "";
+            String description1, description2;
+            String titel;
+
+            String u = seite.extract("<a class=\"button large\" href=\"", "\"");
+            if (!u.isEmpty()) {
+                u = "http://www.br.de" + u;
+                getUrlIo.getUri_Utf(SENDERNAME, u, seite2, "");
+                if (seite2.length() != 0) {
+                    seite = seite2;
+                }
+            }
+
+            ArrayList<String> result = new ArrayList<>();
+            seite.extractList("<h2 id=\"inhalt\" class=\"hidden\">Inhalt</h2>" /*abMuster*/,
+                    "<div class=\"teaserBundleMore\">" /*bisMuster*/,
+                    "<a href=\"/mediathek/video/" /*musterStart*/, "\"" /*musterEnde*/,
+                    "http://www.br.de/mediathek/video/"/*addUrl*/, result);
+            meldungAddMax(result.size());
+            int count = 0;
+            for (String url : result) {
+                if (MSConfig.getStop()) {
+                    break;
+                }
+                if (!MSConfig.senderAllesLaden) {
+                    ++count;
+                    if (count > 20) {
+                        break;
+                    }
+                }
+                meldungProgress(url);
+                getUrlIo.getUri_Utf(SENDERNAME, url, seite3, url);
+                titel = seite3.extract("<h3>", "<"); //<h3>U21-VERNETZT</h3>
+                datum = seite3.extract("<time class=\"start\" datetime=\"", ">", "<");
+                datum = datum.replace("Uhr", "").trim();
+                if (!datum.isEmpty()) {
+                    zeit = convertTime(datum);
+                    datum = convertDatum(datum);
+                }
+                description1 = seite3.extract("<li class=\"title\">", "<");
+                description1 += "\n";
+                description2 = seite3.extract("<div class=\"bcastContent\">", "</p>");
+                description2 = description2.replaceFirst("\n", "");
+                description2 = description2.replaceFirst("<p>", "");
+                description2 = description2.replaceAll("<br/>", "\n");
+
+                urlXml = seite3.extract("{dataURL:'", "'");
+                if (urlXml.isEmpty()) {
+                    MSLog.fehlerMeldung(-815263987, MSLog.FEHLER_ART_MREADER, "MediathekBr.KlassikLaden", "keine URL: " + url);
+                } else {
+                    urlXml = "http://www.br.de" + urlXml;
+                    loadXml(seiteXml, urlXml, url, thema, titel, description1 + description2, datum, zeit);
+                }
+            }
+
         }
 
         private String convertDatum(String datum) {
