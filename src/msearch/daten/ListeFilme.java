@@ -176,6 +176,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
     public void cleanList() {
         // für den BR: alle Filme mit Thema "BR" die es auch in einem anderen Thema gibt löschen
+        // wird vorerst nicht verwendet: findet nur ~200 Filme von über 3000
         int count = 0;
         MSLog.systemMeldung("cleanList start: " + sdf.format(System.currentTimeMillis()));
         ListeFilme tmp = new ListeFilme();
