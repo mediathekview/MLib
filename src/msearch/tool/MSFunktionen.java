@@ -144,6 +144,7 @@ public class MSFunktionen {
         // Beschreibung
         film.arr[DatenFilm.FILM_BESCHREIBUNG_NR] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR].trim());
         film.arr[DatenFilm.FILM_BESCHREIBUNG_NR] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR].trim());
+        film.arr[DatenFilm.FILM_BESCHREIBUNG_NR] = removeHtml(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR]);
 
         // Titel
         film.arr[DatenFilm.FILM_TITEL_NR] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_TITEL_NR].trim());
@@ -320,6 +321,10 @@ public class MSFunktionen {
             MSLog.fehlerMeldung(395019631, MSLog.FEHLER_ART_PROG, "GuiFunktionen.getDateiName", pfad);
         }
         return ret;
+    }
+
+    public static String removeHtml(String in) {
+        return in.replaceAll("\\<.*?>", "");
     }
 
 //    public static String getDateiSuffix(String pfad) {

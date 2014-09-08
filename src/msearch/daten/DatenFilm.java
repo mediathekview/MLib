@@ -185,9 +185,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         checkDatum(datum, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
         checkZeit(arr[FILM_DATUM_NR], zeit, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
         arr[FILM_BESCHREIBUNG_NR] = cleanDescription(description, tthema, ttitel);
-        arr[FILM_IMAGE_URL_NR] = imageUrl;
-//        // Schlüsselwörter
-//        arr[FILM_KEYWORDS_NR] = keywordsToString(keywords);
+        arr[FILM_IMAGE_URL_NR] = ""; // zur Sicherheit: http://sourceforge.net/apps/phpbb/zdfmediathk/viewtopic.php?f=1&t=1111
+
         // Filmlänge
         if (dauerSekunden <= 0 || dauerSekunden > 3600 * 5 /* Werte über 5 Stunden */) {
             arr[FILM_DAUER_NR] = "";
@@ -370,8 +369,22 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     public void init() {
         try {
+            //================================
+            // Speicher sparen
+            if (arr[DatenFilm.FILM_GROESSE_NR].length() < 3) {
+                arr[DatenFilm.FILM_GROESSE_NR] = arr[DatenFilm.FILM_GROESSE_NR].intern();
+            }
+            if (arr[DatenFilm.FILM_URL_KLEIN_NR].length() < 15) {
+                arr[DatenFilm.FILM_URL_KLEIN_NR] = arr[DatenFilm.FILM_URL_KLEIN_NR].intern();
+            }
+            arr[DatenFilm.FILM_DATUM_NR] = arr[DatenFilm.FILM_DATUM_NR].intern();
+            arr[DatenFilm.FILM_ZEIT_NR] = arr[DatenFilm.FILM_ZEIT_NR].intern();
+
+            //================================
             // Dateigröße
             dateigroesseL = new MSLong(this);
+
+            //================================
             // Filmdauer
             try {
                 if (!this.arr[DatenFilm.FILM_DAUER_NR].contains(":") && !this.arr[DatenFilm.FILM_DAUER_NR].isEmpty()) {
@@ -403,6 +416,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 dauerL = 0;
                 MSLog.fehlerMeldung(468912049, MSLog.FEHLER_ART_PROG, "DatenFilm.init", "Dauer: " + this.arr[DatenFilm.FILM_DAUER_NR]);
             }
+
+            //================================
             // Datum
             if (!arr[DatenFilm.FILM_DATUM_NR].isEmpty()) {
                 // nur dann gibts ein Datum

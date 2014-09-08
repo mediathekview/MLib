@@ -69,20 +69,20 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public String[][] themenPerSender = {{""}};
     public boolean neueFilme = false;
 
-    public ListeFilme() {
+    public synchronized boolean importFilmliste(DatenFilm film) {
+        // hier nur beim Laden aus einer fertigen Filmliste mit der GUI
+        // die Filme sind schon sortiert, nur die Nummer muss noch ergänzt werden
+        film.nr = nr++;
+        return addInit(film);
     }
 
-    //===================================
-    // public
-    //===================================
     public synchronized boolean addFilmVomSender(DatenFilm film) {
-        // Filme die beim Sender gesucht wurden (und nur die) hier eintragen
-        // nur für die MediathekReader
-        // ist eine URL,Sender,Thema,Titel schon vorhanden, wird sie verworfen, 
-        // der aktuellste Film (werden von jetzt in die Vergangenheit gesucht) bleibt erhalten
+        // Filme die beim Sender gesucht wurden (und nur die) hier eintragen, nur für die MediathekReader!!
+        // ist: "Sender-Thema-URL" schon vorhanden, wird sie verworfen
+
         MSFunktionen.unescape(film);
-        // zur Sicherheit: http://sourceforge.net/apps/phpbb/zdfmediathk/viewtopic.php?f=1&t=1111
-        film.arr[DatenFilm.FILM_IMAGE_URL_NR] = "";
+        film.arr[DatenFilm.FILM_IMAGE_URL_NR] = ""; // zur Sicherheit: http://sourceforge.net/apps/phpbb/zdfmediathk/viewtopic.php?f=1&t=1111
+
         // erst mal schauen obs das schon gibt
         DatenFilm f;
         String idx = film.getIndex();
@@ -173,6 +173,18 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         hash.clear();
     }
 
+    private boolean addInit(DatenFilm film) {
+        film.init();
+        return add(film);
+    }
+
+    @Override
+    public synchronized void clear() {
+        nr = 1;
+        neueFilme = false;
+        super.clear();
+    }
+
     public void cleanList() {
         // für den BR: alle Filme mit Thema "BR" die es auch in einem anderen Thema gibt löschen
         // wird vorerst nicht verwendet: findet nur ~200 Filme von über 3000
@@ -203,42 +215,31 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         MSLog.systemMeldung("cleanList count: " + count);
     }
 
-    public synchronized boolean importFilmliste(DatenFilm film) {
-        // hier nur beim Laden aus einer fertigen Filmliste 
-        // die Filme einsortieren, es werden alle Filme einsortiert
-        film.nr = nr++;
-        return addInit(film);
-    }
-
-    private boolean addInit(DatenFilm film) {
-        if (film.arr[DatenFilm.FILM_GROESSE_NR].length() < 3) {
-            film.arr[DatenFilm.FILM_GROESSE_NR] = film.arr[DatenFilm.FILM_GROESSE_NR].intern();
-        }
-        film.init();
-        return add(film);
-    }
-
-    @Override
-    public synchronized boolean add(DatenFilm film) {
-        if (film.arr[DatenFilm.FILM_URL_KLEIN_NR].length() < 15) {
-            film.arr[DatenFilm.FILM_URL_KLEIN_NR] = film.arr[DatenFilm.FILM_URL_KLEIN_NR].intern();
-        }
-        film.arr[DatenFilm.FILM_DATUM_NR] = film.arr[DatenFilm.FILM_DATUM_NR].intern();
-        film.arr[DatenFilm.FILM_ZEIT_NR] = film.arr[DatenFilm.FILM_ZEIT_NR].intern();
-        return super.add(film);
-    }
-
-    @Override
-    public synchronized void clear() {
-        nr = 1;
-        neueFilme = false;
-        super.clear();
-    }
-
     public synchronized void check() {
         for (DatenFilm film : this) {
             film.arr[DatenFilm.FILM_THEMA_NR] = MSFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
             film.arr[DatenFilm.FILM_TITEL_NR] = MSFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
+            String s = film.arr[DatenFilm.FILM_BESCHREIBUNG_NR];
+            film.arr[DatenFilm.FILM_BESCHREIBUNG_NR] = MSFunktionen.removeHtml(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR]);
+            if (!s.equals(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR])) {
+                System.out.println("---------------------");
+                System.out.println(s);
+                System.out.println(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR]);
+            }
+            s = film.arr[DatenFilm.FILM_THEMA_NR];
+            film.arr[DatenFilm.FILM_THEMA_NR] = MSFunktionen.removeHtml(film.arr[DatenFilm.FILM_THEMA_NR]);
+            if (!s.equals(film.arr[DatenFilm.FILM_THEMA_NR])) {
+                System.out.println("---------------------");
+                System.out.println(s);
+                System.out.println(film.arr[DatenFilm.FILM_THEMA_NR]);
+            }
+            s = film.arr[DatenFilm.FILM_TITEL_NR];
+            film.arr[DatenFilm.FILM_TITEL_NR] = MSFunktionen.removeHtml(film.arr[DatenFilm.FILM_TITEL_NR]);
+            if (!s.equals(film.arr[DatenFilm.FILM_TITEL_NR])) {
+                System.out.println("---------------------");
+                System.out.println(s);
+                System.out.println(film.arr[DatenFilm.FILM_TITEL_NR]);
+            }
             if (film.arr[DatenFilm.FILM_URL_NR].contains(" ")) {
                 System.out.println(film.arr[DatenFilm.FILM_URL_NR]);
             }
@@ -359,7 +360,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 ret++;
             }
         }
-
         return ret;
     }
 
