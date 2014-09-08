@@ -40,7 +40,6 @@ import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.tool.MSConst;
 import msearch.tool.MSFunktionen;
-import msearch.tool.MSGuiFunktionen;
 import msearch.tool.MSLog;
 import msearch.tool.MSUrlDateiGroesse;
 
@@ -238,8 +237,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
     public synchronized void check() {
         for (DatenFilm film : this) {
-            film.arr[DatenFilm.FILM_THEMA_NR] = MSGuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
-            film.arr[DatenFilm.FILM_TITEL_NR] = MSGuiFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
+            film.arr[DatenFilm.FILM_THEMA_NR] = MSFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
+            film.arr[DatenFilm.FILM_TITEL_NR] = MSFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
             if (film.arr[DatenFilm.FILM_URL_NR].contains(" ")) {
                 System.out.println(film.arr[DatenFilm.FILM_URL_NR]);
             }

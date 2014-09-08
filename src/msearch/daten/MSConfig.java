@@ -21,7 +21,7 @@ package msearch.daten;
 
 import msearch.tool.DatumZeit;
 import msearch.tool.MSConst;
-import msearch.tool.MSGuiFunktionen;
+import msearch.tool.MSFunktionen;
 
 public class MSConfig {
 
@@ -82,34 +82,34 @@ public class MSConfig {
      }*/
     public static String getPathFilmlist_json_akt(boolean aktDate) {
         if (aktDate) {
-            return MSGuiFunktionen.addsPfad(dirFilme, DatumZeit.getJetzt_yyyy_MM_dd__HH_mm_ss() + "__" + nameAktFilmlist);
+            return MSFunktionen.addsPfad(dirFilme, DatumZeit.getJetzt_yyyy_MM_dd__HH_mm_ss() + "__" + nameAktFilmlist);
         } else {
-            return MSGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist);
+            return MSFunktionen.addsPfad(dirFilme, nameAktFilmlist);
         }
     }
 
     public static String getPathFilmlist_json_akt_xz() {
-        return MSGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist_xz);
+        return MSFunktionen.addsPfad(dirFilme, nameAktFilmlist_xz);
     }
 
     public static String getPathFilmlist_xml_bz2() {
-        return MSGuiFunktionen.addsPfad(dirFilme, nameAktFilmlist_bz2);
+        return MSFunktionen.addsPfad(dirFilme, nameAktFilmlist_bz2);
     }
 
     public static String getPathFilmlist_json_org() {
-        return MSGuiFunktionen.addsPfad(dirFilme, nameOrgFilmlist);
+        return MSFunktionen.addsPfad(dirFilme, nameOrgFilmlist);
     }
 
     public static String getPathFilmlist_json_org_xz() {
-        return MSGuiFunktionen.addsPfad(dirFilme, nameOrgFilmlist_xz);
+        return MSFunktionen.addsPfad(dirFilme, nameOrgFilmlist_xz);
     }
 
     public static String getPathFilmlist_json_diff() {
-        return MSGuiFunktionen.addsPfad(dirFilme, nameDiffFilmlist);
+        return MSFunktionen.addsPfad(dirFilme, nameDiffFilmlist);
     }
 
     public static String getPathFilmlist_json_diff_xz() {
-        return MSGuiFunktionen.addsPfad(dirFilme, nameDiffFilmlist_xz);
+        return MSFunktionen.addsPfad(dirFilme, nameDiffFilmlist_xz);
     }
 
     /**

@@ -36,7 +36,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import msearch.daten.MSConfig;
 import msearch.tool.MSConst;
-import msearch.tool.MSGuiFunktionen;
+import msearch.tool.MSFunktionen;
 import msearch.tool.MSLog;
 
 public class MSFilmlistenSuchen {
@@ -138,7 +138,7 @@ public class MSFilmlistenSuchen {
             inFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
             XMLStreamReader parser;
             InputStreamReader inReader;
-            if (MSGuiFunktionen.istUrl(dateiUrl)) {
+            if (MSFunktionen.istUrl(dateiUrl)) {
                 // eine URL verarbeiten
                 int timeout = 20000; //ms
                 URLConnection conn;

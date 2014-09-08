@@ -27,7 +27,7 @@ import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.io.MSGetUrl;
 import msearch.tool.MSConst;
-import msearch.tool.MSGuiFunktionen;
+import msearch.tool.MSFunktionen;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
 
@@ -339,7 +339,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
         private String getDate(String url) {
             String ret = "";
             try {
-                String tmp = MSGuiFunktionen.getDateiName(url);
+                String tmp = MSFunktionen.getDateiName(url);
                 if (tmp.length() > 8) {
                     tmp = tmp.substring(0, 8);
                     SimpleDateFormat sdfIn = new SimpleDateFormat("yyyyMMdd");

@@ -39,7 +39,7 @@ import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import msearch.tool.DatumZeit;
 import msearch.tool.MSConst;
-import msearch.tool.MSGuiFunktionen;
+import msearch.tool.MSFunktionen;
 import msearch.tool.MSLog;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.tukaani.xz.XZInputStream;
@@ -64,7 +64,7 @@ public class MSFilmlisteLesen_old {
         // Download, Lesen, in Datei schreiben
         boolean ret = false;
         File tmpFile = null;
-        boolean isUrl = MSGuiFunktionen.istUrl(srcFileUrl);
+        boolean isUrl = MSFunktionen.istUrl(srcFileUrl);
         quelle = srcFileUrl;
         try {
             this.notifyStart(quelle, 100); // für den Downlaod/das Laden der Datei
