@@ -264,9 +264,6 @@ public class MediathekBr extends MediathekReader implements Runnable {
             int max = (MSConfig.senderAllesLaden ? 20 : 0);
             final String STOP = "<h3>Besucher, die dieses Video angesehen haben, sahen auch</h3>";
             int stop = seite.indexOf(STOP);
-            if (stop < 0) {
-                System.out.println("Test");
-            }
             if (max > 0) {
                 // einzelne Themen verlängern
                 if (urlThema.equals("http://www.br.de/mediathek/video/sendungen/spielfilme-im-br/spielfilme-im-br110.html")
@@ -281,16 +278,13 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     if (seite3.length() != 0) {
                         seite = seite3;
                         stop = seite.indexOf(STOP);
-                        if (stop < 0) {
-                            System.out.println("Test");
-                        }
                     }
                 }
             }
             final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
             if ((pos1 = seite.indexOf("<h3>Mehr von <strong>")) != -1) {
                 while (!MSConfig.getStop() && (pos1 = seite.indexOf(MUSTER_URL, pos1)) != -1) {
-                    if (pos1 > stop) {
+                    if (stop > 0 && pos1 > stop) {
                         break;
                     }
                     String urlWeiter = seite.extract(MUSTER_URL, "\"", pos1);

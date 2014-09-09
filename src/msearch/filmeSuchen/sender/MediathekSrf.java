@@ -334,7 +334,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 if (date != null) {
                     DateFormat dfDayMonthYear = new SimpleDateFormat("dd.MM.yyyy");
                     date_str = dfDayMonthYear.format(date);
-                    dfDayMonthYear = new SimpleDateFormat("hh:mm:ss");
+                    dfDayMonthYear = new SimpleDateFormat("HH:mm:ss");
                     time = dfDayMonthYear.format(date);
                 }
 
