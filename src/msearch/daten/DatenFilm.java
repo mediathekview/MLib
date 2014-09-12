@@ -171,6 +171,18 @@ public class DatenFilm implements Comparable<DatenFilm> {
         dateigroesseL = new MSLong(0); // Dateigröße in MByte
     }
 
+/*    public int getFilmSize() {
+        int res;
+        try {
+            res = Integer.parseInt(arr[DatenFilm.FILM_GROESSE_NR]);
+        }
+        catch (NumberFormatException ex) {
+            res = -1;
+        }
+
+        return res;
+    }*/
+
     public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
             String datum, String zeit,
             long dauerSekunden, String description, String imageUrl, String[] keywords) {
