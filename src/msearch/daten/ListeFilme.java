@@ -32,10 +32,13 @@ import java.util.SimpleTimeZone;
 import java.util.TreeSet;
 import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
+import msearch.filmeSuchen.sender.MediathekArte_de;
 import msearch.filmeSuchen.sender.MediathekBr;
 import msearch.filmeSuchen.sender.MediathekKika;
+import msearch.filmeSuchen.sender.MediathekMdr;
 import msearch.filmeSuchen.sender.MediathekNdr;
 import msearch.filmeSuchen.sender.MediathekRbb;
+import msearch.filmeSuchen.sender.MediathekSwr;
 import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.tool.MSConst;
@@ -380,48 +383,39 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
     public synchronized void liveStreamEintragen() {
-        // Live-Stream eintragen
-        //DatenFilm(Daten ddaten, String ssender, String tthema, String urlThema, String ttitel, String uurl, String datum, String zeit) {
-        addFilmVomSender(new DatenFilm(MediathekNdr.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
-                MediathekNdr.SENDERNAME + " " + THEMA_LIVE,
-                "http://ndr_fs-lh.akamaihd.net/i/ndrfs_nds@119224/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
-        addFilmVomSender(new DatenFilm(MediathekWdr.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
-                MediathekWdr.SENDERNAME + " " + THEMA_LIVE,
-                "rtsp://rtspgen.api.core-cdn.net/10177xwdrsw04/sw04_ww_webl", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
-        // die neuen Livestreams ARD
-        addFilmVomSender(new DatenFilm(MediathekArd.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
-                MediathekArd.SENDERNAME + " Tagesschau " + THEMA_LIVE,
-                "http://tagesschau-lh.akamaihd.net/i/tagesschau_1@119231/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
-        // ZDF
-        addFilmVomSender(new DatenFilm(MediathekZdf.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
-                MediathekZdf.SENDERNAME + " " + THEMA_LIVE,
-                "http://zdf_hds_de-f.akamaihd.net/i/de14_v1@147090/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
-        addFilmVomSender(new DatenFilm(MediathekZdf.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
-                MediathekZdf.SENDERNAME + ".info " + THEMA_LIVE,
-                "http://zdf_hds_de-f.akamaihd.net/i/de12_v1@87013/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
-        addFilmVomSender(new DatenFilm(MediathekZdf.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
-                MediathekZdf.SENDERNAME + ".kultur " + THEMA_LIVE,
-                "http://zdf_hds_de-f.akamaihd.net/i/de11_v1@87013/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
-        addFilmVomSender(new DatenFilm(MediathekZdf.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
-                MediathekZdf.SENDERNAME + ".neo " + THEMA_LIVE,
-                "http://zdf_hds_de-f.akamaihd.net/i/de13_v1@147090/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
-        addFilmVomSender(new DatenFilm(MediathekZdf.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
-                MediathekZdf.SENDERNAME + ".heute " + THEMA_LIVE,
-                "http://zdf_hds_ng-f.akamaihd.net/i/none01_v1@87014/master.m3u8?dw=0", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+        // ARD
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, "", "http://daserste_live-lh.akamaihd.net/i/daserste_de@91204/master.m3u8"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, " Tagesschau", "http://tagesschau-lh.akamaihd.net/i/tagesschau_1@119231/master.m3u8"));
 
-        addFilmVomSender(new DatenFilm(MediathekKika.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
-                MediathekKika.SENDERNAME + " " + THEMA_LIVE,
-                "rtmp://85.239.122.162/live/mk3w-3faw-3rqf-enc0-kika", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+        // ZDF
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, "", "http://zdf_hds_de-f.akamaihd.net/i/de14_v1@147090/master.m3u8"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".info", "http://zdf_hds_de-f.akamaihd.net/i/de12_v1@87013/master.m3u8"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".kultur", "http://zdf_hds_de-f.akamaihd.net/i/de11_v1@87013/master.m3u8"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".neo", "http://zdf_hds_de-f.akamaihd.net/i/de13_v1@147090/master.m3u8"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".heute", "http://zdf_hds_ng-f.akamaihd.net/i/none01_v1@87014/master.m3u8?dw=0"));
+
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekKika.SENDERNAME, "", "rtmp://85.239.122.162/live/mk3w-3faw-3rqf-enc0-kika"));
 
         // 3sat
-        addFilmVomSender(new DatenFilm(Mediathek3Sat.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
-                Mediathek3Sat.SENDERNAME + " " + THEMA_LIVE,
-                "http://zdf_hds_dach-f.akamaihd.net/i/dach10_v1@87031/master.m3u8?b=0-710&dw=0", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
-
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Mediathek3Sat.SENDERNAME, "", "http://zdf_hds_dach-f.akamaihd.net/i/dach10_v1@87031/master.m3u8?b=0-710&dw=0"));
+        // ARTE
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArte_de.SENDERNAME, "", "http://delive.artestras.cshls.lldns.net/artestras/contrib/delive.m3u8"));
         // RBB
-        addFilmVomSender(new DatenFilm(MediathekRbb.SENDERNAME, THEMA_LIVE, ""/* urlThema */,
-                MediathekRbb.SENDERNAME + " " + THEMA_LIVE,
-                "http://rbb_live-lh.akamaihd.net/i/rbb_berlin@108248/master.m3u8", ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""}));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekRbb.SENDERNAME, "", "http://rbb_live-lh.akamaihd.net/i/rbb_brandenburg@107638/master.m3u8"));
+        // BR-alpha
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekBr.SENDERNAME, ".alpha", "http://livestreams.br.de/i/bralpha_germany@119899/master.m3u8"));
+        // BR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekBr.SENDERNAME, "", "http://livestreams.br.de/i/bfssued_germany@119890/master.m3u8"));
+        // NDR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekNdr.SENDERNAME, "", "http://ndr_fs-lh.akamaihd.net/i/ndrfs_nds@119224/master.m3u8"));
+        // WDR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekWdr.SENDERNAME, "", "http://metafilegenerator.de/WDR/WDR_FS/m3u8/wdrfernsehen.m3u8"));
+        // MDR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekMdr.SENDERNAME, "", "http://mdr_th_hls-lh.akamaihd.net/i/livetvmdrthueringen_de@106903/master.m3u8"));
+        // SR- gibts noch nicht
+        // addFilmVomSender(DatenFilm.getDatenFilmLiveStream("SR", "", "http://livestream.sr-online.de/live.m3u8"));
+        // SWR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekSwr.SENDERNAME, "", "http://swrbw-lh.akamaihd.net/i/swrbw_live@196738/master.m3u8"));
     }
 
     public synchronized DatenFilm getFilmByUrl(final String url) {
