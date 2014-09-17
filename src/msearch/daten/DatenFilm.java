@@ -211,6 +211,12 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
+    public static DatenFilm getDatenFilmLiveStream(String ssender, String addTitle, String uurl) {
+        return new DatenFilm(ssender, ListeFilme.THEMA_LIVE, ""/* urlThema */,
+                ssender + addTitle + " " + ListeFilme.THEMA_LIVE,
+                uurl, ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", "", new String[]{""});
+    }
+
     public void addUrlKlein(String url, String urlRtmp) {
         arr[FILM_URL_KLEIN_NR] = url.isEmpty() ? "" : getKlein(arr[FILM_URL_NR], url);
         arr[FILM_URL_RTMP_KLEIN_NR] = urlRtmp.isEmpty() ? "" : getKlein(arr[FILM_URL_RTMP_NR], urlRtmp);
