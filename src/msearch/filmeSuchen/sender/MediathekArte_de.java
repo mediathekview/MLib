@@ -94,7 +94,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         String out1, out2, u;
         SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-M-dd");
-        for (int i = 1; i <= 14; ++i) {
+        for (int i = 0; i <= 14; ++i) {
             out1 = formatter1.format(new Date(d.getTime() - i * (1000 * 60 * 60 * 24)));
             out2 = formatter2.format(new Date(d.getTime() - i * (1000 * 60 * 60 * 24)));
             u = URL_ARTE + out1 + "/" + out2 + ".json";
