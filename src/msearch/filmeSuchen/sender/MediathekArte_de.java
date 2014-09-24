@@ -232,9 +232,9 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                                     if (!urlHd.isEmpty()) {
                                         film.addUrlHd(urlHd, "");
                                     }
-//                                    if (!urlLow.isEmpty()) {
-//                                        film.addUrlKlein(urlLow, "");
-//                                    }
+                                    if (!urlLow.isEmpty()) {
+                                        film.addUrlKlein(urlLow, "");
+                                    }
                                     addFilm(film);
                                 }
                             }
