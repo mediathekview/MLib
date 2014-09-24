@@ -35,7 +35,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
     final static String ROOTADR = "http://mediathek.rbb-online.de";
 
     public MediathekRbb(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch,  SENDERNAME ,/* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch, SENDERNAME,/* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
     @Override
@@ -132,7 +132,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     seite2 = getUrlIo.getUri_Utf(SENDERNAME, rssurl, seite2, "");
                     rpos = 0;
                     int count = 0;
-                    while ((rpos = seite2.indexOf("<link>", rpos)) != -1) {
+                    while (!MSConfig.getStop() && (rpos = seite2.indexOf("<link>", rpos)) != -1) {
                         if (!MSConfig.senderAllesLaden) {
                             // beim Update nur die neuesten Laden
                             ++count;
@@ -183,37 +183,56 @@ public class MediathekRbb extends MediathekReader implements Runnable {
 //                            String datum = title.substring(title.length() - 26, title.length() - 16);
 //                            String thema = title.substring(0, title.indexOf(" - "));
 //                            title = title.substring(title.indexOf(" - ") + 3, title.indexOf(" - ", thema.length() + 3));
-                            int mpos, mpos2;
-                            String urlRtmp = "";
-                            String urlOrg = "";
-                            String filmurl = "";
-                            if ((mpos = seite3.indexOf("mp4:")) != -1) {
-                                if ((mpos2 = seite3.indexOf("\"", mpos)) != -1) {
-                                    filmurl = seite3.substring(mpos, mpos2);
-                                    urlRtmp = "--host ondemand.rbb-online.de --app ondemand/ --playpath " + filmurl;
-                                    urlOrg = addsUrl("rtmp://ondemand.rbb-online.de/ondemand/", filmurl);
+//                            int mpos, mpos2;
+//                            String urlRtmp = "";
+//                            String urlOrg = "";
+//                            String filmurl = "";
+//                            if ((mpos = seite3.indexOf("mp4:")) != -1) {
+//                                if ((mpos2 = seite3.indexOf("\"", mpos)) != -1) {
+//                                    filmurl = seite3.substring(mpos, mpos2);
+//                                    urlRtmp = "--host ondemand.rbb-online.de --app ondemand/ --playpath " + filmurl;
+//                                    urlOrg = addsUrl("rtmp://ondemand.rbb-online.de/ondemand/", filmurl);
+//                                }
+//                            }
+//                            String urlMp4 = "";
+//                            int pos1, pos2;
+//                            if ((pos1 = seite3.indexOf("http://http-stream")) != -1) {
+//                                pos1 += "http://http-stream".length();
+//                                if ((pos2 = seite3.indexOf("\"", pos1)) != -1) {
+//                                    urlMp4 = "http://http-stream" + seite3.substring(pos1, pos2);
+//                                }
+//                            }
+//                            if (urlMp4.isEmpty() && filmurl.isEmpty()) {
+//                                MSLog.fehlerMeldung(-316498587, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addFilme", "keine URL für: " + showurl);
+//                            } else if (urlMp4.isEmpty()) {
+//                                // DatenFilm film = new DatenFilm(nameSenderMReader, thema, showurl, title, urlOrg, urlRtmp, datum, ""/* zeit */);
+//                                DatenFilm film = new DatenFilm(SENDERNAME, thema, showurl, title, urlOrg, urlRtmp,
+//                                        datum, ""/* zeit */, durationInSeconds, description, imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords);
+//                                addFilm(film);
+//                            } else {
+//                                DatenFilm film = new DatenFilm(SENDERNAME, thema, showurl, title, urlMp4, "" /*urlRtmp*/,
+//                                        datum, ""/* zeit */, durationInSeconds, description, imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords);
+//                                addFilm(film);
+//                            }
+                            String urlNormal = "", urlLow = "", urlVeryLow = "";
+                            urlVeryLow = seite3.extract("mediaCollection.addMediaStream(1, 0, \"\", \"", "\",");
+                            urlLow = seite3.extract("mediaCollection.addMediaStream(1, 1, \"\", \"", "\",");
+                            urlNormal = seite3.extract("mediaCollection.addMediaStream(1, 2, \"\", \"", "\",");
+                            if (!urlNormal.isEmpty()) {
+                                DatenFilm film = new DatenFilm(SENDERNAME, thema, showurl, title, urlNormal, "" /*urlRtmp*/,
+                                        datum, ""/* zeit */, durationInSeconds, description, imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords);
+                                addFilm(film);
+                                if (!urlLow.isEmpty()) {
+                                    film.addUrlKlein(urlLow, "");
                                 }
-                            }
-                            String urlMp4 = "";
-                            int pos1, pos2;
-                            if ((pos1 = seite3.indexOf("http://http-stream")) != -1) {
-                                pos1 += "http://http-stream".length();
-                                if ((pos2 = seite3.indexOf("\"", pos1)) != -1) {
-                                    urlMp4 = "http://http-stream" + seite3.substring(pos1, pos2);
-                                }
-                            }
-                            if (urlMp4.isEmpty() && filmurl.isEmpty()) {
-                                MSLog.fehlerMeldung(-316498587, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addFilme", "keine URL für: " + showurl);
-                            } else if (urlMp4.isEmpty()) {
-                                // DatenFilm film = new DatenFilm(nameSenderMReader, thema, showurl, title, urlOrg, urlRtmp, datum, ""/* zeit */);
-                                DatenFilm film = new DatenFilm(SENDERNAME, thema, showurl, title, urlOrg, urlRtmp,
+                            } else if (!urlLow.isEmpty()) {
+                                DatenFilm film = new DatenFilm(SENDERNAME, thema, showurl, title, urlLow, "" /*urlRtmp*/,
                                         datum, ""/* zeit */, durationInSeconds, description, imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords);
                                 addFilm(film);
                             } else {
-                                DatenFilm film = new DatenFilm(SENDERNAME, thema, showurl, title, urlMp4, "" /*urlRtmp*/,
-                                        datum, ""/* zeit */, durationInSeconds, description, imageUrl.isEmpty() ? thumbnailUrl : imageUrl, keywords);
-                                addFilm(film);
+                                MSLog.fehlerMeldung(-302014569, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addFilme", "keine URL für: " + showurl);
                             }
+
                         }
                         rpos = rpos2; // hinter Element gehts weiter
                     }

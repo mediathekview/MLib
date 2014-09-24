@@ -474,17 +474,15 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 urlVerySmall = "";
             }
         }
-        if (urlSmall.isEmpty()) {
-            if (!urlVerySmall.isEmpty()) {
-                urlSmall = urlVerySmall;
-            }
+        if (urlVerySmall.isEmpty()) {
+            urlVerySmall = urlSmall;
         }
         if (!urlNormal.isEmpty()) {
             DatenFilm film = new DatenFilm(SENDERNAME, thema, urlThema, titel, urlNormal, "" /*urlRtmp*/,
                     datum, zeit,
                     duration, description, "", new String[]{});
-            if (!urlSmall.isEmpty()) {
-                film.addUrlKlein(urlSmall, "");
+            if (!urlVerySmall.isEmpty()) {
+                film.addUrlKlein(urlVerySmall, "");
             }
             if (!urlHd.isEmpty()) {
                 film.addUrlHd(urlHd, "");
