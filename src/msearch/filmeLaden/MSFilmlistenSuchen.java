@@ -100,7 +100,8 @@ public class MSFilmlistenSuchen {
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_akt = tmp;
             } else if (listeFilmlistenUrls_akt.isEmpty()) {
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://www.wp11128329.server-he.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://wp11128329.server-he.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://wp11234018.server-he.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
                 listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv.mynews.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
                 listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv.hostingkunde.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
                 listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-1.df-kunde.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
@@ -114,7 +115,8 @@ public class MSFilmlistenSuchen {
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_diff = tmp;
             } else if (listeFilmlistenUrls_diff.isEmpty()) {
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://www.wp11128329.server-he.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://wp11128329.server-he.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://wp11234018.server-he.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
                 listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv.mynews.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
                 listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv.hostingkunde.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
                 listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-1.df-kunde.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
