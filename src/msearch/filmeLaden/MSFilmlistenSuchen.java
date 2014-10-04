@@ -46,6 +46,8 @@ public class MSFilmlistenSuchen {
     public ListeFilmlistenUrls listeFilmlistenUrls_old = new ListeFilmlistenUrls();
     public ListeFilmlistenUrls listeFilmlistenUrls_akt = new ListeFilmlistenUrls();
     public ListeFilmlistenUrls listeFilmlistenUrls_diff = new ListeFilmlistenUrls();
+    private static boolean firstSearchAkt = true;
+    private static boolean firstSearchDiff = true;
 
     public String suchenOld(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Filmliste suchen
@@ -61,7 +63,9 @@ public class MSFilmlistenSuchen {
     public String suchenAkt(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Filmliste suchen
         String retUrl;
-        if (listeFilmlistenUrls_akt.isEmpty()) {
+        if (firstSearchAkt || listeFilmlistenUrls_akt.isEmpty()) {
+            // nach dem Programmstart wird die Liste einmal aktualisiert
+            firstSearchAkt = false;
             // da sich die Listen nicht ändern nur eimal pro Start laden
             updateURLsFilmlisten(false, true, false);
         }
@@ -75,7 +79,9 @@ public class MSFilmlistenSuchen {
     public String suchenDiff(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Filmliste suchen
         String retUrl;
-        if (listeFilmlistenUrls_diff.isEmpty()) {
+        if (firstSearchDiff || listeFilmlistenUrls_diff.isEmpty()) {
+            // nach dem Programmstart wird die Liste einmal aktualisiert
+            firstSearchDiff = false;
             // da sich die Listen nicht ändern nur eimal pro Start laden
             updateURLsFilmlisten(false, false, true);
         }
@@ -97,31 +103,49 @@ public class MSFilmlistenSuchen {
         }
         if (akt) {
             getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_AKT, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
+            if (tmp.isEmpty()) {
+                getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_AKT_RES, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
+            }
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_akt = tmp;
             } else if (listeFilmlistenUrls_akt.isEmpty()) {
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://wp11128329.server-he.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://wp11234018.server-he.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv.mynews.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv.hostingkunde.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-1.df-kunde.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-2.df-kunde.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-3.df-kunde.de/filme/Filmliste-akt.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://wp11128329.server-he.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://wp11234018.server-he.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv.mynews.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv.hostingkunde.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-1.df-kunde.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-2.df-kunde.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-3.df-kunde.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://hosting1735.af906.netcup.net/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://hosting1766.af915.netcup.net/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://hosting1767.af915.netcup.net/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mediathek.alfahosting.org/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mediathekview.alfahosting.org/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
             }
             listeFilmlistenUrls_akt.sort();
         }
         if (diff) {
             getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
+            if (tmp.isEmpty()) {
+                getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF_RES, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
+            }
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_diff = tmp;
             } else if (listeFilmlistenUrls_diff.isEmpty()) {
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://wp11128329.server-he.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://wp11234018.server-he.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv.mynews.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv.hostingkunde.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-1.df-kunde.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-2.df-kunde.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-3.df-kunde.de/filme/Filmliste-diff.xz", "1", "", "", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://wp11128329.server-he.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://wp11234018.server-he.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv.mynews.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv.hostingkunde.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-1.df-kunde.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-2.df-kunde.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-3.df-kunde.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://hosting1735.af906.netcup.net/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://hosting1766.af915.netcup.net/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://hosting1767.af915.netcup.net/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mediathek.alfahosting.org/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mediathekview.alfahosting.org/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
             }
             listeFilmlistenUrls_diff.sort();
         }

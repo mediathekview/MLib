@@ -73,7 +73,6 @@ public class MSImportFilmliste {
         private final ListeFilme listeFilme;
         private final ListeFilme listeFilmeDiff;
         private final String ziel;
-        private final int STATE_NORM = 1;
         private final int STATE_AKT = 2;
         private final int STATE_DIFF = 3;
         private int state;
@@ -91,10 +90,7 @@ public class MSImportFilmliste {
                 // dann eine komplette Liste laden
                 state = STATE_AKT;
                 listeFilme.clear();
-                if (!(ret = suchenAktListe(listeFilme))) {
-                    state = STATE_NORM;
-                    ret = suchenAktListe(listeFilme);
-                }
+                ret = suchenAktListe(listeFilme);
             } else {
                 // nur ein Update laden
                 state = STATE_DIFF;
@@ -104,10 +100,7 @@ public class MSImportFilmliste {
                     state = STATE_AKT;
                     listeFilme.clear();
                     listeFilmeDiff.clear();
-                    if (!(ret = suchenAktListe(listeFilme))) {
-                        state = STATE_NORM;
-                        ret = suchenAktListe(listeFilme);
-                    }
+                    ret = suchenAktListe(listeFilme);
                 }
             }
             if (!ret /* listeFilme ist schon wieder null -> "FilmeLaden" */) {
@@ -128,44 +121,48 @@ public class MSImportFilmliste {
                 case STATE_DIFF:
                     updateUrl = msFilmlistenSuchen.suchenDiff(versuchteUrls);
                     break;
-                case STATE_NORM:
-                    updateUrl = msFilmlistenSuchen.suchenOld(versuchteUrls);
-                    break;
             }
 
-            if (!updateUrl.equals("")) {
-                boolean ret_ = false;
-                for (int i = 0; i < 5; ++i) {
-                    //5 mal mit einem anderen Server probieren
-                    switch (state) {
-                        case STATE_AKT:
-                            ret_ = urlLaden(updateUrl, ziel, liste);
-                            break;
-                        case STATE_DIFF:
-                            ret_ = urlLaden(updateUrl, "", liste); // dann muss die komplette Liste erst später geschrieben werden
-                            break;
-                        case STATE_NORM:
-                            ret_ = urlLaden(updateUrl, ziel, liste);
-                            break;
-                    }
-                    if (ret_) {
-                        // hat geklappt, nix wie weiter
-                        ret = true; // keine Fehlermeldung
-                        if (i < 3 && liste.isOlderThan(5 * 60 * 60 /*sekunden*/)) {
-                            MSLog.systemMeldung("Filmliste zu alt, neuer Versuch");
-                        } else {
-                            // 3 Versuche mit einer alten Liste sind genug
-                            break;
-                        }
-                    } else {
-                        // nur wenn nicht abgebrochen, weitermachen
-                        if (MSConfig.getStop()) {
-                            break;
-                        }
-                    }
-                    updateUrl = msFilmlistenSuchen.listeFilmlistenUrls_diff.getRand(versuchteUrls, i); //nächste Adresse in der Liste wählen
-                    versuchteUrls.add(updateUrl);
+            if (updateUrl.isEmpty()) {
+                return false;
+            }
+
+            // 5 mal mit einem anderen Server probieren, wenns nicht klappt
+            for (int i = 0; i < 5; ++i) {
+                switch (state) {
+                    case STATE_AKT:
+                        ret = urlLaden(updateUrl, ziel, liste);
+                        break;
+                    case STATE_DIFF:
+                        ret = urlLaden(updateUrl, "", liste); // dann muss die komplette Liste erst später geschrieben werden
+                        break;
                 }
+
+                if (ret && i < 1 && liste.isOlderThan(5 * 60 * 60 /*sekunden*/)) {
+                    // Laden hat geklappt ABER: Liste zu alt, dann gibts einen 2. Versuch
+                    MSLog.systemMeldung("Filmliste zu alt, neuer Versuch");
+                    ret = false;
+                }
+
+                if (ret) {
+                    // hat geklappt, nix wie weiter
+                    return true;
+                }
+
+                switch (state) {
+                    case STATE_AKT:
+                        updateUrl = msFilmlistenSuchen.listeFilmlistenUrls_akt.getRand(versuchteUrls, i); //nächste Adresse in der Liste wählen
+                        break;
+                    case STATE_DIFF:
+                        updateUrl = msFilmlistenSuchen.listeFilmlistenUrls_diff.getRand(versuchteUrls, i); //nächste Adresse in der Liste wählen
+                        break;
+                }
+                versuchteUrls.add(updateUrl);
+                // nur wenn nicht abgebrochen, weitermachen
+                if (MSConfig.getStop()) {
+                    break;
+                }
+
             }
             return ret;
         }
