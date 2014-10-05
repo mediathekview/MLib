@@ -151,10 +151,10 @@ public class MSImportFilmliste {
 
                 switch (state) {
                     case STATE_AKT:
-                        updateUrl = msFilmlistenSuchen.listeFilmlistenUrls_akt.getRand(versuchteUrls, i); //nächste Adresse in der Liste wählen
+                        updateUrl = msFilmlistenSuchen.listeFilmlistenUrls_akt.getRand(versuchteUrls); //nächste Adresse in der Liste wählen
                         break;
                     case STATE_DIFF:
-                        updateUrl = msFilmlistenSuchen.listeFilmlistenUrls_diff.getRand(versuchteUrls, i); //nächste Adresse in der Liste wählen
+                        updateUrl = msFilmlistenSuchen.listeFilmlistenUrls_diff.getRand(versuchteUrls); //nächste Adresse in der Liste wählen
                         break;
                 }
                 versuchteUrls.add(updateUrl);

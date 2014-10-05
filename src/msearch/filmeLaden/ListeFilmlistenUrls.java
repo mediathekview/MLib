@@ -78,71 +78,110 @@ public class ListeFilmlistenUrls extends LinkedList<DatenFilmlisteUrl> {
         return null;
     }
 
-    public String getRand(ArrayList<String> bereitsGebraucht, int errcount) {
-        final int MAXMINUTEN = 50;
-        int minCount = 3;
-        if (errcount > 0) {
-            minCount = 3 + 2 * errcount;
+    public String getRand(ArrayList<String> bereitsGebraucht) {
+        // gibt nur noch akt.xml und diff.xml und da sind alle Listen
+        // aktuell, Prio: momentan sind alle Listen gleich gewichtet
+        if (this.isEmpty()) {
+            return "";
         }
-        String ret = "";
-        if (!this.isEmpty()) {
-            DatenFilmlisteUrl datenUrlFilmliste;
-            LinkedList<DatenFilmlisteUrl> listeZeit = new LinkedList<>();
-            LinkedList<DatenFilmlisteUrl> listePrio = new LinkedList<>();
-            //aktuellsten auswählen
-            Iterator<DatenFilmlisteUrl> it = this.iterator();
-            Date today = new Date(System.currentTimeMillis());
-            Date d;
-            int minuten = 200;
-            int count = 0;
-            while (it.hasNext()) {
-                datenUrlFilmliste = it.next();
-                if (bereitsGebraucht != null) {
-                    if (bereitsGebraucht.contains(datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR])) {
-                        // wurde schon versucht
-                        continue;
-                    }
+
+        LinkedList<DatenFilmlisteUrl> listePrio = new LinkedList<>();
+        //nach prio gewichten
+        for (DatenFilmlisteUrl datenFilmlisteUrl : this) {
+            if (bereitsGebraucht != null) {
+                if (bereitsGebraucht.contains(datenFilmlisteUrl.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR])) {
+                    // wurde schon versucht
+                    continue;
                 }
-                try {
-                    d = datenUrlFilmliste.getDate();
-                    // debug
-                    //SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyy  HH:mm:ss");
-                    //String s = sdf_datum_zeit.format(d);
-                    long m = today.getTime() - d.getTime();
-                    if (m < 0) {
-                        m = 0;
-                    }
-                    minuten = Math.round(m / (1000 * 60));
-                } catch (Exception ignored) {
-                }
-                if (minuten < MAXMINUTEN) {
-                    listeZeit.add(datenUrlFilmliste);
-                    ++count;
-                } else if (count < minCount) {
-                    listeZeit.add(datenUrlFilmliste);
-                    ++count;
-                }
-            }
-            //nach prio gewichten
-            it = listeZeit.iterator();
-            while (it.hasNext()) {
-                datenUrlFilmliste = it.next();
-                if (datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_NR].equals(DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_1)) {
-                    listePrio.add(datenUrlFilmliste);
+                if (datenFilmlisteUrl.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_NR].equals(DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_1)) {
+                    listePrio.add(datenFilmlisteUrl);
+                    listePrio.add(datenFilmlisteUrl);
                 } else {
-                    listePrio.add(datenUrlFilmliste);
-                    listePrio.add(datenUrlFilmliste);
+                    listePrio.add(datenFilmlisteUrl);
+                    listePrio.add(datenFilmlisteUrl);
+                    listePrio.add(datenFilmlisteUrl);
                 }
             }
-            if (listePrio.size() > 0) {
-                int nr = new Random().nextInt(listePrio.size());
-                datenUrlFilmliste = listePrio.get(nr);
-            } else {
-                int nr = new Random().nextInt(this.size());
-                datenUrlFilmliste = this.get(nr);
-            }
-            ret = datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR];
         }
-        return ret;
+
+        DatenFilmlisteUrl datenFilmlisteUrl;
+        if (listePrio.size() > 0) {
+            int nr = new Random().nextInt(listePrio.size());
+            datenFilmlisteUrl = listePrio.get(nr);
+        } else {
+            // dann wird irgendeine Versucht
+            int nr = new Random().nextInt(this.size());
+            datenFilmlisteUrl = this.get(nr);
+        }
+        return datenFilmlisteUrl.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR];
     }
+
+//    public String getRand(ArrayList<String> bereitsGebraucht, int errcount) {
+//        final int MAXMINUTEN = 50;
+//        int minCount = 3;
+//        if (errcount > 0) {
+//            minCount = 3 + 2 * errcount;
+//        }
+//        String ret = "";
+//        if (!this.isEmpty()) {
+//            DatenFilmlisteUrl datenUrlFilmliste;
+//            LinkedList<DatenFilmlisteUrl> listeZeit = new LinkedList<>();
+//            LinkedList<DatenFilmlisteUrl> listePrio = new LinkedList<>();
+//            //aktuellsten auswählen
+//            Iterator<DatenFilmlisteUrl> it = this.iterator();
+//            Date today = new Date(System.currentTimeMillis());
+//            Date d;
+//            int minuten = 200;
+//            int count = 0;
+//            while (it.hasNext()) {
+//                datenUrlFilmliste = it.next();
+//                if (bereitsGebraucht != null) {
+//                    if (bereitsGebraucht.contains(datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR])) {
+//                        // wurde schon versucht
+//                        continue;
+//                    }
+//                }
+//                try {
+//                    d = datenUrlFilmliste.getDate();
+//                    // debug
+//                    //SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyy  HH:mm:ss");
+//                    //String s = sdf_datum_zeit.format(d);
+//                    long m = today.getTime() - d.getTime();
+//                    if (m < 0) {
+//                        m = 0;
+//                    }
+//                    minuten = Math.round(m / (1000 * 60));
+//                } catch (Exception ignored) {
+//                }
+//                if (minuten < MAXMINUTEN) {
+//                    listeZeit.add(datenUrlFilmliste);
+//                    ++count;
+//                } else if (count < minCount) {
+//                    listeZeit.add(datenUrlFilmliste);
+//                    ++count;
+//                }
+//            }
+//            //nach prio gewichten
+//            it = listeZeit.iterator();
+//            while (it.hasNext()) {
+//                datenUrlFilmliste = it.next();
+//                if (datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_NR].equals(DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_1)) {
+//                    listePrio.add(datenUrlFilmliste);
+//                } else {
+//                    listePrio.add(datenUrlFilmliste);
+//                    listePrio.add(datenUrlFilmliste);
+//                }
+//            }
+//            if (listePrio.size() > 0) {
+//                int nr = new Random().nextInt(listePrio.size());
+//                datenUrlFilmliste = listePrio.get(nr);
+//            } else {
+//                // dann wird irgendeine Versucht
+//                int nr = new Random().nextInt(this.size());
+//                datenUrlFilmliste = this.get(nr);
+//            }
+//            ret = datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR];
+//        }
+//        return ret;
+//    }
 }

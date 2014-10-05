@@ -49,17 +49,6 @@ public class MSFilmlistenSuchen {
     private static boolean firstSearchAkt = true;
     private static boolean firstSearchDiff = true;
 
-    public String suchenOld(ArrayList<String> bereitsVersucht) {
-        // passende URL zum Laden der Filmliste suchen
-        String retUrl;
-        updateURLsFilmlisten(true, false, false);
-        retUrl = listeFilmlistenUrls_old.getRand(bereitsVersucht, 0); //eine Zufällige Adresse wählen
-        if (bereitsVersucht != null) {
-            bereitsVersucht.add(retUrl);
-        }
-        return retUrl;
-    }
-
     public String suchenAkt(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Filmliste suchen
         String retUrl;
@@ -69,7 +58,7 @@ public class MSFilmlistenSuchen {
             // da sich die Listen nicht ändern nur eimal pro Start laden
             updateURLsFilmlisten(false, true, false);
         }
-        retUrl = (listeFilmlistenUrls_akt.getRand(bereitsVersucht, 0)); //eine Zufällige Adresse wählen
+        retUrl = (listeFilmlistenUrls_akt.getRand(bereitsVersucht)); //eine Zufällige Adresse wählen
         if (bereitsVersucht != null) {
             bereitsVersucht.add(retUrl);
         }
@@ -85,7 +74,7 @@ public class MSFilmlistenSuchen {
             // da sich die Listen nicht ändern nur eimal pro Start laden
             updateURLsFilmlisten(false, false, true);
         }
-        retUrl = (listeFilmlistenUrls_diff.getRand(bereitsVersucht, 0)); //eine Zufällige Adresse wählen
+        retUrl = (listeFilmlistenUrls_diff.getRand(bereitsVersucht)); //eine Zufällige Adresse wählen
         if (bereitsVersucht != null) {
             bereitsVersucht.add(retUrl);
         }
@@ -231,7 +220,7 @@ public class MSFilmlistenSuchen {
                             if (prio.equals("")) {
                                 prio = DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_1;
                             }
-                            listeFilmlistenUrls.addWithCheck(new DatenFilmlisteUrl(serverUrl, prio, zeit, datum, art));
+                            listeFilmlistenUrls.addWithCheck(new DatenFilmlisteUrl(serverUrl, prio, art));
                         }
                         break;
                     }

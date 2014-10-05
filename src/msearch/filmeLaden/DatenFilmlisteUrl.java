@@ -60,13 +60,13 @@ public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
         makeArr();
     }
 
-    public DatenFilmlisteUrl(String url, String prio, String zeit, String datum, String art) {
+    public DatenFilmlisteUrl(String url, String prio, String art) {
         sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
         makeArr();
         arr[FILM_UPDATE_SERVER_URL_NR] = url;
         arr[FILM_UPDATE_SERVER_PRIO_NR] = prio;
-        arr[FILM_UPDATE_SERVER_DATUM_NR] = datum;
-        arr[FILM_UPDATE_SERVER_ZEIT_NR] = zeit;
+        arr[FILM_UPDATE_SERVER_DATUM_NR] = "";
+        arr[FILM_UPDATE_SERVER_ZEIT_NR] = "";
         arr[FILM_UPDATE_SERVER_ART_NR] = art;
     }
 
@@ -74,7 +74,7 @@ public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
         sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
         makeArr();
         arr[FILM_UPDATE_SERVER_URL_NR] = url;
-        arr[FILM_UPDATE_SERVER_PRIO_NR] = "1";
+        arr[FILM_UPDATE_SERVER_PRIO_NR] = DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_1;
         arr[FILM_UPDATE_SERVER_DATUM_NR] = "";
         arr[FILM_UPDATE_SERVER_ZEIT_NR] = "";
         arr[FILM_UPDATE_SERVER_ART_NR] = art;
