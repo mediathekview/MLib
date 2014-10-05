@@ -43,7 +43,6 @@ public class MSFilmlistenSuchen {
 
     // damit werden die DownloadURLs zum Laden einer Filmliste gesucht
     // Liste mit den URLs zum Download der Filmliste
-    public ListeFilmlistenUrls listeFilmlistenUrls_old = new ListeFilmlistenUrls();
     public ListeFilmlistenUrls listeFilmlistenUrls_akt = new ListeFilmlistenUrls();
     public ListeFilmlistenUrls listeFilmlistenUrls_diff = new ListeFilmlistenUrls();
     private static boolean firstSearchAkt = true;
@@ -56,7 +55,7 @@ public class MSFilmlistenSuchen {
             // nach dem Programmstart wird die Liste einmal aktualisiert
             firstSearchAkt = false;
             // da sich die Listen nicht ändern nur eimal pro Start laden
-            updateURLsFilmlisten(false, true, false);
+            updateURLsFilmlisten(true, false);
         }
         retUrl = (listeFilmlistenUrls_akt.getRand(bereitsVersucht)); //eine Zufällige Adresse wählen
         if (bereitsVersucht != null) {
@@ -72,7 +71,7 @@ public class MSFilmlistenSuchen {
             // nach dem Programmstart wird die Liste einmal aktualisiert
             firstSearchDiff = false;
             // da sich die Listen nicht ändern nur eimal pro Start laden
-            updateURLsFilmlisten(false, false, true);
+            updateURLsFilmlisten(false, true);
         }
         retUrl = (listeFilmlistenUrls_diff.getRand(bereitsVersucht)); //eine Zufällige Adresse wählen
         if (bereitsVersucht != null) {
@@ -81,15 +80,8 @@ public class MSFilmlistenSuchen {
         return retUrl;
     }
 
-    public void updateURLsFilmlisten(boolean old, boolean akt, boolean diff) {
+    public void updateURLsFilmlisten(boolean akt, boolean diff) {
         ListeFilmlistenUrls tmp = new ListeFilmlistenUrls();
-        if (old) {
-            getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_JSON, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_OLD);
-            if (!tmp.isEmpty()) {
-                listeFilmlistenUrls_old = tmp;
-            }
-            listeFilmlistenUrls_old.sort();
-        }
         if (akt) {
             getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_AKT, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
             if (tmp.isEmpty()) {

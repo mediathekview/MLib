@@ -201,8 +201,8 @@ public class MSImportFilmliste {
         listeners.add(MSListenerFilmeLaden.class, listener);
     }
 
-    public void updateDownloadUrlsFilmlisten(boolean old, boolean akt, boolean diff) {
-        msFilmlistenSuchen.updateURLsFilmlisten(old, akt, diff);
+    public void updateDownloadUrlsFilmlisten(boolean akt, boolean diff) {
+        msFilmlistenSuchen.updateURLsFilmlisten(akt, diff);
     }
 
     private boolean urlLaden(String dateiUrl, String dateiZiel, ListeFilme listeFilme) {
