@@ -59,29 +59,30 @@ public class MediathekBr extends MediathekReader implements Runnable {
         meldungStart();
         getTheman(); // Themen suchen
         getTage(); // Programm der letzten Tage absuchen
-        if (MSConfig.senderAllesLaden) {
-            // Archiv durchsuchen
-            Thread thArchiv;
-            thArchiv = new Thread(new ArchivLaden(1, 100));
-            thArchiv.setName(SENDERNAME);
-            thArchiv.start();
-            thArchiv = new Thread(new ArchivLaden(101, 200));
-            thArchiv.setName(SENDERNAME);
-            thArchiv.start();
-            thArchiv = new Thread(new ArchivLaden(201, 300));
-            thArchiv.setName(SENDERNAME);
-            thArchiv.start();
-            thArchiv = new Thread(new ArchivLaden(301, 400));
-            thArchiv.setName(SENDERNAME);
-            thArchiv.start();
-        }
-        new Thread(new KlassikLaden(), SENDERNAME).start(); // Klassik braucht auch eine einzelbehandlung
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.isEmpty() && listeTage.isEmpty()) {
             meldungThreadUndFertig();
         } else {
             meldungAddMax(listeThemen.size() + listeTage.size());
+            // erst hier starten (Archiv, Klassik), sonst beendet er sich/und sucht doch!
+            if (MSConfig.senderAllesLaden) {
+                // Archiv durchsuchen
+                Thread thArchiv;
+                thArchiv = new Thread(new ArchivLaden(1, 100));
+                thArchiv.setName(SENDERNAME);
+                thArchiv.start();
+                thArchiv = new Thread(new ArchivLaden(101, 200));
+                thArchiv.setName(SENDERNAME);
+                thArchiv.start();
+                thArchiv = new Thread(new ArchivLaden(201, 300));
+                thArchiv.setName(SENDERNAME);
+                thArchiv.start();
+                thArchiv = new Thread(new ArchivLaden(301, 400));
+                thArchiv.setName(SENDERNAME);
+                thArchiv.start();
+            }
+            new Thread(new KlassikLaden(), SENDERNAME).start(); // Klassik braucht auch eine Einzelbehandlung
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 Thread th = new Thread(new ThemaLaden());
                 th.setName(SENDERNAME + t);
@@ -97,7 +98,8 @@ public class MediathekBr extends MediathekReader implements Runnable {
         final String MUSTER_URL_2 = "video/";
         listeThemen.clear();
         MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        seite = getUrlIo.getUri_Utf(SENDERNAME, ADRESSE, seite, "");
+        //seite = getUrlIo.getUri_Utf(SENDERNAME, ADRESSE, seite, "");
+        seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "");
         int pos1 = 0;
         int pos2;
         String url = "";
@@ -147,7 +149,8 @@ public class MediathekBr extends MediathekReader implements Runnable {
         MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         ArrayList<String> al = new ArrayList<>();
         try {
-            seite1 = getUrlIo.getUri_Utf(SENDERNAME, ADRESSE, seite1, "");
+            //seite1 = getUrlIo.getUri_Utf(SENDERNAME, ADRESSE, seite1, "");
+            seite1 = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite1, "");
             String url;
             int max_;
             if (MSConfig.senderAllesLaden) {
