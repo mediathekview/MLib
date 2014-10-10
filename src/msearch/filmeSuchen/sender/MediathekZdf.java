@@ -39,7 +39,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 //    static int count_f4m = 0;
 
     public MediathekZdf(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch,  SENDERNAME ,4 /* threads */, 250 /* urlWarten */, startPrio);
+        super(ssearch, SENDERNAME, 4 /* threads */, 250 /* urlWarten */, startPrio);
     }
 
     @Override
@@ -336,6 +336,14 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             bild = bild.substring(bild.indexOf(">") + 1);
         }
         beschreibung = strBuffer.extract(BESCHREIBUNG, "<");
+        if (beschreibung.isEmpty()) {
+            beschreibung = strBuffer.extract(BESCHREIBUNG, "</");
+            beschreibung = beschreibung.replace("<![CDATA[", "");
+            beschreibung = beschreibung.replace("]]>", "");
+        }
+        if (beschreibung.isEmpty()) {
+            MSLog.fehlerMeldung(-945123074, MSLog.FEHLER_ART_MREADER, "MediathekZdf.filmHolen, Beschreibung", "url: " + urlId);
+        }
         if (thema.isEmpty()) {
             thema = strBuffer.extract(THEMA, "<");
         }
