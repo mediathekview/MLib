@@ -93,6 +93,7 @@ public class MSFilmlisteLesen {
     public void readFilmListe(String source, final ListeFilme listeFilme) {
         JsonToken jsonToken;
         String sender = "", thema = "";
+        listeFilme.clear();
         this.notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
         try {
             InputStream in = selectDecompressor(source, getInputStreamForLocation(source));
