@@ -32,7 +32,7 @@ public class MSConst {
     public static final String ADRESSE_FILMLISTEN_SERVER_DIFF_RES = "http://92.51.131.172/diff.xml";
     public static final String ADRESSE_FILMLISTEN_SERVER_AKT_RES = "http://92.51.131.172/akt.xml";
 
-    public static final String DATEINAME_LISTE_FILMLISTEN = "filmlisten.xml";
+//    public static final String DATEINAME_LISTE_FILMLISTEN = "filmlisten.xml";
     public static final String ADRESSE_PROGRAMM_VERSION = "http://zdfmediathk.sourceforge.net/version.xml";
     public static final String ADRESSE_DOWNLAD = "http://sourceforge.net/projects/zdfmediathk/";
     public static final String ADRESSE_ANLEITUNG = "http://sourceforge.net/p/zdfmediathk/wiki/Home/";
