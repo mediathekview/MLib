@@ -31,6 +31,7 @@ import java.util.zip.ZipInputStream;
 import javax.swing.event.EventListenerList;
 import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
+import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import msearch.tool.DatumZeit;
@@ -61,15 +62,13 @@ public class MSFilmlisteLesen {
             HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
             conn.setConnectTimeout(TIMEOUT);
             conn.setReadTimeout(TIMEOUT);
+            conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
             if (conn.getResponseCode() < 400) {
                 size = conn.getContentLengthLong();
             }
             in = new SizeInputStream(conn.getInputStream(), size, uri.toASCIIString());
         } else {
             //local file
-//            uri = new URI(AbsoluteFromRelativeURI.getAbsoluteURIFromRelative(source));
-//            Path filmPath = Paths.get(uri);
-//            in = Files.newInputStream(filmPath);
             notifyProgress(source, "Download", PROGRESS_MAX);
             in = new FileInputStream(source);
         }

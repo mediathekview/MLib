@@ -192,7 +192,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // für den BR: alle Filme mit Thema "BR" die es auch in einem anderen Thema gibt löschen
         // wird vorerst nicht verwendet: findet nur ~200 Filme von über 3000
         int count = 0;
-        MSLog.systemMeldung("cleanList start: " + sdf.format(System.currentTimeMillis()));
+        final SimpleDateFormat sdfClean = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+        MSLog.systemMeldung("cleanList start: " + sdfClean.format(System.currentTimeMillis()));
         ListeFilme tmp = new ListeFilme();
         for (DatenFilm datenFilm : this) {
             if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekBr.SENDERNAME)) {
@@ -214,7 +215,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 }
             }
         }
-        MSLog.systemMeldung("cleanList stop: " + sdf.format(System.currentTimeMillis()));
+        MSLog.systemMeldung("cleanList stop: " + sdfClean.format(System.currentTimeMillis()));
         MSLog.systemMeldung("cleanList count: " + count);
     }
 
@@ -533,7 +534,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
      */
     public synchronized Date getAgeAsDate() {
         String date;
-        if (!metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
+        if (!metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].isEmpty()) {
             date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
             sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
         } else {
@@ -567,11 +568,11 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             return true;
         }
         try {
-            final String d = new SimpleDateFormat("yyyy.MM.dd__").format(new Date()) + MSConst.TIME_MAX_AGE_FOR_DIFF + ":00:00";
-            final Date maxDiff = new SimpleDateFormat("yyyy.MM.dd__HH:mm:ss").parse(d);
-            final Date filmliste = getAgeAsDate();
-            if (filmliste != null) {
-                return filmliste.getTime() < maxDiff.getTime();
+            final String dateMaxDiff_str = new SimpleDateFormat("yyyy.MM.dd__").format(new Date()) + MSConst.TIME_MAX_AGE_FOR_DIFF + ":00:00";
+            final Date dateMaxDiff = new SimpleDateFormat("yyyy.MM.dd__HH:mm:ss").parse(dateMaxDiff_str);
+            final Date dateFilmliste = getAgeAsDate();
+            if (dateFilmliste != null) {
+                return dateFilmliste.getTime() < dateMaxDiff.getTime();
             }
         } catch (Exception ignored) {
         }
