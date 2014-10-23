@@ -38,7 +38,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
     public final static String SENDERNAME = "SWR";
 
     public MediathekSwr(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, SENDERNAME , /* threads */ 2, /* urlWarten */ wartenLang, startPrio);
+        super(ssearch, SENDERNAME, /* threads */ 2, /* urlWarten */ wartenLang, startPrio);
     }
 
     //===================================
@@ -70,7 +70,8 @@ public class MediathekSwr extends MediathekReader implements Runnable {
     //===================================
     private void addToList__() {
         //Theman suchen
-        final String MUSTER_START = "<div style=\"\" class=\"media mediaA\">";
+        final String MUSTER_START = "<div class=\"mediaCon\">";
+        final String MUSTER_STOPP = "<h2 class=\"rasterHeadline\">OFT GESUCHT</h2>";
         final String MUSTER_URL = "<a href=\"tvshow.htm?show=";
         final String MUSTER_THEMA = "title=\"";
         MSStringBuilder strSeite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
@@ -78,7 +79,11 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         int pos = 0;
         String url;
         String thema;
+        int stop = strSeite.indexOf(MUSTER_STOPP);
         while (!MSConfig.getStop() && (pos = strSeite.indexOf(MUSTER_START, pos)) != -1) {
+            if (stop > 0 && pos > stop) {
+                break;
+            }
             pos += MUSTER_START.length();
             url = strSeite.extract(MUSTER_URL, "\"", pos);
             thema = strSeite.extract(MUSTER_THEMA, "\"", pos);
@@ -125,6 +130,10 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             final String MUSTER_URL = "<a href=\"/player.htm?show=";
             //strSeite1 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, strSeite1, thema);
             strSeite1 = getUrlThemaLaden.getUri(SENDERNAME, strUrlFeed, MSConst.KODIERUNG_UTF, 2 /* versuche */, strSeite1, thema);
+            if (strSeite1.length() == 0) {
+                MSLog.fehlerMeldung(-945120365, MSLog.FEHLER_ART_MREADER, "MediathekSwr.themenSeitenSuchen", "Seite leer: " + strUrlFeed);
+                return;
+            }
             meldung(strUrlFeed);
             int pos1 = 0;
             int pos2;
