@@ -29,6 +29,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.zip.ZipInputStream;
 import javax.swing.event.EventListenerList;
+
 import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
 import msearch.daten.MSConfig;
@@ -41,7 +42,11 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.tukaani.xz.XZInputStream;
 
 public class MSFilmlisteLesen {
+    public enum WorkMode {
 
+        NORMAL, FASTAUTO
+    }
+    private WorkMode workMode = WorkMode.NORMAL;
     private final EventListenerList listeners = new EventListenerList();
     private int max = 0;
     private int progress = 0;
@@ -50,6 +55,17 @@ public class MSFilmlisteLesen {
 
     public void addAdListener(MSListenerFilmeLaden listener) {
         listeners.add(MSListenerFilmeLaden.class, listener);
+    }
+
+    /**
+     * Set the specific work mode for reading film list.
+     * In FASTAUTO mode, no film descriptions will be read into memory.
+     *
+     * @param mode The mode in which to operate when reading film list.
+     */
+    public void setWorkMode(WorkMode mode)
+    {
+        workMode = mode;
     }
 
     private InputStream getInputStreamForLocation(String source) throws Exception {
@@ -94,6 +110,7 @@ public class MSFilmlisteLesen {
         String sender = "", thema = "";
         listeFilme.clear();
         this.notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
+
         try {
             InputStream in = selectDecompressor(source, getInputStreamForLocation(source));
             JsonParser jp = new JsonFactory().createParser(in);
@@ -129,6 +146,13 @@ public class MSFilmlisteLesen {
                 if (jp.isExpectedStartArrayToken()) {
                     DatenFilm datenFilm = new DatenFilm();
                     for (int i = 0; i < DatenFilm.COLUMN_NAMES_JSON.length; ++i) {
+                        //if we are in FASTAUTO mode, we don´t need film descriptions.
+                        //this should speed up loading on low end devices...
+                        if (workMode == WorkMode.FASTAUTO && DatenFilm.COLUMN_NAMES_JSON[i] == DatenFilm.FILM_BESCHREIBUNG_NR) {
+                            jp.nextToken();
+                            continue;
+                        }
+
                         datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] = jp.nextTextValue();
                         /// für die Entwicklungszeit
                         if (datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] == null) {
@@ -145,6 +169,7 @@ public class MSFilmlisteLesen {
                     } else {
                         thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
                     }
+
                     listeFilme.importFilmliste(datenFilm);
                 }
             }
@@ -152,6 +177,7 @@ public class MSFilmlisteLesen {
             MSLog.fehlerMeldung(945123641, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.readFilmListe: " + source, ex);
             listeFilme.clear();
         }
+
         notifyFertig(source, listeFilme);
     }
 
