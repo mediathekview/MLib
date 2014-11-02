@@ -27,9 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.Date;
 import java.util.zip.ZipInputStream;
 import javax.swing.event.EventListenerList;
-
 import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
 import msearch.daten.MSConfig;
@@ -42,16 +42,18 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.tukaani.xz.XZInputStream;
 
 public class MSFilmlisteLesen {
+
     public enum WorkMode {
 
         NORMAL, FASTAUTO
     }
-    private WorkMode workMode = WorkMode.NORMAL;
+    private static WorkMode workMode = WorkMode.NORMAL; // die Klasse wird an verschiedenen Stellen benutzt, klappt sonst nicht immer, zB. FilmListe zu alt und neu laden
     private final EventListenerList listeners = new EventListenerList();
     private int max = 0;
     private int progress = 0;
     private static final int TIMEOUT = 10_000; //10 Sekunden
     private static final int PROGRESS_MAX = 100;
+    long days = 0;
 
     public void addAdListener(MSListenerFilmeLaden listener) {
         listeners.add(MSListenerFilmeLaden.class, listener);
@@ -63,8 +65,7 @@ public class MSFilmlisteLesen {
      *
      * @param mode The mode in which to operate when reading film list.
      */
-    public void setWorkMode(WorkMode mode)
-    {
+    public void setWorkMode(WorkMode mode) {
         workMode = mode;
     }
 
@@ -111,6 +112,11 @@ public class MSFilmlisteLesen {
         listeFilme.clear();
         this.notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
 
+        if (workMode == WorkMode.FASTAUTO) {
+            final long maxDays = 1000L * 60L * 60L * 24L * MSConst.FASTAUTO_MAX_DAYS; // mit "fastAuto" nur 15 Tage laden
+            days = new Date().getTime() - maxDays;
+        }
+
         try {
             InputStream in = selectDecompressor(source, getInputStreamForLocation(source));
             JsonParser jp = new JsonFactory().createParser(in);
@@ -148,9 +154,13 @@ public class MSFilmlisteLesen {
                     for (int i = 0; i < DatenFilm.COLUMN_NAMES_JSON.length; ++i) {
                         //if we are in FASTAUTO mode, we don´t need film descriptions.
                         //this should speed up loading on low end devices...
-                        if (workMode == WorkMode.FASTAUTO && DatenFilm.COLUMN_NAMES_JSON[i] == DatenFilm.FILM_BESCHREIBUNG_NR) {
-                            jp.nextToken();
-                            continue;
+                        if (workMode == WorkMode.FASTAUTO) {
+                            if (DatenFilm.COLUMN_NAMES_JSON[i] == DatenFilm.FILM_BESCHREIBUNG_NR
+                                    || DatenFilm.COLUMN_NAMES_JSON[i] == DatenFilm.FILM_WEBSEITE_NR
+                                    || DatenFilm.COLUMN_NAMES_JSON[i] == DatenFilm.FILM_GEO_NR) {
+                                jp.nextToken();
+                                continue;
+                            }
                         }
 
                         datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] = jp.nextTextValue();
@@ -171,6 +181,13 @@ public class MSFilmlisteLesen {
                     }
 
                     listeFilme.importFilmliste(datenFilm);
+                    if (workMode == WorkMode.FASTAUTO) {
+                        // muss "rückwärts" laufen, da das Datum sonst 2x gebaut werden muss
+                        // wenns drin bleibt, kann mans noch ändern
+                        if (!checkDate(datenFilm)) {
+                            listeFilme.remove(datenFilm);
+                        }
+                    }
                 }
             }
         } catch (Exception ex) {
@@ -179,6 +196,22 @@ public class MSFilmlisteLesen {
         }
 
         notifyFertig(source, listeFilme);
+    }
+
+    private boolean checkDate(DatenFilm film) {
+        // true wenn der Film angezeigt werden kann!
+        try {
+            if (days != 0) {
+                if (film.datumFilm.getTime() != 0) {
+                    if (film.datumFilm.getTime() < days) {
+                        return false;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            MSLog.fehlerMeldung(495623014, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.checkDate", ex);
+        }
+        return true;
     }
 
     private void notifyStart(String url, int mmax) {

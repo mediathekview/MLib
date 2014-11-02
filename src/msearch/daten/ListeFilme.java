@@ -220,6 +220,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
     public synchronized void check() {
+        // zum Debuggen
         for (DatenFilm film : this) {
             film.arr[DatenFilm.FILM_THEMA_NR] = MSFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
             film.arr[DatenFilm.FILM_TITEL_NR] = MSFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");

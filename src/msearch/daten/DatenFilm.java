@@ -89,9 +89,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_BESCHREIBUNG = "Beschreibung";
     public static final String FILM_BESCHREIBUNG_ = "n";
     public static final int FILM_BESCHREIBUNG_NR = 10;
-//    public static final String FILM_KEYWORDS = "Keywords";
-//    public static final String FILM_KEYWORDS_ = "q";
-//    public static final int FILM_KEYWORDS_NR = 11;
     public static final String FILM_GEO = "Geo"; // Geoblocking
     public static final String FILM_GEO_ = "bb";
     public static final int FILM_GEO_NR = 11;
@@ -104,7 +101,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_ABO_NAME = "Aboname";// wird vor dem Speichern gelöscht!
     public static final String FILM_ABO_NAME_ = "l";
     public static final int FILM_ABO_NAME_NR = 14;
-    public static final String FILM_IMAGE_URL = "Bild";
+    public static final String FILM_IMAGE_URL = "Bild"; // wird nicht mehr benutzt!!
     public static final String FILM_IMAGE_URL_ = "o";
     public static final int FILM_IMAGE_URL_NR = 15;
     public static final String FILM_URL_RTMP = "UrlRTMP";

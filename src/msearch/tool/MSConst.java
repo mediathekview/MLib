@@ -23,7 +23,7 @@ public class MSConst {
 
     public static final String VERSION_FILMLISTE = "3";
     public static final String PROGRAMMNAME = "MSearch";
-    public static final String USER_AGENT_DEFAULT =MSConst.PROGRAMMNAME +  MSFunktionen.getProgVersionString();
+    public static final String USER_AGENT_DEFAULT = MSConst.PROGRAMMNAME + MSFunktionen.getProgVersionString();
     // MediathekView URLs
     public static final String ADRESSE_FILMLISTEN_SERVER_XML = "http://zdfmediathk.sourceforge.net/update.xml";
     public static final String ADRESSE_FILMLISTEN_SERVER_JSON = "http://zdfmediathk.sourceforge.net/update-json.xml";
@@ -58,4 +58,7 @@ public class MSConst {
     public static final int ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE = 3 * 60 * 60; // beim Start des Programms wir die Liste geladen wenn sie älter ist als ..
     public static final String TIME_MAX_AGE_FOR_DIFF = "10"; // Uhrzeit ab der die Diffliste alle Änderungen abdeckt, die Filmliste darf also nicht vor xx erstellt worden sein
     public static final int MAX_BESCHREIBUNG = 300; // max länge der Beschreibung in Zeichen
+
+    public static final int FASTAUTO_MAX_DAYS = 15; // im Mode FASTAUTO nur soviel Tage zurück laden
+
 }
