@@ -63,24 +63,24 @@ public class MSImportFilmliste {
     // #########################################################
     // Filmeliste importieren, URL automatisch wählen
     // #########################################################
-    public void filmeImportierenAuto(String dateiZiel, ListeFilme listeFilme, ListeFilme listeFilmeDiff) {
+    public void filmeImportierenAuto(ListeFilme listeFilme, ListeFilme listeFilmeDiff, int days) {
         MSConfig.setStop(false);
-        new Thread(new FilmeImportierenAutoThread(dateiZiel, listeFilme, listeFilmeDiff)).start();
+        new Thread(new FilmeImportierenAutoThread(listeFilme, listeFilmeDiff, days)).start();
     }
 
     private class FilmeImportierenAutoThread implements Runnable {
 
         private final ListeFilme listeFilme;
         private final ListeFilme listeFilmeDiff;
-        private final String ziel;
         private final int STATE_AKT = 2;
         private final int STATE_DIFF = 3;
         private int state;
+        private int days;
 
-        public FilmeImportierenAutoThread(String dateiZiel, ListeFilme llisteFilme, ListeFilme llisteFilmeDiff) {
-            ziel = dateiZiel;
-            listeFilme = llisteFilme;
-            listeFilmeDiff = llisteFilmeDiff;
+        public FilmeImportierenAutoThread(ListeFilme listeFilme, ListeFilme listeFilmeDiff, int days) {
+            this.listeFilme = listeFilme;
+            this.listeFilmeDiff = listeFilmeDiff;
+            this.days = days;
         }
 
         @Override
@@ -131,10 +131,10 @@ public class MSImportFilmliste {
             for (int i = 0; i < 5; ++i) {
                 switch (state) {
                     case STATE_AKT:
-                        ret = urlLaden(updateUrl, ziel, liste);
+                        ret = urlLaden(updateUrl, liste, days);
                         break;
                     case STATE_DIFF:
-                        ret = urlLaden(updateUrl, "", liste); // dann muss die komplette Liste erst später geschrieben werden
+                        ret = urlLaden(updateUrl, liste, days); // dann muss die komplette Liste erst später geschrieben werden
                         break;
                 }
 
@@ -171,27 +171,27 @@ public class MSImportFilmliste {
     // #######################################
     // Filmeliste importieren, mit fester URL/Pfad
     // #######################################
-    public void filmeImportierenDatei(String pfad, String dateiZiel, ListeFilme listeFilme) {
+    public void filmeImportierenDatei(String pfad, ListeFilme listeFilme, int days) {
         MSConfig.setStop(false);
-        new Thread(new FilmeImportierenDateiThread(pfad, dateiZiel, listeFilme)).start();
+        new Thread(new FilmeImportierenDateiThread(pfad, listeFilme, days)).start();
 
     }
 
     private class FilmeImportierenDateiThread implements Runnable {
 
         private final String pfad;
-        private final String ziel;
         private final ListeFilme listeFilme;
+        private final int days;
 
-        public FilmeImportierenDateiThread(String ppfad, String dateiZiel, ListeFilme llisteFilme) {
+        public FilmeImportierenDateiThread(String ppfad, ListeFilme llisteFilme, int days) {
             pfad = ppfad;
-            ziel = dateiZiel;
             listeFilme = llisteFilme;
+            this.days = days;
         }
 
         @Override
         public void run() {
-            fertigMelden(urlLaden(pfad, ziel, listeFilme));
+            fertigMelden(urlLaden(pfad, listeFilme, days));
         }
     }
 
@@ -205,12 +205,12 @@ public class MSImportFilmliste {
         msFilmlistenSuchen.updateURLsFilmlisten(akt, diff);
     }
 
-    private boolean urlLaden(String dateiUrl, String dateiZiel, ListeFilme listeFilme) {
+    private boolean urlLaden(String dateiUrl, ListeFilme listeFilme, int days) {
         boolean ret = false;
         try {
             if (!dateiUrl.equals("")) {
                 MSLog.systemMeldung("Filmliste laden von: " + dateiUrl);
-                msFilmlisteLesen.readFilmListe(dateiUrl, listeFilme);
+                msFilmlisteLesen.readFilmListe(dateiUrl, listeFilme, days);
                 if (!listeFilme.isEmpty()) {
                     ret = true;
                 }

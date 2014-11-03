@@ -57,7 +57,7 @@ public class Search implements Runnable {
             }
         });
         // laden was es schon gibt
-        new MSFilmlisteLesen().readFilmListe(MSConfig.getPathFilmlist_json_akt(false /*aktDate*/), listeFilme);
+        new MSFilmlisteLesen().readFilmListe(MSConfig.getPathFilmlist_json_akt(false /*aktDate*/), listeFilme, 0 /*all days*/);
         // das eigentliche Suchen der Filme bei den Sendern starten
         if (MSConfig.nurSenderLaden == null) {
             mSearchFilmeSuchen.filmeBeimSenderLaden(listeFilme);
@@ -88,7 +88,7 @@ public class Search implements Runnable {
             MSLog.systemMeldung("Filmliste importieren (anhängen) von: " + MSConfig.importUrl__anhaengen);
             MSLog.systemMeldung("   --> von Anz. Filme: " + listeFilme.size());
             tmpListe.clear();
-            new MSFilmlisteLesen().readFilmListe(MSConfig.importUrl__anhaengen, tmpListe);
+            new MSFilmlisteLesen().readFilmListe(MSConfig.importUrl__anhaengen, tmpListe, 0 /*all days*/);
             listeFilme.updateListe(tmpListe, false /* nur URL vergleichen */, false /*ersetzen*/);
             MSLog.systemMeldung("   --> nach Anz. Filme: " + listeFilme.size());
             tmpListe.clear();
@@ -103,7 +103,7 @@ public class Search implements Runnable {
             MSLog.systemMeldung("Filmliste importieren (ersetzen) von: " + MSConfig.importUrl__ersetzen);
             MSLog.systemMeldung("   --> von Anz. Filme: " + listeFilme.size());
             tmpListe.clear();
-            new MSFilmlisteLesen().readFilmListe(MSConfig.importUrl__ersetzen, tmpListe);
+            new MSFilmlisteLesen().readFilmListe(MSConfig.importUrl__ersetzen, tmpListe, 0 /*all days*/);
             /////// toDo
             tmpListe.updateListe(listeFilme, false /* nur URL vergleichen */, false /*ersetzen*/);
             tmpListe.metaDaten = listeFilme.metaDaten;
@@ -143,7 +143,7 @@ public class Search implements Runnable {
             MSLog.systemMeldung("Diff erzeugen, von: " + org + " nach: " + MSConfig.getPathFilmlist_json_diff());
             tmpListe.clear();
             ListeFilme diff;
-            new MSFilmlisteLesen().readFilmListe(org, tmpListe);
+            new MSFilmlisteLesen().readFilmListe(org, tmpListe, 0 /*all days*/);
             if (tmpListe.isEmpty()) {
                 // dann ist die komplette Liste das diff
                 MSLog.systemMeldung(" --> Lesefehler der Orgliste: Diff bleibt leer!");

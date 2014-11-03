@@ -54,7 +54,7 @@ public final class SearchGui extends javax.swing.JFrame {
         } else {
             jTextFieldFilmliste.setText(pfad);
         }
-        new MSFilmlisteLesen().readFilmListe(jTextFieldFilmliste.getText(), listeFilme);
+        new MSFilmlisteLesen().readFilmListe(jTextFieldFilmliste.getText(), listeFilme, 0 /*all days*/);
         jLabelAnzahl.setText(SearchGui.listeFilme.size() + "");
 
         jButtonFilmlisteLoeschen.addActionListener(new ActionListener() {

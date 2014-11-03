@@ -53,7 +53,7 @@ public class MSFilmlisteLesen {
     private int progress = 0;
     private static final int TIMEOUT = 10_000; //10 Sekunden
     private static final int PROGRESS_MAX = 100;
-    long days = 0;
+    private long seconds = 0;
 
     public void addAdListener(MSListenerFilmeLaden listener) {
         listeners.add(MSListenerFilmeLaden.class, listener);
@@ -106,15 +106,17 @@ public class MSFilmlisteLesen {
         return in;
     }
 
-    public void readFilmListe(String source, final ListeFilme listeFilme) {
+    public void readFilmListe(String source, final ListeFilme listeFilme, int days) {
         JsonToken jsonToken;
         String sender = "", thema = "";
         listeFilme.clear();
         this.notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
 
-        if (workMode == WorkMode.FASTAUTO) {
-            final long maxDays = 1000L * 60L * 60L * 24L * MSConst.FASTAUTO_MAX_DAYS; // mit "fastAuto" nur 15 Tage laden
-            days = new Date().getTime() - maxDays;
+        if (days > 0) {
+            final long maxDays = 1000L * 60L * 60L * 24L * days;
+            seconds = new Date().getTime() - maxDays;
+        } else {
+            seconds = 0;
         }
 
         try {
@@ -181,7 +183,7 @@ public class MSFilmlisteLesen {
                     }
 
                     listeFilme.importFilmliste(datenFilm);
-                    if (workMode == WorkMode.FASTAUTO) {
+                    if (days > 0) {
                         // muss "rückwärts" laufen, da das Datum sonst 2x gebaut werden muss
                         // wenns drin bleibt, kann mans noch ändern
                         if (!checkDate(datenFilm)) {
@@ -201,9 +203,9 @@ public class MSFilmlisteLesen {
     private boolean checkDate(DatenFilm film) {
         // true wenn der Film angezeigt werden kann!
         try {
-            if (days != 0) {
+            if (seconds != 0) {
                 if (film.datumFilm.getTime() != 0) {
-                    if (film.datumFilm.getTime() < days) {
+                    if (film.datumFilm.getTime() < seconds) {
                         return false;
                     }
                 }
