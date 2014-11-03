@@ -65,7 +65,7 @@ public class MSFilmlisteLesen {
      *
      * @param mode The mode in which to operate when reading film list.
      */
-    public void setWorkMode(WorkMode mode) {
+    public static void setWorkMode(WorkMode mode) {
         workMode = mode;
     }
 
@@ -183,7 +183,7 @@ public class MSFilmlisteLesen {
                     }
 
                     listeFilme.importFilmliste(datenFilm);
-                    if (days > 0) {
+                    if (seconds > 0) {
                         // muss "rückwärts" laufen, da das Datum sonst 2x gebaut werden muss
                         // wenns drin bleibt, kann mans noch ändern
                         if (!checkDate(datenFilm)) {
@@ -203,11 +203,9 @@ public class MSFilmlisteLesen {
     private boolean checkDate(DatenFilm film) {
         // true wenn der Film angezeigt werden kann!
         try {
-            if (seconds != 0) {
-                if (film.datumFilm.getTime() != 0) {
-                    if (film.datumFilm.getTime() < seconds) {
-                        return false;
-                    }
+            if (film.datumFilm.getTime() != 0) {
+                if (film.datumFilm.getTime() < seconds) {
+                    return false;
                 }
             }
         } catch (Exception ex) {

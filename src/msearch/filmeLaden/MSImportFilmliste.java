@@ -183,9 +183,9 @@ public class MSImportFilmliste {
         private final ListeFilme listeFilme;
         private final int days;
 
-        public FilmeImportierenDateiThread(String ppfad, ListeFilme llisteFilme, int days) {
-            pfad = ppfad;
-            listeFilme = llisteFilme;
+        public FilmeImportierenDateiThread(String pfad, ListeFilme listeFilme, int days) {
+            this.pfad = pfad;
+            this.listeFilme = listeFilme;
             this.days = days;
         }
 
