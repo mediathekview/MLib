@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -192,7 +193,11 @@ public class MSFilmlisteLesen {
                     }
                 }
             }
-        } catch (Exception ex) {
+        }
+        catch (FileNotFoundException ex) {
+            listeFilme.clear();
+        }
+        catch (Exception ex) {
             MSLog.fehlerMeldung(945123641, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.readFilmListe: " + source, ex);
             listeFilme.clear();
         }
