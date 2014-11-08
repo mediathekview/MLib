@@ -193,11 +193,9 @@ public class MSFilmlisteLesen {
                     }
                 }
             }
-        }
-        catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException ex) {
             listeFilme.clear();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             MSLog.fehlerMeldung(945123641, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.readFilmListe: " + source, ex);
             listeFilme.clear();
         }
