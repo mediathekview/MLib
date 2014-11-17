@@ -59,7 +59,8 @@ public class MSFilmeSuchen {
     private final LinkedList<MediathekReader> mediathekListe = new LinkedList<>();
     private final EventListenerList listeners = new EventListenerList();
     private final MSListeRunSender listeSenderLaufen = new MSListeRunSender();
-    private Date startZeit = null;
+    private Date startZeit = new Date();
+    private Date stopZeit = new Date();
     private final ArrayList<String> runde1 = new ArrayList<>();
     private final ArrayList<String> runde2 = new ArrayList<>();
     private final ArrayList<String> runde3 = new ArrayList<>();
@@ -68,6 +69,8 @@ public class MSFilmeSuchen {
     private final String[] titel3 = {"Dateigroesse ", "getGroesse:", "mit_403", "OkMitProxy", "Threads", "Wait"};
     private final static String TRENNER = " | ";
     private boolean allStarted = false;
+    private int anzFilme = 0; // Anzahl gesuchter Filme
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     /**
      * ###########################################################################################################
@@ -137,7 +140,6 @@ public class MSFilmeSuchen {
      * @param listeFilme
      */
     public synchronized void filmeBeimSenderLaden(ListeFilme listeFilme) {
-        allStarted = false;
         initStart(listeFilme);
         // die mReader nach Prio starten
         mrStarten(0);
@@ -156,7 +158,6 @@ public class MSFilmeSuchen {
      */
     public void updateSender(String[] nameSender, ListeFilme listeFilme) {
         // nur für den Mauskontext "Sender aktualisieren"
-        allStarted = false;
         boolean starten = false;
         initStart(listeFilme);
         for (MediathekReader reader : mediathekListe) {
@@ -281,7 +282,20 @@ public class MSFilmeSuchen {
             notifyProgress(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
         } else {
             // wird einmal aufgerufen, wenn alle Sender fertig sind
-            endeMeldung();
+            anzFilme = listeFilmeNeu.size();
+            if (MSConfig.updateFilmliste) {
+                // alte Filme eintragen wenn angefordert oder nur ein update gesucht wurde
+                //////toDo
+                listeFilmeNeu.updateListe(listeFilmeAlt, true /* über den Index vergleichen */, false /*ersetzen*/);
+            }
+            listeFilmeNeu.sort();
+            // FilmlisteMetaDaten
+            listeFilmeNeu.writeMetaData();
+            stopZeit = new Date(System.currentTimeMillis());
+            ArrayList<String> ret = endeMeldung();
+            for (String s : ret) {
+                MSLog.systemMeldung(s);
+            }
             notifyFertig(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
         }
     }
@@ -316,103 +330,91 @@ public class MSFilmeSuchen {
         }
     }
 
-    private void endeMeldung() {
+    public ArrayList<String> endeMeldung() {
         // wird einmal aufgerufen, wenn alle Sender fertig sind
+        ArrayList<String> retArray = new ArrayList<>();
         String zeile;
         if (MSConfig.getStop()) {
             // Abbruch melden
-            MSLog.systemMeldung("                                                                                     ");
-            MSLog.systemMeldung("                                                                                     ");
-            MSLog.systemMeldung("*************************************************************************************");
-            MSLog.systemMeldung("*************************************************************************************");
-            MSLog.systemMeldung("     ----- Abbruch -----                                                             ");
-            MSLog.systemMeldung("*************************************************************************************");
-            MSLog.systemMeldung("*************************************************************************************");
-            MSLog.systemMeldung("                                                                                     ");
-            MSLog.systemMeldung("                                                                                     ");
+            retArray.add("                                                                                     ");
+            retArray.add("                                                                                     ");
+            retArray.add("*************************************************************************************");
+            retArray.add("*************************************************************************************");
+            retArray.add("     ----- Abbruch -----                                                             ");
+            retArray.add("*************************************************************************************");
+            retArray.add("*************************************************************************************");
+            retArray.add("                                                                                     ");
+            retArray.add("                                                                                     ");
         }
         // Sender ===============================================
         // ======================================================
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("=================================================================================");
-        MSLog.systemMeldung("==  Sender  =====================================================================");
-        MSLog.systemMeldung("");
+        retArray.add("");
+        retArray.add("");
+        retArray.add("=================================================================================");
+        retArray.add("==  Sender  =====================================================================");
+        retArray.add("");
         // Zeile 1 =============================================
         zeile = "";
         for (String s : titel1) {
             zeile += s + TRENNER;
         }
-        //zeile = titel1[0] + TTRENNER + titel1[1] + TRENNER + titel1[2] + TRENNER + titel1[3] + TRENNER + titel1[4] + TRENNER + titel1[5] + TRENNER + titel1[6] + TRENNER + titel1[7] + TRENNER;
-        MSLog.systemMeldung(zeile);
-        MSLog.systemMeldung("---------------------------------------------------------------------------------------");
+        retArray.add(zeile);
+        retArray.add("---------------------------------------------------------------------------------------");
         for (String s : runde1) {
-            MSLog.systemMeldung(s);
+            retArray.add(s);
         }
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("");
+        retArray.add("");
+        retArray.add("");
         // Zeile 2 =============================================
         zeile = "";
         for (String s : titel2) {
             zeile += s + TRENNER;
         }
-        //zeile = titel2[0] + TTRENNER + titel2[1] + TRENNER + titel2[2] + TRENNER + titel2[3] + TRENNER + titel2[4] + TRENNER + titel2[5] + TRENNER + titel2[6] + TRENNER;
-        MSLog.systemMeldung(zeile);
-        MSLog.systemMeldung("----------------------------------------------------------------------------------");
+        retArray.add(zeile);
+        retArray.add("----------------------------------------------------------------------------------");
         for (String s : runde2) {
-            MSLog.systemMeldung(s);
+            retArray.add(s);
         }
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("");
+        retArray.add("");
+        retArray.add("");
         // Zeile 3 =============================================
         zeile = "";
         for (String s : titel3) {
             zeile += s + TRENNER;
         }
-        //zeile = titel3[0] + TTRENNER + titel3[1] + TRENNER + titel3[2] + TRENNER + titel3[3] + TRENNER;
-        MSLog.systemMeldung(zeile);
-        MSLog.systemMeldung("---------------------------------------------------------------------");
+        retArray.add(zeile);
+        retArray.add("---------------------------------------------------------------------");
         for (String s : runde3) {
-            MSLog.systemMeldung(s);
+            retArray.add(s);
         }
         // Gesamt ===============================================
         // ======================================================
-        int anzFilme = listeFilmeNeu.size();
-        if (MSConfig.updateFilmliste) {
-            // alte Filme eintragen wenn angefordert oder nur ein update gesucht wurde
-            //////toDo
-            listeFilmeNeu.updateListe(listeFilmeAlt, true /* über den Index vergleichen */, false /*ersetzen*/);
-        }
-        listeFilmeNeu.sort();
-        // FilmlisteMetaDaten
-        listeFilmeNeu.writeMetaData();
-        Date stopZeit = new Date(System.currentTimeMillis());
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         int sekunden = getDauerSekunden();
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("=================================================================================");
-        MSLog.systemMeldung("=================================================================================");
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("        Filme geladen: " + anzFilme);
-        MSLog.systemMeldung("       Seiten geladen: " + MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SEITEN_ZAEHLER));
+        retArray.add("");
+        retArray.add("=================================================================================");
+        retArray.add("=================================================================================");
+        retArray.add("");
+        retArray.add("        Filme geladen: " + anzFilme);
+        retArray.add("       Seiten geladen: " + MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SEITEN_ZAEHLER));
         String groesse = (MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_KBYTE) / 1000 == 0) ? "<1" : Long.toString(MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_KBYTE) / 1000);
-        MSLog.systemMeldung("   Summe geladen[MiB]: " + groesse);
-        MSLog.systemMeldung("        Traffic [MiB]: " + MSGetUrl.getSummeMegaByte());
+        retArray.add("   Summe geladen[MiB]: " + groesse);
+        retArray.add("        Traffic [MiB]: " + MSGetUrl.getSummeMegaByte());
         // Durchschnittswerte ausgeben
         long kb = (MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_KBYTE)) / (sekunden == 0 ? 1 : sekunden);
-        MSLog.systemMeldung("     ->   Rate[KiB/s]: " + (kb == 0 ? "<1" : kb));
-        MSLog.systemMeldung("     ->    Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60));
-        MSLog.systemMeldung("            ->  Start: " + sdf.format(startZeit));
-        MSLog.systemMeldung("            ->   Ende: " + sdf.format(stopZeit));
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("=================================================================================");
-        MSLog.systemMeldung("=================================================================================");
+        retArray.add("     ->   Rate[KiB/s]: " + (kb == 0 ? "<1" : kb));
+        retArray.add("     ->    Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60));
+        retArray.add("            ->  Start: " + sdf.format(startZeit));
+        retArray.add("            ->   Ende: " + sdf.format(stopZeit));
+        retArray.add("");
+        retArray.add("=================================================================================");
+        retArray.add("=================================================================================");
+        return retArray;
     }
 
     private int getDauerSekunden() {
         int sekunden;
         try {
-            sekunden = Math.round((new Date(System.currentTimeMillis()).getTime() - startZeit.getTime()) / (1000));
+            sekunden = Math.round((stopZeit.getTime() - startZeit.getTime()) / (1000));
         } catch (Exception ex) {
             sekunden = 1;
         }
@@ -423,6 +425,8 @@ public class MSFilmeSuchen {
     }
 
     private void initStart(ListeFilme listeFilme) {
+        allStarted = false;
+        anzFilme = 0;
         listeFilmeAlt = listeFilme;
         MSConfig.setStop(false);
         startZeit = new Date(System.currentTimeMillis());

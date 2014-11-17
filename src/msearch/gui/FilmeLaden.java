@@ -34,14 +34,13 @@ public class FilmeLaden {
 
         START, PROGRESS, FINISHED
     }
-    // private
-    private MSFilmeSuchen mSearchFilmeSuchen;
+    public MSFilmeSuchen msFilmeSuchen;
     private final EventListenerList listeners = new EventListenerList();
     private boolean istAmLaufen = false;
 
     public FilmeLaden() {
-        mSearchFilmeSuchen = new MSFilmeSuchen();
-        mSearchFilmeSuchen.addAdListener(new MSListenerFilmeLaden() {
+        msFilmeSuchen = new MSFilmeSuchen();
+        msFilmeSuchen.addAdListener(new MSListenerFilmeLaden() {
             @Override
             public synchronized void start(MSListenerFilmeLadenEvent event) {
                 notifyStart(event);
@@ -55,7 +54,7 @@ public class FilmeLaden {
             @Override
             public synchronized void fertig(MSListenerFilmeLadenEvent event) {
                 // Ergebnisliste listeFilme eintragen -> Feierabend!
-                SearchGui.listeFilme = mSearchFilmeSuchen.listeFilmeNeu;
+                SearchGui.listeFilme = msFilmeSuchen.listeFilmeNeu;
                 undEnde(event);
             }
         });
@@ -71,7 +70,7 @@ public class FilmeLaden {
             istAmLaufen = true;
             MSConfig.senderAllesLaden = senderAllesLaden;
             MSConfig.updateFilmliste = filmlisteUpdate;
-            mSearchFilmeSuchen.filmeBeimSenderLaden(SearchGui.listeFilme);
+            msFilmeSuchen.filmeBeimSenderLaden(SearchGui.listeFilme);
         }
     }
 
@@ -80,7 +79,7 @@ public class FilmeLaden {
         if (!istAmLaufen) {
             // nicht doppelt starten
             istAmLaufen = true;
-            mSearchFilmeSuchen.updateSender(sender, SearchGui.listeFilme);
+            msFilmeSuchen.updateSender(sender, SearchGui.listeFilme);
         }
     }
 

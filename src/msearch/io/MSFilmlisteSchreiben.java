@@ -48,7 +48,7 @@ public class MSFilmlisteSchreiben {
     private BZip2CompressorOutputStream bZip2CompressorOutputStream = null;
 
     public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
-        MSLog.systemMeldung("Filme Schreiben (" + listeFilme.size() + " Filme) :");
+        MSLog.systemMeldung("Filme schreiben (" + listeFilme.size() + " Filme) :");
         File file = new File(datei);
         File dir = new File(file.getParent());
         if (!dir.exists()) {

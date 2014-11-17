@@ -24,6 +24,11 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import msearch.daten.ListeFilme;
@@ -32,6 +37,8 @@ import msearch.gui.FilmeLaden;
 import msearch.gui.PanelSenderLaden;
 import msearch.io.MSFilmlisteLesen;
 import msearch.io.MSFilmlisteSchreiben;
+import msearch.tool.MSConst;
+import msearch.tool.MSLog;
 
 public final class SearchGui extends javax.swing.JFrame {
 
@@ -120,6 +127,62 @@ public final class SearchGui extends javax.swing.JFrame {
             buttonSender[i].addActionListener(new BeobSenderLoeschen(sender[i]));
         }
         addSender();
+        jButtonEnde.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                String datei = "/tmp/testfile"; //////////////
+                Date aktTime = new Date(System.currentTimeMillis());
+                String aktTimeStr = sdf.format(aktTime);
+                MSLog.systemMeldung("");
+                MSLog.systemMeldung("Log schreiben: " + datei);
+                MSLog.systemMeldung("--> " + aktTimeStr);
+                File file = new File(datei);
+                File dir = new File(file.getParent());
+                if (!dir.exists()) {
+                    if (!dir.mkdirs()) {
+                        MSLog.fehlerMeldung(632012165, MSLog.FEHLER_ART_PROG, "Search.logSchreiben", "Kann den Pfad nicht anlegen: " + dir.toString());
+                    }
+                }
+
+                try {
+                    OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, true), MSConst.KODIERUNG_UTF);
+                    out.write("===============================================================");
+                    out.write("===============================================================");
+                    out.write("\n");
+                    out.write("--> " + aktTimeStr);
+                    out.write("\n");
+                    ArrayList<String> ret;
+                    ret = filmeLaden.msFilmeSuchen.endeMeldung();
+                    for (String s : ret) {
+                        out.write(s);
+                        out.write("\n");
+                    }
+                    ret = MSLog.fehlerMeldungen();
+                    for (String s : ret) {
+                        out.write(s);
+                        out.write("\n");
+                    }
+                    out.write("\n");
+                    out.write("\n");
+                    out.write("\n");
+                    out.write("\n");
+                    out.write("\n");
+                    out.write("\n");
+                    out.write("\n");
+                    out.write("\n");
+                    out.write("\n");
+                    out.write("\n");
+                    out.close();
+
+                    MSLog.systemMeldung("--> geschrieben!");
+                } catch (Exception ex) {
+                    MSLog.fehlerMeldung(846930145, MSLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
+                }
+
+            }
+        });
     }
 
     private void addSender() {
@@ -151,6 +214,7 @@ public final class SearchGui extends javax.swing.JFrame {
         jPanelTool = new javax.swing.JPanel();
         jButtonCheck = new javax.swing.JButton();
         jButtonGc = new javax.swing.JButton();
+        jButtonEnde = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabelAnzahl = new javax.swing.JLabel();
@@ -250,15 +314,18 @@ public final class SearchGui extends javax.swing.JFrame {
 
         jButtonGc.setText("Gcc");
 
+        jButtonEnde.setText("Endemeldung");
+
         javax.swing.GroupLayout jPanelToolLayout = new javax.swing.GroupLayout(jPanelTool);
         jPanelTool.setLayout(jPanelToolLayout);
         jPanelToolLayout.setHorizontalGroup(
             jPanelToolLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelToolLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanelToolLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButtonCheck)
-                    .addComponent(jButtonGc))
+                .addGroup(jPanelToolLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jButtonCheck, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonGc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonEnde, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(642, Short.MAX_VALUE))
         );
 
@@ -271,7 +338,9 @@ public final class SearchGui extends javax.swing.JFrame {
                 .addComponent(jButtonCheck)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButtonGc)
-                .addContainerGap(401, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButtonEnde)
+                .addContainerGap(364, Short.MAX_VALUE))
         );
 
         jTabbedPane.addTab("Tool", jPanelTool);
@@ -348,6 +417,7 @@ public final class SearchGui extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonAlleSenderLaden;
     private javax.swing.JButton jButtonCheck;
+    private javax.swing.JButton jButtonEnde;
     private javax.swing.JButton jButtonFilmliste;
     private javax.swing.JButton jButtonFilmlisteLoeschen;
     private javax.swing.JButton jButtonGc;

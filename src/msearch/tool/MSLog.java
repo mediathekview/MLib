@@ -22,6 +22,7 @@ package msearch.tool;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import msearch.daten.MSConfig;
@@ -110,7 +111,11 @@ public class MSLog {
         systemMeldung("");
         systemMeldung("");
         systemMeldung("");
-        fehlerMeldungen();
+        ArrayList<String> ret = fehlerMeldungen();
+        for (String s : ret) {
+            systemMeldung(s);
+        }
+
         // Laufzeit ausgeben
         Date stopZeit = new Date(System.currentTimeMillis());
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
@@ -134,10 +139,12 @@ public class MSLog {
         systemMeldung("##################################################################################");
     }
 
-    public static synchronized void fehlerMeldungen() {
-        systemMeldung("##################################################################################");
+    public static synchronized ArrayList<String> fehlerMeldungen() {
+        ArrayList<String> retList = new ArrayList<>();
+        retList.add("");
+        retList.add("##################################################################################");
         if (fehlerListe.size() == 0) {
-            systemMeldung(" Keine Fehler :)");
+            retList.add(" Keine Fehler :)");
         } else {
             // Fehler ausgeben
             int i_1;
@@ -180,70 +187,14 @@ public class MSLog {
                     strEx = "    ";
                 }
                 if (integers[1] < 0) {
-                    systemMeldung(strEx + z + " Fehlernummer: " + integers[1] + " Anzahl: " + integers[2]);
+                    retList.add(strEx + z + " Fehlernummer: " + integers[1] + " Anzahl: " + integers[2]);
                 } else {
-                    systemMeldung(strEx + z + " Fehlernummer:  " + integers[1] + " Anzahl: " + integers[2]);
+                    retList.add(strEx + z + " Fehlernummer:  " + integers[1] + " Anzahl: " + integers[2]);
                 }
             }
         }
-        systemMeldung("##################################################################################");
-    }
-
-    public static synchronized String fehlerMeldungen_() {
-        String ret = "\n";
-        ret += "-----------------------------------------------------------\n";
-        if (fehlerListe.size() == 0) {
-            ret += " Keine Fehler :)\n";
-        } else {
-            // Fehler ausgeben
-            int i_1;
-            int i_2;
-            for (int i = 1; i < fehlerListe.size(); ++i) {
-                for (int k = i; k > 0; --k) {
-                    i_1 = fehlerListe.get(k - 1)[1];
-                    i_2 = fehlerListe.get(k)[1];
-                    // if (str1.compareToIgnoreCase(str2) > 0) {
-                    if (i_1 < i_2) {
-                        fehlerListe.add(k - 1, fehlerListe.remove(k));
-                    } else {
-                        break;
-                    }
-                }
-            }
-            for (Integer[] integers : fehlerListe) {
-                String z;
-                switch (integers[0]) {
-                    case FEHLER_ART_MREADER:
-                        z = FEHLER_ART_MREADER_TEXT;
-                        break;
-                    case FEHLER_ART_FILME_SUCHEN:
-                        z = FEHLER_ART_FILME_SUCHEN_TEXT;
-                        break;
-                    case FEHLER_ART_GETURL:
-                        z = FEHLER_ART_GETURL_TEXT;
-                        break;
-                    case FEHLER_ART_PROG:
-                        z = FEHLER_ART_PROG_TEXT;
-                        break;
-                    default:
-                        z = "";
-                }
-                boolean ex = integers[3] == 1;
-                String strEx;
-                if (ex) {
-                    strEx = "Ex! ";
-                } else {
-                    strEx = "    ";
-                }
-                if (integers[1] < 0) {
-                    ret += strEx + z + " Fehlernummer: " + integers[1] + " Anzahl: " + integers[2] + "\n";
-                } else {
-                    ret += strEx + z + " Fehlernummer:  " + integers[1] + " Anzahl: " + integers[2] + "\n";
-                }
-            }
-        }
-        ret += "-----------------------------------------------------------\n";
-        return ret;
+        retList.add("##################################################################################");
+        return retList;
     }
 
     // Fehlermeldung mit Exceptions

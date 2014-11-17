@@ -243,9 +243,10 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jButtonCheck" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jButtonGc" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="jButtonCheck" linkSize="1" alignment="0" max="32767" attributes="0"/>
+                              <Component id="jButtonGc" linkSize="1" alignment="0" max="32767" attributes="0"/>
+                              <Component id="jButtonEnde" alignment="0" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace pref="642" max="32767" attributes="0"/>
                       </Group>
@@ -258,7 +259,9 @@
                           <Component id="jButtonCheck" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="jButtonGc" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="401" max="32767" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="jButtonEnde" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace pref="364" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -272,6 +275,11 @@
                 <Component class="javax.swing.JButton" name="jButtonGc">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Gcc"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JButton" name="jButtonEnde">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Endemeldung"/>
                   </Properties>
                 </Component>
               </SubComponents>

@@ -19,6 +19,12 @@
  */
 package msearch;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import msearch.daten.ListeFilme;
 import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
@@ -26,16 +32,17 @@ import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import msearch.io.MSFilmlisteLesen;
 import msearch.io.MSFilmlisteSchreiben;
+import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 
 public class Search implements Runnable {
 
     private ListeFilme listeFilme = new ListeFilme();
-    private final MSFilmeSuchen mSearchFilmeSuchen;
+    private final MSFilmeSuchen msFilmeSuchen;
     private boolean serverLaufen = false;
 
     public Search() {
-        mSearchFilmeSuchen = new MSFilmeSuchen();
+        msFilmeSuchen = new MSFilmeSuchen();
     }
 
     @Override
@@ -50,7 +57,7 @@ public class Search implements Runnable {
         MSLog.startMeldungen(this.getClass().getName());
         MSLog.systemMeldung("");
         MSLog.systemMeldung("");
-        mSearchFilmeSuchen.addAdListener(new MSListenerFilmeLaden() {
+        msFilmeSuchen.addAdListener(new MSListenerFilmeLaden() {
             @Override
             public void fertig(MSListenerFilmeLadenEvent event) {
                 serverLaufen = false;
@@ -60,9 +67,9 @@ public class Search implements Runnable {
         new MSFilmlisteLesen().readFilmListe(MSConfig.getPathFilmlist_json_akt(false /*aktDate*/), listeFilme, 0 /*all days*/);
         // das eigentliche Suchen der Filme bei den Sendern starten
         if (MSConfig.nurSenderLaden == null) {
-            mSearchFilmeSuchen.filmeBeimSenderLaden(listeFilme);
+            msFilmeSuchen.filmeBeimSenderLaden(listeFilme);
         } else {
-            mSearchFilmeSuchen.updateSender(MSConfig.nurSenderLaden, listeFilme);
+            msFilmeSuchen.updateSender(MSConfig.nurSenderLaden, listeFilme);
         }
         try {
             while (serverLaufen) {
@@ -75,7 +82,7 @@ public class Search implements Runnable {
     }
 
     private void undTschuess() {
-        listeFilme = mSearchFilmeSuchen.getErgebnis();
+        listeFilme = msFilmeSuchen.getErgebnis();
         ListeFilme tmpListe = new ListeFilme();
 
         //================================================
@@ -165,4 +172,58 @@ public class Search implements Runnable {
         // fertig
         MSLog.endeMeldung();
     }
+
+    public void logSchreiben(String datei) {
+        final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        datei = "/tmp/testfile"; //////////////
+        Date aktTime = new Date(System.currentTimeMillis());
+        String aktTimeStr = sdf.format(aktTime);
+        MSLog.systemMeldung("");
+        MSLog.systemMeldung("Log schreiben: " + datei);
+        MSLog.systemMeldung("--> " + aktTimeStr);
+        File file = new File(datei);
+        File dir = new File(file.getParent());
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                MSLog.fehlerMeldung(632012165, MSLog.FEHLER_ART_PROG, "Search.logSchreiben", "Kann den Pfad nicht anlegen: " + dir.toString());
+            }
+        }
+
+        try {
+            OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, true), MSConst.KODIERUNG_UTF);
+            out.write("===============================================================");
+            out.write("===============================================================");
+            out.write("\n");
+            out.write("--> " + aktTimeStr);
+            out.write("\n");
+            ArrayList<String> ret;
+            ret = msFilmeSuchen.endeMeldung();
+            for (String s : ret) {
+                out.write(s);
+                out.write("\n");
+            }
+            ret = MSLog.fehlerMeldungen();
+            for (String s : ret) {
+                out.write(s);
+                out.write("\n");
+            }
+            out.write("\n");
+            out.write("\n");
+            out.write("\n");
+            out.write("\n");
+            out.write("\n");
+            out.write("\n");
+            out.write("\n");
+            out.write("\n");
+            out.write("\n");
+            out.write("\n");
+            out.close();
+
+            MSLog.systemMeldung("--> geschrieben!");
+        } catch (Exception ex) {
+            MSLog.fehlerMeldung(846930145, MSLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
+        }
+
+    }
+
 }
