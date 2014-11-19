@@ -36,7 +36,7 @@ import msearch.tool.GermanStringSorter;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSLong;
-import msearch.tool.MSUrlDateiGroesse;
+import msearch.tool.MSFileSize;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 
@@ -247,7 +247,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         if (url.equals(arr[DatenFilm.FILM_URL_NR])) {
             return arr[DatenFilm.FILM_GROESSE_NR];
         } else {
-            return MSUrlDateiGroesse.laengeString(url);
+            return MSFileSize.laengeString(url);
         }
     }
 

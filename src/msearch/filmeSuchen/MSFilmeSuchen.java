@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import javax.swing.event.EventListenerList;
 import msearch.daten.ListeFilme;
-import msearch.daten.MSConfig;
+import msearch.tool.MSConfig;
 import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekArte_de;
@@ -48,7 +48,7 @@ import msearch.filmeSuchen.sender.MediathekZdfTivi;
 import msearch.tool.DatumZeit;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSLog;
-import msearch.tool.MSUrlDateiGroesse;
+import msearch.tool.MSFileSize;
 
 public class MSFilmeSuchen {
 
@@ -268,9 +268,9 @@ public class MSFilmeSuchen {
             // =================================
             // Zeile3
             zeile = textLaenge(titel3[0].length(), run.sender) + TRENNER;
-            zeile += textLaenge(titel3[1].length(), String.valueOf(MSUrlDateiGroesse.getZaehler(run.sender))) + TRENNER;
-            zeile += textLaenge(titel3[2].length(), String.valueOf(MSUrlDateiGroesse.getZaehler403(run.sender))) + TRENNER;
-            zeile += textLaenge(titel3[3].length(), String.valueOf(MSUrlDateiGroesse.getZaehlerProxy(run.sender))) + TRENNER;
+            zeile += textLaenge(titel3[1].length(), String.valueOf(MSFileSize.getZaehler(run.sender))) + TRENNER;
+            zeile += textLaenge(titel3[2].length(), String.valueOf(MSFileSize.getZaehler403(run.sender))) + TRENNER;
+            zeile += textLaenge(titel3[3].length(), String.valueOf(MSFileSize.getZaehlerProxy(run.sender))) + TRENNER;
             zeile += textLaenge(titel3[4].length(), getThreads(run.sender)) + TRENNER;
             zeile += textLaenge(titel3[5].length(), getWaitTime(run.sender)) + TRENNER;
             runde3.add(zeile
@@ -435,7 +435,7 @@ public class MSFilmeSuchen {
         runde2.clear();
         runde3.clear();
         MSGetUrl.resetZaehler();
-        MSUrlDateiGroesse.resetZaehler(getNamenSender());
+        MSFileSize.resetZaehler(getNamenSender());
         MSLog.systemMeldung("");
         MSLog.systemMeldung("=======================================");
         MSLog.systemMeldung("Start Filme laden:");

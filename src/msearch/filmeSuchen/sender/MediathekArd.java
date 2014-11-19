@@ -21,7 +21,7 @@ package msearch.filmeSuchen.sender;
 
 import java.util.ArrayList;
 import msearch.daten.DatenFilm;
-import msearch.daten.MSConfig;
+import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
 import msearch.tool.MSConst;

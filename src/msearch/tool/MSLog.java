@@ -28,7 +28,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
-import msearch.daten.MSConfig;
 import org.apache.commons.lang3.StringUtils;
 
 public class MSLog {
@@ -64,60 +63,74 @@ public class MSLog {
 
     public static synchronized void versionsMeldungen(String classname) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("##################################################################################");
-        MSLog.systemMeldung("##################################################################################");
-        MSLog.systemMeldung("Programmstart: " + sdf.format(startZeit));
-        MSLog.systemMeldung("##################################################################################");
-        MSLog.systemMeldung("##################################################################################");
+        systemMeldung("");
+        systemMeldung("");
+        systemMeldung("");
+        systemMeldung("");
+        systemMeldung("");
+        systemMeldung("");
+        systemMeldung("");
+        systemMeldung(".___  ___.  _______  _______   __       ___   .___________. __    __   _______  __  ___");
+        systemMeldung("|   \\/   | |   ____||       \\ |  |     /   \\  |           ||  |  |  | |   ____||  |/  /");
+        systemMeldung("|  \\  /  | |  |__   |  .--.  ||  |    /  ^  \\ `---|  |----`|  |__|  | |  |__   |  '  /");
+        systemMeldung("|  |\\/|  | |   __|  |  |  |  ||  |   /  /_\\  \\    |  |     |   __   | |   __|  |    <");
+        systemMeldung("|  |  |  | |  |____ |  '--'  ||  |  /  _____  \\   |  |     |  |  |  | |  |____ |  .  \\");
+        systemMeldung("|__|  |__| |_______||_______/ |__| /__/     \\__\\  |__|     |__|  |__| |_______||__|\\__\\");
+        systemMeldung("");
+        systemMeldung("");
+        systemMeldung("");
+        systemMeldung("##################################################################################");
+        systemMeldung("##################################################################################");
+        systemMeldung("Programmstart: " + sdf.format(startZeit));
+        systemMeldung("##################################################################################");
+        systemMeldung("##################################################################################");
         long totalMem = Runtime.getRuntime().totalMemory();
-        MSLog.systemMeldung("totalMemory: " + totalMem / (1024L * 1024L) + " MiB");
+        systemMeldung("totalMemory: " + totalMem / (1024L * 1024L) + " MiB");
         long maxMem = Runtime.getRuntime().maxMemory();
-        MSLog.systemMeldung("maxMemory: " + maxMem / (1024L * 1024L) + " MiB");
+        systemMeldung("maxMemory: " + maxMem / (1024L * 1024L) + " MiB");
         long freeMem = Runtime.getRuntime().freeMemory();
-        MSLog.systemMeldung("freeMemory: " + freeMem / (1024L * 1024L) + " MiB");
-        MSLog.systemMeldung("##################################################################################");
+        systemMeldung("freeMemory: " + freeMem / (1024L * 1024L) + " MiB");
+        systemMeldung("##################################################################################");
         //Version
-        MSLog.systemMeldung(MSConst.PROGRAMMNAME + MSFunktionen.getProgVersionString());
-        MSLog.systemMeldung("Compiled: " + MSFunktionen.getCompileDate());
-        MSLog.systemMeldung("##################################################################################");
-        MSLog.systemMeldung("Java");
-        MSLog.systemMeldung("Classname: " + classname);
+        systemMeldung(MSConst.PROGRAMMNAME + MSFunktionen.getProgVersionString());
+        systemMeldung("Compiled: " + MSFunktionen.getCompileDate());
+        systemMeldung("##################################################################################");
+        systemMeldung("Java");
+        systemMeldung("Classname: " + classname);
         String[] java = MSFunktionen.getJavaVersion();
         for (String ja : java) {
             MSLog.systemMeldung(ja);
         }
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("");
+        systemMeldung("");
+        systemMeldung("");
     }
 
     public static synchronized void startMeldungen(String classname) {
         startZeit.setTime(System.currentTimeMillis());
         versionsMeldungen(classname);
-        MSLog.systemMeldung("##################################################################################");
-        MSLog.systemMeldung("Programmpfad: " + MSFunktionen.getPathJar());
-        MSLog.systemMeldung("Filmliste: " + MSConfig.getPathFilmlist_json_akt(true /*aktDate*/));
-        MSLog.systemMeldung("Useragent: " + MSConfig.getUserAgent());
-        MSLog.systemMeldung("##################################################################################");
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("");
+        systemMeldung("##################################################################################");
+        systemMeldung("Programmpfad: " + MSFunktionen.getPathJar());
+        systemMeldung("Filmliste: " + MSConfig.getPathFilmlist_json_akt(true /*aktDate*/));
+        systemMeldung("Useragent: " + MSConfig.getUserAgent());
+        systemMeldung("##################################################################################");
+        systemMeldung("");
+        systemMeldung("");
         if (MSConfig.senderAllesLaden) {
-            MSLog.systemMeldung("Laden:  alles");
+            systemMeldung("Laden:  alles");
         } else {
-            MSLog.systemMeldung("Laden:  nur update");
+            systemMeldung("Laden:  nur update");
         }
         if (MSConfig.updateFilmliste) {
-            MSLog.systemMeldung("Filmliste:  nur updaten");
+            systemMeldung("Filmliste:  nur updaten");
         } else {
-            MSLog.systemMeldung("Filmliste:  neu erstellen");
+            systemMeldung("Filmliste:  neu erstellen");
         }
-        MSLog.systemMeldung("Import (ersetzen):  " + MSConfig.importUrl__ersetzen);
-        MSLog.systemMeldung("Import (anhängen):  " + MSConfig.importUrl__anhaengen);
+        systemMeldung("Import (ersetzen):  " + MSConfig.importUrl__ersetzen);
+        systemMeldung("Import (anhängen):  " + MSConfig.importUrl__anhaengen);
         if (MSConfig.nurSenderLaden != null) {
-            MSLog.systemMeldung("Nur Sender laden:  " + StringUtils.join(MSConfig.nurSenderLaden, ','));
+            systemMeldung("Nur Sender laden:  " + StringUtils.join(MSConfig.nurSenderLaden, ','));
         }
-        MSLog.systemMeldung("##################################################################################");
+        systemMeldung("##################################################################################");
     }
 
     public static synchronized void endeMeldung() {
@@ -360,7 +373,6 @@ public class MSLog {
                     out.write(s);
                     out.write("\n");
                 }
-                out.write("\n");
                 out.close();
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());

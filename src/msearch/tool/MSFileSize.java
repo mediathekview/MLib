@@ -5,9 +5,8 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
-import msearch.daten.MSConfig;
 
-public class MSUrlDateiGroesse {
+public class MSFileSize {
 
     final static int TIMEOUT = 3000; // ms //ToDo evtl. wieder kürzen!!
     //private static int anz = 0;

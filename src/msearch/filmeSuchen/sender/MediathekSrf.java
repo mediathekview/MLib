@@ -34,7 +34,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import msearch.daten.DatenFilm;
-import msearch.daten.MSConfig;
+import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
 import msearch.tool.MSConst;

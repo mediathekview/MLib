@@ -25,7 +25,6 @@ package msearch.tool;
 
 import java.io.IOException;
 import java.io.InputStream;
-import msearch.daten.MSConfig;
 
 public class MSInputStream extends InputStream {
 

@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import msearch.daten.DatenFilm;
-import msearch.daten.MSConfig;
+import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import static msearch.filmeSuchen.sender.MediathekReader.listeSort;
 import msearch.filmeSuchen.MSGetUrl;

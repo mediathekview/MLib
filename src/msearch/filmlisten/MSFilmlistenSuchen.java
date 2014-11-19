@@ -34,7 +34,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import msearch.daten.MSConfig;
+import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSFunktionen;
 import msearch.tool.MSLog;

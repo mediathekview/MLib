@@ -22,10 +22,10 @@ package msearch.gui;
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 import msearch.MSearchGui;
-import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
+import msearch.tool.MSConfig;
 
 public class FilmeLaden {
 

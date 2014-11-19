@@ -33,7 +33,7 @@ import java.util.zip.ZipInputStream;
 import javax.swing.event.EventListenerList;
 import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
-import msearch.daten.MSConfig;
+import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import msearch.tool.DatumZeit;

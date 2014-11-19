@@ -44,7 +44,7 @@ import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.tool.MSConst;
 import msearch.tool.MSFunktionen;
 import msearch.tool.MSLog;
-import msearch.tool.MSUrlDateiGroesse;
+import msearch.tool.MSFileSize;
 
 public class ListeFilme extends ArrayList<DatenFilm> {
 
@@ -344,12 +344,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 if (!film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
                     return film.arr[DatenFilm.FILM_GROESSE_NR];
                 } else {
-                    return MSUrlDateiGroesse.laengeString(url, sender);
+                    return MSFileSize.laengeString(url, sender);
                 }
             }
         }
         // dann ist der Film nicht in der Liste
-        return MSUrlDateiGroesse.laengeString(url, sender);
+        return MSFileSize.laengeString(url, sender);
     }
 
     /**

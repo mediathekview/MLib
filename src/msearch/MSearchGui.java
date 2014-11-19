@@ -32,11 +32,11 @@ import java.util.Date;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import msearch.daten.ListeFilme;
-import msearch.daten.MSConfig;
-import msearch.gui.FilmeLaden;
-import msearch.gui.PanelSenderLaden;
 import msearch.filmlisten.MSFilmlisteLesen;
 import msearch.filmlisten.MSFilmlisteSchreiben;
+import msearch.gui.FilmeLaden;
+import msearch.gui.PanelSenderLaden;
+import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 

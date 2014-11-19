@@ -20,12 +20,12 @@
 package msearch;
 
 import msearch.daten.ListeFilme;
-import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import msearch.filmlisten.MSFilmlisteLesen;
 import msearch.filmlisten.MSFilmlisteSchreiben;
+import msearch.tool.MSConfig;
 import msearch.tool.MSLog;
 
 public class MSearch implements Runnable {
