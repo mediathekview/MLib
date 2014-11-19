@@ -24,7 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import msearch.SearchGui;
+import msearch.MSearchGui;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 
@@ -83,7 +83,7 @@ public class PanelSenderLaden extends JPanel {
                 jProgressBar1.setValue(0);
                 jProgressBar1.setStringPainted(false);
                 jLabelProgress.setText("");
-                SearchGui.jLabelAnzahl.setText(SearchGui.listeFilme.size() + "");
+                MSearchGui.jLabelAnzahl.setText(MSearchGui.listeFilme.size() + "");
 
                 for (JButton button : buttonSender) {
                     button.setEnabled(true);

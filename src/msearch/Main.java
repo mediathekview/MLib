@@ -39,7 +39,7 @@ public class Main {
                             System.exit(0);
                         } else if (s.equalsIgnoreCase("-gui")) {
                             MSLog.versionsMeldungen(this.getClass().getName());
-                            new SearchGui(args).setVisible(true);
+                            new MSearchGui(args).setVisible(true);
                         }
                     }
                 }

@@ -95,7 +95,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 if (responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
                     throw new SRFException("TEST");
                 }
-                MSLog.debugMeldung("SRF: " + responseCode + " + responseCode " + "Url " + url);
+                //MSLog.debugMeldung("SRF: " + responseCode + " + responseCode " + "Url " + url);
                 return false;
             }
             return (200 <= responseCode && responseCode <= 399);

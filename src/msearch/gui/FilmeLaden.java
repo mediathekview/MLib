@@ -21,7 +21,7 @@ package msearch.gui;
 
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
-import msearch.SearchGui;
+import msearch.MSearchGui;
 import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
@@ -54,7 +54,7 @@ public class FilmeLaden {
             @Override
             public synchronized void fertig(MSListenerFilmeLadenEvent event) {
                 // Ergebnisliste listeFilme eintragen -> Feierabend!
-                SearchGui.listeFilme = msFilmeSuchen.listeFilmeNeu;
+                MSearchGui.listeFilme = msFilmeSuchen.listeFilmeNeu;
                 undEnde(event);
             }
         });
@@ -70,7 +70,7 @@ public class FilmeLaden {
             istAmLaufen = true;
             MSConfig.senderAllesLaden = senderAllesLaden;
             MSConfig.updateFilmliste = filmlisteUpdate;
-            msFilmeSuchen.filmeBeimSenderLaden(SearchGui.listeFilme);
+            msFilmeSuchen.filmeBeimSenderLaden(MSearchGui.listeFilme);
         }
     }
 
@@ -79,7 +79,7 @@ public class FilmeLaden {
         if (!istAmLaufen) {
             // nicht doppelt starten
             istAmLaufen = true;
-            msFilmeSuchen.updateSender(sender, SearchGui.listeFilme);
+            msFilmeSuchen.updateSender(sender, MSearchGui.listeFilme);
         }
     }
 

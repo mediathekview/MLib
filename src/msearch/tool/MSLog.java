@@ -19,6 +19,9 @@
  */
 package msearch.tool;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
@@ -44,10 +47,21 @@ public class MSLog {
     private static final LinkedList<Integer[]> fehlerListe = new LinkedList<>(); // [Art, Fehlernummer, Anzahl, Exception(0,1 für ja, nein)]
     private static boolean progress = false;
     private static final Date startZeit = new Date(System.currentTimeMillis());
+    private static File logFile = null;
+    private static final ArrayList<String> logList = new ArrayList<>();
 
-    /*public void resetFehlerListe() {
-     fehlerListe.clear();
-     }*/
+    public static synchronized void setLogfile(String logFileString) {
+        logFile = new File(logFileString);
+        File dir = new File(logFile.getParent());
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                logFile = null;
+                MSLog.fehlerMeldung(632012165, MSLog.FEHLER_ART_PROG, "Search.logSchreiben", "Kann den Pfad nicht anlegen: " + dir.toString());
+            }
+        }
+
+    }
+
     public static synchronized void versionsMeldungen(String classname) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         MSLog.systemMeldung("");
@@ -238,7 +252,6 @@ public class MSLog {
         progress = true;
         if (!texte.isEmpty()) {
             System.out.print(texte + "\r");
-//            System.out.print(progressText + "\n");
         }
     }
 
@@ -289,7 +302,7 @@ public class MSLog {
                 default:
                     z = "*";
             }
-            System.out.println(x + x + x + x + x + x + x + x + x + x
+            logList.add(x + x + x + x + x + x + x + x + x + x
                     + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x);
 
             try {
@@ -300,20 +313,21 @@ public class MSLog {
                     }
                     pw.flush();
                     sw.flush();
-                    System.out.println(sw.toString());
+                    logList.add(sw.toString());
                 }
             } catch (Exception ignored) {
             }
 
-            System.out.println(z + " Fehlernr: " + fehlerNummer);
+            logList.add(z + " Fehlernr: " + fehlerNummer);
             if (ex != null) {
-                System.out.println(z + " Exception: " + ex.getMessage());
+                logList.add(z + " Exception: " + ex.getMessage());
             }
-            System.out.println(z + " " + FEHLER + klasse);
+            logList.add(z + " " + FEHLER + klasse);
             for (String aTexte : texte) {
-                System.out.println(z + "           " + aTexte);
+                logList.add(z + "           " + aTexte);
             }
-            System.out.println("");
+            logList.add("");
+            printLog();
         }
     }
 
@@ -321,17 +335,37 @@ public class MSLog {
         resetProgress();
         final String z = ". ";
         if (texte.length <= 1) {
-            System.out.println(z + " " + texte[0]);
+            logList.add(z + " " + texte[0]);
         } else {
             String zeile = "---------------------------------------";
             String txt;
-            System.out.println(z + zeile);
+            logList.add(z + zeile);
             for (String aTexte : texte) {
                 txt = "| " + aTexte;
-                System.out.println(z + txt);
+                logList.add(z + txt);
             }
-            System.out.println(z + zeile);
+            logList.add(z + zeile);
         }
+        printLog();
     }
 
+    private static void printLog() {
+        for (String s : logList) {
+            System.out.println(s);
+        }
+        if (logFile != null) {
+            try {
+                OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(logFile, true), MSConst.KODIERUNG_UTF);
+                for (String s : logList) {
+                    out.write(s);
+                    out.write("\n");
+                }
+                out.write("\n");
+                out.close();
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+            }
+        }
+        logList.clear();
+    }
 }

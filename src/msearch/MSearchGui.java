@@ -40,7 +40,7 @@ import msearch.io.MSFilmlisteSchreiben;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 
-public final class SearchGui extends javax.swing.JFrame {
+public final class MSearchGui extends javax.swing.JFrame {
 
     String pfad = "";
     public static ListeFilme listeFilme;
@@ -48,7 +48,7 @@ public final class SearchGui extends javax.swing.JFrame {
     private final JButton[] buttonSender;
     private final String[] sender;
 
-    public SearchGui(String[] ar) {
+    public MSearchGui(String[] ar) {
         initComponents();
         if (ar != null && ar.length > 0 && !ar[0].startsWith("-")) {
             pfad = ar[0];
@@ -62,7 +62,7 @@ public final class SearchGui extends javax.swing.JFrame {
             jTextFieldFilmliste.setText(pfad);
         }
         new MSFilmlisteLesen().readFilmListe(jTextFieldFilmliste.getText(), listeFilme, 0 /*all days*/);
-        jLabelAnzahl.setText(SearchGui.listeFilme.size() + "");
+        jLabelAnzahl.setText(MSearchGui.listeFilme.size() + "");
 
         jButtonFilmlisteLoeschen.addActionListener(new ActionListener() {
             @Override
@@ -127,7 +127,7 @@ public final class SearchGui extends javax.swing.JFrame {
             buttonSender[i].addActionListener(new BeobSenderLoeschen(sender[i]));
         }
         addSender();
-        jButtonEnde.addActionListener(new ActionListener() {
+        jButtonLog.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -214,7 +214,7 @@ public final class SearchGui extends javax.swing.JFrame {
         jPanelTool = new javax.swing.JPanel();
         jButtonCheck = new javax.swing.JButton();
         jButtonGc = new javax.swing.JButton();
-        jButtonEnde = new javax.swing.JButton();
+        jButtonLog = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabelAnzahl = new javax.swing.JLabel();
@@ -314,7 +314,7 @@ public final class SearchGui extends javax.swing.JFrame {
 
         jButtonGc.setText("Gcc");
 
-        jButtonEnde.setText("Endemeldung");
+        jButtonLog.setText("Log schreiben");
 
         javax.swing.GroupLayout jPanelToolLayout = new javax.swing.GroupLayout(jPanelTool);
         jPanelTool.setLayout(jPanelToolLayout);
@@ -325,7 +325,7 @@ public final class SearchGui extends javax.swing.JFrame {
                 .addGroup(jPanelToolLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButtonCheck, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButtonGc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButtonEnde, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButtonLog, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(642, Short.MAX_VALUE))
         );
 
@@ -339,7 +339,7 @@ public final class SearchGui extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButtonGc)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButtonEnde)
+                .addComponent(jButtonLog)
                 .addContainerGap(364, Short.MAX_VALUE))
         );
 
@@ -417,10 +417,10 @@ public final class SearchGui extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonAlleSenderLaden;
     private javax.swing.JButton jButtonCheck;
-    private javax.swing.JButton jButtonEnde;
     private javax.swing.JButton jButtonFilmliste;
     private javax.swing.JButton jButtonFilmlisteLoeschen;
     private javax.swing.JButton jButtonGc;
+    private javax.swing.JButton jButtonLog;
     private javax.swing.JButton jButtonSpeichern;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -448,7 +448,7 @@ public final class SearchGui extends javax.swing.JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             listeFilme.deleteAllFilms(sender);
-            jLabelAnzahl.setText(SearchGui.listeFilme.size() + "");
+            jLabelAnzahl.setText(MSearchGui.listeFilme.size() + "");
         }
     }
 

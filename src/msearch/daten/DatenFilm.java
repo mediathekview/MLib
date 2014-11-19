@@ -168,18 +168,17 @@ public class DatenFilm implements Comparable<DatenFilm> {
         dateigroesseL = new MSLong(0); // Dateigröße in MByte
     }
 
-/*    public int getFilmSize() {
-        int res;
-        try {
-            res = Integer.parseInt(arr[DatenFilm.FILM_GROESSE_NR]);
-        }
-        catch (NumberFormatException ex) {
-            res = -1;
-        }
+    /*    public int getFilmSize() {
+     int res;
+     try {
+     res = Integer.parseInt(arr[DatenFilm.FILM_GROESSE_NR]);
+     }
+     catch (NumberFormatException ex) {
+     res = -1;
+     }
 
-        return res;
-    }*/
-
+     return res;
+     }*/
     public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
             String datum, String zeit,
             long dauerSekunden, String description, String imageUrl, String[] keywords) {
@@ -623,9 +622,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 Date filmDate = sdfIn.parse(datum);
                 if (filmDate.getTime() < 0) {
                     //Datum vor 1970
-                    MSLog.debugMeldung("DatenFilm.CheckDatum-3 - " + "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
+                    MSLog.fehlerMeldung(923012125, MSLog.FEHLER_ART_PROG, "DatenFilm.CheckDatum-3 - Unsinniger Wert: [", datum + "] " + fehlermeldung);
                 } else if ((new Date().getTime() + MAX) < filmDate.getTime()) {
-                    MSLog.debugMeldung("DatenFilm.CheckDatum-4 - " + "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
+                    MSLog.fehlerMeldung(121305469, MSLog.FEHLER_ART_PROG, "DatenFilm.CheckDatum-4 - Unsinniger Wert: [", datum + "] " + fehlermeldung);
                 } else {
                     arr[FILM_DATUM_NR] = datum;
                 }
