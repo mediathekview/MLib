@@ -26,7 +26,7 @@ import java.util.LinkedList;
 import msearch.daten.DatenFilm;
 import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
-import msearch.io.MSGetUrl;
+import msearch.filmeSuchen.MSGetUrl;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;

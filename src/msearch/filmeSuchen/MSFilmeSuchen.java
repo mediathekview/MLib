@@ -45,7 +45,6 @@ import msearch.filmeSuchen.sender.MediathekSwr;
 import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.filmeSuchen.sender.MediathekZdfTivi;
-import msearch.io.MSGetUrl;
 import msearch.tool.DatumZeit;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSLog;

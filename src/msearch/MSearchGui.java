@@ -35,8 +35,8 @@ import msearch.daten.ListeFilme;
 import msearch.daten.MSConfig;
 import msearch.gui.FilmeLaden;
 import msearch.gui.PanelSenderLaden;
-import msearch.io.MSFilmlisteLesen;
-import msearch.io.MSFilmlisteSchreiben;
+import msearch.filmlisten.MSFilmlisteLesen;
+import msearch.filmlisten.MSFilmlisteSchreiben;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 

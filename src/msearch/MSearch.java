@@ -24,8 +24,8 @@ import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
-import msearch.io.MSFilmlisteLesen;
-import msearch.io.MSFilmlisteSchreiben;
+import msearch.filmlisten.MSFilmlisteLesen;
+import msearch.filmlisten.MSFilmlisteSchreiben;
 import msearch.tool.MSLog;
 
 public class MSearch implements Runnable {

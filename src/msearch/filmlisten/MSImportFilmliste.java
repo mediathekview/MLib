@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package msearch.filmeLaden;
+package msearch.filmlisten;
 
 import java.util.ArrayList;
 import javax.swing.event.EventListenerList;
@@ -25,7 +25,6 @@ import msearch.daten.ListeFilme;
 import msearch.daten.MSConfig;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
-import msearch.io.MSFilmlisteLesen;
 import msearch.tool.MSLog;
 
 public class MSImportFilmliste {
