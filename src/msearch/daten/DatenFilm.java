@@ -34,9 +34,9 @@ import msearch.filmeSuchen.sender.MediathekZdfTivi;
 import msearch.tool.Datum;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSConst;
+import msearch.tool.MSFileSize;
 import msearch.tool.MSLog;
 import msearch.tool.MSLong;
-import msearch.tool.MSFileSize;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 
@@ -143,6 +143,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         /*FILM_KEYWORDS,*/ FILM_URL, FILM_WEBSEITE, FILM_ABO_NAME,
         FILM_IMAGE_URL, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_URL_HISTORY,
         FILM_DATUM_LONG, FILM_REF};
+    
+    // für die alten 3.xxx Versionen auf den alten MACs :)
     public static final String[] COLUMN_NAMES_XML = {FILM_NR_, FILM_SENDER_, FILM_THEMA_, FILM_TITEL_,
         FILM_ABSPIELEN_, FILM_AUFZEICHNEN_,
         FILM_DATUM_, FILM_ZEIT_, FILM_DAUER_, FILM_GROESSE_,
@@ -150,6 +152,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         /*FILM_KEYWORDS_,*/ FILM_URL_, FILM_WEBSEITE_, FILM_ABO_NAME_,
         FILM_IMAGE_URL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_, FILM_URL_HISTORY_,
         FILM_DATUM_LONG_, FILM_REF_};
+    
     // neue Felder werden HINTEN angefügt!!!!!
     public static final int[] COLUMN_NAMES_JSON = {FILM_SENDER_NR, FILM_THEMA_NR, FILM_TITEL_NR,
         FILM_DATUM_NR, FILM_ZEIT_NR, FILM_DAUER_NR, FILM_GROESSE_NR,
