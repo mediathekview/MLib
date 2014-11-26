@@ -25,9 +25,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import msearch.daten.DatenFilm;
-import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
+import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
@@ -284,7 +284,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     }
                 }
             }
-            final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
+            final String MUSTER_URL = "<a href=\"/mediathek/video/";
             if ((pos1 = seite.indexOf("<h3>Mehr von <strong>")) != -1) {
                 while (!MSConfig.getStop() && (pos1 = seite.indexOf(MUSTER_URL, pos1)) != -1) {
                     if (stop > 0 && pos1 > stop) {
@@ -293,7 +293,10 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     String urlWeiter = seite.extract(MUSTER_URL, "\"", pos1);
                     pos1 += MUSTER_URL.length();
                     if (!urlWeiter.isEmpty()) {
-                        urlWeiter = "http://www.br.de/mediathek/video/sendungen/" + urlWeiter;
+                        urlWeiter = "http://www.br.de/mediathek/video/" + urlWeiter;
+                        if (urlWeiter.contains("livestream")) {
+                            continue; // ist der Livestream
+                        }
                         ++count;
                         if (count > max) {
 //                            MSearchLog.debugMeldung("MediathekBr.laden" + " ------> count max erreicht: " + urlThema);
