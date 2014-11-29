@@ -92,7 +92,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 String link[];
                 while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
-                    addThema(link[0] /* url */);
+                    addThema(link[0] /* url */, true);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-794625882, MSLog.FEHLER_ART_MREADER, "MediathekRBB.ThemaLaden.run", ex);
@@ -100,9 +100,8 @@ public class MediathekRbb extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         }
 
-        void addThema(String url) {
+        void addThema(String url, boolean weiter) {
             try {
-
                 int count = 0;
                 final String URL = "<a href=\"/tv/";
                 final String MUSTER_URL = "<div class=\"media mediaA\">";
@@ -114,16 +113,20 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     pos1 += MUSTER_URL.length();
                     String urlSeite = seite1.extract(URL, "\"", pos1);
                     if (!urlSeite.isEmpty()) {
-                        if (!MSConfig.senderAllesLaden) {
-                            // beim Update nur die neuesten Laden
-                            ++count;
-                            if (count > 10) {
-                                break;
-                            }
-                        }
+                        urlSeite = "http://mediathek.rbb-online.de/tv/" + urlSeite;
                         addFilme(urlSeite);
                     } else {
                         MSLog.fehlerMeldung(-751203697, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addThema", "keine URL für: " + url);
+                    }
+                }
+
+                // noch nach weiteren Seiten suchen
+                if (weiter && MSConfig.senderAllesLaden) {
+                    for (int i = 2; i < 10; ++i) {
+                        if (seite1.indexOf("mcontents=page." + i) != -1) {
+                            // dann gibts weiter Seiten
+                            addThema(url + "&mcontents=page." + i, false);
+                        }
                     }
                 }
             } catch (Exception ex) {
@@ -135,7 +138,6 @@ public class MediathekRbb extends MediathekReader implements Runnable {
             try {
                 meldung(urlSeite);
                 String datum = "", zeit = "", thema, title, description, durationInSeconds;
-                urlSeite = "http://mediathek.rbb-online.de/tv/" + urlSeite;
                 seite2 = getUrlIo.getUri_Utf(SENDERNAME, urlSeite, seite2, "");
                 description = seite2.extract("<meta name=\"description\" content=\"", "\"");
                 durationInSeconds = seite2.extract("<meta property=\"video:duration\" content=\"", "\"");
