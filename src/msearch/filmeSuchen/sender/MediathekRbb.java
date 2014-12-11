@@ -71,28 +71,41 @@ public class MediathekRbb extends MediathekReader implements Runnable {
             meldungAddMax(listeThemen.size());
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
-                Thread th = new Thread(new ThemaLaden());
+                Thread th = new Thread(new ThemaLaden(false /*addTage*/));
                 th.setName(SENDERNAME + t);
                 th.start();
             }
+            meldungAddMax(7 /* Tage */);
+            Thread th = new Thread(new ThemaLaden(true /*addTage*/));
+            th.setName(SENDERNAME + "_Tage");
+            th.start();
         }
     }
 
     private class ThemaLaden implements Runnable {
 
+        boolean addTage = false;
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
         private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
+        public ThemaLaden(boolean addTage) {
+            this.addTage = addTage;
+        }
+
         @Override
         public void run() {
+            String link[];
             try {
                 meldungAddThread();
-                String link[];
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
-                    meldungProgress(link[0]);
-                    addThema(link[0] /* url */, true);
+                if (addTage) {
+                    addTage();
+                } else {
+                    while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                        meldungProgress(link[0]);
+                        addThema(link[0] /* url */, true);
+                    }
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-794625882, MSLog.FEHLER_ART_MREADER, "MediathekRBB.ThemaLaden.run", ex);
@@ -100,12 +113,35 @@ public class MediathekRbb extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         }
 
+        void addTage() {
+            // http://mediathek.rbb-online.de/tv/sendungVerpasst?topRessort=tv&kanal=5874&tag=0
+            final String MUSTER_START = "<h2 class=\"modHeadline\">7 Tage Rückblick</h2>";
+            final String MUSTER_URL = "<div class=\"media mediaA\">";
+            final String URL = "<a href=\"/tv/";
+            String urlTage;
+            for (int i = 0; i <= 6; ++i) {
+                urlTage = "http://mediathek.rbb-online.de/tv/sendungVerpasst?topRessort=tv&kanal=5874&tag=" + i;
+                meldungProgress(urlTage);
+                seite1 = getUrlIo.getUri_Utf(SENDERNAME, urlTage, seite1, "");
+                int pos1 = seite1.indexOf(MUSTER_START);
+                while (!MSConfig.getStop() && (pos1 = seite1.indexOf(MUSTER_URL, pos1)) != -1) {
+                    pos1 += MUSTER_URL.length();
+                    String urlSeite = seite1.extract(URL, "\"", pos1);
+                    if (!urlSeite.isEmpty()) {
+                        urlSeite = "http://mediathek.rbb-online.de/tv/" + urlSeite;
+                        addFilme(urlSeite);
+                    } else {
+                        MSLog.fehlerMeldung(-751203697, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addThema", "keine URL für: " + urlSeite);
+                    }
+                }
+
+            }
+        }
+
         void addThema(String url, boolean weiter) {
             try {
-                int count = 0;
                 final String URL = "<a href=\"/tv/";
                 final String MUSTER_URL = "<div class=\"media mediaA\">";
-                seite1.setLength(0);
                 seite1 = getUrlIo.getUri_Utf(SENDERNAME, url, seite1, "");
                 int startPos = seite1.indexOf("<div class=\"entry\">");
                 int pos1 = startPos;
@@ -199,20 +235,5 @@ public class MediathekRbb extends MediathekReader implements Runnable {
             }
         }
 
-        private String extractString(MSStringBuilder source, String startMarker, String endMarker) {
-            int start = source.indexOf(startMarker);
-            if (start == -1) {
-                return null;
-            }
-
-            start = start + startMarker.length();
-
-            int end = source.indexOf(endMarker, start);
-            if (end == -1) {
-                return null;
-            }
-
-            return source.substring(start, end);
-        }
     }
 }
