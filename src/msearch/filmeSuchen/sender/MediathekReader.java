@@ -19,12 +19,13 @@
  */
 package msearch.filmeSuchen.sender;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import msearch.daten.DatenFilm;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
-import msearch.tool.DatumZeit;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSConfig;
 import msearch.tool.MSLog;
@@ -175,7 +176,7 @@ public class MediathekReader implements Runnable {
         max = 0;
         progress = 0;
         MSLog.systemMeldung("===============================================================");
-        MSLog.systemMeldung("Starten[" + ((MSConfig.senderAllesLaden) ? "alles" : "update") + "] " + sendername + ": " + DatumZeit.getJetzt_HH_MM_SS());
+        MSLog.systemMeldung("Starten[" + ((MSConfig.senderAllesLaden) ? "alles" : "update") + "] " + sendername + ": " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
         MSLog.systemMeldung("   maxThreadLaufen: " + maxThreadLaufen);
         MSLog.systemMeldung("   wartenSeiteLaden: " + wartenSeiteLaden);
         MSLog.systemMeldung("");

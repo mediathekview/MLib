@@ -19,11 +19,13 @@
  */
 package msearch.filmeSuchen.sender;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import msearch.daten.DatenFilm;
-import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
-import msearch.tool.DatumZeit;
+import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
@@ -34,7 +36,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
     private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
     public MediathekSrfPod(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch,  SENDERNAME ,/* threads */ 2, /* urlWarten */ 1000, startPrio);
+        super(ssearch, SENDERNAME,/* threads */ 2, /* urlWarten */ 1000, startPrio);
     }
 
     @Override
@@ -227,8 +229,8 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                             p1 += MUSTER_DATE.length();
                             if ((p2 = seite.indexOf("<", p1)) != -1) {
                                 String tmp = seite.substring(p1, p2);
-                                datum = DatumZeit.convertDatum(tmp);
-                                zeit = DatumZeit.convertTime(tmp);
+                                datum = convertDatum(tmp);
+                                zeit = convertTime(tmp);
                             }
                         }
                         if ((pos1 = seite.indexOf(MUSTER_URL_1, pos1)) != -1) {
@@ -253,4 +255,33 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
             }
         }
     }
+
+    public static String convertDatum(String datum) {
+        //<pubDate>Mon, 03 Jan 2011 17:06:16 +0100</pubDate>
+        try {
+            SimpleDateFormat sdfIn = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+            Date filmDate = sdfIn.parse(datum);
+            SimpleDateFormat sdfOut;
+            sdfOut = new SimpleDateFormat("dd.MM.yyyy");
+            datum = sdfOut.format(filmDate);
+        } catch (Exception ex) {
+            MSLog.fehlerMeldung(649600299, MSLog.FEHLER_ART_PROG, "DatumDatum.convertDatum", ex);
+        }
+        return datum;
+    }
+
+    public static String convertTime(String zeit) {
+        //<pubDate>Mon, 03 Jan 2011 17:06:16 +0100</pubDate>
+        try {
+            SimpleDateFormat sdfIn = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
+            Date filmDate = sdfIn.parse(zeit);
+            SimpleDateFormat sdfOut;
+            sdfOut = new SimpleDateFormat("HH:mm:ss");
+            zeit = sdfOut.format(filmDate);
+        } catch (Exception ex) {
+            MSLog.fehlerMeldung(663259004, MSLog.FEHLER_ART_PROG, "DatumZeit.convertTime", ex);
+        }
+        return zeit;
+    }
+
 }

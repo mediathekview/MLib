@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import javax.swing.event.EventListenerList;
 import msearch.daten.ListeFilme;
-import msearch.tool.MSConfig;
 import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekArte_de;
@@ -45,10 +44,10 @@ import msearch.filmeSuchen.sender.MediathekSwr;
 import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.filmeSuchen.sender.MediathekZdfTivi;
-import msearch.tool.DatumZeit;
 import msearch.tool.GermanStringSorter;
-import msearch.tool.MSLog;
+import msearch.tool.MSConfig;
 import msearch.tool.MSFileSize;
+import msearch.tool.MSLog;
 
 public class MSFilmeSuchen {
 
@@ -226,7 +225,7 @@ public class MSFilmeSuchen {
         }
         zeile = "" + "\n";
         zeile += "-------------------------------------------------------------------------------------" + "\n";
-        zeile += "Fertig " + sender + ": " + DatumZeit.getJetzt_HH_MM_SS() + " Uhr, Filme: " + listeFilmeNeu.countSender(sender) + "\n";
+        zeile += "Fertig " + sender + ": " + new SimpleDateFormat("HH:mm:ss").format(new Date()) + " Uhr, Filme: " + listeFilmeNeu.countSender(sender) + "\n";
         int sekunden = getDauerSekunden();
         zeile += "     -> Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60) + "\n";
         zeile += "     ->       Rest: " + listeSenderLaufen.getSenderRun() + "\n";

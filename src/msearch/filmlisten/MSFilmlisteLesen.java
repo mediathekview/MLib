@@ -28,15 +28,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.zip.ZipInputStream;
 import javax.swing.event.EventListenerList;
 import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
-import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
-import msearch.tool.DatumZeit;
+import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
@@ -236,7 +236,7 @@ public class MSFilmlisteLesen {
     }
 
     private void notifyFertig(String url, ListeFilme liste) {
-        MSLog.systemMeldung("Liste Filme gelesen: " + DatumZeit.getHeute_dd_MM_yyyy() + " " + DatumZeit.getJetzt_HH_MM_SS());
+        MSLog.systemMeldung("Liste Filme gelesen: " + new SimpleDateFormat("yyyy.MM.dd__HH.mm.ss").format(new Date()));
         MSLog.systemMeldung("Anzahl Filme: " + liste.size());
         for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
             l.fertig(new MSListenerFilmeLadenEvent(url, "", max, progress, 0, false));

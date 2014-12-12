@@ -19,9 +19,8 @@
  */
 package msearch.tool;
 
-import msearch.tool.DatumZeit;
-import msearch.tool.MSConst;
-import msearch.tool.MSFunktionen;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MSConfig {
 
@@ -82,7 +81,7 @@ public class MSConfig {
      }*/
     public static String getPathFilmlist_json_akt(boolean aktDate) {
         if (aktDate) {
-            return MSFunktionen.addsPfad(dirFilme, DatumZeit.getJetzt_yyyy_MM_dd__HH_mm_ss() + "__" + nameAktFilmlist);
+            return MSFunktionen.addsPfad(dirFilme, new SimpleDateFormat("yyyy.MM.dd__HH.mm.ss").format(new Date()) + "__" + nameAktFilmlist);
         } else {
             return MSFunktionen.addsPfad(dirFilme, nameAktFilmlist);
         }
