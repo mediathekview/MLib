@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import msearch.MSearchGui;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
+import msearch.tool.MSConfig;
 
 public class PanelSenderLaden extends JPanel {
 
@@ -51,7 +52,7 @@ public class PanelSenderLaden extends JPanel {
         jButtonStop.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                filmeLaden.setStop(true);
+                MSConfig.setStop(true);
             }
         });
 

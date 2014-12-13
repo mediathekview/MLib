@@ -148,7 +148,7 @@ public class MSFilmlisteLesen {
                     break;
                 }
             }
-            while ((jsonToken = jp.nextToken()) != null) {
+            while (!MSConfig.getStop() && (jsonToken = jp.nextToken()) != null) {
                 if (jsonToken == JsonToken.END_OBJECT) {
                     break;
                 }
@@ -199,7 +199,9 @@ public class MSFilmlisteLesen {
             MSLog.fehlerMeldung(945123641, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.readFilmListe: " + source, ex);
             listeFilme.clear();
         }
-
+        if (MSConfig.getStop()) {
+            listeFilme.clear();
+        }
         notifyFertig(source, listeFilme);
     }
 

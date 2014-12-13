@@ -85,10 +85,6 @@ public class FilmeLaden {
 
     // #######################################
     // #######################################
-    public synchronized void setStop(boolean set) {
-        MSConfig.setStop(set);
-    }
-
     public String[] getSenderNamen() {
         return MSFilmeSuchen.getNamenSender();
     }
