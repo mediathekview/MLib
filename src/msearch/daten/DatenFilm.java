@@ -31,6 +31,7 @@ import msearch.filmeSuchen.sender.MediathekSrfPod;
 import msearch.filmeSuchen.sender.MediathekSwr;
 import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.filmeSuchen.sender.MediathekZdfTivi;
+import msearch.tool.Datum;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSConst;
 import msearch.tool.MSFileSize;
@@ -158,7 +159,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         FILM_BESCHREIBUNG_NR, FILM_URL_NR, FILM_WEBSEITE_NR,
         FILM_IMAGE_URL_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR,
         FILM_URL_HISTORY_NR, FILM_GEO_NR};
-    public Date datumFilm = new Date(0);
+    public Datum datumFilm = new Datum(0);
     public long dauerL = 0; // Sekunden
     public Object abo = null;
     public MSLong dateigroesseL; // Dateigröße in MByte
@@ -440,19 +441,19 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 try {
                     if (arr[DatenFilm.FILM_DATUM_LONG_NR].isEmpty()) {
                         if (arr[DatenFilm.FILM_ZEIT_NR].isEmpty()) {
-                            datumFilm = new Date(sdf_datum.parse(arr[DatenFilm.FILM_DATUM_NR]).getTime());
+                            datumFilm = new Datum(sdf_datum.parse(arr[DatenFilm.FILM_DATUM_NR]).getTime());
                         } else {
-                            datumFilm = new Date(sdf_datum_zeit.parse(arr[DatenFilm.FILM_DATUM_NR] + arr[DatenFilm.FILM_ZEIT_NR]).getTime());
+                            datumFilm = new Datum(sdf_datum_zeit.parse(arr[DatenFilm.FILM_DATUM_NR] + arr[DatenFilm.FILM_ZEIT_NR]).getTime());
                         }
                         arr[FILM_DATUM_LONG_NR] = String.valueOf(datumFilm.getTime() / 1000);
                     } else {
                         long l = Long.parseLong(arr[DatenFilm.FILM_DATUM_LONG_NR]);
-                        datumFilm = new Date(l * 1000 /* sind SEKUNDEN!!*/);
+                        datumFilm = new Datum(l * 1000 /* sind SEKUNDEN!!*/);
                     }
                 } catch (Exception ex) {
                     MSLog.fehlerMeldung(915236701, MSLog.FEHLER_ART_PROG, "DatenFilm.getDatumForObject", ex,
                             new String[]{"Datum: " + arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + arr[DatenFilm.FILM_ZEIT_NR]});
-                    datumFilm = new Date(0);
+                    datumFilm = new Datum(0);
                     arr[DatenFilm.FILM_DATUM_NR] = "";
                     arr[DatenFilm.FILM_ZEIT_NR] = "";
                 }
