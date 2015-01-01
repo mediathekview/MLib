@@ -571,7 +571,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland verfügbar. +++",
         "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++ Due to legal reasons the video is only available in Germany.+++",
         "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++",
-        "+++ Due to legal reasons the video is only available in Germany.+++"
+        "+++ Due to legal reasons the video is only available in Germany.+++",
+        "+++ Aus rechtlichen Gründen kann das Video nur in Deutschland abgerufen werden. +++"
     };
 
     public static String cleanDescription(String s, String thema, String titel) {
