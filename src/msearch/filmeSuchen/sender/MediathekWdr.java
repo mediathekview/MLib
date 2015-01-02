@@ -488,7 +488,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 //public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String datum, String zeit,
                 //long duration, String description, String thumbnailUrl, String imageUrl, String[] keywords) {
                 DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, ""/* zeit */,
-                        dauer, beschreibung, image, keyword);
+                        dauer, beschreibung, keyword);
                 film.addUrlKlein(urlKlein, "");
                 addFilm(film);
             } else {
@@ -687,11 +687,11 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                             //DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, datum, ""/* zeit */);
                             if (urlHd.isEmpty()) {
                                 DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, ""/* zeit */, duration, description,
-                                        image.isEmpty() ? thumbnail : image, keywords);
+                                         keywords);
                                 addFilm(film);
                             } else {
                                 DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, urlHd, ""/*rtmpURL*/, datum, ""/* zeit */, duration, description,
-                                        image.isEmpty() ? thumbnail : image, keywords);
+                                         keywords);
                                 addFilm(film);
                                 film.addUrlKlein(url, "");
                             }

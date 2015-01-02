@@ -211,7 +211,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                         smallUrl = getSuperSmalUrl();
                     }
                     DatenFilm film = new DatenFilm(SENDERNAME, thema, strUrlFeed, title, normalUrl, ""/*rtmpURL*/, date, time, duration, description,
-                            thumbNailUrl, keywords);
+                             keywords);
 
                     if (!urldHd.isEmpty()) {
                         film.addUrlHd(urldHd, "");

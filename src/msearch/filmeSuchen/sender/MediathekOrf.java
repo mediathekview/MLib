@@ -358,7 +358,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                             titel = SENDERNAME;
                         }
                         DatenFilm film = new DatenFilm(SENDERNAME, thema, strUrlFeed, titel, url, urlRtmp, datum, zeit, duration, description,
-                                thumbnail, new String[]{});
+                                 new String[]{});
                         if (!urlKlein.isEmpty()) {
                             film.addUrlKlein(urlKlein, urlRtmpKlein);
                         }

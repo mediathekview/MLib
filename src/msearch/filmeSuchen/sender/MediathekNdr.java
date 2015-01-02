@@ -330,7 +330,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                                 }
                             }
                             DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, zeit, durationInSeconds, description,
-                                    imageUrl, keywords);
+                                     keywords);
                             if (url.contains(".hq.")) {
                                 String urlKlein = url.replace(".hq.", ".hi.");
                                 film.addUrlKlein(urlKlein, "");

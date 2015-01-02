@@ -47,7 +47,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
      * @param startPrio
      */
     public MediathekMdr(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, SENDERNAME , /* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch, SENDERNAME, /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
     /**
@@ -197,7 +197,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                 url = MUSTER_ADD + url;
             }
             if (!MSConfig.getStop()) {
-                addXml(strUrlFeed, thema, url);
+                addXml(strUrlFeed, thema, url, urlThema);
             }
         }
 
@@ -268,63 +268,44 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             }
             Iterator<String> it = tmpListe.iterator();
             while (!MSConfig.getStop() && it.hasNext()) {
-                addXml(strUrlFeed, thema, it.next());
+                addXml(strUrlFeed, thema, it.next(), urlThema);
             }
         }
 
-        void addXml(String strUrlFeed, String thema, String filmWebsite) {
+        void addXml(String strUrlFeed, String thema, String xmlSite, String filmSite) {
             final String MUSTER_START = "<avDocument>";
             final String MUSTER_ENDE = "</avDocument>";
             final String MUSTER_TITEL = "<title>";
-            final String MUSTER_URL_1 = "<flashMediaServerApplicationURL>";
-            final String MUSTER_URL_2 = "<flashMediaServerURL>";
             final String MUSTER_DATUM = "<broadcastStartDate>";
-            final String MUSTER_FRAME_WIDTH = "<frameWidth>";
             final String MUSTER_DURATION = "<duration>";
             final String MUSTER_DURATION_END = "</duration>";
             final String MUSTER_DESCRIPTION = "<teaserText>";
             final String MUSTER_DESCRIPTION_END = "</teaserText>";
-            final String MUSTER_THUMBNAIL = "<teaserimage format=\"standard43\" width=\"180\" height=\"135\">";
-            final String MUSTER_THUMBNAIL_END = "</teaserimage>";
-            final String MUSTER_IMAGE = "<teaserimage format=\"big169\" width=\"512\" height=\"288\">";
-            final String MUSTER_IMAGE_END = "</teaserimage>";
-            final String MUSTER_URL_START = "<url>";
-            final String MUSTER_URL_END = "</url>";
             final String MUSTER_URL_MP4 = "<progressiveDownloadUrl>";
             //<progressiveDownloadUrl>http://x4100mp4dynonlc22033.f.o.l.lb.core-cdn.net/22033mdr/ondemand/4100mp4dynonl/FCMS-ad2e1bc5-d967-4791-b7ce-e5630252531a-c7cca1d51b4b.mp4</progressiveDownloadUrl>
             //<broadcastStartDate>23.08.2012 22:05</broadcastStartDate>
-            int pos = 0, posEnde;
+            int pos = 0;
             int pos1;
             int pos2;
-            String url1, url2, rtmpUrl, url, titel, datum, zeit, width, urlMp4, urlMp4_klein;
+            String titel, datum, zeit, width, urlMp4, urlMp4_klein, urlHD, urlSendung;
             long duration;
             String description;
-            String thumbnailUrl;
-            String imageUrl;
-            int widthAlt;
             try {
-                seite4 = getUrl.getUri_Utf(SENDERNAME, filmWebsite, seite4, "Thema: " + thema);
+                seite4 = getUrl.getUri_Utf(SENDERNAME, xmlSite, seite4, "Thema: " + thema);
                 if ((pos = seite4.indexOf(MUSTER_START)) == -1) {
-                    MSLog.fehlerMeldung(-903656532, MSLog.FEHLER_ART_MREADER, "MediathekMdr.addXml", filmWebsite);
+                    MSLog.fehlerMeldung(-903656532, MSLog.FEHLER_ART_MREADER, "MediathekMdr.addXml", xmlSite);
                     return;
                 }
                 while ((pos = seite4.indexOf(MUSTER_TITEL, pos)) != -1) {
                     pos += MUSTER_TITEL.length();
-                    if ((posEnde = seite4.indexOf(MUSTER_ENDE, pos)) == -1) {
-                        MSLog.fehlerMeldung(-804142536, MSLog.FEHLER_ART_MREADER, "MediathekMdr.addXml", filmWebsite);
+                    if (seite4.indexOf(MUSTER_ENDE, pos) == -1) {
+                        MSLog.fehlerMeldung(-804142536, MSLog.FEHLER_ART_MREADER, "MediathekMdr.addXml", xmlSite);
                         continue;
                     }
-                    url1 = "";
-                    url2 = "";
-                    urlMp4 = "";
-                    urlMp4_klein = "";
                     titel = "";
                     datum = "";
                     zeit = "";
                     duration = 0;
-                    description = "";
-                    thumbnailUrl = "";
-                    imageUrl = "";
 
                     if ((pos1 = seite4.indexOf(MUSTER_DURATION, pos)) != -1) {
                         pos1 += MUSTER_DURATION.length();
@@ -341,43 +322,17 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                                     }
                                 }
                             } catch (Exception ex) {
-                                MSLog.fehlerMeldung(-313698749, MSLog.FEHLER_ART_MREADER, "MediathekMdr.addXml", ex, filmWebsite);
+                                MSLog.fehlerMeldung(-313698749, MSLog.FEHLER_ART_MREADER, "MediathekMdr.addXml", ex, xmlSite);
                             }
                         }
                     }
 
-                    if ((pos1 = seite4.indexOf(MUSTER_DESCRIPTION, pos)) != -1) {
-                        pos1 += MUSTER_DESCRIPTION.length();
-                        if ((pos2 = seite4.indexOf(MUSTER_DESCRIPTION_END, pos1)) != -1) {
-                            description = seite4.substring(pos1, pos2);
-                        }
+                    description = seite4.extract(MUSTER_DESCRIPTION, MUSTER_DESCRIPTION_END, pos);
+                    urlSendung = seite4.extract("<htmlUrl>", "<");
+                    if (urlSendung.isEmpty()) {
+                        urlSendung = filmSite;
                     }
 
-                    if ((pos1 = seite4.indexOf(MUSTER_THUMBNAIL, pos)) != -1) {
-                        pos1 += MUSTER_THUMBNAIL.length();
-                        if ((pos2 = seite4.indexOf(MUSTER_THUMBNAIL_END, pos1)) != -1) {
-                            String tmp = seite4.substring(pos1, pos2);
-                            if ((pos1 = tmp.indexOf(MUSTER_URL_START)) != -1) {
-                                pos1 += MUSTER_URL_START.length();
-                                if ((pos2 = tmp.indexOf(MUSTER_URL_END, pos1)) != -1) {
-                                    thumbnailUrl = tmp.substring(pos1, pos2);
-                                }
-                            }
-                        }
-                    }
-
-                    if ((pos1 = seite4.indexOf(MUSTER_IMAGE, pos)) != -1) {
-                        pos1 += MUSTER_IMAGE.length();
-                        if ((pos2 = seite4.indexOf(MUSTER_IMAGE_END, pos1)) != -1) {
-                            String tmp = seite4.substring(pos1, pos2);
-                            if ((pos1 = tmp.indexOf(MUSTER_URL_START)) != -1) {
-                                pos1 += MUSTER_URL_START.length();
-                                if ((pos2 = tmp.indexOf(MUSTER_URL_END, pos1)) != -1) {
-                                    imageUrl = tmp.substring(pos1, pos2);
-                                }
-                            }
-                        }
-                    }
                     pos1 = pos;
                     if ((pos2 = seite4.indexOf("<", pos)) != -1) {
                         titel = seite4.substring(pos1, pos2);
@@ -390,47 +345,28 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                             datum = convertDatumXml(datum);
                         }
                     }
-                    // URL mit der besten Auflösung suchen
-                    pos1 = pos;
-                    widthAlt = 0;
-                    while ((pos1 = seite4.indexOf(MUSTER_FRAME_WIDTH, pos1)) != -1) {
-                        if (pos1 > posEnde) {
-                            break;
-                        }
-                        pos1 += MUSTER_FRAME_WIDTH.length();
-                        if ((pos2 = seite4.indexOf("<", pos1)) != -1) {
-                            width = seite4.substring(pos1, pos2);
-                            try {
-                                int tmp = Integer.parseInt(width);
-                                if (tmp <= widthAlt) {
-                                    continue;
-                                } else {
-                                    widthAlt = tmp;
-                                }
-                            } catch (Exception ex) {
-                            }
-                        }
+                    
+                    // Film-URLs suchen
+                    urlHD = seite4.extract("| MP4 Web XL |", MUSTER_URL_MP4, "<");
+                    urlMp4 = seite4.extract("| MP4 Web L |", MUSTER_URL_MP4, "<");
+                    if (urlMp4.isEmpty()) {
+                        urlMp4 = seite4.extract("| MP4 Web L+ |", MUSTER_URL_MP4, "<");
+                    }
+                    urlMp4_klein = seite4.extract("| MP4 Web M |", MUSTER_URL_MP4, "<");
 
-                        if ((pos1 = seite4.indexOf(MUSTER_URL_MP4, pos1)) != -1) {
-                            pos1 += MUSTER_URL_MP4.length();
-                            if ((pos2 = seite4.indexOf("<", pos1)) != -1) {
-                                if (!urlMp4.isEmpty()) {
-                                    urlMp4_klein = urlMp4;
-                                }
-                                urlMp4 = seite4.substring(pos1, pos2);
-                            }
-                        }
-                    }// while
+                    if (urlMp4.isEmpty()) {
+                        urlMp4 = urlMp4_klein;
+                        urlMp4_klein = "";
+                    }
                     if (urlMp4.equals("")) {
-                        MSLog.fehlerMeldung(-326541230, MSLog.FEHLER_ART_MREADER, "MediathekMdr.addXml", new String[]{"keine URL: " + filmWebsite, "Thema: " + thema, " UrlFeed: " + strUrlFeed});
+                        MSLog.fehlerMeldung(-326541230, MSLog.FEHLER_ART_MREADER, "MediathekMdr.addXml", new String[]{"keine URL: " + xmlSite, "Thema: " + thema, " UrlFeed: " + strUrlFeed});
                     } else {
-                        //<flashMediaServerApplicationURL>rtmp://x4100mp4dynonlc22033.f.o.f.lb.core-cdn.net/22033mdr/ondemand</flashMediaServerApplicationURL>
-                        //<flashMediaServerURL>mp4:4100mp4dynonl/FCMS-1582b584-bb95-4fd2-94d8-389e10a4e1bd-8442e17c3177.mp4</flashMediaServerURL>
                         if (!existiertSchon(thema, titel, datum, zeit)) {
                             meldung(urlMp4);
-                            DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, urlMp4, ""/*rtmpUrl*/, datum, zeit, duration, description,
-                                    imageUrl.isEmpty() ? thumbnailUrl : imageUrl, new String[]{});
+                            DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, urlMp4, ""/*rtmpUrl*/, datum, zeit, duration, description,
+                                    new String[]{});
                             film.addUrlKlein(urlMp4_klein, "");
+                            film.addUrlHd(urlHD, "");
                             addFilm(film);
                         }
                     }

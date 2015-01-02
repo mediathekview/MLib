@@ -294,7 +294,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 if (!url.isEmpty() && url.startsWith("http")) {
                     String beschreibung = beschreibung(urlSendung);
                     DatenFilm f = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
-                            "" /*imageUrl*/, new String[]{}/*keywords*/);
+                           new String[]{}/*keywords*/);
                     if (!urlKl.isEmpty()) {
                         f.addUrlKlein(urlKl, "");
                     }
@@ -303,7 +303,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     // MSLog.fehlerMeldung(-695412340, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "nurUrlKlein: " + urlFilm);
                     String beschreibung = beschreibung(urlSendung);
                     DatenFilm f = new DatenFilm(SENDERNAME, thema, urlSendung, titel, urlKl, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
-                            "" /*imageUrl*/, new String[]{}/*keywords*/);
+                            new String[]{}/*keywords*/);
                     addFilm(f);
                 } else {
                     MSLog.fehlerMeldung(-784512369, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "keine URL: " + urlFilm);

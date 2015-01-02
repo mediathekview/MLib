@@ -486,7 +486,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
         if (!urlNormal.isEmpty()) {
             DatenFilm film = new DatenFilm(SENDERNAME, thema, urlThema, titel, urlNormal, "" /*urlRtmp*/,
                     datum, zeit,
-                    duration, description, "", new String[]{});
+                    duration, description, new String[]{});
             if (!urlVerySmall.isEmpty()) {
                 film.addUrlKlein(urlVerySmall, "");
             }

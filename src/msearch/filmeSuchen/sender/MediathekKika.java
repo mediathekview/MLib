@@ -256,7 +256,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             }
             if (!urlFilm.equals("")) {
                 DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, urlFilm, "-r " + urlFilm + " --flashVer WIN11,4,402,265"/* urlRtmp */,
-                        datum/*datum*/, ""/*zeit*/, 0, "", "", new String[]{""});
+                        datum/*datum*/, ""/*zeit*/, 0, "",  new String[]{""});
                 MSFunktionen.unescape(film);
                 if (istInFilmListe(SENDERNAME, film.arr[DatenFilm.FILM_THEMA_NR], film.arr[DatenFilm.FILM_TITEL_NR]) == null) {
                     meldung(urlFilm);
@@ -304,7 +304,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                         // dann gibs ihn noch nicht
                         addFilm(new DatenFilm(SENDERNAME, thema, "http://www.kika.de/fernsehen/mediathek/index.shtml", titel, urlFilm, ""/* urlRtmp */,
                                 ""/*datum*/, ""/*zeit*/,
-                                0, "", bild, new String[]{""}));
+                                0, "",  new String[]{""}));
                     }
                 } else {
                     MSLog.fehlerMeldung(-915263078, MSLog.FEHLER_ART_MREADER, "MediathekKika", "keine URL: " + filmWebsite);
@@ -350,7 +350,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 if (!url.isEmpty()) {
                     DatenFilm film = new DatenFilm(SENDERNAME, thema, "http://www.kikaninchen.de/kikaninchen/filme/index.html", titel, url, ""/* urlRtmp */,
                             datum, zeit,
-                            0, "", jpg, new String[]{""});
+                            0, "",  new String[]{""});
                     MSFunktionen.unescape(film);
                     if (istInFilmListe(SENDERNAME, film.arr[DatenFilm.FILM_THEMA_NR], film.arr[DatenFilm.FILM_TITEL_NR]) == null) {
                         // ansonsten gibt es den Film schon

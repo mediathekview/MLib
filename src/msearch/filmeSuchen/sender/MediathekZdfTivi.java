@@ -284,7 +284,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                     //        long dauerSekunden, String description, String imageUrl, String[] keywords) {
                     DatenFilm film = new DatenFilm(SENDERNAME, thema, website, titel, urlFilm, "" /*urlRtmp*/,
                             datum, zeit,
-                            dauerL, text, bild, new String[]{""});
+                            dauerL, text,  new String[]{""});
                     // jetzt noch manuell die Auflösung hochsetzen
                     MediathekZdf.urlTauschen(film, url, mSearchFilmeSuchen);
                     addFilm(film);

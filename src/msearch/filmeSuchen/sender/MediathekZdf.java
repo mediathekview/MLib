@@ -502,7 +502,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 //                System.out.print("");
 //            }
             DatenFilm film = new DatenFilm(sender, thema, filmWebsite, titel, url, "" /*urlRtmp*/, datum, zeit,
-                    extractDuration(laenge), beschreibung, bild, new String[]{""});
+                    extractDuration(laenge), beschreibung,  new String[]{""});
             film.addUrlKlein(urlKlein, "");
             film.addUrlHd(urlHd, "");
             return film;
