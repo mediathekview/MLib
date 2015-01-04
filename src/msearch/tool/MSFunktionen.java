@@ -271,7 +271,11 @@ public class MSFunktionen {
     public static String addsPfad(String pfad1, String pfad2) {
         String ret = "";
         if (pfad1 != null && pfad2 != null) {
-            if (!pfad1.equals("") && !pfad2.equals("")) {
+            if (pfad1.isEmpty()) {
+                ret = pfad2;
+            } else if (pfad2.isEmpty()) {
+                ret = pfad1;
+            } else if (!pfad1.equals("") && !pfad2.equals("")) {
                 if (pfad1.endsWith(File.separator)) {
                     ret = pfad1.substring(0, pfad1.length() - 1);
                 } else {
