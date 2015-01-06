@@ -114,10 +114,12 @@ public class MediathekReader implements Runnable {
         //wird überschrieben, hier werden die Filme gesucht
     }
 
-    void addFilm(DatenFilm film, boolean nurUrlPruefen) {
-        if (nurUrlPruefen) {
+    void addFilm(DatenFilm film, boolean urlPruefen) {
+        if (urlPruefen) {
             if (mSearchFilmeSuchen.listeFilmeNeu.getFilmByUrl(film.arr[DatenFilm.FILM_URL_NR]) == null) {
                 addFilm(film);
+//            } else {
+//                System.out.println("doppelt");
             }
         } else {
             addFilm(film);
