@@ -37,6 +37,11 @@ public class MediathekWdr extends MediathekReader implements Runnable {
 
     public final static String SENDERNAME = "WDR";
     private final static String ROCKPALAST_URL = "http://www1.wdr.de/fernsehen/kultur/rockpalast/videos/rockpalastvideos_konzerte100.html";
+    private final static String ROCKPALAST_FESTIVAL = "http://www1.wdr.de/fernsehen/kultur/rockpalast/videos/rockpalastvideos_festivals100.html";
+    private final ArrayList<String> listeFestival = new ArrayList<>();
+    private final ArrayList<String> listeRochpalast = new ArrayList<>();
+    private MSStringBuilder seite_1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+    private MSStringBuilder seite_2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
     public MediathekWdr(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME,/* threads */ 3, /* urlWarten */ 500, startPrio);
@@ -49,29 +54,36 @@ public class MediathekWdr extends MediathekReader implements Runnable {
     public synchronized void addToList() {
         //Theman suchen
         listeThemen.clear();
+        listeFestival.clear();
+        listeRochpalast.clear();
         meldungStart();
-        addToList__("http://www1.wdr.de/mediathek/video/sendungen/index.html");
+////////        addToList__("http://www1.wdr.de/mediathek/video/sendungen/index.html");
         if (MSConfig.senderAllesLaden) {
+            rockpalast();
+            festival();
+            // damit sie auch gestartet werden (im idealfall in unterschiedlichen Threads
             String[] add = new String[]{ROCKPALAST_URL, "Rockpalast"};
+            listeThemen.addUrl(add);
+            add = new String[]{ROCKPALAST_FESTIVAL, "Rockpalast"};
             listeThemen.addUrl(add);
         }
         // Sendung verpasst, da sind einige die nicht in einer "Sendung" enthalten sind
         // URLs nach dem Muster bauen:
         // http://www1.wdr.de/mediathek/video/sendungverpasst/sendung-verpasst-alles100_tag-03062013.html
-        SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy");
-        String tag;
-        for (int i = 1; i < 14; ++i) {
-            final String URL = "http://www1.wdr.de/mediathek/video/sendungverpasst/sendung-verpasst-alles100_tag-";
-            tag = formatter.format(new Date().getTime() - (1000 * 60 * 60 * 24 * i));
-            String urlString = URL + tag + ".html";
-            listeThemen.addUrl(new String[]{urlString, ""});
-        }
+////////        SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy");
+////////        String tag;
+////////        for (int i = 1; i < 14; ++i) {
+////////            final String URL = "http://www1.wdr.de/mediathek/video/sendungverpasst/sendung-verpasst-alles100_tag-";
+////////            tag = formatter.format(new Date().getTime() - (1000 * 60 * 60 * 24 * i));
+////////            String urlString = URL + tag + ".html";
+////////            listeThemen.addUrl(new String[]{urlString, ""});
+////////        }
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
-        } else if (listeThemen.size() == 0) {
+        } else if (listeThemen.isEmpty() && listeFestival.isEmpty() && listeRochpalast.isEmpty()) {
             meldungThreadUndFertig();
         } else {
-            meldungAddMax(listeThemen.size());
+            meldungAddMax(listeThemen.size() + listeFestival.size() + listeRochpalast.size());
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
@@ -84,20 +96,42 @@ public class MediathekWdr extends MediathekReader implements Runnable {
     //===================================
     // private
     //===================================
+    private void rockpalast() {
+        final String ROOTADR = "http://www.wdr.de/fernsehen/kultur/rockpalast/videos/";
+        final String ITEM_1 = "<a href=\"/fernsehen/kultur/rockpalast/videos/";
+        seite_1 = getUrlIo.getUri(SENDERNAME, ROCKPALAST_URL, MSConst.KODIERUNG_UTF, 3 /* versuche */, seite_1, "");
+        try {
+            seite_1.extractList(ITEM_1, "\"", 0, ROOTADR, listeRochpalast);
+        } catch (Exception ex) {
+            MSLog.fehlerMeldung(-915423698, MSLog.FEHLER_ART_MREADER, "MediathekWdr.rockpalast", ex);
+        }
+    }
+
+    private void festival() {
+        // http://www1.wdr.de/fernsehen/kultur/rockpalast/videos/rockpalastvideos_festivals100.html
+        final String ROOTADR = "http://www1.wdr.de/fernsehen/kultur/rockpalast/videos/";
+        final String ITEM_1 = "<a href=\"/fernsehen/kultur/rockpalast/videos/";
+        seite_1 = getUrlIo.getUri(SENDERNAME, ROCKPALAST_FESTIVAL, MSConst.KODIERUNG_UTF, 3 /* versuche */, seite_1, "");
+        try {
+            seite_1.extractList(ITEM_1, "\"", 0, ROOTADR, listeFestival);
+        } catch (Exception ex) {
+            MSLog.fehlerMeldung(-432365698, MSLog.FEHLER_ART_MREADER, "MediathekWdr.festival", ex);
+        }
+    }
+
     private void addToList__(String ADRESSE) {
         // http://www1.wdr.de/mediathek/video/sendungen/abisz-b100.html
         //Theman suchen
         final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/abisz-";
-        MSStringBuilder seite_2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        seite_2 = getUrlIo.getUri_Iso(SENDERNAME, ADRESSE, seite_2, "");
+        seite_1 = getUrlIo.getUri_Iso(SENDERNAME, ADRESSE, seite_1, "");
         int pos1 = 0;
         int pos2;
         String url;
         themenSeitenSuchen(ADRESSE); // ist die erste Seite: "a"
-        while (!MSConfig.getStop() && (pos1 = seite_2.indexOf(MUSTER_URL, pos1)) != -1) {
+        while (!MSConfig.getStop() && (pos1 = seite_1.indexOf(MUSTER_URL, pos1)) != -1) {
             pos1 += MUSTER_URL.length();
-            if ((pos2 = seite_2.indexOf("\"", pos1)) != -1) {
-                url = seite_2.substring(pos1, pos2);
+            if ((pos2 = seite_1.indexOf("\"", pos1)) != -1) {
+                url = seite_1.substring(pos1, pos2);
                 if (url.equals("")) {
                     MSLog.fehlerMeldung(-995122047, MSLog.FEHLER_ART_MREADER, "MediathekWdr.addToList__", "keine URL");
                 } else {
@@ -107,8 +141,6 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             }
         }
     }
-
-    private MSStringBuilder seite_1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
     private void themenSeitenSuchen(String strUrlFeed) {
         //<ul class="linkList pictured">
@@ -127,16 +159,16 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         int pos1;
         int pos2;
         String url;
-        seite_1 = getUrlIo.getUri_Iso(SENDERNAME, strUrlFeed, seite_1, "");
+        seite_2 = getUrlIo.getUri_Iso(SENDERNAME, strUrlFeed, seite_2, "");
         meldung(strUrlFeed);
-        if ((pos1 = seite_1.indexOf(MUSTER_START)) == -1) {
+        if ((pos1 = seite_2.indexOf(MUSTER_START)) == -1) {
             MSLog.fehlerMeldung(-460857479, MSLog.FEHLER_ART_MREADER, "MediathekWdr.themenSeiteSuchen", "keine Url" + strUrlFeed);
             return;
         }
-        while (!MSConfig.getStop() && (pos1 = seite_1.indexOf(MUSTER_URL, pos1)) != -1) {
+        while (!MSConfig.getStop() && (pos1 = seite_2.indexOf(MUSTER_URL, pos1)) != -1) {
             pos1 += MUSTER_URL.length();
-            if ((pos2 = seite_1.indexOf("\"", pos1)) != -1) {
-                url = seite_1.substring(pos1, pos2).trim();
+            if ((pos2 = seite_2.indexOf("\"", pos1)) != -1) {
+                url = seite_2.substring(pos1, pos2).trim();
                 if (!url.equals("")) {
                     url = "http://www1.wdr.de/mediathek/video/sendungen/" + url;
                     //weiter gehts
@@ -158,8 +190,6 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         private MSStringBuilder sendungsSeite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder sendungsSeite4 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seiteRock1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seiteRock2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seiteRock3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
         @Override
         public void run() {
@@ -169,6 +199,8 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     if (ROCKPALAST_URL.equals(link[0])) {
                         themenSeiteRockpalast();
+                    } else if (ROCKPALAST_FESTIVAL.equals(link[0])) {
+                        themenSeiteFestival();
                     } else {
                         sendungsSeitenSuchen1(link[0] /* url */);
                     }
@@ -479,13 +511,9 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         }
 
         private void themenSeiteRockpalast() {
-            final String ROOTADR = "http://www.wdr.de/fernsehen/kultur/rockpalast/videos/";
-            final String ITEM_1 = "<a href=\"/fernsehen/kultur/rockpalast/videos/";
-            seiteRock1 = getUrl.getUri(SENDERNAME, ROCKPALAST_URL, MSConst.KODIERUNG_UTF, 3 /* versuche */, seiteRock1, "");
             try {
-                ArrayList<String> liste = new ArrayList<>();
-                seiteRock1.extractList(ITEM_1, "\"", 0, ROOTADR, liste);
-                for (String s : liste) {
+                for (String s : listeRochpalast) {
+                    meldungProgress(s);
                     if (MSConfig.getStop()) {
                         break;
                     }
@@ -496,27 +524,46 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                         continue;
                     }
                     // Konzerte suchen
-                    addFilmeRockpalast(s);
+                    addFilmeRockpalast(s, "Rockpalast");
                 }
-
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-696963025, MSLog.FEHLER_ART_MREADER, "MediathekWdr.themenSeiteRockpalast", ex);
             }
         }
 
-        private void addFilmeRockpalast(String filmWebsite) {
+        private void themenSeiteFestival() {
+            try {
+                for (String s : listeFestival) {
+                    meldungProgress(s);
+                    if (MSConfig.getStop()) {
+                        break;
+                    }
+                    if (s.endsWith("/fernsehen/kultur/rockpalast/videos/index.html")) {
+                        continue;
+                    }
+                    if (s.contains("/fernsehen/kultur/rockpalast/videos/uebersicht_Festivals116.html")) {
+                        continue;
+                    }
+                    // Konzerte suchen
+                    addFilmeRockpalast(s, "Festival");
+                }
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(-915263698, MSLog.FEHLER_ART_MREADER, "MediathekWdr.themenSeiteRockpalast", ex);
+            }
+        }
+
+        private void addFilmeRockpalast(String filmWebsite, String thema) {
             meldung(filmWebsite);
-            seiteRock3 = getUrl.getUri_Utf(SENDERNAME, filmWebsite, seiteRock3, "");
+            seiteRock1 = getUrl.getUri_Utf(SENDERNAME, filmWebsite, seiteRock1, "");
             String url;
             long duration = 0;
             String description;
             String[] keywords;
 
-            String thema = "Rockpalast";
-            String titel = seiteRock3.extract("headline: \"", "\"");
+            String titel = seiteRock1.extract("headline: \"", "\"");
             titel = titel.replace("\n", "");
 
-            String d = seiteRock3.extract("length: \"(", ")");
+            String d = seiteRock1.extract("length: \"(", ")");
             try {
                 if (!d.equals("") && d.length() <= 8 && d.contains(":")) {
                     String[] parts = d.split(":");
@@ -530,16 +577,19 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 MSLog.fehlerMeldung(-302058974, MSLog.FEHLER_ART_MREADER, "MediathekWdr.addFilme2-1", ex, "duration: " + d);
             }
 
-            description = seiteRock3.extract("<meta name=\"Description\" content=\"", "\"");
+            description = seiteRock1.extract("<meta name=\"Description\" content=\"", "\"");
             //description = description.replace("Rockpalast, das Kult-Programm mit festem w&ouml;chentlichen\nSendeplatz und regelm&auml;&szlig;igen zus&auml;tzlichen\nRockn&auml;chten\" ", "");
 
-            String k = seiteRock3.extract("<meta name=\"Keywords\" content=\"", "\"");
+            String k = seiteRock1.extract("<meta name=\"Keywords\" content=\"", "\"");
             keywords = k.split(", ");
 
             // Datum suchen
             // <li><a href="/tv/rockpalast/sendungsbeitraege/2014/0317/index.jsp">Rockpalast am 17.03.2014, 00:15 Uhr</a></li>
-            String datum = seiteRock3.extract("Konzert vom", "\"").trim();
-            url = seiteRock3.extract("<a href=\"/fernsehen/kultur/rockpalast/videos/av/", "\"");
+            String datum = seiteRock1.extract("Konzert vom", "\"").trim();
+            if (datum.isEmpty()) {
+                datum = seiteRock1.extract("Sendung vom ", "\"").trim();
+            }
+            url = seiteRock1.extract("<a href=\"/fernsehen/kultur/rockpalast/videos/av/", "\"");
 //            if (url.isEmpty() || thema.isEmpty() || titel.isEmpty() || duration == 0 || datum.isEmpty() || description.isEmpty()) {
 //                System.out.println("nix drin!");
 //            }
