@@ -28,6 +28,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -47,15 +48,19 @@ public class MSFilmlistenSuchen {
     public ListeFilmlistenUrls listeFilmlistenUrls_diff = new ListeFilmlistenUrls();
     private static boolean firstSearchAkt = true;
     private static boolean firstSearchDiff = true;
+    private final int UPDATE_LISTE_MAX = 10; // die Downloadliste für die Filmlisten nur jeden 10. Programmstart aktualisieren
 
     public String suchenAkt(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Filmliste suchen
         String retUrl;
         if (firstSearchAkt || listeFilmlistenUrls_akt.isEmpty()) {
-            // nach dem Programmstart wird die Liste einmal aktualisiert
             firstSearchAkt = false;
-            // da sich die Listen nicht ändern nur eimal pro Start laden
-            updateURLsFilmlisten(true, false);
+            // nach dem Programmstart wird die Liste einmal aktualisiert aber
+            // da sich die Listen nicht ändern, nur jeden xx Start
+            int nr = new Random().nextInt(UPDATE_LISTE_MAX);
+            if (nr == 0) {
+                updateURLsFilmlisten(true);
+            }
         }
         retUrl = (listeFilmlistenUrls_akt.getRand(bereitsVersucht)); //eine Zufällige Adresse wählen
         if (bereitsVersucht != null) {
@@ -68,10 +73,13 @@ public class MSFilmlistenSuchen {
         // passende URL zum Laden der Filmliste suchen
         String retUrl;
         if (firstSearchDiff || listeFilmlistenUrls_diff.isEmpty()) {
-            // nach dem Programmstart wird die Liste einmal aktualisiert
             firstSearchDiff = false;
-            // da sich die Listen nicht ändern nur eimal pro Start laden
-            updateURLsFilmlisten(false, true);
+            // nach dem Programmstart wird die Liste einmal aktualisiert aber
+            // da sich die Listen nicht ändern, nur jeden xx Start
+            int nr = new Random().nextInt(UPDATE_LISTE_MAX);
+            if (nr == 0) {
+                updateURLsFilmlisten(false);
+            }
         }
         retUrl = (listeFilmlistenUrls_diff.getRand(bereitsVersucht)); //eine Zufällige Adresse wählen
         if (bereitsVersucht != null) {
@@ -80,7 +88,7 @@ public class MSFilmlistenSuchen {
         return retUrl;
     }
 
-    public void updateURLsFilmlisten(boolean akt, boolean diff) {
+    public void updateURLsFilmlisten(boolean akt /*sonst diff*/) {
         ListeFilmlistenUrls tmp = new ListeFilmlistenUrls();
         if (akt) {
             getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_AKT, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
@@ -105,8 +113,7 @@ public class MSFilmlistenSuchen {
                 listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mediathekview.alfahosting.org/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
             }
             listeFilmlistenUrls_akt.sort();
-        }
-        if (diff) {
+        } else {
             getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
             if (tmp.isEmpty()) {
                 getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF_RES, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
@@ -179,8 +186,6 @@ public class MSFilmlistenSuchen {
     }
 
     private static void getServer(XMLStreamReader parser, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
-        String zeit = "";
-        String datum = "";
         String serverUrl = "";
         String prio = "";
         int event;
@@ -195,12 +200,6 @@ public class MSFilmlistenSuchen {
                             break;
                         case "Prio":
                             prio = parser.getElementText();
-                            break;
-                        case "Datum":
-                            datum = parser.getElementText();
-                            break;
-                        case "Zeit":
-                            zeit = parser.getElementText();
                             break;
                     }
                 }
@@ -223,63 +222,4 @@ public class MSFilmlistenSuchen {
 
     }
 
-    public static File ListeFilmlistenSchreiben(ListeFilmlistenUrls listeFilmlistenUrls) {
-        File tmpFile = null;
-        XMLOutputFactory outFactory;
-        XMLStreamWriter writer;
-        OutputStreamWriter out;
-        final String TAG_LISTE = "Mediathek";
-        final String TAG_SERVER = "Server";
-        final String TAG_SERVER_URL = "URL";
-        final String TAG_SERVER_DATUM = "Datum";
-        final String TAG_SERVER_ZEIT = "Zeit";
-        try {
-            tmpFile = File.createTempFile("mediathek", null);
-            tmpFile.deleteOnExit();
-            outFactory = XMLOutputFactory.newInstance();
-            out = new OutputStreamWriter(new FileOutputStream(tmpFile), MSConst.KODIERUNG_UTF);
-            writer = outFactory.createXMLStreamWriter(out);
-            writer.writeStartDocument("UTF-8", "1.0");
-            writer.writeCharacters("\n");//neue Zeile
-            writer.writeStartElement(TAG_LISTE);
-            writer.writeCharacters("\n");//neue Zeile
-            Iterator<DatenFilmlisteUrl> it = listeFilmlistenUrls.iterator();
-            while (it.hasNext()) {
-                DatenFilmlisteUrl d = it.next();
-                writer.writeStartElement(TAG_SERVER);
-                writer.writeCharacters("\n");
-                // Tags schreiben: URL
-                writer.writeCharacters("\t");// Tab
-                writer.writeStartElement(TAG_SERVER_URL);
-                writer.writeCharacters(d.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR]);
-                writer.writeEndElement();
-                writer.writeCharacters("\n");
-                // fertig
-                // Tags schreiben: Datum
-                writer.writeCharacters("\t");// Tab
-                writer.writeStartElement(TAG_SERVER_DATUM);
-                writer.writeCharacters(d.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_DATUM_NR]);
-                writer.writeEndElement();
-                writer.writeCharacters("\n");
-                // fertig
-                // Tags schreiben: Zeit
-                writer.writeCharacters("\t");// Tab
-                writer.writeStartElement(TAG_SERVER_ZEIT);
-                writer.writeCharacters(d.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_ZEIT_NR]);
-                writer.writeEndElement();
-                writer.writeCharacters("\n");
-                // fertig
-                writer.writeEndElement();
-                writer.writeCharacters("\n");
-            }
-            // Schließen
-            writer.writeEndElement();
-            writer.writeEndDocument();
-            writer.flush();
-            writer.close();
-        } catch (Exception ex) {
-            MSLog.fehlerMeldung(634978521, MSLog.FEHLER_ART_PROG, MSFilmlistenSuchen.class.getName(), ex, "Die URL-Filmlisten konnten nicht geschrieben werden");
-        }
-        return tmpFile;
-    }
 }
