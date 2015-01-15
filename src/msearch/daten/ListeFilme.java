@@ -396,9 +396,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".neo", "http://zdf_hds_de-f.akamaihd.net/i/de13_v1@147090/master.m3u8"));
         addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".heute", "http://zdf_hds_ng-f.akamaihd.net/i/none01_v1@87014/master.m3u8?dw=0"));
 
-        // KiKa
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekKika.SENDERNAME, "", "rtmp://85.239.122.162/live/mk3w-3faw-3rqf-enc0-kika"));
-
         // 3sat
         addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Mediathek3Sat.SENDERNAME, "", "http://zdf_hds_dach-f.akamaihd.net/i/dach10_v1@87031/master.m3u8?b=0-710&dw=0"));
         // ARTE

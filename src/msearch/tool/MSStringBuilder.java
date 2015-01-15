@@ -75,10 +75,19 @@ public class MSStringBuilder {
     }
 
     public String extract(String musterStart, String musterEnde, int abPos) {
+        return extract(musterStart, musterEnde, abPos, "");
+    }
+
+    public String extract(String musterStart, String musterEnde, int abPos, String addUrl) {
         if ((pos1 = cont.indexOf(musterStart, abPos)) != -1) {
             pos1 += musterStart.length();
             if ((pos2 = cont.indexOf(musterEnde, pos1)) != -1) {
-                return cont.substring(pos1, pos2);
+                String ret = cont.substring(pos1, pos2);
+                if (!ret.isEmpty()) {
+                    return addUrl + ret;
+                } else {
+                    return "";
+                }
             }
         }
         return "";
@@ -119,11 +128,11 @@ public class MSStringBuilder {
 
     public void extractList(String abMuster, String bisMuster, String musterStart, String musterEnde, String addUrl, ArrayList<String> result) {
         if ((pos1 = cont.indexOf(abMuster)) != -1) {
-            int stopPos = cont.indexOf(bisMuster);
+            int stopPos = cont.indexOf(bisMuster); // bei "" -> 0
             while ((pos1 = cont.indexOf(musterStart, pos1)) != -1) {
                 pos1 += musterStart.length();
                 if ((pos2 = cont.indexOf(musterEnde, pos1)) != -1) {
-                    if (stopPos < 0 || pos2 < stopPos) {
+                    if (stopPos <= 0 || pos2 < stopPos) {
                         result.add(addUrl + cont.substring(pos1, pos2));
                     }
                 }
@@ -174,7 +183,7 @@ public class MSStringBuilder {
         if ((pos1 = cont.indexOf(musterStart, abPos)) != -1) {
             pos1 += musterStart.length();
             if ((pos2 = cont.indexOf(musterEnde, pos1)) != -1) {
-                if (stopPos < 0 || pos2 < stopPos) {
+                if (stopPos <= 0 || pos2 < stopPos) {
                     return cont.substring(pos1, pos2);
                 }
             }

@@ -36,6 +36,7 @@ import msearch.filmeSuchen.sender.MediathekKika;
 import msearch.filmeSuchen.sender.MediathekMdr;
 import msearch.filmeSuchen.sender.MediathekNdr;
 import msearch.filmeSuchen.sender.MediathekOrf;
+import msearch.filmeSuchen.sender.MediathekPhoenix;
 import msearch.filmeSuchen.sender.MediathekRbb;
 import msearch.filmeSuchen.sender.MediathekReader;
 import msearch.filmeSuchen.sender.MediathekSrf;
@@ -99,6 +100,7 @@ public class MSFilmeSuchen {
         mediathekListe.add(new MediathekSrf(this, 1));
         mediathekListe.add(new MediathekSrfPod(this, 0));
         mediathekListe.add(new MediathekOrf(this, 1));
+        mediathekListe.add(new MediathekPhoenix(this, 1));
     }
 
     public static String[] getNamenSender() {
@@ -122,6 +124,7 @@ public class MSFilmeSuchen {
         liste.add(MediathekSrf.SENDERNAME);
         liste.add(MediathekSrfPod.SENDERNAME);
         liste.add(MediathekOrf.SENDERNAME);
+        liste.add(MediathekPhoenix.SENDERNAME);
 
         GermanStringSorter sorter = GermanStringSorter.getInstance();
         Collections.sort(liste, sorter);
