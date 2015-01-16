@@ -323,17 +323,13 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         final String DATUM = "<airtime>";
         final String THEMA = "<originChannelTitle>";
         int pos1, pos2;
-        String bild, beschreibung, laenge, datum;
+        String beschreibung, laenge, datum;
         String zeit = "", url = "", urlKlein = "", urlHd = "", urlF4m = "";
 
         strBuffer = getUrl.getUri_Utf(sender, urlId, strBuffer, "url: " + filmWebsite);
         if (strBuffer.length() == 0) {
             MSLog.fehlerMeldung(-398745601, MSLog.FEHLER_ART_MREADER, "MediathekZdf.filmHolen", "url: " + urlId);
             return null;
-        }
-        bild = strBuffer.extract(BILD, BILD_, "<");
-        if (bild.contains(">")) {
-            bild = bild.substring(bild.indexOf(">") + 1);
         }
         beschreibung = strBuffer.extract(BESCHREIBUNG, "<");
         if (beschreibung.isEmpty()) {
@@ -441,19 +437,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 if (pos1 > posEnde) {
                     break;
                 }
-                String urlHd_ = strBuffer.extract(URL, "<", posAnfang, posEnde);
-                if ((pos1 = strBuffer.indexOf(URL, posAnfang)) != -1) {
-                    pos1 += URL.length();
-                    if ((pos2 = strBuffer.indexOf("<", pos1)) != -1) {
-                        if (pos2 < posEnde) {
-                            urlHd = strBuffer.substring(pos1, pos2);
-                            break;
-                        }
-                    }
-                }
-                if (!urlHd_.equals(urlHd)) {
-                    System.out.print("");
-                }
+                urlHd = strBuffer.extract(URL, "<", posAnfang, posEnde);
             }
         }
         if (url.isEmpty() && !urlKlein.isEmpty()) {
@@ -502,7 +486,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 //                System.out.print("");
 //            }
             DatenFilm film = new DatenFilm(sender, thema, filmWebsite, titel, url, "" /*urlRtmp*/, datum, zeit,
-                    extractDuration(laenge), beschreibung,  new String[]{""});
+                    extractDuration(laenge), beschreibung, new String[]{""});
             film.addUrlKlein(urlKlein, "");
             film.addUrlHd(urlHd, "");
             return film;

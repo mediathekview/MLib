@@ -21,20 +21,15 @@ package msearch.filmlisten;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Random;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSFunktionen;
@@ -53,8 +48,10 @@ public class MSFilmlistenSuchen {
     public String suchenAkt(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Filmliste suchen
         String retUrl;
-        if (firstSearchAkt || listeFilmlistenUrls_akt.isEmpty()) {
-            firstSearchAkt = false;
+        if (listeFilmlistenUrls_akt.isEmpty()) {
+            // bei leerer Liste immer aktualisieren
+            updateURLsFilmlisten(true);
+        } else if (firstSearchAkt) {
             // nach dem Programmstart wird die Liste einmal aktualisiert aber
             // da sich die Listen nicht ändern, nur jeden xx Start
             int nr = new Random().nextInt(UPDATE_LISTE_MAX);
@@ -62,6 +59,7 @@ public class MSFilmlistenSuchen {
                 updateURLsFilmlisten(true);
             }
         }
+        firstSearchAkt = false;
         retUrl = (listeFilmlistenUrls_akt.getRand(bereitsVersucht)); //eine Zufällige Adresse wählen
         if (bereitsVersucht != null) {
             bereitsVersucht.add(retUrl);
@@ -72,8 +70,10 @@ public class MSFilmlistenSuchen {
     public String suchenDiff(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Filmliste suchen
         String retUrl;
-        if (firstSearchDiff || listeFilmlistenUrls_diff.isEmpty()) {
-            firstSearchDiff = false;
+        if (listeFilmlistenUrls_diff.isEmpty()) {
+            // bei leerer Liste immer aktualisieren
+            updateURLsFilmlisten(false);
+        } else if (firstSearchDiff) {
             // nach dem Programmstart wird die Liste einmal aktualisiert aber
             // da sich die Listen nicht ändern, nur jeden xx Start
             int nr = new Random().nextInt(UPDATE_LISTE_MAX);
@@ -81,6 +81,7 @@ public class MSFilmlistenSuchen {
                 updateURLsFilmlisten(false);
             }
         }
+        firstSearchDiff = false;
         retUrl = (listeFilmlistenUrls_diff.getRand(bereitsVersucht)); //eine Zufällige Adresse wählen
         if (bereitsVersucht != null) {
             bereitsVersucht.add(retUrl);

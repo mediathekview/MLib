@@ -135,31 +135,31 @@ public class MSearch implements Runnable {
             new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_org(), listeFilme);
             new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_org_xz(), listeFilme);
         }
-        if (MSConfig.diffFilmlisteErstellen) {
-            // noch das diff erzeugen
-            String org = MSConfig.orgFilmliste.isEmpty() ? MSConfig.getPathFilmlist_json_org() : MSConfig.orgFilmliste;
-            MSLog.systemMeldung("");
-            MSLog.systemMeldung("============================================================================");
-            MSLog.systemMeldung("Diff erzeugen, von: " + org + " nach: " + MSConfig.getPathFilmlist_json_diff());
-            tmpListe.clear();
-            ListeFilme diff;
-            new MSFilmlisteLesen().readFilmListe(org, tmpListe, 0 /*all days*/);
-            if (tmpListe.isEmpty()) {
-                // dann ist die komplette Liste das diff
-                MSLog.systemMeldung(" --> Lesefehler der Orgliste: Diff bleibt leer!");
-                diff = new ListeFilme();
-            } else if (tmpListe.isOlderThan(24 * 60 * 60)) {
-                // älter als ein Tag, dann stimmt was nicht!
-                MSLog.systemMeldung(" --> Orgliste zu alt: Diff bleibt leer!");
-                diff = new ListeFilme();
-            } else {
-                // nur dann macht die Arbeit sinn
-                diff = listeFilme.neueFilme(tmpListe);
-            }
-            new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff(), diff);
-            new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff_xz(), diff);
-            MSLog.systemMeldung("   --> Anz. Filme Diff: " + diff.size());
+
+        //====================================================
+        // noch das diff erzeugen
+        String org = MSConfig.orgFilmliste.isEmpty() ? MSConfig.getPathFilmlist_json_org() : MSConfig.orgFilmliste;
+        MSLog.systemMeldung("");
+        MSLog.systemMeldung("============================================================================");
+        MSLog.systemMeldung("Diff erzeugen, von: " + org + " nach: " + MSConfig.getPathFilmlist_json_diff());
+        tmpListe.clear();
+        ListeFilme diff;
+        new MSFilmlisteLesen().readFilmListe(org, tmpListe, 0 /*all days*/);
+        if (tmpListe.isEmpty()) {
+            // dann ist die komplette Liste das diff
+            MSLog.systemMeldung(" --> Lesefehler der Orgliste: Diff bleibt leer!");
+            diff = new ListeFilme();
+        } else if (tmpListe.isOlderThan(24 * 60 * 60)) {
+            // älter als ein Tag, dann stimmt was nicht!
+            MSLog.systemMeldung(" --> Orgliste zu alt: Diff bleibt leer!");
+            diff = new ListeFilme();
+        } else {
+            // nur dann macht die Arbeit sinn
+            diff = listeFilme.neueFilme(tmpListe);
         }
+        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff(), diff);
+        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff_xz(), diff);
+        MSLog.systemMeldung("   --> Anz. Filme Diff: " + diff.size());
 
         //================================================
         // fertig

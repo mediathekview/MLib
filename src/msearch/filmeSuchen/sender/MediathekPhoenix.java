@@ -167,7 +167,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
             }
 
             String url = "", urlKlein = "", urlHd = "";
-            int posAnfang = 0, posEnde = 0, pos1 = 0, pos2 = 0;
+            int posAnfang = 0, posEnde = 0, pos1 = 0;
             final String URL_ANFANG = "<formitaet basetype=\"h264_aac_mp4_http_na_na\"";
             final String URL_ENDE = "</formitaet>";
             final String URL = "<url>";
