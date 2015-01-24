@@ -101,9 +101,11 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_ABO_NAME = "Aboname";// wird vor dem Speichern gelöscht!
     public static final String FILM_ABO_NAME_ = "l";
     public static final int FILM_ABO_NAME_NR = 14;
+
     public static final String FILM_IMAGE_URL = "Bild"; // wird nicht mehr benutzt!!
     public static final String FILM_IMAGE_URL_ = "o";
     public static final int FILM_IMAGE_URL_NR = 15;
+
     public static final String FILM_URL_RTMP = "UrlRTMP";
     public static final String FILM_URL_RTMP_ = "i";
     public static final int FILM_URL_RTMP_NR = 16;
@@ -136,6 +138,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         "", "", "", "", "", "", "", "", "", "",
         "", "", "", "", "", "", "", "", "", "",
         "", "", "", "", ""};
+
     public static final String[] COLUMN_NAMES = {FILM_NR, FILM_SENDER, FILM_THEMA, FILM_TITEL,
         FILM_ABSPIELEN, FILM_AUFZEICHNEN,
         FILM_DATUM, FILM_ZEIT, FILM_DAUER, FILM_GROESSE,
@@ -159,6 +162,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         FILM_BESCHREIBUNG_NR, FILM_URL_NR, FILM_WEBSEITE_NR,
         FILM_IMAGE_URL_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR,
         FILM_URL_HISTORY_NR, FILM_GEO_NR};
+
     public Datum datumFilm = new Datum(0);
     public long dauerL = 0; // Sekunden
     public Object abo = null;
@@ -171,17 +175,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         dateigroesseL = new MSLong(0); // Dateigröße in MByte
     }
 
-    /*    public int getFilmSize() {
-     int res;
-     try {
-     res = Integer.parseInt(arr[DatenFilm.FILM_GROESSE_NR]);
-     }
-     catch (NumberFormatException ex) {
-     res = -1;
-     }
-
-     return res;
-     }*/
     public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
             String datum, String zeit,
             long dauerSekunden, String description, String[] keywords) {
