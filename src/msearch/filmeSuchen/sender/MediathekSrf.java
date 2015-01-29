@@ -109,6 +109,9 @@ public class MediathekSrf extends MediathekReader implements Runnable {
     public void addToList() {
         //Liste von http://www.srf.ch/player/tv/sendungen?displayedKey=Alle holen
         //<a class="sendung_name" href="/player/tv/sendung/1-gegen-100?id=6fd27ab0-d10f-450f-aaa9-836f1cac97bd">1 gegen 100</a>
+        //<a class="sendung_name" href="/play/tv/sendung/aeschbacher?id=0a7932df-dea7-4d8a-bd35-bba2fe2798b5">Aeschbacher</a></h3>
+        // -> http://www.srf.ch/play/tv/sendung/aeschbacher?id=0a7932df-dea7-4d8a-bd35-bba2fe2798b5
+        // http://www.srf.ch/play/tv/episodesfromshow?id=0a7932df-dea7-4d8a-bd35-bba2fe2798b5&pageNumber=1
         final String MUSTER = "sendung_name\" href=\"";
         final String PATTERN_END = "\"";
         final String THEME_PATTERN_START = ">";
@@ -117,7 +120,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
         MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         listeThemen.clear();
         meldungStart();
-        seite = getUrlIo.getUri_Utf(SENDERNAME, "http://www.srf.ch/player/tv/sendungen?displayedKey=Alle", seite, "");
+        seite = getUrlIo.getUri_Utf(SENDERNAME, "http://www.srf.ch/play/tv/sendungen?displayedKey=Alle", seite, "");
         int pos = 0;
         int pos1;
         String url;
@@ -129,6 +132,13 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             pos += MUSTER.length();
 
             url = URL_PREFIX + seite.extract(MUSTER, PATTERN_END, pos1);
+            String id = url.substring(url.indexOf("id="));
+            if (MSConfig.senderAllesLaden) {
+                // &maxPublishedDate=2010-02
+                url = "http://www.srf.ch/play/tv/episodesfromshow?" + id + "&pageNumber=1&maxPublishedDate=2010-01";
+            } else {
+                url = "http://www.srf.ch/play/tv/episodesfromshow?" + id + "&pageNumber=1";
+            }
             thema = seite.extract(THEME_PATTERN_START, THEME_PATTERN_END, pos1);
             listeThemen.addUrl(new String[]{url, thema});
 //            System.out.println("URL " + url);
@@ -186,33 +196,34 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             meldung(strUrlFeed);
             try {
                 overviewPageFilm = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, overviewPageFilm, "");
-                addFilmsFromPage(overviewPageFilm, strUrlFeed);
-                if (MSConfig.senderAllesLaden) {
-                    int pos = 0;
-                    while (!MSConfig.getStop()
-                            && ((pos = overviewPageFilm.indexOf(PATTERN_JSON_ARRAY_START, pos)) != -1)) {
-
-                        String jsonArray = overviewPageFilm.extract(PATTERN_JSON_ARRAY_START, PATTERN_JSON_ARRAY_END, pos - 1);
-                        pos += jsonArray.length();
-
-                        ArrayList<Date> dateList = parseJsonArray(jsonArray);
-                        Collections.sort(dateList, Collections.reverseOrder());
-
-                        //Beschränkung auf Maximal 5 Seiten Einträge 
-                        if (dateList.size() >= MAX_FILME_THEMA) {
-                            dateList.subList(MAX_FILME_THEMA, dateList.size()).clear();
-                        }
-
-                        addFilmsFromPeriod(strUrlFeed, dateList); //To change body of generated methods, choose Tools | Templates.
-                    }
-                }
+                addFilmsFromPage(overviewPageFilm, thema, strUrlFeed);
+//                if (MSConfig.senderAllesLaden) {
+//                    int pos = 0;
+//                    while (!MSConfig.getStop()
+//                            && ((pos = overviewPageFilm.indexOf(PATTERN_JSON_ARRAY_START, pos)) != -1)) {
+//
+//                        String jsonArray = overviewPageFilm.extract(PATTERN_JSON_ARRAY_START, PATTERN_JSON_ARRAY_END, pos - 1);
+//                        pos += jsonArray.length();
+//
+//                        ArrayList<Date> dateList = parseJsonArray(jsonArray);
+//                        Collections.sort(dateList, Collections.reverseOrder());
+//
+//                        //Beschränkung auf Maximal 5 Seiten Einträge 
+//                        if (dateList.size() >= MAX_FILME_THEMA) {
+//                            dateList.subList(MAX_FILME_THEMA, dateList.size()).clear();
+//                        }
+//
+//                        addFilmsFromPeriod(strUrlFeed, thema, dateList);
+//                    }
+//                }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-195926364, MSLog.FEHLER_ART_MREADER, "MediathekSrf.addFilme", ex);
             }
         }
 
-        private void addFilmsFromPage(MSStringBuilder page, String themePageUrl) {
-            final String PATTERN_ID_START = "/player/tv/popupvideoplayer?id=";
+        private void addFilmsFromPage(MSStringBuilder page, String thema, String themePageUrl) {
+            // <ul class="contributions"><li class="border_bot_true"><a href="/play/tv/-/video/aeschbacher-vom-15-01-2015?id=6b5b8863-9528-4c70-85a8-1ee92b30a642">
+            final String PATTERN_ID_START = "<ul class=\"contributions\"><li class=\"border_bot_true\"><a href=\"/play/tv";
             final String PATTERN_ID_END = "\">";
             final String BASE_URL_JSON = "http://srf.ch/webservice/cvis/segment/";
             final String END_URL_JSON = "/.json?nohttperr=1";
@@ -221,22 +232,23 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             int pos = 0;
 
             //String theme = page.extract(THEME_PATTERN_START, THEME_PATTERN_END);
-            String theme = page.extract("<title>", "<");
-            if (theme.contains("- TV")) {
-                theme = theme.substring(0, theme.indexOf("- TV")).trim();
-            }
+//            String theme = page.extract("<title>", "<");
+//            if (theme.contains("- TV")) {
+//                theme = theme.substring(0, theme.indexOf("- TV")).trim();
+//            }
             while (!MSConfig.getStop() && ((pos = page.indexOf(PATTERN_ID_START, pos)) != -1)) {
                 String id = page.extract(PATTERN_ID_START, PATTERN_ID_END, pos);
+                id = id.substring(id.indexOf("id=") + 3);
                 pos += PATTERN_ID_START.length();
 
                 String jsonMovieUrl = BASE_URL_JSON + id + END_URL_JSON;
 
-                addFilms(jsonMovieUrl, themePageUrl, theme);
+                addFilms(jsonMovieUrl, themePageUrl, thema);
             }
 
         }
 
-        private void addFilmsFromPeriod(String urlThema, ArrayList<Date> dateList) {
+        private void addFilmsFromPeriod(String urlThema, String thema, ArrayList<Date> dateList) {
             Calendar c = Calendar.getInstance();
             String themePageUrl;
 
@@ -250,7 +262,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 String urlPart = getPeriodPartYearMonth(year, month);
                 themePageUrl = urlThema + urlPart;
                 periodPageFilm = getUrl.getUri_Utf(SENDERNAME, themePageUrl, periodPageFilm, "");
-                addFilmsFromPage(periodPageFilm, themePageUrl);
+                addFilmsFromPage(periodPageFilm, thema, themePageUrl);
 
             }
 
@@ -372,7 +384,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     urlHd = urlHd.replaceFirst("https", "http");
                 }
                 DatenFilm film = new DatenFilm(SENDERNAME, theme, urlWebsite, title, url_normal, ""/*rtmpURL*/, date_str, time, duration, description,
-                         keywords);
+                        keywords);
 
                 if (!url_small.isEmpty()) {
                     film.addUrlKlein(url_small, "");
