@@ -19,18 +19,12 @@
  */
 package msearch.filmeSuchen.sender;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import msearch.daten.DatenFilm;
@@ -46,10 +40,9 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
     public final static String SENDERNAME = "SRF";
     private final static int MAX_FILME_THEMA = 5;
-    private final int todayYear = Calendar.getInstance().get(Calendar.YEAR);
-    private final int todayMonth = Calendar.getInstance().get(Calendar.MONTH) + 1;
     private final static int URL_ENTRY = 0;
     private final static int THEME_ENTRY = 1;
+    private final static int URL_THEME = 2;
 
     /**
      * Class for local Exceptions
@@ -123,28 +116,18 @@ public class MediathekSrf extends MediathekReader implements Runnable {
         seite = getUrlIo.getUri_Utf(SENDERNAME, "http://www.srf.ch/play/tv/sendungen?displayedKey=Alle", seite, "");
         int pos = 0;
         int pos1;
-        String url;
+        String url, urlThema;
         String thema;
 
-//        System.out.println("Alles Laden " + MSConfig.senderAllesLaden);
         while ((pos = seite.indexOf(MUSTER, pos)) != -1) {
             pos1 = pos;
             pos += MUSTER.length();
 
-            url = URL_PREFIX + seite.extract(MUSTER, PATTERN_END, pos1);
-            String id = url.substring(url.indexOf("id="));
-            if (MSConfig.senderAllesLaden) {
-                // &maxPublishedDate=2010-02
-                url = "http://www.srf.ch/play/tv/episodesfromshow?" + id + "&pageNumber=1&maxPublishedDate=2010-01";
-            } else {
-                url = "http://www.srf.ch/play/tv/episodesfromshow?" + id + "&pageNumber=1";
-            }
+            urlThema = URL_PREFIX + seite.extract(MUSTER, PATTERN_END, pos1);
+            String id = urlThema.substring(urlThema.indexOf("id="));
+            url = "http://www.srf.ch/play/tv/episodesfromshow?" + id + "&pageNumber=1";
             thema = seite.extract(THEME_PATTERN_START, THEME_PATTERN_END, pos1);
-            listeThemen.addUrl(new String[]{url, thema});
-//            System.out.println("URL " + url);
-//            System.out.println("THEMA " + thema);
-//            System.out.println(pos);
-
+            listeThemen.addUrl(new String[]{url, thema, urlThema});
         }
 
         if (MSConfig.getStop()) {
@@ -166,11 +149,9 @@ public class MediathekSrf extends MediathekReader implements Runnable {
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
 
         private MSStringBuilder film_website = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder overviewPageFilm = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private final static String PATTERN_URL = "\"url\":\"";
         private final static String PATTERN_URL_END = "\"";
-
-        private MSStringBuilder periodPageFilm = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private final JsonFactory jf = new JsonFactory();
 
         @Override
         public void run() {
@@ -180,7 +161,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
                 while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[URL_ENTRY] /* url */);
-                    addFilme(link[THEME_ENTRY], link[URL_ENTRY] /* url */);
+                    addFilme(link[THEME_ENTRY], link[URL_ENTRY] /* url */, link[URL_THEME] /*urlThema*/);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-832002877, MSLog.FEHLER_ART_MREADER, "MediathekSf.SfThemaLaden.run", ex);
@@ -188,34 +169,24 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         }
 
-        private void addFilme(String thema, final String strUrlFeed) {
+        private void addFilme(String thema, final String strUrlFeed, String urlThema) {
 
-            final String PATTERN_JSON_ARRAY_START = "var calendarGroupYearMonth = $.parseJSON('";
-            final String PATTERN_JSON_ARRAY_END = "')";
-            MSStringBuilder overviewPageFilm = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
             meldung(strUrlFeed);
             try {
                 overviewPageFilm = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, overviewPageFilm, "");
-                addFilmsFromPage(overviewPageFilm, thema, strUrlFeed);
-//                if (MSConfig.senderAllesLaden) {
-//                    int pos = 0;
-//                    while (!MSConfig.getStop()
-//                            && ((pos = overviewPageFilm.indexOf(PATTERN_JSON_ARRAY_START, pos)) != -1)) {
-//
-//                        String jsonArray = overviewPageFilm.extract(PATTERN_JSON_ARRAY_START, PATTERN_JSON_ARRAY_END, pos - 1);
-//                        pos += jsonArray.length();
-//
-//                        ArrayList<Date> dateList = parseJsonArray(jsonArray);
-//                        Collections.sort(dateList, Collections.reverseOrder());
-//
-//                        //Beschränkung auf Maximal 5 Seiten Einträge 
-//                        if (dateList.size() >= MAX_FILME_THEMA) {
-//                            dateList.subList(MAX_FILME_THEMA, dateList.size()).clear();
-//                        }
-//
-//                        addFilmsFromPeriod(strUrlFeed, thema, dateList);
-//                    }
-//                }
+                addFilmsFromPage(overviewPageFilm, thema, urlThema);
+                if (MSConfig.senderAllesLaden) {
+                    String url = strUrlFeed.substring(0, strUrlFeed.indexOf("&pageNumber=1"));
+                    for (int i = 2; i <= MAX_FILME_THEMA; ++i) {
+                        if (overviewPageFilm.indexOf("Mehr anzeigen") == -1) {
+                            break;
+                        } else {
+                            // dann gibts weitere Seiten
+                            overviewPageFilm = getUrl.getUri_Utf(SENDERNAME, url + "&pageNumber=" + i, overviewPageFilm, "");
+                            addFilmsFromPage(overviewPageFilm, thema, urlThema);
+                        }
+                    }
+                }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-195926364, MSLog.FEHLER_ART_MREADER, "MediathekSrf.addFilme", ex);
             }
@@ -227,104 +198,94 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             final String PATTERN_ID_END = "\">";
             final String BASE_URL_JSON = "http://srf.ch/webservice/cvis/segment/";
             final String END_URL_JSON = "/.json?nohttperr=1";
-            final String THEME_PATTERN_START = "<meta property=\"og:title\" content=\"";
-            final String THEME_PATTERN_END = "\"";
             int pos = 0;
 
-            //String theme = page.extract(THEME_PATTERN_START, THEME_PATTERN_END);
-//            String theme = page.extract("<title>", "<");
-//            if (theme.contains("- TV")) {
-//                theme = theme.substring(0, theme.indexOf("- TV")).trim();
-//            }
             while (!MSConfig.getStop() && ((pos = page.indexOf(PATTERN_ID_START, pos)) != -1)) {
                 String id = page.extract(PATTERN_ID_START, PATTERN_ID_END, pos);
                 id = id.substring(id.indexOf("id=") + 3);
                 pos += PATTERN_ID_START.length();
 
                 String jsonMovieUrl = BASE_URL_JSON + id + END_URL_JSON;
-
                 addFilms(jsonMovieUrl, themePageUrl, thema);
             }
-
         }
 
-        private void addFilmsFromPeriod(String urlThema, String thema, ArrayList<Date> dateList) {
-            Calendar c = Calendar.getInstance();
-            String themePageUrl;
-
-            for (Date d : dateList) {
-                if (MSConfig.getStop()) {
-                    break;
-                }
-                c.setTime(d);
-                String year = String.valueOf(c.get(Calendar.YEAR));
-                String month = String.valueOf(c.get(Calendar.MONTH) + 1);
-                String urlPart = getPeriodPartYearMonth(year, month);
-                themePageUrl = urlThema + urlPart;
-                periodPageFilm = getUrl.getUri_Utf(SENDERNAME, themePageUrl, periodPageFilm, "");
-                addFilmsFromPage(periodPageFilm, thema, themePageUrl);
-
-            }
-
-        }
-
-        private final DateFormat df = new SimpleDateFormat("yyyy-M");
-
-        /**
-         *
-         * @param jsonArray The jsonArray as String to parse
-         * @return Returns the parsed dates (year and month) from the Array
-         * @throws IOException
-         */
-        private ArrayList<Date> parseJsonArray(String jsonArray) throws IOException {
-            // var calendarGroupYearMonth = $.parseJSON('"2013":{"1":1,"2":1,"3":1,"4":1,"5":1,"6":1,"7":1,"8":1,"9":1,"10":1,"11":1,"12":1},"2014":{"1":1,"2":1,"3":1}}');
-            JsonParser parser = jf.createParser(jsonArray);
-            JsonToken currentToken = parser.nextToken();
-            ArrayList<Date> dateList = new ArrayList<>();
-            String month;
-            String year = "";
-            final int YEAR_LENGTH = 4;
-
-            while (parser.hasCurrentToken()) {
-                if (currentToken == JsonToken.FIELD_NAME) {  //JSON FieldNames are enclosed in ""
-                    String text = parser.getText();
-                    if (text.length() == YEAR_LENGTH) {
-                        year = text;
-                    } else {
-                        month = text;
-
-                        if (!month.isEmpty()) {
-
-                            //Ignoring the current year and month, because that is the same as the overview page
-                            if ((Integer.valueOf(year) != todayYear) || (Integer.parseInt(month) != todayMonth)) {
-
-                                String str_date = year + "-" + month;
-
-                                try {
-                                    Date d = df.parse(str_date);
-                                    dateList.add(d);
-                                } catch (ParseException ex) {
-                                    MSLog.fehlerMeldung(-102306547, MSLog.FEHLER_ART_MREADER, "MediathekSrf.parseJsonArray", ex);
-                                }
-                            } else {
-//                                System.out.println("Dann wars das");
-                            }
-                        }
-                    }
-                }
-                currentToken = parser.nextToken();
-
-            }
-            return dateList;
-        }
-
-        private String getPeriodPartYearMonth(String year, String month) {
-            final String PERIOD = "&period=";
-            final String PERIOD_DELIM = "-";
-
-            return PERIOD + year + PERIOD_DELIM + month;
-        }
-
+//        private void addFilmsFromPeriod(String urlThema, String thema, ArrayList<Date> dateList) {
+//            Calendar c = Calendar.getInstance();
+//            String themePageUrl;
+//
+//            for (Date d : dateList) {
+//                if (MSConfig.getStop()) {
+//                    break;
+//                }
+//                c.setTime(d);
+//                String year = String.valueOf(c.get(Calendar.YEAR));
+//                String month = String.valueOf(c.get(Calendar.MONTH) + 1);
+//                String urlPart = getPeriodPartYearMonth(year, month);
+//                themePageUrl = urlThema + urlPart;
+//                periodPageFilm = getUrl.getUri_Utf(SENDERNAME, themePageUrl, periodPageFilm, "");
+//                addFilmsFromPage(periodPageFilm, thema, themePageUrl);
+//
+//            }
+//
+//        }
+//
+//        private final DateFormat df = new SimpleDateFormat("yyyy-M");
+//
+//        /**
+//         *
+//         * @param jsonArray The jsonArray as String to parse
+//         * @return Returns the parsed dates (year and month) from the Array
+//         * @throws IOException
+//         */
+//        private ArrayList<Date> parseJsonArray(String jsonArray) throws IOException {
+//            // var calendarGroupYearMonth = $.parseJSON('"2013":{"1":1,"2":1,"3":1,"4":1,"5":1,"6":1,"7":1,"8":1,"9":1,"10":1,"11":1,"12":1},"2014":{"1":1,"2":1,"3":1}}');
+//            JsonParser parser = jf.createParser(jsonArray);
+//            JsonToken currentToken = parser.nextToken();
+//            ArrayList<Date> dateList = new ArrayList<>();
+//            String month;
+//            String year = "";
+//            final int YEAR_LENGTH = 4;
+//
+//            while (parser.hasCurrentToken()) {
+//                if (currentToken == JsonToken.FIELD_NAME) {  //JSON FieldNames are enclosed in ""
+//                    String text = parser.getText();
+//                    if (text.length() == YEAR_LENGTH) {
+//                        year = text;
+//                    } else {
+//                        month = text;
+//
+//                        if (!month.isEmpty()) {
+//
+//                            //Ignoring the current year and month, because that is the same as the overview page
+//                            if ((Integer.valueOf(year) != todayYear) || (Integer.parseInt(month) != todayMonth)) {
+//
+//                                String str_date = year + "-" + month;
+//
+//                                try {
+//                                    Date d = df.parse(str_date);
+//                                    dateList.add(d);
+//                                } catch (ParseException ex) {
+//                                    MSLog.fehlerMeldung(-102306547, MSLog.FEHLER_ART_MREADER, "MediathekSrf.parseJsonArray", ex);
+//                                }
+//                            } else {
+////                                System.out.println("Dann wars das");
+//                            }
+//                        }
+//                    }
+//                }
+//                currentToken = parser.nextToken();
+//
+//            }
+//            return dateList;
+//        }
+//
+//        private String getPeriodPartYearMonth(String year, String month) {
+//            final String PERIOD = "&period=";
+//            final String PERIOD_DELIM = "-";
+//
+//            return PERIOD + year + PERIOD_DELIM + month;
+//        }
         /**
          * This method adds the films from the json file to the film list
          *
@@ -351,7 +312,6 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 }
 
                 String[] keywords = extractKeywords(filmPage);
-                String thumbOrImage = extractThumbnail(filmPage);
                 long duration = extractDuration(filmPage);
                 String description = extractDescription(filmPage);
                 String title = extractTitle(filmPage);
