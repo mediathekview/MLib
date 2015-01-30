@@ -194,16 +194,14 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
         private void addFilmsFromPage(MSStringBuilder page, String thema, String themePageUrl) {
             // <ul class="contributions"><li class="border_bot_true"><a href="/play/tv/-/video/aeschbacher-vom-15-01-2015?id=6b5b8863-9528-4c70-85a8-1ee92b30a642">
-            final String PATTERN_ID_START = "<ul class=\"contributions\"><li class=\"border_bot_true\"><a href=\"/play/tv";
-            final String PATTERN_ID_END = "\">";
+            final String PATTERN_ID_START = "<ul class=\"contributions\"><li class=\"";
             final String BASE_URL_JSON = "http://srf.ch/webservice/cvis/segment/";
             final String END_URL_JSON = "/.json?nohttperr=1";
             int pos = 0;
 
             while (!MSConfig.getStop() && ((pos = page.indexOf(PATTERN_ID_START, pos)) != -1)) {
-                String id = page.extract(PATTERN_ID_START, PATTERN_ID_END, pos);
-                id = id.substring(id.indexOf("id=") + 3);
                 pos += PATTERN_ID_START.length();
+                String id = page.extract("?id=", "\"", pos);
 
                 String jsonMovieUrl = BASE_URL_JSON + id + END_URL_JSON;
                 addFilms(jsonMovieUrl, themePageUrl, thema);
