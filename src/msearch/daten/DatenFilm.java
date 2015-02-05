@@ -267,7 +267,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
                         || arr[DatenFilm.FILM_URL_NR].startsWith("http://cdn-storage.br.de/geo/")
                         || arr[DatenFilm.FILM_URL_NR].startsWith("http://cdn-sotschi.br.de/geo/b7/")
                         || arr[DatenFilm.FILM_URL_NR].startsWith("http://pd-ondemand.swr.de/geo/de/")
-                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://ondemandgeo.mdr.de/")) {
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://ondemandgeo.mdr.de/")
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://ondemand-de.wdr.de/")
+                        ) {
                     arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
                 }
                 break;

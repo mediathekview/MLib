@@ -297,7 +297,6 @@ public class MediathekArd extends MediathekReader implements Runnable {
 //                if (urlKl.isEmpty()) {
 //                    System.out.println("test");
 //                }
-
                 if (url.isEmpty()) {
                     url = urlMid;
                     urlMid = "";
@@ -306,15 +305,15 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     url = urlKl;
                     urlKl = "";
                 }
-                if (urlMid.isEmpty()) {
-                    urlMid = urlKl;
+                if (urlKl.isEmpty()) {
+                    urlKl = urlMid;
                 }
                 if (!url.isEmpty()) {
                     String beschreibung = beschreibung(urlSendung);
                     DatenFilm f = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
                             new String[]{}/*keywords*/);
-                    if (!urlMid.isEmpty()) {
-                        f.addUrlKlein(urlMid, "");
+                    if (!urlKl.isEmpty()) {
+                        f.addUrlKlein(urlKl, "");
                     }
                     if (!urlHD.isEmpty() && !urlHD.equals(url)) {
                         f.addUrlHd(urlHD, "");
