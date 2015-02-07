@@ -39,42 +39,40 @@ public class MSFunktionen {
     public static final String OS_LINUX_STRING = "Linux";
     public static final String OS_MAC_STRING = "Mac";
 
-    public static int getOs() {
-        int os = OS_UNKNOWN;
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            if (System.getenv("ProgramFiles") != null) {
-                // win 32Bit
-                os = OS_WIN_32BIT;
-            } else if (System.getenv("ProgramFiles(x86)") != null) {
-                // win 64Bit
-                os = OS_WIN_64BIT;
-            }
-        } else if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-            os = OS_LINUX;
-        } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            os = OS_MAC;
-        }
-        return os;
-    }
-
-    public static String getOsString() {
-        String os = OS_UNKNOWN_STRING;
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            if (System.getenv("ProgramFiles") != null) {
-                // win 32Bit
-                os = OS_WIN_32BIT_STRING;
-            } else if (System.getenv("ProgramFiles(x86)") != null) {
-                // win 64Bit
-                os = OS_WIN_64BIT_STRING;
-            }
-        } else if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-            os = OS_LINUX_STRING;
-        } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            os = OS_MAC_STRING;
-        }
-        return os;
-    }
-
+//    public static int getOs() {
+//        int os = OS_UNKNOWN;
+//        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+//            if (System.getenv("ProgramFiles") != null) {
+//                // win 32Bit
+//                os = OS_WIN_32BIT;
+//            } else if (System.getenv("ProgramFiles(x86)") != null) {
+//                // win 64Bit
+//                os = OS_WIN_64BIT;
+//            }
+//        } else if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+//            os = OS_LINUX;
+//        } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+//            os = OS_MAC;
+//        }
+//        return os;
+//    }
+//    public static String getOsString() {
+//        String os = OS_UNKNOWN_STRING;
+//        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+//            if (System.getenv("ProgramFiles") != null) {
+//                // win 32Bit
+//                os = OS_WIN_32BIT_STRING;
+//            } else if (System.getenv("ProgramFiles(x86)") != null) {
+//                // win 64Bit
+//                os = OS_WIN_64BIT_STRING;
+//            }
+//        } else if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+//            os = OS_LINUX_STRING;
+//        } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+//            os = OS_MAC_STRING;
+//        }
+//        return os;
+//    }
     public static String getPathJar() {
         // liefert den Pfad der Programmdatei mit File.separator am Schluss
         String pFilePath = "pFile";
@@ -330,57 +328,4 @@ public class MSFunktionen {
     public static String removeHtml(String in) {
         return in.replaceAll("\\<.*?>", "");
     }
-
-//    public static String getDateiSuffix(String pfad) {
-//        //Suffix einer URL extrahieren
-//        String ret = "";
-//        if (pfad != null) {
-//            if (!pfad.equals("") && pfad.contains(".")) {
-//                ret = pfad.substring(pfad.lastIndexOf(".") + 1);
-//            }
-//        }
-//        if (ret.equals("")) {
-//            MSLog.fehlerMeldung(969871236, MSLog.FEHLER_ART_PROG, "GuiFunktionen.getDateiSuffix", pfad);
-//        }
-//        if (ret.length() > 3) {
-//            if (ret.length() > 5) {
-//                // dann ist was faul
-//                ret = "---";
-//            }
-//            MSLog.fehlerMeldung(821397046, MSLog.FEHLER_ART_PROG, "GuiFunktionen.getDateiSuffix", pfad);
-//        }
-//        return ret;
-//    }
-//
-//    public static String getHomePath() {
-//        //lifert den Pfad zum Homeverzeichnis
-//        return System.getProperty("user.home");
-//    }
-//
-//    public static String[] addLeerListe(String[] str) {
-//        //ein Leerzeichen der Liste voranstellen
-//        int len = str.length + 1;
-//        String[] liste = new String[len];
-//        liste[0] = "";
-//        System.arraycopy(str, 0, liste, 1, len - 1);
-//        return liste;
-//    }
-//
-//    public static String textLaenge(int max, String text, boolean mitte, boolean addVorne) {
-//        if (text.length() > max) {
-//            if (mitte) {
-//                text = text.substring(0, 25) + " .... " + text.substring(text.length() - (max - 31));
-//            } else {
-//                text = text.substring(0, max - 1);
-//            }
-//        }
-//        while (text.length() < max) {
-//            if (addVorne) {
-//                text = " " + text;
-//            } else {
-//                text = text + " ";
-//            }
-//        }
-//        return text;
-//    }
 }
