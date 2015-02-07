@@ -148,8 +148,8 @@ public class MSFileSize {
                 MSLog.fehlerMeldung(643298301, MSLog.FEHLER_ART_PROG, "StarterClass.StartenDownload.laenge", ex);
             }
         }
-        if (ret < 300 * 1024) {
-            // alles unter 300k sind Playlisten, ...
+        if (ret < 1000 * 1024) {
+            // alles unter 1M sind Playlisten, ORF: Trailer bei im Ausland gesperrten Filmen, ...
             // dann wars nix
             ret = -1;
         }
