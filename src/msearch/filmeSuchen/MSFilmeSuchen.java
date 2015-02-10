@@ -39,6 +39,7 @@ import msearch.filmeSuchen.sender.MediathekOrf;
 import msearch.filmeSuchen.sender.MediathekPhoenix;
 import msearch.filmeSuchen.sender.MediathekRbb;
 import msearch.filmeSuchen.sender.MediathekReader;
+import msearch.filmeSuchen.sender.MediathekSr;
 import msearch.filmeSuchen.sender.MediathekSrf;
 import msearch.filmeSuchen.sender.MediathekSrfPod;
 import msearch.filmeSuchen.sender.MediathekSwr;
@@ -96,6 +97,7 @@ public class MSFilmeSuchen {
         mediathekListe.add(new MediathekWdr(this, 1));
         mediathekListe.add(new MediathekHr(this, 0));
         mediathekListe.add(new MediathekRbb(this, 1));
+        mediathekListe.add(new MediathekSr(this, 1));
         mediathekListe.add(new MediathekBr(this, 0));
         mediathekListe.add(new MediathekSrf(this, 1));
         mediathekListe.add(new MediathekSrfPod(this, 0));
@@ -120,6 +122,7 @@ public class MSFilmeSuchen {
         liste.add(MediathekWdr.SENDERNAME);
         liste.add(MediathekHr.SENDERNAME);
         liste.add(MediathekRbb.SENDERNAME);
+        liste.add(MediathekSr.SENDERNAME);
         liste.add(MediathekBr.SENDERNAME);
         liste.add(MediathekSrf.SENDERNAME);
         liste.add(MediathekSrfPod.SENDERNAME);

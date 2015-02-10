@@ -102,7 +102,7 @@ public class MSStringBuilder {
                     pos2 += musterStart.length();
                     if ((pos3 = cont.indexOf(musterEnde, pos2)) != -1) {
                         result.add(cont.substring(pos2, pos3));
-                        if (result.size() > 100) {
+                        if (result.size() > 1000) {
                             System.out.println("Achtung");
                         }
                     }
