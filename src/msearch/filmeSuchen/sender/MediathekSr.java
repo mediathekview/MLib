@@ -52,7 +52,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
         // seite3: http://sr-mediathek.sr-online.de/index.php?seite=2&f=v&s=3&o=d
         int maxSeiten = 15;
         if (MSConfig.senderAllesLaden) {
-            maxSeiten = 50;
+            maxSeiten = 120;
         }
         for (int i = 1; i < maxSeiten; ++i) {
             String[] add = new String[]{"http://sr-mediathek.sr-online.de/index.php?seite=2&f=v&s=" + i + "&o=d", ""/*thema*/};
@@ -100,6 +100,9 @@ public class MediathekSr extends MediathekReader implements Runnable {
             seite1 = getUrlIo.getUri_Utf(SENDERNAME, urlSeite, seite1, "");
             seite1.extractList("<div class=\"list_mi_mi\">", "<a href=\"index.php?seite=", "\"", erg);
             for (String url : erg) {
+                if (MSConfig.getStop()) {
+                    break;
+                }
                 addFilme("http://sr-mediathek.sr-online.de/index.php?seite=" + url);
             }
             erg.clear();
@@ -135,11 +138,17 @@ public class MediathekSr extends MediathekReader implements Runnable {
                 if (titel.contains(" ::")) {
                     titel = titel.substring(titel.indexOf("::") + 2).trim();
                 }
-                if (titel.contains("-")) {
-                    thema = titel.substring(0, titel.indexOf("-")).trim();
-                    titel = titel.substring(titel.indexOf("-") + 1).trim();
+                if (titel.contains(" - ")) {
+                    thema = titel.substring(0, titel.indexOf(" - ")).trim();
+                    titel = titel.substring(titel.indexOf(" - ") + 3).trim();
+                } else if (titel.contains("(")) {
+                    thema = titel.substring(0, titel.indexOf("(")).trim();
+                    //titel = titel.substring(titel.indexOf("(") + 1).trim();
+                    //titel = titel.replace(")", "");
                 }
-
+                if (thema.contains(":")) {
+                    thema = thema.substring(0, thema.indexOf(":")).trim();
+                }
                 url = seite2.extract("var mediaURLs = ['", "'");
                 if (url.isEmpty()) {
                     MSLog.fehlerMeldung(-301245789, MSLog.FEHLER_ART_MREADER, "MediathekSr.addFilme", "keine URL für: " + urlSeite);
