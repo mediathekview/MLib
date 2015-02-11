@@ -165,7 +165,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
 
         private void filmSuchen1(String strUrlFeed, String thema, boolean weiter) {
             final String MUSTER = "<div class=\"mediaCon\">";
-            final String MUSTER_START = "<h2 class=\"modHeadline\">Videos und Audios der Sendung</h2>";
+            final String MUSTER_START = "Videos und Audios der Sendung";
             seite1 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite1, "");
             if (seite1.length() == 0) {
                 MSLog.fehlerMeldung(-765323214, MSLog.FEHLER_ART_MREADER, "MediathekArd.feedSuchen", "Leere Seite: " + strUrlFeed);
