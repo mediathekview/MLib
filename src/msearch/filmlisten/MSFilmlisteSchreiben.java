@@ -34,6 +34,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
+import msearch.filmeSuchen.sender.MediathekPhoenix;
+import msearch.filmeSuchen.sender.MediathekSr;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
@@ -194,6 +196,11 @@ public class MSFilmlisteSchreiben {
         iterator = listeFilme.listIterator();
         while (iterator.hasNext()) {
             datenFilm = iterator.next();
+            if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekPhoenix.SENDERNAME)
+                    || datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekSr.SENDERNAME)) {
+                // neue Sender werden nicht richtig angezeigt im Filter
+                continue;
+            }
             System.arraycopy(datenFilm.arr, 0, datenFilmSchreiben.arr, 0, datenFilm.arr.length);
             if (sender.equals(datenFilm.arr[DatenFilm.FILM_SENDER_NR])) {
                 datenFilmSchreiben.arr[DatenFilm.FILM_SENDER_NR] = "";
