@@ -38,6 +38,7 @@ import msearch.filmeSuchen.sender.MediathekKika;
 import msearch.filmeSuchen.sender.MediathekMdr;
 import msearch.filmeSuchen.sender.MediathekNdr;
 import msearch.filmeSuchen.sender.MediathekRbb;
+import msearch.filmeSuchen.sender.MediathekSr;
 import msearch.filmeSuchen.sender.MediathekSwr;
 import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
@@ -413,9 +414,11 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // MDR
         addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekMdr.SENDERNAME, "", "http://mdr_th_hls-lh.akamaihd.net/i/livetvmdrthueringen_de@106903/master.m3u8"));
         // SR- gibts noch nicht
-        // addFilmVomSender(DatenFilm.getDatenFilmLiveStream("SR", "", "http://livestream.sr-online.de/live.m3u8"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekSr.SENDERNAME, "", "http://livestream.sr-online.de/live.m3u8"));
         // SWR
         addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekSwr.SENDERNAME, "", "http://swrbw-lh.akamaihd.net/i/swrbw_live@196738/master.m3u8"));
+        // KiKa
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekKika.SENDERNAME, "", "http://kika_geo-lh.akamaihd.net/i/livetvkika_de@75114/master.m3u8"));
     }
 
     public synchronized DatenFilm getFilmByUrl(final String url) {
