@@ -24,6 +24,7 @@ import java.util.Date;
 import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekBr;
+import msearch.filmeSuchen.sender.MediathekKika;
 import msearch.filmeSuchen.sender.MediathekMdr;
 import msearch.filmeSuchen.sender.MediathekNdr;
 import msearch.filmeSuchen.sender.MediathekOrf;
@@ -268,8 +269,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                         || arr[DatenFilm.FILM_URL_NR].startsWith("http://cdn-sotschi.br.de/geo/b7/")
                         || arr[DatenFilm.FILM_URL_NR].startsWith("http://pd-ondemand.swr.de/geo/de/")
                         || arr[DatenFilm.FILM_URL_NR].startsWith("http://ondemandgeo.mdr.de/")
-                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://ondemand-de.wdr.de/")
-                        ) {
+                        || arr[DatenFilm.FILM_URL_NR].startsWith("http://ondemand-de.wdr.de/")) {
                     arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
                 }
                 break;
@@ -300,6 +300,11 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 break;
             case MediathekNdr.SENDERNAME:
                 if (arr[DatenFilm.FILM_URL_NR].startsWith("http://media.ndr.de/progressive_geo")) {
+                    arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
+                }
+                break;
+            case MediathekKika.SENDERNAME:
+                if (arr[DatenFilm.FILM_URL_NR].startsWith("http://pmdgeo.kika.de/")) {
                     arr[DatenFilm.FILM_GEO_NR] = GEO_DE;
                 }
                 break;
