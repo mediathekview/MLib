@@ -103,9 +103,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_ABO_NAME_ = "l";
     public static final int FILM_ABO_NAME_NR = 14;
 
-    public static final String FILM_IMAGE_URL = "Bild"; // wird nicht mehr benutzt!!
-    public static final String FILM_IMAGE_URL_ = "o";
-    public static final int FILM_IMAGE_URL_NR = 15;
+    public static final String FILM_NEU = "neu";
+    public static final String FILM_NEU_ = "o";
+    public static final int FILM_NEU_NR = 15;
 
     public static final String FILM_URL_RTMP = "UrlRTMP";
     public static final String FILM_URL_RTMP_ = "i";
@@ -145,7 +145,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         FILM_DATUM, FILM_ZEIT, FILM_DAUER, FILM_GROESSE,
         FILM_BESCHREIBUNG, FILM_GEO,
         /*FILM_KEYWORDS,*/ FILM_URL, FILM_WEBSEITE, FILM_ABO_NAME,
-        FILM_IMAGE_URL, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_URL_HISTORY,
+        FILM_NEU, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_URL_HISTORY,
         FILM_DATUM_LONG, FILM_REF};
 
     // für die alten 3.xxx Versionen auf den alten MACs :)
@@ -154,14 +154,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
         FILM_DATUM_, FILM_ZEIT_, FILM_DAUER_, FILM_GROESSE_,
         FILM_BESCHREIBUNG_, FILM_GEO_,
         /*FILM_KEYWORDS_,*/ FILM_URL_, FILM_WEBSEITE_, FILM_ABO_NAME_,
-        FILM_IMAGE_URL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_, FILM_URL_HISTORY_,
+        FILM_NEU_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_, FILM_URL_HISTORY_,
         FILM_DATUM_LONG_, FILM_REF_};
 
     // neue Felder werden HINTEN angefügt!!!!!
     public static final int[] COLUMN_NAMES_JSON = {FILM_SENDER_NR, FILM_THEMA_NR, FILM_TITEL_NR,
         FILM_DATUM_NR, FILM_ZEIT_NR, FILM_DAUER_NR, FILM_GROESSE_NR,
         FILM_BESCHREIBUNG_NR, FILM_URL_NR, FILM_WEBSEITE_NR,
-        FILM_IMAGE_URL_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR,
+        FILM_NEU_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR,
         FILM_URL_HISTORY_NR, FILM_GEO_NR};
 
     public Datum datumFilm = new Datum(0);
@@ -190,7 +190,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         checkDatum(datum, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
         checkZeit(arr[FILM_DATUM_NR], zeit, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
         arr[FILM_BESCHREIBUNG_NR] = cleanDescription(description, tthema, ttitel);
-        arr[FILM_IMAGE_URL_NR] = ""; // zur Sicherheit: http://sourceforge.net/apps/phpbb/zdfmediathk/viewtopic.php?f=1&t=1111
+        arr[FILM_NEU_NR] = ""; // zur Sicherheit: http://sourceforge.net/apps/phpbb/zdfmediathk/viewtopic.php?f=1&t=1111
 
         // Filmlänge
         if (dauerSekunden <= 0 || dauerSekunden > 3600 * 5 /* Werte über 5 Stunden */) {

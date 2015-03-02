@@ -85,7 +85,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // ist: "Sender-Thema-URL" schon vorhanden, wird sie verworfen
 
         MSFunktionen.unescape(film);
-        film.arr[DatenFilm.FILM_IMAGE_URL_NR] = ""; // zur Sicherheit: http://sourceforge.net/apps/phpbb/zdfmediathk/viewtopic.php?f=1&t=1111
+        film.arr[DatenFilm.FILM_NEU_NR] = ""; // zur Sicherheit: http://sourceforge.net/apps/phpbb/zdfmediathk/viewtopic.php?f=1&t=1111, war mal urlBild
 
         // erst mal schauen obs das schon gibt
         DatenFilm f;
@@ -634,6 +634,14 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         formatter.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
         return formatter.format(new Date());
+    }
+
+    public synchronized void setFilmNew() {
+        for (DatenFilm film : this) {
+            if (film.arr[DatenFilm.FILM_NEU_NR].equals(Boolean.TRUE.toString())) {
+                film.neuerFilm = true;
+            }
+        }
     }
 
     /**
