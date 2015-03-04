@@ -85,7 +85,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // ist: "Sender-Thema-URL" schon vorhanden, wird sie verworfen
 
         MSFunktionen.unescape(film);
-        film.arr[DatenFilm.FILM_NEU_NR] = ""; // zur Sicherheit: http://sourceforge.net/apps/phpbb/zdfmediathk/viewtopic.php?f=1&t=1111, war mal urlBild
 
         // erst mal schauen obs das schon gibt
         DatenFilm f;

@@ -22,9 +22,9 @@ package msearch.filmeSuchen.sender;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import msearch.daten.DatenFilm;
-import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
+import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
@@ -35,7 +35,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
     private MSStringBuilder seiteAlle = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
     public MediathekNdr(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, SENDERNAME , /* threads */ 2, /* urlWarten */ 250, startPrio);
+        super(ssearch, SENDERNAME, /* threads */ 2, /* urlWarten */ 250, startPrio);
     }
 
     //-> erste Seite:
@@ -292,10 +292,14 @@ public class MediathekNdr extends MediathekReader implements Runnable {
             // rtmpt://cp160844.edgefcs.net/ondemand/mp4:flashmedia/streams/ndr/2012/0820/TV-20120820-2300-0701.hq.mp4
             final String MUSTER_URL = "3: {src:'http://";
             seite2 = getUrl.getUri_Utf(SENDERNAME, filmWebsite, seite2, "strUrlThema: " + strUrlThema);
-            //long durationInSeconds = extractDuration(seite2);
             String description = extractDescription(seite2);
             String[] keywords = extractKeywords(seite2);
-            String imageUrl = extractImageURL(seite2);
+            String untertitel = seite2.extract(",tracks: [{ src: \"", "\""); //,tracks: [{ src: "/fernsehen/sendungen/45_min/video-podcast/ut20448.xml", srclang:"de"}]
+            if (!untertitel.isEmpty()) {
+                untertitel = "http://www.ndr.de" + untertitel;
+//            } else {
+//                System.out.println("Test");
+            }
             meldung(filmWebsite);
             int pos1;
             int pos2;
@@ -330,7 +334,8 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                                 }
                             }
                             DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, zeit, durationInSeconds, description,
-                                     keywords);
+                                    keywords);
+                            film.addUrlUntertitel(untertitel);
                             if (url.contains(".hq.")) {
                                 String urlKlein = url.replace(".hq.", ".hi.");
                                 film.addUrlKlein(urlKlein, "");
@@ -366,14 +371,6 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                 k[i] = k[i].trim();
             }
             return k;
-        }
-
-        private String extractImageURL(MSStringBuilder page) {
-            String image = extractString(page, "<meta property=\"og:image\" content=\"", "\"");
-            if (image == null) {
-                return "";
-            }
-            return image;
         }
 
         private String extractString(MSStringBuilder source, String startMarker, String endMarker) {

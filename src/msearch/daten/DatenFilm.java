@@ -103,9 +103,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_ABO_NAME_ = "l";
     public static final int FILM_ABO_NAME_NR = 14;
 
-    public static final String FILM_NEU = "neu";
-    public static final String FILM_NEU_ = "o";
-    public static final int FILM_NEU_NR = 15;
+    public static final String FILM_URL_UNTERTITEL = "Untertitel";
+    public static final String FILM_URL_UNTERTITEL_ = "cc";
+    public static final int FILM_URL_UNTERTITEL_NR = 15;
 
     public static final String FILM_URL_RTMP = "UrlRTMP";
     public static final String FILM_URL_RTMP_ = "i";
@@ -128,24 +128,29 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_URL_HISTORY = "Url_History";
     public static final String FILM_URL_HISTORY_ = "aa";
     public static final int FILM_URL_HISTORY_NR = 22;
+
+    public static final String FILM_NEU = "neu";
+    public static final String FILM_NEU_ = "o";
+    public static final int FILM_NEU_NR = 23;
+
     public static final String FILM_DATUM_LONG = "DatumL"; // Datum als Long ABER Sekunden!!
     public static final String FILM_DATUM_LONG_ = "y";
-    public static final int FILM_DATUM_LONG_NR = 23;
+    public static final int FILM_DATUM_LONG_NR = 24;
     public static final String FILM_REF = "Ref"; // Referenz auf this
     public static final String FILM_REF_ = "z";
-    public static final int FILM_REF_NR = 24;
-    public static final int MAX_ELEM = 25;
+    public static final int FILM_REF_NR = 25;
+    public static final int MAX_ELEM = 26;
     public String[] arr = new String[]{
         "", "", "", "", "", "", "", "", "", "",
         "", "", "", "", "", "", "", "", "", "",
-        "", "", "", "", ""};
+        "", "", "", "", "", ""};
 
     public static final String[] COLUMN_NAMES = {FILM_NR, FILM_SENDER, FILM_THEMA, FILM_TITEL,
         FILM_ABSPIELEN, FILM_AUFZEICHNEN,
         FILM_DATUM, FILM_ZEIT, FILM_DAUER, FILM_GROESSE,
         FILM_BESCHREIBUNG, FILM_GEO,
-        /*FILM_KEYWORDS,*/ FILM_URL, FILM_WEBSEITE, FILM_ABO_NAME,
-        FILM_NEU, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_URL_HISTORY,
+        FILM_URL, FILM_WEBSEITE, FILM_ABO_NAME,
+        FILM_URL_UNTERTITEL, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_URL_HISTORY, FILM_NEU,
         FILM_DATUM_LONG, FILM_REF};
 
     // für die alten 3.xxx Versionen auf den alten MACs :)
@@ -153,16 +158,16 @@ public class DatenFilm implements Comparable<DatenFilm> {
         FILM_ABSPIELEN_, FILM_AUFZEICHNEN_,
         FILM_DATUM_, FILM_ZEIT_, FILM_DAUER_, FILM_GROESSE_,
         FILM_BESCHREIBUNG_, FILM_GEO_,
-        /*FILM_KEYWORDS_,*/ FILM_URL_, FILM_WEBSEITE_, FILM_ABO_NAME_,
-        FILM_NEU_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_, FILM_URL_HISTORY_,
+        FILM_URL_, FILM_WEBSEITE_, FILM_ABO_NAME_,
+        FILM_URL_UNTERTITEL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_, FILM_URL_HISTORY_, FILM_NEU_,
         FILM_DATUM_LONG_, FILM_REF_};
 
     // neue Felder werden HINTEN angefügt!!!!!
     public static final int[] COLUMN_NAMES_JSON = {FILM_SENDER_NR, FILM_THEMA_NR, FILM_TITEL_NR,
         FILM_DATUM_NR, FILM_ZEIT_NR, FILM_DAUER_NR, FILM_GROESSE_NR,
         FILM_BESCHREIBUNG_NR, FILM_URL_NR, FILM_WEBSEITE_NR,
-        FILM_NEU_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR,
-        FILM_URL_HISTORY_NR, FILM_GEO_NR};
+        FILM_URL_UNTERTITEL_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR,
+        FILM_URL_HISTORY_NR, FILM_GEO_NR, FILM_NEU_NR};
 
     public Datum datumFilm = new Datum(0);
     public long dauerL = 0; // Sekunden
@@ -190,7 +195,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         checkDatum(datum, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
         checkZeit(arr[FILM_DATUM_NR], zeit, arr[FILM_SENDER_NR] + " " + arr[FILM_THEMA_NR] + " " + arr[FILM_TITEL_NR]);
         arr[FILM_BESCHREIBUNG_NR] = cleanDescription(description, tthema, ttitel);
-        arr[FILM_NEU_NR] = ""; // zur Sicherheit: http://sourceforge.net/apps/phpbb/zdfmediathk/viewtopic.php?f=1&t=1111
 
         // Filmlänge
         if (dauerSekunden <= 0 || dauerSekunden > 3600 * 5 /* Werte über 5 Stunden */) {
@@ -218,6 +222,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public void addUrlHd(String url, String urlRtmp) {
         arr[FILM_URL_HD_NR] = url.isEmpty() ? "" : getKlein(arr[FILM_URL_NR], url);
         arr[FILM_URL_RTMP_HD_NR] = urlRtmp.isEmpty() ? "" : getKlein(arr[FILM_URL_RTMP_NR], urlRtmp);
+    }
+
+    public void addUrlUntertitel(String url) {
+        arr[FILM_URL_UNTERTITEL_NR] = url;
     }
 
     public String getUrlFuerAufloesung(String aufloesung) {
