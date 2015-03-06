@@ -294,9 +294,9 @@ public class MediathekNdr extends MediathekReader implements Runnable {
             seite2 = getUrl.getUri_Utf(SENDERNAME, filmWebsite, seite2, "strUrlThema: " + strUrlThema);
             String description = extractDescription(seite2);
             String[] keywords = extractKeywords(seite2);
-            String untertitel = seite2.extract(",tracks: [{ src: \"", "\""); //,tracks: [{ src: "/fernsehen/sendungen/45_min/video-podcast/ut20448.xml", srclang:"de"}]
-            if (!untertitel.isEmpty()) {
-                untertitel = "http://www.ndr.de" + untertitel;
+            String subtitle = seite2.extract(",tracks: [{ src: \"", "\""); //,tracks: [{ src: "/fernsehen/sendungen/45_min/video-podcast/ut20448.xml", srclang:"de"}]
+            if (!subtitle.isEmpty()) {
+                subtitle = "http://www.ndr.de" + subtitle;
 //            } else {
 //                System.out.println("Test");
             }
@@ -335,7 +335,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                             }
                             DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, zeit, durationInSeconds, description,
                                     keywords);
-                            film.addUrlUntertitel(untertitel);
+                            film.addUrlSubtitle(subtitle);
                             if (url.contains(".hq.")) {
                                 String urlKlein = url.replace(".hq.", ".hi.");
                                 film.addUrlKlein(urlKlein, "");

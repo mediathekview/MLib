@@ -103,9 +103,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_ABO_NAME_ = "l";
     public static final int FILM_ABO_NAME_NR = 14;
 
-    public static final String FILM_URL_UNTERTITEL = "Untertitel";
-    public static final String FILM_URL_UNTERTITEL_ = "cc";
-    public static final int FILM_URL_UNTERTITEL_NR = 15;
+    public static final String FILM_URL_SUBTITLE = "Untertitel";
+    public static final String FILM_URL_SUBTITLE_ = "cc";
+    public static final int FILM_URL_SUBTITLE_NR = 15;
 
     public static final String FILM_URL_RTMP = "UrlRTMP";
     public static final String FILM_URL_RTMP_ = "i";
@@ -143,14 +143,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public String[] arr = new String[]{
         "", "", "", "", "", "", "", "", "", "",
         "", "", "", "", "", "", "", "", "", "",
-        "", "", "", "", "", ""};
+        "", "", "", "", "", ""}; //ist einen Tick schneller, hoffentlich :)
 
     public static final String[] COLUMN_NAMES = {FILM_NR, FILM_SENDER, FILM_THEMA, FILM_TITEL,
         FILM_ABSPIELEN, FILM_AUFZEICHNEN,
         FILM_DATUM, FILM_ZEIT, FILM_DAUER, FILM_GROESSE,
         FILM_BESCHREIBUNG, FILM_GEO,
         FILM_URL, FILM_WEBSEITE, FILM_ABO_NAME,
-        FILM_URL_UNTERTITEL, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_URL_HISTORY, FILM_NEU,
+        FILM_URL_SUBTITLE, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_URL_HISTORY, FILM_NEU,
         FILM_DATUM_LONG, FILM_REF};
 
     // für die alten 3.xxx Versionen auf den alten MACs :)
@@ -159,14 +159,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
         FILM_DATUM_, FILM_ZEIT_, FILM_DAUER_, FILM_GROESSE_,
         FILM_BESCHREIBUNG_, FILM_GEO_,
         FILM_URL_, FILM_WEBSEITE_, FILM_ABO_NAME_,
-        FILM_URL_UNTERTITEL_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_, FILM_URL_HISTORY_, FILM_NEU_,
+        FILM_URL_SUBTITLE_, FILM_URL_RTMP_, FILM_URL_AUTH_, FILM_URL_KLEIN_, FILM_URL_RTMP_KLEIN_, FILM_URL_HD_, FILM_URL_RTMP_HD_, FILM_URL_HISTORY_, FILM_NEU_,
         FILM_DATUM_LONG_, FILM_REF_};
 
     // neue Felder werden HINTEN angefügt!!!!!
     public static final int[] COLUMN_NAMES_JSON = {FILM_SENDER_NR, FILM_THEMA_NR, FILM_TITEL_NR,
         FILM_DATUM_NR, FILM_ZEIT_NR, FILM_DAUER_NR, FILM_GROESSE_NR,
         FILM_BESCHREIBUNG_NR, FILM_URL_NR, FILM_WEBSEITE_NR,
-        FILM_URL_UNTERTITEL_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR,
+        FILM_URL_SUBTITLE_NR, FILM_URL_RTMP_NR, FILM_URL_KLEIN_NR, FILM_URL_RTMP_KLEIN_NR, FILM_URL_HD_NR, FILM_URL_RTMP_HD_NR, FILM_DATUM_LONG_NR,
         FILM_URL_HISTORY_NR, FILM_GEO_NR, FILM_NEU_NR};
 
     public Datum datumFilm = new Datum(0);
@@ -224,8 +224,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         arr[FILM_URL_RTMP_HD_NR] = urlRtmp.isEmpty() ? "" : getKlein(arr[FILM_URL_RTMP_NR], urlRtmp);
     }
 
-    public void addUrlUntertitel(String url) {
-        arr[FILM_URL_UNTERTITEL_NR] = url;
+    public void addUrlSubtitle(String url) {
+        arr[FILM_URL_SUBTITLE_NR] = url;
     }
 
     public String getUrlFuerAufloesung(String aufloesung) {

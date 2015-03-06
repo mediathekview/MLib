@@ -39,40 +39,6 @@ public class MSFunktionen {
     public static final String OS_LINUX_STRING = "Linux";
     public static final String OS_MAC_STRING = "Mac";
 
-//    public static int getOs() {
-//        int os = OS_UNKNOWN;
-//        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-//            if (System.getenv("ProgramFiles") != null) {
-//                // win 32Bit
-//                os = OS_WIN_32BIT;
-//            } else if (System.getenv("ProgramFiles(x86)") != null) {
-//                // win 64Bit
-//                os = OS_WIN_64BIT;
-//            }
-//        } else if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-//            os = OS_LINUX;
-//        } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-//            os = OS_MAC;
-//        }
-//        return os;
-//    }
-//    public static String getOsString() {
-//        String os = OS_UNKNOWN_STRING;
-//        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-//            if (System.getenv("ProgramFiles") != null) {
-//                // win 32Bit
-//                os = OS_WIN_32BIT_STRING;
-//            } else if (System.getenv("ProgramFiles(x86)") != null) {
-//                // win 64Bit
-//                os = OS_WIN_64BIT_STRING;
-//            }
-//        } else if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-//            os = OS_LINUX_STRING;
-//        } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-//            os = OS_MAC_STRING;
-//        }
-//        return os;
-//    }
     public static String getPathJar() {
         // liefert den Pfad der Programmdatei mit File.separator am Schluss
         String pFilePath = "pFile";

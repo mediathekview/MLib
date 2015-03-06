@@ -24,10 +24,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import msearch.daten.DatenFilm;
-import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
-import static msearch.filmeSuchen.sender.MediathekReader.listeSort;
 import msearch.filmeSuchen.MSGetUrl;
+import static msearch.filmeSuchen.sender.MediathekReader.listeSort;
+import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
@@ -45,7 +45,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
      * @param startPrio
      */
     public MediathekOrf(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, SENDERNAME , /* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch, SENDERNAME, /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
     @Override
@@ -224,20 +224,21 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         private void feedEinerSeiteSuchen(String strUrlFeed, String thema, boolean themaBehalten, boolean nurUrlPruefen) {
             //<title> ORF TVthek: a.viso - 28.11.2010 09:05 Uhr</title>
             seite2 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite2, "");
-            String datum = "";
-            String zeit = "";
+            String datum;
+            String zeit;
             long duration = 0;
-            String description = "";
-            String thumbnail = "";
+            String description;
             String tmp;
             String urlRtmpKlein = "", urlRtmp = "", url = "", urlKlein = "";
-            String titel = "";
+            String titel;
+            String subtitle;
             int tmpPos1, tmpPos2;
             int posStart, posStopAlles, posStopEpisode, pos = 0;
             meldung(strUrlFeed);
-            thumbnail = seite2.extract("<meta property=\"og:image\" content=\"", "\"");
-            thumbnail = thumbnail.replace("&amp;", "&");
             titel = seite2.extract("<title>", "vom"); //<title>ABC Bär vom 17.11.2013 um 07.35 Uhr / ORF TVthek</title>
+
+            subtitle = seite2.extract("\"srt_file_url\":\"", "\"");
+
             datum = seite2.extract("<span class=\"meta meta_date\">", "<");
             if (datum.contains(",")) {
                 datum = datum.substring(datum.indexOf(",") + 1).trim();
@@ -247,6 +248,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             if (zeit.length() == 5) {
                 zeit = zeit.replace(".", ":") + ":00";
             }
+
             if ((posStart = seite2.indexOf("\"is_one_segment_episode\":false")) == -1) {
                 if ((posStart = seite2.indexOf("\"is_one_segment_episode\":true")) == -1) {
                     MSLog.fehlerMeldung(-989532147, MSLog.FEHLER_ART_MREADER, "MediathekOrf.feedEinerSeiteSuchen", "keine Url: " + strUrlFeed);
@@ -259,7 +261,6 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 if (!themaBehalten) {
                     thema = titel;
                 }
-                //final String MUSTER_SUCHEN = "\"clickcounter_corrected\":\"0\"";
                 final String MUSTER_SUCHEN = "\"clickcounter_corrected\":\"";
                 while ((pos = seite2.indexOf(MUSTER_SUCHEN, pos)) != -1) {
                     posStopEpisode = seite2.indexOf("\"is_episode_one_segment_episode\":false", pos);
@@ -283,6 +284,8 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                     if (!titel.equals(StringEscapeUtils.unescapeJava(titel))) {
                         titel = StringEscapeUtils.unescapeJava(titel).trim();
                     }
+
+                    subtitle = seite2.extract("\"srt_file_url\":\"", "\"", pos, posStopEpisode);
 
                     description = seite2.extract("\"description\":\"", "\"", pos, posStopEpisode);
                     if (!description.equals(StringEscapeUtils.unescapeJava(description))) {
@@ -358,9 +361,15 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                             titel = SENDERNAME;
                         }
                         DatenFilm film = new DatenFilm(SENDERNAME, thema, strUrlFeed, titel, url, urlRtmp, datum, zeit, duration, description,
-                                 new String[]{});
+                                new String[]{});
                         if (!urlKlein.isEmpty()) {
                             film.addUrlKlein(urlKlein, urlRtmpKlein);
+                        }
+                        if (!subtitle.isEmpty()) {
+                            // "srt_file_url":"http:\/\/tvthek.orf.at\/dynamic\/get_asset.php?a=orf_episodes%2Fsrt_file%2F9346995.srt"
+                            subtitle = subtitle.replace("\\/", "/");
+                            subtitle = subtitle.replace("%2F", "/");
+                            film.addUrlSubtitle(subtitle);
                         }
                         addFilm(film, nurUrlPruefen);
                     } else {

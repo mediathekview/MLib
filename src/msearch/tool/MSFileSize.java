@@ -54,29 +54,6 @@ public class MSFileSize {
         return 0;
     }
 
-    public static boolean urlExists(String url) {
-        // liefert liefert true, wenn es die URL gibt
-        int retCode;
-        if (!url.toLowerCase().startsWith("http")) {
-            return false;
-        }
-        try {
-            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
-            conn.setReadTimeout(2 * TIMEOUT);
-            conn.setConnectTimeout(2 * TIMEOUT);
-            if ((retCode = conn.getResponseCode()) < 400) {
-                return true;
-            } else if (retCode == 403) {
-                // aber sie gibt es :)
-                return true;
-            }
-            conn.disconnect();
-        } catch (Exception ignored) {
-        }
-        return false;
-    }
-
     public static String laengeString(String url) {
         // liefert die Dateigröße einer URL in MB!!
         // Anzeige der Größe in MB und deshalb: Faktor 1000

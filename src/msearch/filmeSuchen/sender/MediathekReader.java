@@ -19,6 +19,8 @@
  */
 package msearch.filmeSuchen.sender;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -213,6 +215,31 @@ public class MediathekReader implements Runnable {
             // läuft noch was
             mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
         }
+    }
+
+    final static int TIMEOUT = 3000; // ms //ToDo evtl. wieder kürzen!!
+
+    public static boolean urlExists(String url) {
+        // liefert liefert true, wenn es die URL gibt
+        int retCode;
+        if (!url.toLowerCase().startsWith("http")) {
+            return false;
+        }
+        try {
+            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
+            conn.setReadTimeout(TIMEOUT);
+            conn.setConnectTimeout(TIMEOUT);
+            if ((retCode = conn.getResponseCode()) < 400) {
+                return true;
+            } else if (retCode == 403) {
+                // aber sie gibt es :)
+                return true;
+            }
+            conn.disconnect();
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 
     String addsUrl(String pfad1, String pfad2) {

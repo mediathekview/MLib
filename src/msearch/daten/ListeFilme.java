@@ -43,9 +43,9 @@ import msearch.filmeSuchen.sender.MediathekSwr;
 import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.tool.MSConst;
+import msearch.tool.MSFileSize;
 import msearch.tool.MSFunktionen;
 import msearch.tool.MSLog;
-import msearch.tool.MSFileSize;
 
 public class ListeFilme extends ArrayList<DatenFilm> {
 

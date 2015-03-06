@@ -210,7 +210,12 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 String id = page.extract("?id=", "\"", pos);
 
                 String jsonMovieUrl = BASE_URL_JSON + id + END_URL_JSON;
-                addFilms(jsonMovieUrl, themePageUrl, thema);
+                // http://www.srf.ch/player/subtitles/urn:srf:ais:video:169d41b4-6b7d-4243-94e7-2dc345ef8c8b/subtitle.ttml
+                String subtitle = "http://www.srf.ch/player/subtitles/urn:srf:ais:video:" + id + "/subtitle.ttml";
+                if (!urlExists(subtitle)) {
+                    subtitle = "";
+                }
+                addFilms(jsonMovieUrl, themePageUrl, thema, subtitle);
             }
         }
 
@@ -221,7 +226,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
          * @param urlWebsite the website url of the film
          * @param theme the theme name of the film
          */
-        private void addFilms(String urlFilm, String urlWebsite, String theme) {
+        private void addFilms(String urlFilm, String urlWebsite, String theme, String subtitle) {
 
             meldung(urlFilm);
 
@@ -280,7 +285,11 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 if (!urlHd.isEmpty()) {
                     film.addUrlHd(urlHd, "");
                 }
+                if (!subtitle.isEmpty()) {
+                    film.addUrlSubtitle(subtitle);
+                }
                 addFilm(film);
+
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(-556320087, MSLog.FEHLER_ART_MREADER, "MediathekSf.addFilme2", ex);
             }
