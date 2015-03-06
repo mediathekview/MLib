@@ -20,9 +20,9 @@
 package msearch.filmeSuchen.sender;
 
 import msearch.daten.DatenFilm;
-import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
+import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
@@ -196,10 +196,6 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 String link[];
                 meldungAddThread();
                 while (!MSConfig.getStop() && (link = getListeThemen()) != null) {
-////////////                    /////////////////////
-////////////                    if (!link[2].contains("Terra")) {
-////////////                        continue; ////////////////////////////
-////////////                    }
                     seite1.setLength(0);
                     addFilme(link[0]/* url */, link[1]/* urlThema */, link[2]/* Thema */);
                     meldungProgress(link[0]);
@@ -208,8 +204,6 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 MSLog.fehlerMeldung(-496583200, MSLog.FEHLER_ART_MREADER, "MediathekZdf.ZdfThemaLaden.run", ex);
             }
             meldungThreadUndFertig();
-//            System.out.println("ASX: " + count_asx);
-//            System.out.println("f4m: " + count_f4m);
         }
 
         private void addFilme(String url, String urlThema, String thema) {
@@ -223,7 +217,6 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             int pos3;
             int anz = 0;
             try {
-                //seite1 = getUrl.getUri(urlThema + "?bc=saz", seite1);
                 seite1 = getUrl.getUri_Utf(SENDERNAME, url, seite1, "Thema: " + thema);
                 while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER_URL_1, pos)) != -1) {
                     ok = false;
@@ -316,8 +309,6 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         //<detail>Möchten Sie wissen, was Sie in der nächsten Sendung von Abenteuer Forschung erwartet? Harald Lesch informiert Sie.</detail>
         //<length>00:00:34.000</length>
         //<airtime>02.07.2013 23:00</airtime>
-        final String BILD = "<teaserimage";
-        final String BILD_ = "key=\"2";
         final String BESCHREIBUNG = "<detail>";
         final String LAENGE = "<length>";
         final String DATUM = "<airtime>";
@@ -331,6 +322,8 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             MSLog.fehlerMeldung(-398745601, MSLog.FEHLER_ART_MREADER, "MediathekZdf.filmHolen", "url: " + urlId);
             return null;
         }
+        //<caption>      <url>http://utstreaming.zdf.de/tt/2014/F0312096_deut_Die_Bergretter_Gefangen_im_Eis_111214.xml</url>
+        String subtitle = strBuffer.extract("<caption>", "<url>http://", "<");
         beschreibung = strBuffer.extract(BESCHREIBUNG, "<");
         if (beschreibung.isEmpty()) {
             beschreibung = strBuffer.extract(BESCHREIBUNG, "</");
@@ -487,6 +480,10 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 //            }
             DatenFilm film = new DatenFilm(sender, thema, filmWebsite, titel, url, "" /*urlRtmp*/, datum, zeit,
                     extractDuration(laenge), beschreibung, new String[]{""});
+            if (!subtitle.isEmpty()) {
+                subtitle = "http://" + subtitle;
+                film.addUrlSubtitle(subtitle);
+            }
             film.addUrlKlein(urlKlein, "");
             film.addUrlHd(urlHd, "");
             return film;

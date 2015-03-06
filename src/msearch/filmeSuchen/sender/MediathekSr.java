@@ -149,6 +149,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
                 if (thema.contains(":")) {
                     thema = thema.substring(0, thema.indexOf(":")).trim();
                 }
+                String subtitle = seite2.extract("http_get.utPath", "= '", "'"); //http_get.utPath             = 'ut/AB_20150228.xml';
                 url = seite2.extract("var mediaURLs = ['", "'");
                 if (url.isEmpty()) {
                     MSLog.fehlerMeldung(-301245789, MSLog.FEHLER_ART_MREADER, "MediathekSr.addFilme", "keine URL für: " + urlSeite);
@@ -156,6 +157,10 @@ public class MediathekSr extends MediathekReader implements Runnable {
                     // DatenFilm(String ssender, String tthema, String urlThema, String ttitel, String uurl, String uurlorg, String uurlRtmp, String datum, String zeit) {
                     //DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, furl, datum, "");
                     DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSeite, titel, url, "", datum, "" /*Zeit*/, duration, description, new String[]{});
+                    if (!subtitle.isEmpty()) {
+                        subtitle = "http://sr-mediathek.sr-online.de/" + subtitle;
+                        film.addUrlSubtitle(subtitle);
+                    }
                     addFilm(film);
                 }
             } catch (Exception ex) {

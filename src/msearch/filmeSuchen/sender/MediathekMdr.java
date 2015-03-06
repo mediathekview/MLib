@@ -328,6 +328,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                     }
 
                     description = seite4.extract(MUSTER_DESCRIPTION, MUSTER_DESCRIPTION_END, pos);
+                    String subtitle = seite4.extract("<videoSubtitleUrl>", "<"); //<videoSubtitleUrl>http://www.mdr.de/mediathek/fernsehen/a-z/video209948-videoSubtitle_zc-ea9f5e14_zs-dea15b49.xml</videoSubtitleUrl>
                     urlSendung = seite4.extract("<htmlUrl>", "<");
                     if (urlSendung.isEmpty()) {
                         urlSendung = filmSite;
@@ -345,7 +346,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                             datum = convertDatumXml(datum);
                         }
                     }
-                    
+
                     // Film-URLs suchen
                     urlHD = seite4.extract("| MP4 Web XL |", MUSTER_URL_MP4, "<");
                     urlMp4 = seite4.extract("| MP4 Web L |", MUSTER_URL_MP4, "<");
@@ -367,6 +368,9 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                                     new String[]{});
                             film.addUrlKlein(urlMp4_klein, "");
                             film.addUrlHd(urlHD, "");
+                            if (!subtitle.isEmpty()) {
+                                film.addUrlSubtitle(subtitle);
+                            }
                             addFilm(film);
                         }
                     }

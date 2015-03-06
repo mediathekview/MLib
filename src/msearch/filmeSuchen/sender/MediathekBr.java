@@ -34,7 +34,7 @@ import msearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekBr extends MediathekReader implements Runnable {
-
+    
     public final static String SENDERNAME = "BR";
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.ENGLISH);//08.11.2013, 18:00
     private final SimpleDateFormat sdfOutTime = new SimpleDateFormat("HH:mm:ss");
@@ -46,11 +46,11 @@ public class MediathekBr extends MediathekReader implements Runnable {
     private static final String PATTERN_HD = "<asset type=\"HD\">";
     private static final String PATTERN_DLURL = "<downloadUrl>";
     private static final String PATTERN_END = "<";
-
+    
     public MediathekBr(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME,/* threads */ 3, /* urlWarten */ 100, startPrio);
     }
-
+    
     @Override
     void addToList() {
         if (MSConfig.senderAllesLaden) {
@@ -90,7 +90,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             }
         }
     }
-
+    
     private void getTheman() {
         final String ADRESSE = "http://www.br.de/mediathek/video/sendungen/index.html";
         final String MUSTER_URL = "<a href=\"/mediathek/video/";
@@ -137,7 +137,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             }
         }
     }
-
+    
     private void getTage() {
         // <a href="/mediathek/video/programm/mediathek-programm-100~_date-2014-01-05_-fc34efea1ee1bee90b0dc7888e292676f347679c.html" class="dayChange link_indexPage contenttype_epg mediathek-programm-100" data-
         // <a href="/mediathek/video/stadtlapelle-frankenland-100.html" title="zur Video-Detailseite" class="link_video contenttype_standard stadtlapelle-frankenland-100">
@@ -183,15 +183,15 @@ public class MediathekBr extends MediathekReader implements Runnable {
             MSLog.fehlerMeldung(-821213698, MSLog.FEHLER_ART_MREADER, this.getClass().getSimpleName(), ex);
         }
     }
-
+    
     private class ThemaLaden implements Runnable {
-
+        
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
         private final MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private final MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seiteXml = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-
+        
         @Override
         public synchronized void run() {
             try {
@@ -210,7 +210,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             }
             meldungThreadUndFertig();
         }
-
+        
         void laden(String urlThema, String thema, MSStringBuilder seite, boolean weitersuchen) {
             seite = getUrlIo.getUri_Utf(SENDERNAME, urlThema, seite, "");
             if (seite.length() == 0) {
@@ -224,7 +224,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             long duration = 0;
             String description;
             String titel;
-
+            
             if (seite.indexOf("<p class=\"noVideo\">Zur Sendung \"") != -1
                     && seite.indexOf("\" liegen momentan keine Videos vor</p>") != -1) {
                 // dann gibts keine Videos
@@ -307,7 +307,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 }
             }
         }
-
+        
         private String convertDatum(String datum) {
             //<time class="start" datetime="2013-11-08T18:00:00+01:00">08.11.2013, 18:00 Uhr</time>
             try {
@@ -318,7 +318,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             }
             return datum;
         }
-
+        
         private String convertTime(String zeit) {
             //<time class="start" datetime="2013-11-08T18:00:00+01:00">08.11.2013, 18:00 Uhr</time>
             try {
@@ -330,15 +330,15 @@ public class MediathekBr extends MediathekReader implements Runnable {
             return zeit;
         }
     }
-
+    
     private class KlassikLaden implements Runnable {
-
+        
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
         private final MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private final MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private final MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private final MSStringBuilder seiteXml = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-
+        
         @Override
         public synchronized void run() {
             try {
@@ -349,7 +349,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             }
             meldungThreadUndFertig();
         }
-
+        
         void laden() {
             MSStringBuilder seite = seite1;
             getUrlIo.getUri_Utf(SENDERNAME, "http://www.br.de/mediathek/video/br-klassik-mediathek-100.html", seite, "");
@@ -362,7 +362,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             String zeit = "";
             String description1, description2;
             String titel;
-
+            
             String u = seite.extract("<a class=\"button large\" href=\"", "\"");
             if (!u.isEmpty()) {
                 u = "http://www.br.de" + u;
@@ -371,7 +371,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     seite = seite2;
                 }
             }
-
+            
             ArrayList<String> result = new ArrayList<>();
             seite.extractList("<h2 id=\"inhalt\" class=\"hidden\">Inhalt</h2>" /*abMuster*/,
                     "<div class=\"teaserBundleMore\">" /*bisMuster*/,
@@ -404,7 +404,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 description2 = description2.replaceFirst("\n", "");
                 description2 = description2.replaceFirst("<p>", "");
                 description2 = description2.replaceAll("<br/>", "\n");
-
+                
                 urlXml = seite3.extract("{dataURL:'", "'");
                 if (urlXml.isEmpty()) {
                     MSLog.fehlerMeldung(-815263987, MSLog.FEHLER_ART_MREADER, "MediathekBr.KlassikLaden", "keine URL: " + url);
@@ -413,9 +413,9 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     loadXml(seiteXml, urlXml, url, thema, titel, description1 + description2, datum, zeit);
                 }
             }
-
+            
         }
-
+        
         private String convertDatum(String datum) {
             //<time class="start" datetime="2013-11-08T18:00:00+01:00">08.11.2013, 18:00 Uhr</time>
             try {
@@ -426,7 +426,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             }
             return datum;
         }
-
+        
         private String convertTime(String zeit) {
             //<time class="start" datetime="2013-11-08T18:00:00+01:00">08.11.2013, 18:00 Uhr</time>
             try {
@@ -438,7 +438,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             return zeit;
         }
     }
-
+    
     private void loadXml(MSStringBuilder seite, String urlXml, String urlThema, String thema, String titel, String description, String datum, String zeit) {
         String dauer;
         long duration = 0;
@@ -447,7 +447,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             MSLog.fehlerMeldung(-820139701, MSLog.FEHLER_ART_MREADER, "MediathekBr.laden.loadXml: ", urlXml);
             return;
         }
-
+        
         try {
             //<duration>00:03:07</duration>
             dauer = seite.extract("<duration>", "<");
@@ -463,7 +463,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
         } catch (NumberFormatException ex) {
             MSLog.fehlerMeldung(-735216703, MSLog.FEHLER_ART_MREADER, "MediathekBr.laden", ex, urlThema);
         }
-
+        String subtitle = seite.extract("<dataTimedText url=\"", "\""); // <dataTimedText url="/mediathek/video/untertitel-2528~default.xml" offset="0.0"/>
         String urlVerySmall = getUrl(seite, PATTERN_VERY_SMALL);
         String urlSmall = getUrl(seite, PATTERN_SMALL);
         String urlNormal = getUrl(seite, PATTERN_NORMAL);
@@ -493,6 +493,10 @@ public class MediathekBr extends MediathekReader implements Runnable {
             if (!urlHd.isEmpty()) {
                 film.addUrlHd(urlHd, "");
             }
+            if (!subtitle.isEmpty()) {
+                subtitle = "http://www.br.de" + subtitle;
+                film.addUrlSubtitle(subtitle);
+            }
             addFilm(film);
             meldung(film.arr[DatenFilm.FILM_URL_NR]);
         } else {
@@ -510,17 +514,17 @@ public class MediathekBr extends MediathekReader implements Runnable {
     private String getUrl(MSStringBuilder seiteXml, String pattern) {
         return seiteXml.extract(pattern, PATTERN_DLURL, PATTERN_END);
     }
-
+    
     private class ArchivLaden implements Runnable {
-
+        
         int anfang, ende;
         private MSStringBuilder seiteXml = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-
+        
         public ArchivLaden(int aanfang, int eende) {
             anfang = aanfang;
             ende = eende;
         }
-
+        
         @Override
         public synchronized void run() {
             meldungAddMax(ende - anfang);
@@ -532,7 +536,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             }
             meldungThreadUndFertig();
         }
-
+        
         private void archivSuchen(int start, int ende) {
             // http://www.br.de/service/suche/archiv102.html?documentTypes=video&page=1&sort=date
             final String MUSTER_ADRESSE_1 = "http://www.br.de/service/suche/archiv102.html?documentTypes=video&page=";
@@ -578,7 +582,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 }
             }
         }
-
+        
         private void archivAdd1(MSGetUrl getUrl, MSStringBuilder seiteArchiv2, String urlThema, String thema, String titel, String datum, String beschreibung) {
             // http://www.br.de/service/suche/archiv102.html?documentTypes=video&page=1&sort=date
             meldung(urlThema);

@@ -237,8 +237,6 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             meldung(strUrlFeed);
             titel = seite2.extract("<title>", "vom"); //<title>ABC Bär vom 17.11.2013 um 07.35 Uhr / ORF TVthek</title>
 
-            subtitle = seite2.extract("\"srt_file_url\":\"", "\"");
-
             datum = seite2.extract("<span class=\"meta meta_date\">", "<");
             if (datum.contains(",")) {
                 datum = datum.substring(datum.indexOf(",") + 1).trim();
@@ -286,6 +284,14 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                     }
 
                     subtitle = seite2.extract("\"srt_file_url\":\"", "\"", pos, posStopEpisode);
+                    if (subtitle.isEmpty()) {
+                        //"vtt_file_url":"http:\/\/tvthek.orf.at\/subtitle\/segment\/9341793.vtt"
+                        //"ttml_file_url":"http:\/\/tvthek.orf.at\/subtitle\/segment\/9341793.ttml"
+                        subtitle = seite2.extract("\"vtt_file_url\":\"", "\"", pos, posStopEpisode);
+                        if (subtitle.isEmpty()) {
+                            subtitle = seite2.extract("\"ttml_file_url\":\"", "\"", pos, posStopEpisode);
+                        }
+                    }
 
                     description = seite2.extract("\"description\":\"", "\"", pos, posStopEpisode);
                     if (!description.equals(StringEscapeUtils.unescapeJava(description))) {
