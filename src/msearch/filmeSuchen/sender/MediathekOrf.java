@@ -278,19 +278,15 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                     } catch (Exception ex) {
                     }
                     titel = seite2.extract("\"header\":\"", "\",", pos, posStopEpisode);//"header":"Lehrerdienstrecht beschlossen"
-//                        titel = GuiFunktionen.utf8(titel);
                     if (!titel.equals(StringEscapeUtils.unescapeJava(titel))) {
                         titel = StringEscapeUtils.unescapeJava(titel).trim();
                     }
 
                     subtitle = seite2.extract("\"srt_file_url\":\"", "\"", pos, posStopEpisode);
                     if (subtitle.isEmpty()) {
-                        //"vtt_file_url":"http:\/\/tvthek.orf.at\/subtitle\/segment\/9341793.vtt"
+                        //"vtt_file_url":"http:\/\/tvthek.orf.at\/subtitle\/segment\/9341793.vtt" ---> sind jetzt leer
                         //"ttml_file_url":"http:\/\/tvthek.orf.at\/subtitle\/segment\/9341793.ttml"
                         subtitle = seite2.extract("\"ttml_file_url\":\"", "\"", pos, posStopEpisode);
-//                        if (subtitle.isEmpty()) {
-//                            subtitle = seite2.extract("\"vtt_file_url\":\"", "\"", pos, posStopEpisode);
-//                        }
                     }
 
                     description = seite2.extract("\"description\":\"", "\"", pos, posStopEpisode);
