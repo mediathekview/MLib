@@ -61,7 +61,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 listeThemen.addUrl(new String[]{s});
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-398214058, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addToList", ex);
+            MSLog.fehlerMeldung(398214058,   ex);
         }
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
@@ -108,7 +108,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-794625882, MSLog.FEHLER_ART_MREADER, "MediathekRBB.ThemaLaden.run", ex);
+                MSLog.fehlerMeldung(794625882,   ex);
             }
             meldungThreadUndFertig();
         }
@@ -131,7 +131,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         urlSeite = "http://mediathek.rbb-online.de/tv/" + urlSeite;
                         addFilme(urlSeite);
                     } else {
-                        MSLog.fehlerMeldung(-751203697, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addThema", "keine URL für: " + urlSeite);
+                        MSLog.fehlerMeldung(751203697,   "keine URL für: " + urlSeite);
                     }
                 }
 
@@ -152,7 +152,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         urlSeite = "http://mediathek.rbb-online.de/tv/" + urlSeite;
                         addFilme(urlSeite);
                     } else {
-                        MSLog.fehlerMeldung(-751203697, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addThema", "keine URL für: " + url);
+                        MSLog.fehlerMeldung(751203697,  "keine URL für: " + url);
                     }
                 }
 
@@ -166,7 +166,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-541236987, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addThema", ex);
+                MSLog.fehlerMeldung(541236987,   ex);
             }
         }
 
@@ -182,7 +182,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     try {
                         duration = Long.parseLong(durationInSeconds);
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(-200145787, MSLog.FEHLER_ART_MREADER, "MediathekRBB.extractDuration", ex);
+                        MSLog.fehlerMeldung(200145787,   ex);
                         duration = 0;
                     }
                 }
@@ -216,7 +216,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     }
                 }
                 if (datum.isEmpty() || zeit.isEmpty() || thema.isEmpty() || title.isEmpty() || description.isEmpty() || durationInSeconds.isEmpty()) {
-                    MSLog.fehlerMeldung(-912012036, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addFilme", "empty für: " + urlSeite);
+                    MSLog.fehlerMeldung(912012036,   "empty für: " + urlSeite);
                 }
                 if (!urlNormal.isEmpty()) {
                     urlNormal = "http://" + urlNormal;
@@ -228,10 +228,10 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         film.addUrlKlein(urlLow, "");
                     }
                 } else {
-                    MSLog.fehlerMeldung(-302014569, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addFilme", "keine URL für: " + urlSeite);
+                    MSLog.fehlerMeldung(302014569,  "keine URL für: " + urlSeite);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-541236987, MSLog.FEHLER_ART_MREADER, "MediathekRBB.addFilme", ex);
+                MSLog.fehlerMeldung(541236987,   ex);
             }
         }
 

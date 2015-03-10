@@ -55,7 +55,7 @@ public class MSFilmlisteSchreiben {
         File dir = new File(file.getParent());
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
-                MSLog.fehlerMeldung(915236478, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
+                MSLog.fehlerMeldung(915236478,  "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
         MSLog.systemMeldung("   --> Start Schreiben nach: " + datei);
@@ -125,7 +125,7 @@ public class MSFilmlisteSchreiben {
             jg.close();
             MSLog.systemMeldung("   --> geschrieben!");
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(846930145, MSLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
+            MSLog.fehlerMeldung(846930145,  ex, "nach: " + datei);
         }
     }
 
@@ -136,7 +136,7 @@ public class MSFilmlisteSchreiben {
             xmlSchreibenFilmliste(listeFilme);
             xmlSchreibenEnde(datei);
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(846930145, MSLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
+            MSLog.fehlerMeldung(846930145,   ex, "nach: " + datei);
         }
     }
 
@@ -145,7 +145,7 @@ public class MSFilmlisteSchreiben {
         File dir = new File(file.getParent());
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
-                MSLog.fehlerMeldung(947623049, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteSchreiben.xmlSchreibenStart", "Kann den Pfad nicht anlegen: " + dir.toString());
+                MSLog.fehlerMeldung(947623049,  "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
         MSLog.systemMeldung("   --> Start Schreiben nach: " + datei);
@@ -186,7 +186,7 @@ public class MSFilmlisteSchreiben {
             writer.writeEndElement();
             writer.writeCharacters("\n");//neue Zeile
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(638214005, MSLog.FEHLER_ART_PROG, "IoXmlSchreiben.xmlSchreibenFeldInfo", ex);
+            MSLog.fehlerMeldung(638214005,  ex);
         }
         // Filme schreiben
         ListIterator<DatenFilm> iterator;

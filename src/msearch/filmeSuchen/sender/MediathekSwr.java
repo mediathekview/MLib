@@ -89,10 +89,10 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             thema = strSeite.extract(MUSTER_THEMA, "\"", pos);
             thema = StringEscapeUtils.unescapeHtml4(thema.trim()); //wird gleich benutzt und muss dann schon stimmen
             if (thema.isEmpty()) {
-                MSLog.fehlerMeldung(-915263078, MSLog.FEHLER_ART_MREADER, "MediathekSwr.addToList__", "kein Thema");
+                MSLog.fehlerMeldung(915263078,  "kein Thema");
             }
             if (url.isEmpty()) {
-                MSLog.fehlerMeldung(-163255009, MSLog.FEHLER_ART_MREADER, "MediathekSwr.addToList__", "keine URL");
+                MSLog.fehlerMeldung(163255009,   "keine URL");
             } else {
                 //url = url.replace("&amp;", "&");
                 String[] add = new String[]{"http://swrmediathek.de/tvshow.htm?show=" + url, thema};
@@ -121,7 +121,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     meldungProgress(link[0]);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-739285690, MSLog.FEHLER_ART_MREADER, "MediathekSwr.SenderThemaLaden.run", ex);
+                MSLog.fehlerMeldung(739285690,  ex);
             }
             meldungThreadUndFertig();
         }
@@ -131,7 +131,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             //strSeite1 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, strSeite1, thema);
             strSeite1 = getUrlThemaLaden.getUri(SENDERNAME, strUrlFeed, MSConst.KODIERUNG_UTF, 2 /* versuche */, strSeite1, thema);
             if (strSeite1.length() == 0) {
-                MSLog.fehlerMeldung(-945120365, MSLog.FEHLER_ART_MREADER, "MediathekSwr.themenSeitenSuchen", "Seite leer: " + strUrlFeed);
+                MSLog.fehlerMeldung(945120365,   "Seite leer: " + strUrlFeed);
                 return;
             }
             meldung(strUrlFeed);
@@ -164,7 +164,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                         gefunden.add(url);
                     }
                     if (url.equals("")) {
-                        MSLog.fehlerMeldung(-875012369, MSLog.FEHLER_ART_MREADER, "MediathekSwr.addFilme2", "keine URL, Thema: " + thema);
+                        MSLog.fehlerMeldung(875012369,   "keine URL, Thema: " + thema);
                     } else {
                         url = "http://swrmediathek.de/AjaxEntry?callback=jsonp1347979401564&ekey=" + url;
                         json(strUrlFeed, thema, url);
@@ -185,7 +185,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             try {
                 strSeite2 = getUrlThemaLaden.getUri_Utf(SENDERNAME, urlJson, strSeite2, "");
                 if (strSeite2.length() == 0) {
-                    MSLog.fehlerMeldung(-95623451, MSLog.FEHLER_ART_MREADER, "MediathekSwr.json", "Seite leer: " + urlJson);
+                    MSLog.fehlerMeldung(912365478,  "Seite leer: " + urlJson);
                     return;
                 }
                 String title = getTitle();
@@ -200,7 +200,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                 String smallUrl = getSmallUrl();
                 String rtmpUrl = getRtmpUrl();
                 if (normalUrl.isEmpty() && smallUrl.isEmpty() && rtmpUrl.isEmpty()) {
-                    MSLog.fehlerMeldung(-203690478, MSLog.FEHLER_ART_MREADER, "MediathekSwr.json", thema + " NO normal and small url:  " + urlJson);
+                    MSLog.fehlerMeldung(203690478,   thema + " NO normal and small url:  " + urlJson);
                 } else {
                     if (normalUrl.isEmpty() && !smallUrl.isEmpty()) {
                         normalUrl = smallUrl;
@@ -222,7 +222,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     addFilm(film);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-939584720, MSLog.FEHLER_ART_MREADER, "MediathekSwr.json-3", thema + " " + urlJson);
+                MSLog.fehlerMeldung(939584720,   thema + " " + urlJson);
             }
         }
 
@@ -278,7 +278,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     }
                 }
             } catch (NumberFormatException ex) {
-                MSLog.fehlerMeldung(-679012497, MSLog.FEHLER_ART_MREADER, "MediathekSwr.json", "duration: " + (dur == null ? " " : duration));
+                MSLog.fehlerMeldung(679012497,   "duration: " + (dur == null ? " " : duration));
             }
             return duration;
         }

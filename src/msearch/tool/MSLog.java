@@ -34,16 +34,30 @@ public class MSLog {
 
     public static final int FEHLER_ART_PROG = 0;
     public static final String FEHLER_ART_PROG_TEXT = "   Prog: ";
-    public static final int FEHLER_ART_GETURL = 1;
-    public static final String FEHLER_ART_GETURL_TEXT = " GetUrl: ";
+//    public static final int FEHLER_ART_GETURL = 1;
+//    public static final String FEHLER_ART_GETURL_TEXT = " GetUrl: ";
     public static final int FEHLER_ART_MREADER = 2;
     public static final String FEHLER_ART_MREADER_TEXT = "MReader: ";
-    public static final int FEHLER_ART_FILME_SUCHEN = 3;
-    public static final String FEHLER_ART_FILME_SUCHEN_TEXT = "  Filme: ";
+//    public static final int FEHLER_ART_FILME_SUCHEN = 3;
+//    public static final String FEHLER_ART_FILME_SUCHEN_TEXT = "  Filme: ";
     private final static String FEHLER = "Fehler(" + MSConst.PROGRAMMNAME + "): ";
 
     // private
-    private static final LinkedList<Integer[]> fehlerListe = new LinkedList<>(); // [Art, Fehlernummer, Anzahl, Exception(0,1 für ja, nein)]
+    private static class Error {
+
+        String cl = "";
+        int nr = 0;
+        int count = 0;
+        boolean ex = false;
+
+        public Error(int nr, String cl, boolean ex) {
+            this.nr = nr;
+            this.cl = cl;
+            this.ex = ex;
+            this.count = 1;
+        }
+    }
+    private static final LinkedList<Error> fehlerListe = new LinkedList<>();
     private static boolean progress = false;
     private static final Date startZeit = new Date(System.currentTimeMillis());
     private static File logFile = null;
@@ -55,13 +69,13 @@ public class MSLog {
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
                 logFile = null;
-                MSLog.fehlerMeldung(632012165, MSLog.FEHLER_ART_PROG, "Search.logSchreiben", "Kann den Pfad nicht anlegen: " + dir.toString());
+                MSLog.fehlerMeldung(632012165, "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
 
     }
 
-    public static synchronized void versionsMeldungen(String classname) {
+    public static synchronized void versionsMeldungen() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         systemMeldung("");
         systemMeldung("");
@@ -96,7 +110,6 @@ public class MSLog {
         systemMeldung("Compiled: " + MSFunktionen.getCompileDate());
         systemMeldung("##################################################################################");
         systemMeldung("Java");
-        systemMeldung("Classname: " + classname);
         String[] java = MSFunktionen.getJavaVersion();
         for (String ja : java) {
             MSLog.systemMeldung(ja);
@@ -105,9 +118,9 @@ public class MSLog {
         systemMeldung("");
     }
 
-    public static synchronized void startMeldungen(String classname) {
+    public static synchronized void startMeldungen() {
         startZeit.setTime(System.currentTimeMillis());
-        versionsMeldungen(classname);
+        versionsMeldungen();
         systemMeldung("##################################################################################");
         systemMeldung("Programmpfad: " + MSFunktionen.getPathJar());
         systemMeldung("Filmliste: " + MSConfig.getPathFilmlist_json_akt(true /*aktDate*/));
@@ -167,6 +180,7 @@ public class MSLog {
     }
 
     public static synchronized ArrayList<String> fehlerMeldungen() {
+        int max = 0;
         ArrayList<String> retList = new ArrayList<>();
         retList.add("");
         retList.add("##################################################################################");
@@ -176,10 +190,21 @@ public class MSLog {
             // Fehler ausgeben
             int i_1;
             int i_2;
+            for (Error e : fehlerListe) {
+                if (e.cl.length() > max) {
+                    max = e.cl.length();
+                }
+            }
+            max++;
+            for (Error e : fehlerListe) {
+                while (e.cl.length() < max) {
+                    e.cl = e.cl + " ";
+                }
+            }
             for (int i = 1; i < fehlerListe.size(); ++i) {
                 for (int k = i; k > 0; --k) {
-                    i_1 = fehlerListe.get(k - 1)[1];
-                    i_2 = fehlerListe.get(k)[1];
+                    i_1 = fehlerListe.get(k - 1).nr;
+                    i_2 = fehlerListe.get(k).nr;
                     // if (str1.compareToIgnoreCase(str2) > 0) {
                     if (i_1 < i_2) {
                         fehlerListe.add(k - 1, fehlerListe.remove(k));
@@ -188,36 +213,14 @@ public class MSLog {
                     }
                 }
             }
-            for (Integer[] integers : fehlerListe) {
-                String z;
-                switch (integers[0]) {
-                    case FEHLER_ART_MREADER:
-                        z = FEHLER_ART_MREADER_TEXT;
-                        break;
-                    case FEHLER_ART_FILME_SUCHEN:
-                        z = FEHLER_ART_FILME_SUCHEN_TEXT;
-                        break;
-                    case FEHLER_ART_GETURL:
-                        z = FEHLER_ART_GETURL_TEXT;
-                        break;
-                    case FEHLER_ART_PROG:
-                        z = FEHLER_ART_PROG_TEXT;
-                        break;
-                    default:
-                        z = "";
-                }
-                boolean ex = integers[3] == 1;
+            for (Error e : fehlerListe) {
                 String strEx;
-                if (ex) {
+                if (e.ex) {
                     strEx = "Ex! ";
                 } else {
                     strEx = "    ";
                 }
-                if (integers[1] < 0) {
-                    retList.add(strEx + z + " Fehlernummer: " + integers[1] + " Anzahl: " + integers[2]);
-                } else {
-                    retList.add(strEx + z + " Fehlernummer:  " + integers[1] + " Anzahl: " + integers[2]);
-                }
+                retList.add(strEx + e.cl + " Fehlernummer: " + e.nr + " Anzahl: " + e.count);
             }
         }
         retList.add("##################################################################################");
@@ -225,25 +228,25 @@ public class MSLog {
     }
 
     // Fehlermeldung mit Exceptions
-    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, Exception ex) {
-        fehlermeldung_(fehlerNummer, art, klasse, ex, new String[]{});
+    public static synchronized void fehlerMeldung(int fehlerNummer, Exception ex) {
+        fehlermeldung_(fehlerNummer, ex, new String[]{});
     }
 
-    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, Exception ex, String text) {
-        fehlermeldung_(fehlerNummer, art, klasse, ex, new String[]{text});
+    public static synchronized void fehlerMeldung(int fehlerNummer, Exception ex, String text) {
+        fehlermeldung_(fehlerNummer, ex, new String[]{text});
     }
 
-    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, Exception ex, String text[]) {
-        fehlermeldung_(fehlerNummer, art, klasse, ex, text);
+    public static synchronized void fehlerMeldung(int fehlerNummer, Exception ex, String text[]) {
+        fehlermeldung_(fehlerNummer, ex, text);
     }
 
     // Fehlermeldungen
-    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, String text) {
-        fehlermeldung_(fehlerNummer, art, klasse, null, new String[]{text});
+    public static synchronized void fehlerMeldung(int fehlerNummer, String text) {
+        fehlermeldung_(fehlerNummer, null, new String[]{text});
     }
 
-    public static synchronized void fehlerMeldung(int fehlerNummer, int art, String klasse, String[] text) {
-        fehlermeldung_(fehlerNummer, art, klasse, null, text);
+    public static synchronized void fehlerMeldung(int fehlerNummer, String[] text) {
+        fehlermeldung_(fehlerNummer, null, text);
     }
 
     public static synchronized void systemMeldung(String[] text) {
@@ -276,22 +279,35 @@ public class MSLog {
         }
     }
 
-    private static void addFehlerNummer(int nr, int art, boolean exception) {
-        int ex = exception ? 1 : 2;
-        for (Integer[] i : fehlerListe) {
-            if (i[1] == nr) {
-                i[0] = art;
-                i[2]++;
-                i[3] = ex;
+    private static void addFehlerNummer(int nr, String classs, boolean exception) {
+        for (Error e : fehlerListe) {
+            if (e.nr == nr) {
+                ++e.count;
                 return;
             }
         }
         // dann gibts die Nummer noch nicht
-        fehlerListe.add(new Integer[]{art, nr, 1, ex});
+        fehlerListe.add(new Error(nr, classs, exception));
     }
 
-    private static void fehlermeldung_(int fehlerNummer, int art, String klasse, Exception ex, String[] texte) {
-        addFehlerNummer(fehlerNummer, art, ex != null);
+    private static void fehlermeldung_(int fehlerNummer, Exception ex, String[] texte) {
+        final Throwable t = new Throwable();
+        final StackTraceElement methodCaller = t.getStackTrace()[2];
+        final String klasse = methodCaller.getClassName() + "." + methodCaller.getMethodName();
+        String kl;
+        try {
+            kl = klasse;
+            while (kl.contains(".")) {
+                if (Character.isUpperCase(kl.charAt(0))) {
+                    break;
+                } else {
+                    kl = kl.substring(kl.indexOf(".") + 1);
+                }
+            }
+        } catch (Exception ignored) {
+            kl = klasse;
+        }
+        addFehlerNummer(fehlerNummer, kl, ex != null);
         if (ex != null || MSConfig.debug) {
             // Exceptions immer ausgeben
             resetProgress();
@@ -301,20 +317,7 @@ public class MSLog {
             } else {
                 x = "=";
             }
-            switch (art) {
-                case FEHLER_ART_MREADER:
-                    z = "  ==>";
-                    break;
-                case FEHLER_ART_FILME_SUCHEN:
-                    z = "   >>";
-                    break;
-                case FEHLER_ART_GETURL:
-                    z = "  ++>";
-                    break;
-                case FEHLER_ART_PROG:
-                default:
-                    z = "*";
-            }
+            z = "*";
             logList.add(x + x + x + x + x + x + x + x + x + x
                     + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x + x);
 

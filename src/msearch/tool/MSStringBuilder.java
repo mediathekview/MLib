@@ -109,7 +109,7 @@ public class MSStringBuilder {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(462310871, MSLog.FEHLER_ART_MREADER, "extractList", ex);
+            MSLog.fehlerMeldung(462310871,  ex);
         }
     }
 

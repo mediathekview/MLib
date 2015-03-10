@@ -91,7 +91,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
                     bearbeiteTage(link[0]/*url*/);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-951236547, MSLog.FEHLER_ART_MREADER, "MediathekSr.ThemaLaden.run", ex, "");
+                MSLog.fehlerMeldung(951236547,   ex);
             }
             meldungThreadUndFertig();
         }
@@ -130,7 +130,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
                         }
                     }
                 } catch (Exception ex) {
-                    MSLog.fehlerMeldung(-732012546, MSLog.FEHLER_ART_MREADER, "MediathekSr.addFilm", "d: " + d);
+                    MSLog.fehlerMeldung(732012546,  "d: " + d);
                 }
                 description = seite2.extract("<meta name=\"description\" content=\"", ">");
                 datum = seite2.extract("Video | ", "|").trim();
@@ -152,7 +152,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
                 String subtitle = seite2.extract("http_get.utPath", "= '", "'"); //http_get.utPath             = 'ut/AB_20150228.xml';
                 url = seite2.extract("var mediaURLs = ['", "'");
                 if (url.isEmpty()) {
-                    MSLog.fehlerMeldung(-301245789, MSLog.FEHLER_ART_MREADER, "MediathekSr.addFilme", "keine URL für: " + urlSeite);
+                    MSLog.fehlerMeldung(301245789,  "keine URL für: " + urlSeite);
                 } else {
                     // DatenFilm(String ssender, String tthema, String urlThema, String ttitel, String uurl, String uurlorg, String uurlRtmp, String datum, String zeit) {
                     //DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, furl, datum, "");
@@ -164,7 +164,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
                     addFilm(film);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-402583366, MSLog.FEHLER_ART_MREADER, "MediathekSr.addFilme", ex, "");
+                MSLog.fehlerMeldung(402583366,   ex);
             }
         }
 

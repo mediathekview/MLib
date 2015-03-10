@@ -165,7 +165,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     addFilme(link[THEME_ENTRY], link[URL_ENTRY] /* url */, link[URL_THEME] /*urlThema*/);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-832002877, MSLog.FEHLER_ART_MREADER, "MediathekSf.SfThemaLaden.run", ex);
+                MSLog.fehlerMeldung(832002877,   ex);
             }
             meldungThreadUndFertig();
         }
@@ -189,7 +189,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-195926364, MSLog.FEHLER_ART_MREADER, "MediathekSrf.addFilme", ex);
+                MSLog.fehlerMeldung(195926364,   ex);
             }
         }
 
@@ -262,7 +262,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                         url_small = "";
                     } else {
                         // dann gibst nix
-                        MSLog.fehlerMeldung(-159873540, MSLog.FEHLER_ART_MREADER, "MediathekSRf.filmLaden", "keine NORMALE Url für: " + urlWebsite + " : " + url_normal);
+                        MSLog.fehlerMeldung(159873540,  "keine NORMALE Url für: " + urlWebsite + " : " + url_normal);
                         return;
                     }
                 }
@@ -291,7 +291,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 addFilm(film);
 
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-556320087, MSLog.FEHLER_ART_MREADER, "MediathekSf.addFilme2", ex);
+                MSLog.fehlerMeldung(556320087,   ex);
             }
         }
 
@@ -433,7 +433,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                         return url;
                     }
                 } catch (SRFException ex1) {
-                    MSLog.fehlerMeldung(-646490237, MSLog.FEHLER_ART_FILME_SUCHEN, "MediathekSf.checkPing", ex);
+                    MSLog.fehlerMeldung(646490237,  ex);
                 }
             }
 
@@ -498,7 +498,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                             duration = Long.parseLong(d);
                         }
                     } catch (NumberFormatException ex) {
-                        MSLog.fehlerMeldung(-646490237, MSLog.FEHLER_ART_MREADER, "MediathekSf.extractDuration", ex);
+                        MSLog.fehlerMeldung(646490237,  ex);
                     }
                 }
             }
@@ -516,7 +516,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             try {
                 date = formatter.parse(date_str);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(-784512304, MSLog.FEHLER_ART_MREADER, "MediathekSrf.extractDateAndTime", ex, "DAte_STR " + date_str);
+                MSLog.fehlerMeldung(784512304,  ex, "DAte_STR " + date_str);
             }
 
             return date;

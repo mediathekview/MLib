@@ -343,21 +343,21 @@ public class DatenFilm implements Comparable<DatenFilm> {
             try {
                 url = uurl.substring(uurl.indexOf("/online/") + "/online/".length());
                 if (!url.contains("/")) {
-                    MSLog.fehlerMeldung(915230478, MSLog.FEHLER_ART_PROG, "DatenFilm.getUrl-1", "Url: " + uurl);
+                    MSLog.fehlerMeldung(915230478, "Url: " + uurl);
                     return "";
                 }
                 url = url.substring(url.indexOf("/") + 1);
                 if (!url.contains("/")) {
-                    MSLog.fehlerMeldung(915230478, MSLog.FEHLER_ART_PROG, "DatenFilm.getUrl-2", "Url: " + uurl);
+                    MSLog.fehlerMeldung(915230478, "Url: " + uurl);
                     return "";
                 }
                 url = url.substring(url.indexOf("/") + 1);
                 if (url.isEmpty()) {
-                    MSLog.fehlerMeldung(915230478, MSLog.FEHLER_ART_PROG, "DatenFilm.getUrl-3", "Url: " + uurl);
+                    MSLog.fehlerMeldung(915230478, "Url: " + uurl);
                     return "";
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(915230478, MSLog.FEHLER_ART_PROG, "DatenFilm.getUrl-4", ex, "Url: " + uurl);
+                MSLog.fehlerMeldung(915230478, ex, "Url: " + uurl);
             }
             return MediathekOrf.SENDERNAME + "----" + url;
         } else {
@@ -439,7 +439,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 }
             } catch (Exception ex) {
                 dauerL = 0;
-                MSLog.fehlerMeldung(468912049, MSLog.FEHLER_ART_PROG, "DatenFilm.init", "Dauer: " + this.arr[DatenFilm.FILM_DAUER_NR]);
+                MSLog.fehlerMeldung(468912049, "Dauer: " + this.arr[DatenFilm.FILM_DAUER_NR]);
             }
 
             //================================
@@ -459,15 +459,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
                         datumFilm = new Datum(l * 1000 /* sind SEKUNDEN!!*/);
                     }
                 } catch (Exception ex) {
-                    MSLog.fehlerMeldung(915236701, MSLog.FEHLER_ART_PROG, "DatenFilm.getDatumForObject", ex,
-                            new String[]{"Datum: " + arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + arr[DatenFilm.FILM_ZEIT_NR]});
+                    MSLog.fehlerMeldung(915236701, ex, new String[]{"Datum: " + arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + arr[DatenFilm.FILM_ZEIT_NR]});
                     datumFilm = new Datum(0);
                     arr[DatenFilm.FILM_DATUM_NR] = "";
                     arr[DatenFilm.FILM_ZEIT_NR] = "";
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(715263987, MSLog.FEHLER_ART_PROG, DatenFilm.class.getName() + ".init()", ex);
+            MSLog.fehlerMeldung(715263987, ex);
         }
     }
 
@@ -634,15 +633,15 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 Date filmDate = sdfIn.parse(datum);
                 if (filmDate.getTime() < 0) {
                     //Datum vor 1970
-                    MSLog.fehlerMeldung(923012125, MSLog.FEHLER_ART_PROG, "DatenFilm.CheckDatum-3 - Unsinniger Wert: [", datum + "] " + fehlermeldung);
+                    MSLog.fehlerMeldung(923012125, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
                 } else if ((new Date().getTime() + MAX) < filmDate.getTime()) {
-                    MSLog.fehlerMeldung(121305469, MSLog.FEHLER_ART_PROG, "DatenFilm.CheckDatum-4 - Unsinniger Wert: [", datum + "] " + fehlermeldung);
+                    MSLog.fehlerMeldung(121305469, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
                 } else {
                     arr[FILM_DATUM_NR] = datum;
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(794630593, MSLog.FEHLER_ART_PROG, "DatenFilm.checkDatum-5", ex);
-                MSLog.fehlerMeldung(946301596, MSLog.FEHLER_ART_PROG, "DatenFilm.CheckDatum-6 [", datum + "] " + fehlermeldung);
+                MSLog.fehlerMeldung(794630593, ex);
+                MSLog.fehlerMeldung(946301596, "[" + datum + "] " + fehlermeldung);
             }
         }
     }
@@ -654,7 +653,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             if (zeit.contains(":") && zeit.length() == 8) {
                 arr[FILM_ZEIT_NR] = zeit;
             } else {
-                MSLog.fehlerMeldung(159623647, MSLog.FEHLER_ART_PROG, "DatenFilm.checkZeit [", zeit + "] " + fehlermeldung);
+                MSLog.fehlerMeldung(159623647, "[" + zeit + "] " + fehlermeldung);
             }
         }
     }

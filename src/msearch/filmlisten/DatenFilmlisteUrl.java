@@ -129,7 +129,7 @@ public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
             Date d_du = sdf.parse(du);
             ret = d_du.compareTo(d_ich);
         } catch (ParseException ex) {
-            MSLog.fehlerMeldung(936542876, MSLog.FEHLER_ART_PROG, this.getClass().getName(), ex);
+            MSLog.fehlerMeldung(936542876,   ex);
         }
         return ret;
     }
@@ -145,7 +145,7 @@ public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
             cal.add(Calendar.DATE, -tage);
             ret = d_ich.before(cal.getTime());
         } catch (ParseException ex) {
-            MSLog.fehlerMeldung(915468973, MSLog.FEHLER_ART_PROG, this.getClass().getName(), ex);
+            MSLog.fehlerMeldung(915468973,   ex);
         }
         return ret;
     }

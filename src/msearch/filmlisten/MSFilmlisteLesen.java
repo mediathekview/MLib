@@ -196,7 +196,7 @@ public class MSFilmlisteLesen {
         } catch (FileNotFoundException ex) {
             listeFilme.clear();
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(945123641, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.readFilmListe: " + source, ex);
+            MSLog.fehlerMeldung(945123641,  ex, "FilmListe: " + source);
             listeFilme.clear();
         }
         if (MSConfig.getStop()) {
@@ -214,7 +214,7 @@ public class MSFilmlisteLesen {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(495623014, MSLog.FEHLER_ART_PROG, "MSearchIoXmlFilmlisteLesen.checkDate", ex);
+            MSLog.fehlerMeldung(495623014,   ex);
         }
         return true;
     }

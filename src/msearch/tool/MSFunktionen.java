@@ -82,7 +82,7 @@ public class MSFunktionen {
             rb = ResourceBundle.getBundle("version");
             msg = rb.getString(propToken);
         } catch (Exception e) {
-            MSLog.fehlerMeldung(807293847, MSLog.FEHLER_ART_PROG, MSFunktionen.class.getName(), e);
+            MSLog.fehlerMeldung(807293847,   e);
         }
         return msg;
     }
@@ -96,7 +96,7 @@ public class MSFunktionen {
             rb = ResourceBundle.getBundle("version");
             msg = rb.getString(propToken);
         } catch (Exception e) {
-            MSLog.fehlerMeldung(134679898, MSLog.FEHLER_ART_PROG, MSFunktionen.class.getName(), e);
+            MSLog.fehlerMeldung(134679898,  e);
         }
         return msg;
     }
@@ -253,7 +253,7 @@ public class MSFunktionen {
             }
         }
         if (ret.equals("")) {
-            MSLog.fehlerMeldung(283946015, MSLog.FEHLER_ART_PROG, "GuiFunktionen.addsPfad", pfad1 + " - " + pfad2);
+            MSLog.fehlerMeldung(283946015,  pfad1 + " - " + pfad2);
         }
         return ret;
     }
@@ -286,7 +286,7 @@ public class MSFunktionen {
             ret = ret.substring(0, ret.indexOf("&"));
         }
         if (ret.equals("")) {
-            MSLog.fehlerMeldung(395019631, MSLog.FEHLER_ART_PROG, "GuiFunktionen.getDateiName", pfad);
+            MSLog.fehlerMeldung(395019631,  pfad);
         }
         return ret;
     }

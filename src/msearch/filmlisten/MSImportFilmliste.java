@@ -103,7 +103,7 @@ public class MSImportFilmliste {
                 }
             }
             if (!ret /* listeFilme ist schon wieder null -> "FilmeLaden" */) {
-                MSLog.fehlerMeldung(951235497, MSLog.FEHLER_ART_PROG, "Filme laden", "Es konnten keine Filme geladen werden!");
+                MSLog.fehlerMeldung(951235497,   "Es konnten keine Filme geladen werden!");
             }
             fertigMelden(ret);
         }
@@ -215,7 +215,7 @@ public class MSImportFilmliste {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(965412378, MSLog.FEHLER_ART_PROG, "ImportListe.urlLaden: ", ex);
+            MSLog.fehlerMeldung(965412378,  ex);
         }
         return ret;
 

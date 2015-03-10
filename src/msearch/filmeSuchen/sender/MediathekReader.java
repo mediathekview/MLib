@@ -108,7 +108,7 @@ public class MediathekReader implements Runnable {
             threads = 0;
             addToList();
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-397543600, MSLog.FEHLER_ART_MREADER, "MediathekReader.run", ex, sendername);
+            MSLog.fehlerMeldung(397543600,   ex, sendername);
         }
     }
 
@@ -259,7 +259,7 @@ public class MediathekReader implements Runnable {
             }
         }
         if (ret.equals("")) {
-            MSLog.fehlerMeldung(-469872800, MSLog.FEHLER_ART_MREADER, "MediathekReader.addsUrl", pfad1 + " " + pfad2);
+            MSLog.fehlerMeldung(469872800,   pfad1 + " " + pfad2);
         }
         return ret;
     }

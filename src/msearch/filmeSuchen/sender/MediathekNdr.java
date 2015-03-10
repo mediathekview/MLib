@@ -67,7 +67,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                     thema = seite.substring(pos1 + 1, pos2);
                 }
                 if (url.equals("")) {
-                    MSLog.fehlerMeldung(-210367600, MSLog.FEHLER_ART_MREADER, "MediathekNdr.addToList", "keine Url");
+                    MSLog.fehlerMeldung(210367600,  "keine Url");
                     continue;
                 }
                 String url_ = "http://www.ndr.de/mediathek/mediatheksuche105_broadcast-" + url;
@@ -81,7 +81,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                     listeThemen.addUrl(add);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-332945670, MSLog.FEHLER_ART_MREADER, "MediathekNdr.finden", ex);
+                MSLog.fehlerMeldung(332945670,  ex);
             }
         }
         // noch "Verpasst" für die letzten Tage einfügen
@@ -129,7 +129,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                             anz2 = anz1;
                         }
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(-643208979, MSLog.FEHLER_ART_MREADER, "MediathekNdr.feddEinerSeiteSuchen", strUrlFeed);
+                        MSLog.fehlerMeldung(643208979,  strUrlFeed);
                     }
                 }
             }
@@ -142,7 +142,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                 ret = true;
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-913047821, MSLog.FEHLER_ART_MREADER, "MediathekNdr.feddEinerSeiteSuchen", strUrlFeed);
+            MSLog.fehlerMeldung(913047821,  strUrlFeed);
         }
         return ret;
     }
@@ -163,11 +163,11 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                         meldungProgress(link[1]);
                         feedEinerSeiteSuchen(link[0], link[1] /* thema */);
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(-336901211, MSLog.FEHLER_ART_MREADER, "MediathekNdr.ThemaLaden.run.1", ex);
+                        MSLog.fehlerMeldung(336901211,   ex);
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-554632590, MSLog.FEHLER_ART_MREADER, "MediathekNdr.ThemaLaden.run.2", ex);
+                MSLog.fehlerMeldung(554632590,  ex);
             }
             meldungThreadUndFertig();
         }
@@ -197,7 +197,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                     pos += muster.length();
                     url = seite1.extract(MUSTER_URL, "\"", pos);
                     if (url.equals("")) {
-                        MSLog.fehlerMeldung(-659210274, MSLog.FEHLER_ART_MREADER, "MediathekNdr.feddEinerSeiteSuchen", "keine Url feedEinerSeiteSuchen" + strUrlFeed);
+                        MSLog.fehlerMeldung(659210274,   "keine Url feedEinerSeiteSuchen" + strUrlFeed);
                         continue;
                     }
                     url = "http://www.ndr.de/" + url;
@@ -226,7 +226,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                             Date filmDate = sdfIn.parse(tmp);
                             zeit = new SimpleDateFormat("HH:mm:ss").format(filmDate);
                         } catch (Exception ex) {
-                            MSLog.fehlerMeldung(-795623017, MSLog.FEHLER_ART_MREADER, "MediathekNdr.FilmSuchen", "convertDatum: " + strUrlFeed);
+                            MSLog.fehlerMeldung(795623017,  "convertDatum: " + strUrlFeed);
                         }
                     } else {
                         tmp = seite1.extract("<div class=\"subline\">", "<", pos);
@@ -237,7 +237,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                             datum = new SimpleDateFormat("dd.MM.yyyy").format(filmDate);
                             zeit = new SimpleDateFormat("HH:mm:ss").format(filmDate);
                         } catch (Exception ex) {
-                            MSLog.fehlerMeldung(-623657941, MSLog.FEHLER_ART_MREADER, "MediathekNdr.FilmSuchen", "convertDatum: " + strUrlFeed);
+                            MSLog.fehlerMeldung(623657941,  "convertDatum: " + strUrlFeed);
                         }
                     }
                     if (tage) {
@@ -254,7 +254,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                                 }
                             }
                         } catch (Exception ex) {
-                            MSLog.fehlerMeldung(-369015497, MSLog.FEHLER_ART_MREADER, "MediathekNdr.feddEinerSeiteSuchen", ex, strUrlFeed);
+                            MSLog.fehlerMeldung(369015497,   ex, strUrlFeed);
                         }
                     } else {
                         String duration = seite1.extract("Video (", ")", pos);
@@ -270,13 +270,13 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                                 }
                             }
                         } catch (Exception ex) {
-                            MSLog.fehlerMeldung(-369015497, MSLog.FEHLER_ART_MREADER, "MediathekNdr.feddEinerSeiteSuchen", ex, strUrlFeed);
+                            MSLog.fehlerMeldung(369015497,   ex, strUrlFeed);
                         }
                     }
                     filmSuchen(strUrlFeed, thema, titel, url, datum, zeit, durationInSeconds, tage);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-693219870, MSLog.FEHLER_ART_MREADER, "MediathekNdr.feddEinerSeiteSuchen", strUrlFeed);
+                MSLog.fehlerMeldung(693219870,   strUrlFeed);
             }
         }
 
@@ -342,14 +342,14 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                             }
                             addFilm(film, onlyUrl);
                         } else {
-                            MSLog.fehlerMeldung(-623657941, MSLog.FEHLER_ART_MREADER, "MediathekNdr.FilmSuchen", "keine URL: " + filmWebsite);
+                            MSLog.fehlerMeldung(623657941,  "keine URL: " + filmWebsite);
                         }
                     }
                 } else {
-                    MSLog.fehlerMeldung(-698970145, MSLog.FEHLER_ART_MREADER, "MediathekNdr.FilmSuchen", "keine Url: " + filmWebsite);
+                    MSLog.fehlerMeldung(698970145,   "keine Url: " + filmWebsite);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-699830157, MSLog.FEHLER_ART_MREADER, "MediathekNdr.FilmSuchen", ex);
+                MSLog.fehlerMeldung(699830157,   ex);
             }
         }
 

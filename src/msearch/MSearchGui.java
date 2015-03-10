@@ -152,7 +152,7 @@ public final class MSearchGui extends javax.swing.JFrame {
                 File dir = new File(file.getParent());
                 if (!dir.exists()) {
                     if (!dir.mkdirs()) {
-                        MSLog.fehlerMeldung(632012165, MSLog.FEHLER_ART_PROG, "Search.logSchreiben", "Kann den Pfad nicht anlegen: " + dir.toString());
+                        MSLog.fehlerMeldung(632012165,  "Kann den Pfad nicht anlegen: " + dir.toString());
                     }
                 }
 
@@ -188,7 +188,7 @@ public final class MSearchGui extends javax.swing.JFrame {
 
                     MSLog.systemMeldung("--> geschrieben!");
                 } catch (Exception ex) {
-                    MSLog.fehlerMeldung(846930145, MSLog.FEHLER_ART_PROG, "IoXmlSchreiben.FilmeSchreiben", ex, "nach: " + datei);
+                    MSLog.fehlerMeldung(846930145, ex, "nach: " + datei);
                 }
 
             }

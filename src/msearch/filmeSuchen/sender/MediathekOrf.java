@@ -112,7 +112,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-826341789, MSLog.FEHLER_ART_MREADER, "MediathekOrf.bearbeiteAdresseKey", ex);
+            MSLog.fehlerMeldung(826341789,  ex);
         }
     }
 
@@ -131,7 +131,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-826341789, MSLog.FEHLER_ART_MREADER, "MediathekOrf.bearbeiteAdresseKey", ex);
+            MSLog.fehlerMeldung(826341789,   ex);
         }
     }
 
@@ -164,11 +164,11 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                                 break;
                         }
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(-795633581, MSLog.FEHLER_ART_MREADER, "MediathekOrf.OrfThemaLaden.run", ex);
+                        MSLog.fehlerMeldung(795633581,   ex);
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-554012398, MSLog.FEHLER_ART_MREADER, "MediathekOrf.OrfThemaLaden.run", ex);
+                MSLog.fehlerMeldung(554012398,   ex);
             }
             meldungThreadUndFertig();
         }
@@ -249,7 +249,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
             if ((posStart = seite2.indexOf("\"is_one_segment_episode\":false")) == -1) {
                 if ((posStart = seite2.indexOf("\"is_one_segment_episode\":true")) == -1) {
-                    MSLog.fehlerMeldung(-989532147, MSLog.FEHLER_ART_MREADER, "MediathekOrf.feedEinerSeiteSuchen", "keine Url: " + strUrlFeed);
+                    MSLog.fehlerMeldung(989532147,  "keine Url: " + strUrlFeed);
                     return;
                 }
             }
@@ -375,7 +375,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                         }
                         addFilm(film, nurUrlPruefen);
                     } else {
-                        MSLog.fehlerMeldung(-989532147, MSLog.FEHLER_ART_MREADER, "MediathekOrf.feedEinerSeiteSuchen", "keine Url: " + strUrlFeed);
+                        MSLog.fehlerMeldung(989532147,  "keine Url: " + strUrlFeed);
                     }
                 }
             }

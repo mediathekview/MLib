@@ -113,16 +113,16 @@ public class MSFileSize {
                         }
                     } catch (Exception ex) {
                         ret = -1;
-                        MSLog.fehlerMeldung(963215478, MSLog.FEHLER_ART_PROG, "MVUrlDateiGroesse.laenge", ex);
+                        MSLog.fehlerMeldung(963215478,   ex);
                     }
                 }
             }
         } catch (Exception ex) {
             ret = -1;
             if (ex.getMessage().equals("Read timed out")) {
-                MSLog.fehlerMeldung(825141452, MSLog.FEHLER_ART_PROG, "StarterClass.StartenDownload.laenge", "Read timed out: " + ssender);
+                MSLog.fehlerMeldung(825141452,  "Read timed out: " + ssender);
             } else {
-                MSLog.fehlerMeldung(643298301, MSLog.FEHLER_ART_PROG, "StarterClass.StartenDownload.laenge", ex);
+                MSLog.fehlerMeldung(643298301,   ex);
             }
         }
         if (ret < 1000 * 1024) {

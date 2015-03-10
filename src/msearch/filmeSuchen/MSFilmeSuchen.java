@@ -330,7 +330,7 @@ public class MSFilmeSuchen {
                 this.wait(1000); // warten, Sender nach der Gesamtlaufzeit starten
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(978754213, MSLog.FEHLER_ART_PROG, "FilmeSuchenSender.mrWarten", ex);
+            MSLog.fehlerMeldung(978754213,  ex);
         }
     }
 

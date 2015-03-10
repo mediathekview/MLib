@@ -47,7 +47,7 @@ public class MSearch implements Runnable {
             System.exit(-1);
         }
         // Infos schreiben
-        MSLog.startMeldungen(this.getClass().getName());
+        MSLog.startMeldungen();
         MSLog.systemMeldung("");
         MSLog.systemMeldung("");
         msFilmeSuchen.addAdListener(new MSListenerFilmeLaden() {
@@ -69,7 +69,7 @@ public class MSearch implements Runnable {
                 this.wait(5000);
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(496378742, MSLog.FEHLER_ART_FILME_SUCHEN, MSearch.class.getName(), "run()");
+            MSLog.fehlerMeldung(496378742, "run()");
         }
         undTschuess();
     }

@@ -87,7 +87,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 listeThemen.add(new String[]{ss});
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-302025469, MSLog.FEHLER_ART_MREADER, "MediathekKiKA.addToList", ex, "");
+            MSLog.fehlerMeldung(302025469,  ex);
         }
     }
 
@@ -129,7 +129,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-302025469, MSLog.FEHLER_ART_MREADER, "MediathekKiKA.addToList", ex, "");
+            MSLog.fehlerMeldung(732120256,   ex);
         }
     }
 
@@ -156,7 +156,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     ladenXml(link[0] /* url */, link[1] /*thema*/, true /*nur neue URLs*/);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-915236791, MSLog.FEHLER_ART_MREADER, MediathekKika.class.getName() + ".ThemaLaden.run", ex, "");
+                MSLog.fehlerMeldung(915236791,   ex);
             }
             meldungThreadUndFertig();
         }
@@ -172,7 +172,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 pos += MUSTER.length();
                 String xml = seite1.extract("setup({dataURL:'", "'", pos);
                 if (xml.isEmpty()) {
-                    MSLog.fehlerMeldung(-701025987, MSLog.FEHLER_ART_MREADER, "MediathekKika", "keine XML: " + filmWebsite);
+                    MSLog.fehlerMeldung(701025987,   "keine XML: " + filmWebsite);
                 } else {
                     xml = "http://www.kika.de/" + xml;
                     ladenXml(xml, thema, false /*alle*/);
@@ -227,7 +227,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     }
                 }
             } catch (NumberFormatException ex) {
-                MSLog.fehlerMeldung(-201036547, MSLog.FEHLER_ART_MREADER, "MediathekKiKa.laden", ex, xmlWebsite);
+                MSLog.fehlerMeldung(201036547,   ex, xmlWebsite);
             }
             // Film-URLs suchen
             final String MUSTER_URL_MP4 = "<progressiveDownloadUrl>";
@@ -244,7 +244,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             }
 
             if (thema.isEmpty() || urlSendung.isEmpty() || titel.isEmpty() || urlMp4.isEmpty() || date.isEmpty() || zeit.isEmpty() || duration == 0 /*|| beschreibung.isEmpty()*/) {
-                MSLog.fehlerMeldung(-735216987, MSLog.FEHLER_ART_MREADER, "MediathekKika", "leer: " + xmlWebsite);
+                MSLog.fehlerMeldung(735216987,  "leer: " + xmlWebsite);
             }
 
             if (!urlMp4.equals("")) {
@@ -254,7 +254,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 film.addUrlHd(urlHD, "");
                 addFilm(film, urlPruefen);
             } else {
-                MSLog.fehlerMeldung(-963215478, MSLog.FEHLER_ART_MREADER, "MediathekKika", " xml: " + xmlWebsite);
+                MSLog.fehlerMeldung(963215478,   " xml: " + xmlWebsite);
             }
         }
 
@@ -265,7 +265,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(datum);
                 datum = sdfOutDay.format(filmDate);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(-731025789, MSLog.FEHLER_ART_PROG, "MediathekKika.convertDatum: " + datum, ex);
+                MSLog.fehlerMeldung(731025789,  ex, "Datum: " + datum);
             }
             return datum;
         }
@@ -277,7 +277,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(zeit);
                 zeit = sdfOutTime.format(filmDate);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(-915423687, MSLog.FEHLER_ART_PROG, "MediathekKika.convertTime: " + zeit, ex);
+                MSLog.fehlerMeldung(915423687,  ex, "Time: " + zeit);
             }
             return zeit;
         }

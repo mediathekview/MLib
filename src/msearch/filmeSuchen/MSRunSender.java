@@ -51,7 +51,7 @@ public class MSRunSender {
                 ret = min + ":" + sek;
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(976431583, MSLog.FEHLER_ART_PROG, "Suchen.RunSender.getLaufzeitMinuten", ex, sender);
+            MSLog.fehlerMeldung(976431583,  ex, sender);
         }
         return ret;
     }
@@ -64,7 +64,7 @@ public class MSRunSender {
                 sekunden = Math.round((endZeit.getTime() - startZeit.getTime()) / 1000);
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(976431583, MSLog.FEHLER_ART_PROG, "Suchen.RunSender.getLaufzeitMinuten", ex, sender);
+            MSLog.fehlerMeldung(976431583,  ex, sender);
         }
         return sekunden;
     }

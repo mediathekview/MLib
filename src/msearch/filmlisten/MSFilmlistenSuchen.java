@@ -182,7 +182,7 @@ public class MSFilmlistenSuchen {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(821069874, MSLog.FEHLER_ART_PROG, MSFilmlistenSuchen.class.getName(), ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
+            MSLog.fehlerMeldung(821069874,  ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
         }
     }
 

@@ -125,7 +125,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                 listeThemen.add(add);
             }
         } else {
-            MSLog.fehlerMeldung(-653210697, MSLog.FEHLER_ART_MREADER, "MediathekHr.bearbeiteRubrik", "keine URL");
+            MSLog.fehlerMeldung(653210697,   "keine URL");
         }
 
         // gibts scheinbar nicht mehr
@@ -190,7 +190,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                     addFilme(link[0]/*url*/, link[1]/*thema*/, link[2]/*filmsite*/);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-894330854, MSLog.FEHLER_ART_MREADER, "MediathekHr.ThemaLaden.run", ex, "");
+                MSLog.fehlerMeldung(894330854,  ex);
             }
             meldungThreadUndFertig();
         }
@@ -231,7 +231,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                             }
                         }
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(-708096931, MSLog.FEHLER_ART_MREADER, "MediathekHr.addFilm", "d: " + d);
+                        MSLog.fehlerMeldung(708096931,   "d: " + d);
                     }
                     description = seite1.extract(MUSTER_DESCRIPTION, END, posItem1);
                     datum = seite1.extract(MUSTER_DATUM, END, posItem1);
@@ -266,14 +266,14 @@ public class MediathekHr extends MediathekReader implements Runnable {
                         }
                         addFilm(film);
                     } else {
-                        MSLog.fehlerMeldung(-649882036, MSLog.FEHLER_ART_MREADER, "MediathekHr.addFilme", "keine URL");
+                        MSLog.fehlerMeldung(649882036,   "keine URL");
                     }
                 }
                 if (url.isEmpty()) {
-                    MSLog.fehlerMeldung(-761236458, MSLog.FEHLER_ART_MREADER, "MediathekHr.addFilme", "keine URL für: " + xmlWebsite);
+                    MSLog.fehlerMeldung(761236458,  "keine URL für: " + xmlWebsite);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-487774126, MSLog.FEHLER_ART_MREADER, "MediathekHr.addFilme", ex, "");
+                MSLog.fehlerMeldung(487774126,   ex);
             }
         }
 
@@ -291,7 +291,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                 }
             } catch (Exception ex) {
                 ret = "";
-                MSLog.fehlerMeldung(-356408790, MSLog.FEHLER_ART_MREADER, "MediathekHr.getDate", "kein Datum");
+                MSLog.fehlerMeldung(356408790,  "kein Datum");
             }
             return ret;
         }

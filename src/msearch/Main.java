@@ -35,10 +35,10 @@ public class Main {
                 if (args != null) {
                     for (String s : args) {
                         if (s.equalsIgnoreCase("-v")) {
-                            MSLog.versionsMeldungen(this.getClass().getName());
+                            MSLog.versionsMeldungen();
                             System.exit(0);
                         } else if (s.equalsIgnoreCase("-gui")) {
-                            MSLog.versionsMeldungen(this.getClass().getName());
+                            MSLog.versionsMeldungen();
                             new MSearchGui(args).setVisible(true);
                         }
                     }

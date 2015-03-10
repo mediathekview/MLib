@@ -117,7 +117,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         try {
             seite_1.extractList(ITEM_1, "\"", 0, ROOTADR, listeRochpalast);
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-915423698, MSLog.FEHLER_ART_MREADER, "MediathekWdr.rockpalast", ex);
+            MSLog.fehlerMeldung(915423698,  ex);
         }
     }
 
@@ -129,7 +129,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         try {
             seite_1.extractList(ITEM_1, "\"", 0, ROOTADR, listeMaus);
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-975456987, MSLog.FEHLER_ART_MREADER, "MediathekWdr.maus", ex);
+            MSLog.fehlerMeldung(975456987,   ex);
         }
     }
 
@@ -145,7 +145,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             seite_1.extractList(ITEM_2, "]", 0, "http://www.wdrmaus.de/elefantenseite/data/xml/filme/", listeElefant);
             seite_1.extractList(ITEM_3, "]", 0, "http://www.wdrmaus.de/elefantenseite/data/xml/ganze_sendung/", listeElefant);
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-975456987, MSLog.FEHLER_ART_MREADER, "MediathekWdr.maus", ex);
+            MSLog.fehlerMeldung(975456987,   ex);
         }
     }
 
@@ -157,7 +157,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         try {
             seite_1.extractList(ITEM_1, "\"", 0, ROOTADR, listeFestival);
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(-432365698, MSLog.FEHLER_ART_MREADER, "MediathekWdr.festival", ex);
+            MSLog.fehlerMeldung(432365698,   ex);
         }
     }
 
@@ -175,7 +175,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             if ((pos2 = seite_1.indexOf("\"", pos1)) != -1) {
                 url = seite_1.substring(pos1, pos2);
                 if (url.equals("")) {
-                    MSLog.fehlerMeldung(-995122047, MSLog.FEHLER_ART_MREADER, "MediathekWdr.addToList__", "keine URL");
+                    MSLog.fehlerMeldung(995122047,   "keine URL");
                 } else {
                     url = "http://www1.wdr.de/mediathek/video/sendungen/abisz-" + url;
                     themenSeitenSuchen(url);
@@ -193,7 +193,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         seite_2 = getUrlIo.getUri_Iso(SENDERNAME, strUrlFeed, seite_2, "");
         meldung(strUrlFeed);
         if ((pos1 = seite_2.indexOf(MUSTER_START)) == -1) {
-            MSLog.fehlerMeldung(-460857479, MSLog.FEHLER_ART_MREADER, "MediathekWdr.themenSeiteSuchen", "keine Url" + strUrlFeed);
+            MSLog.fehlerMeldung(460857479,   "keine Url" + strUrlFeed);
             return;
         }
         while (!MSConfig.getStop() && (pos1 = seite_2.indexOf(MUSTER_URL, pos1)) != -1) {
@@ -208,7 +208,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     listeThemen.addUrl(add);
                 }
             } else {
-                MSLog.fehlerMeldung(-375862100, MSLog.FEHLER_ART_MREADER, "MediathekWdr.themenSeiteSuchen", "keine Url" + strUrlFeed);
+                MSLog.fehlerMeldung(375862100,   "keine Url" + strUrlFeed);
             }
         }
     }
@@ -241,7 +241,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     meldungProgress(link[0]);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-633250489, MSLog.FEHLER_ART_MREADER, "MediathekWdr.SenderThemaLaden.run", ex);
+                MSLog.fehlerMeldung(633250489,   ex);
             }
             meldungThreadUndFertig();
         }
@@ -317,14 +317,14 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             // und jetzt die Beiträge
             if ((pos = sendungsSeite2.indexOf(MUSTER_START_1)) == -1) {
                 if ((pos = sendungsSeite2.indexOf(MUSTER_START_2)) == -1) {
-                    MSLog.fehlerMeldung(-765323079, MSLog.FEHLER_ART_MREADER, "MediathekWdr.sendungsSeiteSuchen", "keine Url" + strUrl);
+                    MSLog.fehlerMeldung(765323079,  "keine Url" + strUrl);
                     return;
                 }
             }
             if ((ende = sendungsSeite2.indexOf("<ul class=\"pageCounterNavi\">", pos)) == -1) {
                 if ((ende = sendungsSeite2.indexOf("<div id=\"socialBookmarks\">", pos)) == -1) {
                     if ((ende = sendungsSeite2.indexOf("<span>Hilfe zur Steuerung der \"Sendung verpasst\"")) == -1) {
-                        MSLog.fehlerMeldung(-646897321, MSLog.FEHLER_ART_MREADER, "MediathekWdr.sendungsSeiteSuchen", "keine Url" + strUrl);
+                        MSLog.fehlerMeldung(646897321,   "keine Url" + strUrl);
                         return;
                     }
                 }
@@ -376,13 +376,13 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                                 }
                             }
                         } catch (Exception ex) {
-                            MSLog.fehlerMeldung(-306597519, MSLog.FEHLER_ART_MREADER, "MediathekWdr.sendungsSeiteSuchen", ex, strUrl);
+                            MSLog.fehlerMeldung(306597519,   ex, strUrl);
                         }
 
                         //weiter gehts
                         addFilm1(thema, titel, url, duration, datum);
                     } else {
-                        MSLog.fehlerMeldung(-646432970, MSLog.FEHLER_ART_MREADER, "MediathekWdr.sendungsSeiteSuchen-1", "keine Url" + strUrl);
+                        MSLog.fehlerMeldung(646432970,  "keine Url" + strUrl);
                     }
                 }
             }
@@ -414,7 +414,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             if (!url.equals("")) {
                 addFilm2(filmWebsite, thema, titel, "http://www1.wdr.de/mediathek/video/sendungen/" + url, dauer, datum, description, keywords);
             } else {
-                MSLog.fehlerMeldung(-763299001, MSLog.FEHLER_ART_MREADER, "MediathekWdr.addFilme1", new String[]{"keine Url: " + filmWebsite});
+                MSLog.fehlerMeldung(763299001,   new String[]{"keine Url: " + filmWebsite});
             }
 
         }
@@ -462,7 +462,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 film.addUrlKlein(urlKlein, "");
                 addFilm(film);
             } else {
-                MSLog.fehlerMeldung(-978451239, MSLog.FEHLER_ART_MREADER, "MediathekWdr.addFilme2", new String[]{"keine Url: " + urlFilmSuchen, "UrlThema: " + filmWebsite});
+                MSLog.fehlerMeldung(978451239,   new String[]{"keine Url: " + urlFilmSuchen, "UrlThema: " + filmWebsite});
             }
         }
 
@@ -474,7 +474,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(datum);
                 datum = sdfOutDay.format(filmDate);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(-731025789, MSLog.FEHLER_ART_PROG, "MediathekKika.convertDatum: " + datum, ex);
+                MSLog.fehlerMeldung(731025789,  ex, "Datum: " + datum);
             }
             return datum;
         }
@@ -496,7 +496,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     addFilmeRockpalast(s, "Rockpalast");
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-696963025, MSLog.FEHLER_ART_MREADER, "MediathekWdr.themenSeiteRockpalast", ex);
+                MSLog.fehlerMeldung(696963025,  ex);
             }
         }
 
@@ -523,7 +523,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     addFilmeRockpalast(s, "Rockpalast - Festival");
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-915263698, MSLog.FEHLER_ART_MREADER, "MediathekWdr.themenSeiteRockpalast", ex);
+                MSLog.fehlerMeldung(915263698,  ex);
             }
         }
 
@@ -550,7 +550,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     // rtmp://gffstream.fcod.llnwd.net/a792/e2/CMS2010/mdb/ondemand/weltweit/fsk0/22/222944/222944_6188265.mp4
                     url = sendungsSeite1.extract("firstVideo=rtmp://", ".mp4");
                     if (url.isEmpty()) {
-                        MSLog.fehlerMeldung(-730215698, MSLog.FEHLER_ART_MREADER, "MediathekWdr.themenSeiteMaus", "keine URL: " + filmWebsite);
+                        MSLog.fehlerMeldung(730215698,   "keine URL: " + filmWebsite);
                     } else {
                         url = "http://http-ras.wdr.de/CMS2010/mdb" + url.substring(url.indexOf("/ondemand/")) + ".mp4";
                         DatenFilm film = new DatenFilm(SENDERNAME, "MausSpots", filmWebsite, titel, url, ""/*rtmpURL*/, datum, ""/* zeit */,
@@ -559,7 +559,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-915263698, MSLog.FEHLER_ART_MREADER, "MediathekWdr.themenSeiteMaus", ex);
+                MSLog.fehlerMeldung(915263698,  ex);
             }
         }
 
@@ -587,7 +587,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                         datum = sdfOut.format(sdfIn.parse(datum));
                     } catch (Exception ex) {
                         datum = "";
-                        MSLog.fehlerMeldung(-945214787, MSLog.FEHLER_ART_MREADER, "MediathekWdr.addFilmeElefant", "kein Datum");
+                        MSLog.fehlerMeldung(945214787,   "kein Datum");
                     }
 
                     String d = sendungsSeite1.extract("<duration><![CDATA[", "]");
@@ -596,7 +596,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                             duration = Long.parseLong(d);
                         }
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(-732659874, MSLog.FEHLER_ART_MREADER, "MediathekWdr.addFilmeElefant", ex, "duration: " + d);
+                        MSLog.fehlerMeldung(732659874,   ex, "duration: " + d);
                     }
 
                     String url = sendungsSeite1.extract("<file_xl><![CDATA[", "]");
@@ -609,7 +609,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                         urlKlein = "";
                     }
                     if (url.isEmpty()) {
-                        MSLog.fehlerMeldung(-632012541, MSLog.FEHLER_ART_MREADER, "MediathekWdr.addFilmeElefant", "keine URL: " + filmWebsite);
+                        MSLog.fehlerMeldung(632012541,   "keine URL: " + filmWebsite);
                     } else {
                         url = "http://http-ras.wdr.de/mediendb/elefant_online" + url;
                         DatenFilm film = new DatenFilm(SENDERNAME, "Elefantenkino", "http://www.wdrmaus.de/elefantenseite/", titel, url, ""/*rtmpURL*/, datum, ""/* zeit */,
@@ -622,7 +622,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-747586936, MSLog.FEHLER_ART_MREADER, "MediathekWdr.addFilmeElefant", ex);
+                MSLog.fehlerMeldung(747586936,  ex);
             }
         }
 
@@ -648,7 +648,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(-915263625, MSLog.FEHLER_ART_MREADER, "MediathekWdr.addFilmeRockpalast", ex, "duration: " + d);
+                MSLog.fehlerMeldung(915263625,  ex, "duration: " + d);
             }
 
             description = sendungsSeite1.extract("<meta name=\"Description\" content=\"", "\"");
@@ -662,7 +662,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             }
             url = sendungsSeite1.extract("<a href=\"/fernsehen/kultur/rockpalast/videos/av/", "\"");
             if (url.isEmpty()) {
-                MSLog.fehlerMeldung(-915236547, MSLog.FEHLER_ART_MREADER, "MediathekWdr.addFilmeRockpalast", "keine URL: " + filmWebsite);
+                MSLog.fehlerMeldung(915236547,  "keine URL: " + filmWebsite);
             } else {
                 url = "http://www1.wdr.de/fernsehen/kultur/rockpalast/videos/av/" + url;
                 addFilm2(filmWebsite, thema, titel, url, duration, datum, description, keywords);

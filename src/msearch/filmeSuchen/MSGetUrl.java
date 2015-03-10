@@ -149,7 +149,7 @@ public class MSGetUrl {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(698963200, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, sender);
+                MSLog.fehlerMeldung(698963200,  ex, sender);
             }
         } while (!MSConfig.getStop() && aktVer < maxVersuche);
         return seite;
@@ -288,7 +288,7 @@ public class MSGetUrl {
             long w = wartenBasis;// * faktorWarten;
             this.wait(w);
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(976120379, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, sender);
+            MSLog.fehlerMeldung(976120379,  ex, sender);
         }
         try {
             // conn = url.openConnection(Proxy.NO_PROXY);
@@ -329,8 +329,7 @@ public class MSGetUrl {
                     }
                 } else {
                     // dann wars das
-                    MSLog.fehlerMeldung(974532107, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri",
-                            new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
+                    MSLog.fehlerMeldung(974532107,    new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
                 }
             }
             if (mvIn == null) {
@@ -376,25 +375,27 @@ public class MSGetUrl {
                         inReader.close();
                     }
                 } catch (Exception e) {
-                    MSLog.fehlerMeldung(645105987, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", e, "");
+                    MSLog.fehlerMeldung(645105987,  e, "");
                 }
             }
             if (lVersuch) {
                 String[] text;
                 if (meldung.equals("")) {
-                    text = new String[]{"Sender: " + sender + " - timout: " + timeout + " Versuche: " + versuch,
+                    text = new String[]{"", "Sender: " + sender + " - timout: " + timeout + " Versuche: " + versuch,
                         "URL: " + addr};
                 } else {
-                    text = new String[]{"Sender: " + sender + " - timout: " + timeout + " Versuche: " + versuch,
+                    text = new String[]{"", "Sender: " + sender + " - timout: " + timeout + " Versuche: " + versuch,
                         "URL: " + addr,
                         meldung};
                 }
                 switch (ex.getMessage()) {
                     case "Read timed out":
-                        MSLog.fehlerMeldung(502739817, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri: TimeOut", text);
+                        text[0] = "TimeOut: ";
+                        MSLog.fehlerMeldung(502739817,  text);
                         break;
                     case "No buffer space available":
-                        MSLog.fehlerMeldung(915263697, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri: No buffer space available", text);
+                        text[0] = "No buffer space available";
+                        MSLog.fehlerMeldung(915263697,  text);
                         try {
                             // Pause zum Abbauen von Verbindungen
                             final int WARTEN = 2;
@@ -404,19 +405,19 @@ public class MSGetUrl {
                         }
                         break;
                     default:
-                        MSLog.fehlerMeldung(379861049, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, text);
+                        MSLog.fehlerMeldung(379861049,  ex, text);
                         break;
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(973969801, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, "");
+            MSLog.fehlerMeldung(973969801,  ex, "");
         } finally {
             try {
                 if (in != null) {
                     in.close();
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(696321478, MSLog.FEHLER_ART_GETURL, MSGetUrl.class.getName() + ".getUri", ex, "");
+                MSLog.fehlerMeldung(696321478,  ex, "");
             }
         }
         return seite;
