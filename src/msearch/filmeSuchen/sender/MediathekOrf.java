@@ -283,11 +283,11 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                     }
 
                     subtitle = seite2.extract("\"srt_file_url\":\"", "\"", pos, posStopEpisode);
-                    if (subtitle.isEmpty()) {
-                        //"vtt_file_url":"http:\/\/tvthek.orf.at\/subtitle\/segment\/9341793.vtt" ---> sind jetzt leer
-                        //"ttml_file_url":"http:\/\/tvthek.orf.at\/subtitle\/segment\/9341793.ttml"
-                        subtitle = seite2.extract("\"ttml_file_url\":\"", "\"", pos, posStopEpisode);
-                    }
+//                    if (subtitle.isEmpty()) {
+//                        //"vtt_file_url":"http:\/\/tvthek.orf.at\/subtitle\/segment\/9341793.vtt" ---> sind jetzt leer
+//                        //"ttml_file_url":"http:\/\/tvthek.orf.at\/subtitle\/segment\/9341793.ttml" --> und die jetzt auch :)
+//                        // subtitle = seite2.extract("\"ttml_file_url\":\"", "\"", pos, posStopEpisode);
+//                    }
 
                     description = seite2.extract("\"description\":\"", "\"", pos, posStopEpisode);
                     if (!description.equals(StringEscapeUtils.unescapeJava(description))) {

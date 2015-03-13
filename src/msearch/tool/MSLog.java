@@ -32,14 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 
 public class MSLog {
 
-    public static final int FEHLER_ART_PROG = 0;
-    public static final String FEHLER_ART_PROG_TEXT = "   Prog: ";
-//    public static final int FEHLER_ART_GETURL = 1;
-//    public static final String FEHLER_ART_GETURL_TEXT = " GetUrl: ";
-    public static final int FEHLER_ART_MREADER = 2;
-    public static final String FEHLER_ART_MREADER_TEXT = "MReader: ";
-//    public static final int FEHLER_ART_FILME_SUCHEN = 3;
-//    public static final String FEHLER_ART_FILME_SUCHEN_TEXT = "  Filme: ";
     private final static String FEHLER = "Fehler(" + MSConst.PROGRAMMNAME + "): ";
 
     // private
