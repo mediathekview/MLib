@@ -330,7 +330,7 @@ public class MSLog {
             if (ex != null) {
                 logList.add(z + " Exception: " + ex.getMessage());
             }
-            logList.add(z + " " + FEHLER + klasse);
+            logList.add(z + " " + FEHLER + kl);
             for (String aTexte : texte) {
                 logList.add(z + "           " + aTexte);
             }
