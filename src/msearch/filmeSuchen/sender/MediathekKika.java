@@ -53,7 +53,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
         } else {
             // dann den Sender aus der alten Liste löschen
             // URLs laufen nur begrenzte Zeit
-            delSenderInAlterListe(SENDERNAME);
+//            delSenderInAlterListe(SENDERNAME); brauchts wohl nicht mehr
             meldungAddMax(listeThemen.size() + listeVideos.size());
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
@@ -61,7 +61,6 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 th.setName(SENDERNAME + t);
                 th.start();
             }
-
         }
     }
 
@@ -87,49 +86,28 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 listeThemen.add(new String[]{ss});
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(302025469,  ex);
+            MSLog.fehlerMeldung(302025469, ex);
         }
     }
 
     void addToListAllVideo() {
-        final String ADRESSE = "http://www.kika.de/videos/allevideos/allevideos-buendel100.html";
-        final String MUSTER_URL = "<a href=\"/videos/allevideos/allevideos-";
+        final String ADRESSE = "http://www.kika.de/videos/allevideos/allevideos-buendelgruppen100.html";
+        final String MUSTER_URL = "<a href=\"/videos/allevideos/allevideos-buendelgruppen100_page-";
         ArrayList<String> liste1 = new ArrayList<>();
         ArrayList<String> liste2 = new ArrayList<>();
 
         try {
             seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 3, seite, "KiKA: Startseite alle Videos");
-            seite.extractList(MUSTER_URL, "\"", 0, "http://www.kika.de/videos/allevideos/allevideos-", liste1);
-
-            for (String s : liste1) {
-                seite = getUrlIo.getUri_Utf(sendername, s, seite, "KiKa-Sendungen");
-                final String MUSTER_SENDUNGEN = ".setup({dataURL:'/videos/allevideos/";
-                final String MUSTER_THEMA = "title=\"\">";
-                seite.extractList(MUSTER_SENDUNGEN, "'", 0, "http://www.kika.de/videos/allevideos/", liste2);
-
-                int pos = 0, pos1, pos2;
-                while ((pos = seite.indexOf(MUSTER_SENDUNGEN, pos)) != -1) {
-                    pos += MUSTER_SENDUNGEN.length();
-                    pos1 = pos;
-                    if ((pos2 = seite.indexOf("'", pos1)) != -1) {
-                        String urlXml = seite.substring(pos1, pos2);
-                        if (urlXml.isEmpty()) {
-                            continue;
-                        }
-                        urlXml = "http://www.kika.de/videos/allevideos/" + urlXml;
-                        String thema = "";
-                        if ((pos1 = seite.indexOf(MUSTER_THEMA, pos1)) != -1) {
-                            pos1 += MUSTER_THEMA.length();
-                            if ((pos2 = seite.indexOf("<", pos1)) != -1) {
-                                thema = seite.substring(pos1, pos2);
-                            }
-                        }
-                        listeVideos.add(new String[]{urlXml, thema});
-                    }
-                }
+            seite.extractList(MUSTER_URL, "\"", 0, "http://www.kika.de/videos/allevideos/allevideos-buendelgruppen100_page-", liste1);
+            for (String s1 : liste1) {
+                seite = getUrlIo.getUri_Utf(sendername, s1, seite, "KiKa-Sendungen");
+                seite.extractList("<div class=\"media mediaA\">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste2);
+            }
+            for (String s2 : liste2) {
+                listeVideos.add(new String[]{s2});
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(732120256,   ex);
+            MSLog.fehlerMeldung(732120256, ex);
         }
     }
 
@@ -138,6 +116,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
         private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");//2014-12-12T09:45:00.000+0100
         private final SimpleDateFormat sdfOutTime = new SimpleDateFormat("HH:mm:ss");
         private final SimpleDateFormat sdfOutDay = new SimpleDateFormat("dd.MM.yyyy");
@@ -153,10 +132,10 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 }
                 while (!MSConfig.getStop() && (link = listeVideos.getListeThemen()) != null) {
                     meldungProgress(link[0]);
-                    ladenXml(link[0] /* url */, link[1] /*thema*/, true /*nur neue URLs*/);
+                    loadAllVideo(link[0] /* url */);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(915236791,   ex);
+                MSLog.fehlerMeldung(915236791, ex);
             }
             meldungThreadUndFertig();
         }
@@ -168,11 +147,11 @@ public class MediathekKika extends MediathekReader implements Runnable {
             thema = thema.replace("KiKA -", "").trim();
             int pos = 0;
 
-            while ((pos = seite1.indexOf(MUSTER, pos)) != -1) {
+            while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER, pos)) != -1) {
                 pos += MUSTER.length();
                 String xml = seite1.extract("setup({dataURL:'", "'", pos);
                 if (xml.isEmpty()) {
-                    MSLog.fehlerMeldung(701025987,   "keine XML: " + filmWebsite);
+                    MSLog.fehlerMeldung(701025987, "keine XML: " + filmWebsite);
                 } else {
                     xml = "http://www.kika.de/" + xml;
                     ladenXml(xml, thema, false /*alle*/);
@@ -180,44 +159,86 @@ public class MediathekKika extends MediathekReader implements Runnable {
             }
         }
 
+        void loadAllVideo(String url) {
+            ArrayList<String> liste = new ArrayList<>();
+            try {
+                seite2 = getUrlIo.getUri_Utf(sendername, url, seite2, "KiKa-Sendungen");
+                loadAllVideo_(seite2);
+                if (MSConfig.senderAllesLaden) {
+                    seite2.extractList("<div class=\"bundleNaviItem active\">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste);
+                    seite2.extractList("<div class=\"bundleNaviItem \">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste);
+                }
+                for (String u : liste) {
+                    if (MSConfig.getStop()) {
+                        break;
+                    }
+                    seite2 = getUrlIo.getUri_Utf(sendername, u, seite2, "KiKa-Sendungen");
+                    loadAllVideo_(seite2);
+                }
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(825412369, ex);
+            }
+        }
+
+        void loadAllVideo_(MSStringBuilder sStringBuilder) {
+            ArrayList<String> liste = new ArrayList<>();
+            String thema;
+            try {
+                thema = sStringBuilder.extract("<h1 class=\"headline\">Alle Videos von", "<").trim();
+                if (thema.isEmpty()) {
+                    thema = sStringBuilder.extract("<title>KiKA -", "<").trim();
+                }
+
+                sStringBuilder.extractList(".setup({dataURL:'/videos/allevideos/", "'", 0, "http://www.kika.de/videos/allevideos/", liste);
+                for (String s : liste) {
+                    if (MSConfig.getStop()) {
+                        break;
+                    }
+                    ladenXml(s /* url */, thema, true /*nur neue URLs*/);
+                }
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(201036987, ex);
+            }
+        }
+
         void ladenXml(String xmlWebsite, String thema, boolean urlPruefen) {
-            seite2 = getUrlIo.getUri_Utf(sendername, xmlWebsite, seite2, xmlWebsite);
+            seite3 = getUrlIo.getUri_Utf(sendername, xmlWebsite, seite3, xmlWebsite);
             if (thema.isEmpty()) {
                 thema = sendername;
             }
-            String titel = seite2.extract("<title>", "<");
+            String titel = seite3.extract("<title>", "<");
             if (titel.toLowerCase().equals(thema.toLowerCase())) {
-                titel = seite2.extract("<headline>", "<");
+                titel = seite3.extract("<headline>", "<");
             }
             if (titel.toLowerCase().equals(thema.toLowerCase())) {
-                titel = seite2.extract("<topline>", "<");
+                titel = seite3.extract("<topline>", "<");
                 if (titel.isEmpty()) {
                     // dann bleibts dabei
-                    titel = seite2.extract("<title>", "<");
+                    titel = seite3.extract("<title>", "<");
                 }
             }
-            String beschreibung = seite2.extract("<broadcastDescription>", "<");
-            String date = seite2.extract("<broadcastDate>", "<");
+            String beschreibung = seite3.extract("<broadcastDescription>", "<");
+            String date = seite3.extract("<broadcastDate>", "<");
             String datum = "";
             String zeit = "";
             if (!date.isEmpty()) {
                 datum = convertDatum(date);
                 zeit = convertTime(date);
             } else {
-                date = seite2.extract("<webTime>", "<"); // <webTime>08.12.2014 13:16</webTime>
+                date = seite3.extract("<webTime>", "<"); // <webTime>08.12.2014 13:16</webTime>
                 if (!date.isEmpty()) {
                     datum = date.substring(0, date.indexOf(" ")).trim();
                     zeit = date.substring(date.indexOf(" ")).trim() + ":00";
                 }
             }
-            String urlSendung = seite2.extract("<broadcastURL>", "<");
+            String urlSendung = seite3.extract("<broadcastURL>", "<");
             if (urlSendung.isEmpty()) {
-                urlSendung = seite2.extract("<htmlUrl>", "<");
+                urlSendung = seite3.extract("<htmlUrl>", "<");
             }
             long duration = 0;
             try {
                 //<duration>00:03:07</duration>
-                String dauer = seite2.extract("<duration>", "<");
+                String dauer = seite3.extract("<duration>", "<");
                 if (!dauer.equals("")) {
                     String[] parts = dauer.split(":");
                     long power = 1;
@@ -227,16 +248,16 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     }
                 }
             } catch (NumberFormatException ex) {
-                MSLog.fehlerMeldung(201036547,   ex, xmlWebsite);
+                MSLog.fehlerMeldung(201036547, ex, xmlWebsite);
             }
             // Film-URLs suchen
             final String MUSTER_URL_MP4 = "<progressiveDownloadUrl>";
-            String urlHD = seite2.extract("| MP4 Web XL |", MUSTER_URL_MP4, "<");
-            String urlMp4 = seite2.extract("| MP4 Web L |", MUSTER_URL_MP4, "<");
+            String urlHD = seite3.extract("| MP4 Web XL |", MUSTER_URL_MP4, "<");
+            String urlMp4 = seite3.extract("| MP4 Web L |", MUSTER_URL_MP4, "<");
             if (urlMp4.isEmpty()) {
-                urlMp4 = seite2.extract("| MP4 Web L+ |", MUSTER_URL_MP4, "<");
+                urlMp4 = seite3.extract("| MP4 Web L+ |", MUSTER_URL_MP4, "<");
             }
-            String urlMp4_klein = seite2.extract("| MP4 Web M |", MUSTER_URL_MP4, "<");
+            String urlMp4_klein = seite3.extract("| MP4 Web M |", MUSTER_URL_MP4, "<");
 
             if (urlMp4.isEmpty()) {
                 urlMp4 = urlMp4_klein;
@@ -244,7 +265,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             }
 
             if (thema.isEmpty() || urlSendung.isEmpty() || titel.isEmpty() || urlMp4.isEmpty() || date.isEmpty() || zeit.isEmpty() || duration == 0 /*|| beschreibung.isEmpty()*/) {
-                MSLog.fehlerMeldung(735216987,  "leer: " + xmlWebsite);
+                MSLog.fehlerMeldung(735216987, "leer: " + xmlWebsite);
             }
 
             if (!urlMp4.equals("")) {
@@ -254,7 +275,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 film.addUrlHd(urlHD, "");
                 addFilm(film, urlPruefen);
             } else {
-                MSLog.fehlerMeldung(963215478,   " xml: " + xmlWebsite);
+                MSLog.fehlerMeldung(963215478, " xml: " + xmlWebsite);
             }
         }
 
@@ -265,7 +286,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(datum);
                 datum = sdfOutDay.format(filmDate);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(731025789,  ex, "Datum: " + datum);
+                MSLog.fehlerMeldung(731025789, ex, "Datum: " + datum);
             }
             return datum;
         }
@@ -277,7 +298,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(zeit);
                 zeit = sdfOutTime.format(filmDate);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(915423687,  ex, "Time: " + zeit);
+                MSLog.fehlerMeldung(915423687, ex, "Time: " + zeit);
             }
             return zeit;
         }
