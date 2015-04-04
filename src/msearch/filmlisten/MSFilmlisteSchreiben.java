@@ -50,19 +50,19 @@ public class MSFilmlisteSchreiben {
     private BZip2CompressorOutputStream bZip2CompressorOutputStream = null;
 
     public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
-        MSLog.systemMeldung("Filme schreiben (" + listeFilme.size() + " Filme) :");
-        File file = new File(datei);
-        File dir = new File(file.getParent());
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                MSLog.fehlerMeldung(915236478,  "Kann den Pfad nicht anlegen: " + dir.toString());
-            }
-        }
-        MSLog.systemMeldung("   --> Start Schreiben nach: " + datei);
+        JsonGenerator jg = null;
         try {
+            MSLog.systemMeldung("Filme schreiben (" + listeFilme.size() + " Filme) :");
+            File file = new File(datei);
+            File dir = new File(file.getParent());
+            if (!dir.exists()) {
+                if (!dir.mkdirs()) {
+                    MSLog.fehlerMeldung(915236478, "Kann den Pfad nicht anlegen: " + dir.toString());
+                }
+            }
+            MSLog.systemMeldung("   --> Start Schreiben nach: " + datei);
             String sender = "", thema = "";
             JsonFactory jsonF = new JsonFactory();
-            JsonGenerator jg;
             if (datei.endsWith(MSConst.FORMAT_XZ)) {
                 LZMA2Options options = new LZMA2Options();
                 XZOutputStream out = new XZOutputStream(new FileOutputStream(file), options);
@@ -122,10 +122,16 @@ public class MSFilmlisteSchreiben {
                 jg.writeEndArray();
             }
             jg.writeEndObject();
-            jg.close();
             MSLog.systemMeldung("   --> geschrieben!");
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(846930145,  ex, "nach: " + datei);
+            MSLog.fehlerMeldung(846930145, ex, "nach: " + datei);
+        } finally {
+            try {
+                if (jg != null) {
+                    jg.close();
+                }
+            } catch (Exception e) {
+            }
         }
     }
 
@@ -136,7 +142,7 @@ public class MSFilmlisteSchreiben {
             xmlSchreibenFilmliste(listeFilme);
             xmlSchreibenEnde(datei);
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(846930145,   ex, "nach: " + datei);
+            MSLog.fehlerMeldung(846930145, ex, "nach: " + datei);
         }
     }
 
@@ -145,7 +151,7 @@ public class MSFilmlisteSchreiben {
         File dir = new File(file.getParent());
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
-                MSLog.fehlerMeldung(947623049,  "Kann den Pfad nicht anlegen: " + dir.toString());
+                MSLog.fehlerMeldung(947623049, "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
         MSLog.systemMeldung("   --> Start Schreiben nach: " + datei);
@@ -186,7 +192,7 @@ public class MSFilmlisteSchreiben {
             writer.writeEndElement();
             writer.writeCharacters("\n");//neue Zeile
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(638214005,  ex);
+            MSLog.fehlerMeldung(638214005, ex);
         }
         // Filme schreiben
         ListIterator<DatenFilm> iterator;

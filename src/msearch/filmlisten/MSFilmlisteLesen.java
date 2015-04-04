@@ -108,8 +108,10 @@ public class MSFilmlisteLesen {
     }
 
     public void readFilmListe(String source, final ListeFilme listeFilme, int days) {
+        MSLog.systemMeldung("Liste Filme lesen von: " + source);
         JsonToken jsonToken;
         String sender = "", thema = "";
+        JsonParser jp = null;
         listeFilme.clear();
         this.notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
 
@@ -122,7 +124,7 @@ public class MSFilmlisteLesen {
 
         try {
             InputStream in = selectDecompressor(source, getInputStreamForLocation(source));
-            JsonParser jp = new JsonFactory().createParser(in);
+            jp = new JsonFactory().createParser(in);
             if (jp.nextToken() != JsonToken.START_OBJECT) {
                 throw new IllegalStateException("Expected data to start with an Object");
             }
@@ -193,11 +195,20 @@ public class MSFilmlisteLesen {
                     }
                 }
             }
+            jp.close();
         } catch (FileNotFoundException ex) {
+            MSLog.fehlerMeldung(894512369, ex, "FilmListe: " + source);
             listeFilme.clear();
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(945123641,  ex, "FilmListe: " + source);
+            MSLog.fehlerMeldung(945123641, ex, "FilmListe: " + source);
             listeFilme.clear();
+        } finally {
+            try {
+                if (jp != null) {
+                    jp.close();
+                }
+            } catch (Exception e) {
+            }
         }
         if (MSConfig.getStop()) {
             listeFilme.clear();
@@ -214,7 +225,7 @@ public class MSFilmlisteLesen {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(495623014,   ex);
+            MSLog.fehlerMeldung(495623014, ex);
         }
         return true;
     }
