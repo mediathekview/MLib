@@ -23,9 +23,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import msearch.daten.DatenFilm;
-import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
+import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSFunktionen;
 import msearch.tool.MSLog;
@@ -51,7 +51,6 @@ public class MediathekHr extends MediathekReader implements Runnable {
      */
     @Override
     public void addToList() {
-        final String MUSTER = "sendEvent('load','";
         meldungStart();
         seite = getUrlIo.getUri_Utf(SENDERNAME, "http://www.hr-online.de/website/fernsehen/sendungen/index.jsp", seite, "");
 
@@ -102,13 +101,11 @@ public class MediathekHr extends MediathekReader implements Runnable {
     }
 
     private void rubrik(String rubrikUrl) {
-        final String RUBRIK_PREFIX = "http://www.hr-online.de/website/fernsehen/sendungen/index.jsp?rubrik=";
         final String MUSTER = "/website/includes/medianew-playlist.xml.jsp?logic=start_multimedia_document_logic_";
         final String MUSTER_TITEL = "<meta property=\"og:title\" content=\"";
 
         rubrikSeite = getUrlIo.getUri_Iso(SENDERNAME, rubrikUrl, rubrikSeite, "");
-        int pos = 0, pos2;
-        String url, thema = "";
+        String url, thema;
 
         // 1. Titel (= Thema) holen
         thema = rubrikSeite.extract(MUSTER_TITEL, "\""); // <meta property="og:title" content="Alle Wetter | Fernsehen | hr-online.de"/>
@@ -125,52 +122,8 @@ public class MediathekHr extends MediathekReader implements Runnable {
                 listeThemen.add(add);
             }
         } else {
-            MSLog.fehlerMeldung(653210697,   "keine URL");
+            MSLog.fehlerMeldung(653210697, "keine URL");
         }
-
-        // gibts scheinbar nicht mehr
-////        // 3. Test: Suchen nach extra-Seite "Videos"
-////        final String MEDIA_MUSTER = "<li class=\"navi\"><a href=\"index.jsp?rubrik=";
-////        String videoUrl = null;
-////        pos = 0;
-////        if ((pos = rubrikSeite.indexOf(MEDIA_MUSTER, pos)) != -1) {
-////            pos += MEDIA_MUSTER.length();
-////            pos2 = rubrikSeite.indexOf("\"", pos);
-////            if (pos2 != -1) {
-////                String key = rubrikSeite.substring(pos, pos2);
-////                pos = pos2;
-////                if (rubrikSeite.substring(pos, pos + 36).equals("\" class=\"navigation\" title=\"Videos\">")) {
-////                    videoUrl = RUBRIK_PREFIX + key;
-////                }
-////            }
-////        }
-////
-////        if (videoUrl == null) {
-////            return;
-////        }
-////
-////        // 4. dort Verweise auf XML Einträge finden
-////        rubrikSeite = getUrlIo.getUri_Iso(SENDERNAME, videoUrl, rubrikSeite, "");
-////        pos = 0;
-////        final String PLAYER_MUSTER = "<a href=\"mediaplayer.jsp?mkey=";
-////        while ((pos = rubrikSeite.indexOf(PLAYER_MUSTER, pos)) != -1) {
-////            pos += PLAYER_MUSTER.length();
-////            pos2 = rubrikSeite.indexOf("&", pos);
-////            if (pos2 != -1) {
-////                url = rubrikSeite.substring(pos, pos2);
-////                if (!url.equals("") && url.matches("[0-9]*")) {
-////                    url = "http://www.hr-online.de/website/includes/medianew.xml.jsp?key=" + url + "&xsl=media2rss-nocopyright.xsl";
-////
-////                    String[] add = new String[]{
-////                        url, thema
-////                    };
-////                    if (!istInListe(listeThemen, url, 0)) {
-////                        listeThemen.add(add);
-////                    }
-////                }
-////                pos = pos2;
-////            }
-////        }
     }
 
     private class ThemaLaden implements Runnable {
@@ -190,7 +143,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                     addFilme(link[0]/*url*/, link[1]/*thema*/, link[2]/*filmsite*/);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(894330854,  ex);
+                MSLog.fehlerMeldung(894330854, ex);
             }
             meldungThreadUndFertig();
         }
@@ -231,7 +184,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                             }
                         }
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(708096931,   "d: " + d);
+                        MSLog.fehlerMeldung(708096931, "d: " + d);
                     }
                     description = seite1.extract(MUSTER_DESCRIPTION, END, posItem1);
                     datum = seite1.extract(MUSTER_DATUM, END, posItem1);
@@ -257,23 +210,26 @@ public class MediathekHr extends MediathekReader implements Runnable {
                         if (datum.equals("")) {
                             datum = getDate(url);
                         }
-                        // DatenFilm(String ssender, String tthema, String urlThema, String ttitel, String uurl, String uurlorg, String uurlRtmp, String datum, String zeit) {
                         //DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, furl, datum, "");
                         DatenFilm film = new DatenFilm(SENDERNAME, thema, filmSite, titel, url, "", datum, zeit, duration, description,
                                 new String[]{});
                         if (!url_low.isEmpty()) {
                             film.addUrlKlein(url_low, "");
                         }
+                        String subtitle = url.replace(".mp4", ".xml");
+                        if (urlExists(subtitle)) {
+                            film.addUrlSubtitle(subtitle);
+                        }
                         addFilm(film);
                     } else {
-                        MSLog.fehlerMeldung(649882036,   "keine URL");
+                        MSLog.fehlerMeldung(649882036, "keine URL");
                     }
                 }
                 if (url.isEmpty()) {
-                    MSLog.fehlerMeldung(761236458,  "keine URL für: " + xmlWebsite);
+                    MSLog.fehlerMeldung(761236458, "keine URL für: " + xmlWebsite);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(487774126,   ex);
+                MSLog.fehlerMeldung(487774126, ex);
             }
         }
 
@@ -291,7 +247,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                 }
             } catch (Exception ex) {
                 ret = "";
-                MSLog.fehlerMeldung(356408790,  "kein Datum");
+                MSLog.fehlerMeldung(356408790, "kein Datum");
             }
             return ret;
         }
