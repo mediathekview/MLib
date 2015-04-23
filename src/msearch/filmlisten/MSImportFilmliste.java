@@ -94,7 +94,7 @@ public class MSImportFilmliste {
                 // nur ein Update laden
                 state = STATE_DIFF;
                 ret = suchenAktListe(listeFilmeDiff);
-                if (listeFilmeDiff.isEmpty()) {
+                if (!ret || listeFilmeDiff.isEmpty()) {
                     // wenn diff, dann nochmal mit einer kompletten Liste versuchen
                     state = STATE_AKT;
                     listeFilme.clear();
@@ -103,7 +103,7 @@ public class MSImportFilmliste {
                 }
             }
             if (!ret /* listeFilme ist schon wieder null -> "FilmeLaden" */) {
-                MSLog.fehlerMeldung(951235497,   "Es konnten keine Filme geladen werden!");
+                MSLog.fehlerMeldung(951235497, "Es konnten keine Filme geladen werden!");
             }
             fertigMelden(ret);
         }
@@ -127,7 +127,8 @@ public class MSImportFilmliste {
             }
 
             // 5 mal mit einem anderen Server probieren, wenns nicht klappt
-            for (int i = 0; i < 5; ++i) {
+            int max = state == STATE_DIFF ? 2 : 5; //bei diff nur 2x probieren, dann eine akt-liste laden
+            for (int i = 0; i < max; ++i) {
                 switch (state) {
                     case STATE_AKT:
                         ret = urlLaden(updateUrl, liste, days);
@@ -215,7 +216,7 @@ public class MSImportFilmliste {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(965412378,  ex);
+            MSLog.fehlerMeldung(965412378, ex);
         }
         return ret;
 
