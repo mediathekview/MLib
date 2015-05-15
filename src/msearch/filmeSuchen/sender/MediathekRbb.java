@@ -61,7 +61,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 listeThemen.addUrl(new String[]{s});
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(398214058,   ex);
+            MSLog.fehlerMeldung(398214058, ex);
         }
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
@@ -108,7 +108,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(794625882,   ex);
+                MSLog.fehlerMeldung(794625882, ex);
             }
             meldungThreadUndFertig();
         }
@@ -131,7 +131,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         urlSeite = "http://mediathek.rbb-online.de/tv/" + urlSeite;
                         addFilme(urlSeite);
                     } else {
-                        MSLog.fehlerMeldung(751203697,   "keine URL für: " + urlSeite);
+                        MSLog.fehlerMeldung(751203697, "keine URL für: " + urlSeite);
                     }
                 }
 
@@ -152,7 +152,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         urlSeite = "http://mediathek.rbb-online.de/tv/" + urlSeite;
                         addFilme(urlSeite);
                     } else {
-                        MSLog.fehlerMeldung(751203697,  "keine URL für: " + url);
+                        MSLog.fehlerMeldung(751203697, "keine URL für: " + url);
                     }
                 }
 
@@ -166,7 +166,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(541236987,   ex);
+                MSLog.fehlerMeldung(541236987, ex);
             }
         }
 
@@ -182,7 +182,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     try {
                         duration = Long.parseLong(durationInSeconds);
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(200145787,   ex);
+                        MSLog.fehlerMeldung(200145787, ex);
                         duration = 0;
                     }
                 }
@@ -215,23 +215,33 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         urlLow = "";
                     }
                 }
+
+                // ,"_subtitleUrl":"/subtitle/19088","_subtitleOffset":0,
+                // http://mediathek.rbb-online.de/subtitle/19088
+                String subtitle = seite3.extract("subtitleUrl\":\"", "\"");
+                if (!subtitle.isEmpty()) {
+                    subtitle = "http://mediathek.rbb-online.de" + subtitle;
+                }
                 if (datum.isEmpty() || zeit.isEmpty() || thema.isEmpty() || title.isEmpty() || description.isEmpty() || durationInSeconds.isEmpty()) {
-                    MSLog.fehlerMeldung(912012036,   "empty für: " + urlSeite);
+                    MSLog.fehlerMeldung(912012036, "empty für: " + urlSeite);
                 }
                 if (!urlNormal.isEmpty()) {
                     urlNormal = "http://" + urlNormal;
                     DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSeite, title, urlNormal, "" /*urlRtmp*/,
-                            datum, zeit/* zeit */, duration, description,  new String[]{""});
+                            datum, zeit/* zeit */, duration, description, new String[]{""});
                     addFilm(film);
                     if (!urlLow.isEmpty()) {
                         urlLow = "http://" + urlLow;
                         film.addUrlKlein(urlLow, "");
                     }
+                    if (!subtitle.isEmpty()){
+                        film.addUrlSubtitle(subtitle);
+                    }
                 } else {
-                    MSLog.fehlerMeldung(302014569,  "keine URL für: " + urlSeite);
+                    MSLog.fehlerMeldung(302014569, "keine URL für: " + urlSeite);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(541236987,   ex);
+                MSLog.fehlerMeldung(541236987, ex);
             }
         }
 
