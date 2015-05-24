@@ -55,7 +55,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             warten(2 * 60 /*Sekunden*/);
             seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
             if (seite.length() == 0) {
-                MSLog.fehlerMeldung(104689736,   "wieder nichts gefunden");
+                MSLog.fehlerMeldung(104689736, "wieder nichts gefunden");
             }
         }
         int pos = 0;
@@ -76,7 +76,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 url = "http://www.ardmediathek.de/tv/sendungen-a-z?buchstabe=" + url;
                 feedSuchen1(url);
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(698732167,  ex, "kein Thema");
+                MSLog.fehlerMeldung(698732167, ex, "kein Thema");
             }
         }
         if (MSConfig.getStop()) {
@@ -123,7 +123,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 String[] add = new String[]{url, thema};
                 listeThemen.addUrl(add);
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(732154698,  ex, "Weitere Seiten suchen");
+                MSLog.fehlerMeldung(732154698, ex, "Weitere Seiten suchen");
             }
         }
     }
@@ -136,7 +136,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             long warten = i * 1000;
             this.wait(warten);
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(369502367,   ex, "2. Versuch");
+            MSLog.fehlerMeldung(369502367, ex, "2. Versuch");
         }
     }
 
@@ -158,7 +158,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     filmSuchen1(link[0] /* url */, link[1], true);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(487326921,   ex);
+                MSLog.fehlerMeldung(487326921, ex);
             }
             meldungThreadUndFertig();
         }
@@ -168,7 +168,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             final String MUSTER_START = "Videos und Audios der Sendung";
             seite1 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite1, "");
             if (seite1.length() == 0) {
-                MSLog.fehlerMeldung(765323214,   "Leere Seite: " + strUrlFeed);
+                MSLog.fehlerMeldung(765323214, "Leere Seite: " + strUrlFeed);
                 return;
             }
             int pos = 0;
@@ -183,7 +183,10 @@ public class MediathekArd extends MediathekReader implements Runnable {
             while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER, pos)) != -1) {
                 ++count;
                 if (!MSConfig.senderAllesLaden) {
-                    if (count > 5 && !thema.equalsIgnoreCase("FIFA WM 2014")) {
+//                    if (thema.equalsIgnoreCase("Eurovision Song Contest 2015")){
+//                        System.out.println("Treffer");
+//                    }
+                    if (count > 5 && !thema.equalsIgnoreCase("Eurovision Song Contest 2015")) {
                         break;
                     }
                 }
@@ -220,10 +223,13 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 }
                 filmSuchen2(url, thema, titel, d, datum, zeit, urlSendung);
             }
-            if (weiter && MSConfig.senderAllesLaden || weiter && thema.equalsIgnoreCase("FIFA WM 2014")) {
+            if (weiter && MSConfig.senderAllesLaden || weiter && thema.equalsIgnoreCase("Eurovision Song Contest 2015")) {
                 // dann gehts weiter
                 int maxWeiter = 0;
                 int maxTh = 10;
+                if (thema.equalsIgnoreCase("Eurovision Song Contest 2015")) {
+                    maxTh = 20;
+                }
                 String urlWeiter = strUrlFeed + "&mcontents=page.";
                 for (int i = 2; i < maxTh; ++i) {
                     ///tv/Abendschau/Sendung?documentId=14913430&amp;bcastId=14913430&amp;mcontents=page.2"
@@ -251,7 +257,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 meldung(urlFilm);
                 seite2 = getUrl.getUri_Utf(SENDERNAME, urlFilm, seite2, "");
                 if (seite2.length() == 0) {
-                    MSLog.fehlerMeldung(915263621,  "Leere Seite: " + urlFilm);
+                    MSLog.fehlerMeldung(915263621, "Leere Seite: " + urlFilm);
                     return;
                 }
                 String url = "", urlMid = "", urlKl = "", urlHD = "";
@@ -320,17 +326,17 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     }
                     addFilm(f);
                 } else {
-                    MSLog.fehlerMeldung(784512369,   "keine URL: " + urlFilm);
+                    MSLog.fehlerMeldung(784512369, "keine URL: " + urlFilm);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(762139874,   ex);
+                MSLog.fehlerMeldung(762139874, ex);
             }
         }
 
         private String beschreibung(String strUrlFeed) {
             seite3 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite3, "");
             if (seite3.length() == 0) {
-                MSLog.fehlerMeldung(784512036,   "Leere Seite: " + strUrlFeed);
+                MSLog.fehlerMeldung(784512036, "Leere Seite: " + strUrlFeed);
                 return "";
             }
             return seite3.extract("<p class=\"subtitle\">", "<p class=\"teasertext\">", "<");
