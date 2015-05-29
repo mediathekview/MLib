@@ -19,10 +19,10 @@
  */
 package msearch;
 
+import msearch.gui.MSearchGui;
 import msearch.tool.MSLog;
 
 public class Main {
-
 
     /**
      * @param args the command line arguments
@@ -32,12 +32,10 @@ public class Main {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
+                MSLog.versionsMeldungen();
                 if (args != null) {
                     for (String s : args) {
-                        if (s.equalsIgnoreCase("-v")) {
-                            MSLog.versionsMeldungen();
-                            System.exit(0);
-                        } else if (s.equalsIgnoreCase("-gui")) {
+                        if (s.equalsIgnoreCase("-gui")) {
                             MSLog.versionsMeldungen();
                             new MSearchGui(args).setVisible(true);
                         }

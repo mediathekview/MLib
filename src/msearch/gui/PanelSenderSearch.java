@@ -24,18 +24,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import msearch.MSearchGui;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import msearch.tool.MSConfig;
 
-public class PanelSenderLaden extends JPanel {
+public class PanelSenderSearch extends JPanel {
 
     private JButton[] buttonSender;
     private final String[] senderArray;
-    private FilmeLaden filmeLaden;
+    private final MSearchGuiLoad filmeLaden;
 
-    public PanelSenderLaden(FilmeLaden filmeLaden_) {
+    public PanelSenderSearch(MSearchGuiLoad filmeLaden_) {
         super();
         initComponents();
         filmeLaden = filmeLaden_;

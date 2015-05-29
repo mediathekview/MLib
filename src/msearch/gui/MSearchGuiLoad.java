@@ -21,13 +21,12 @@ package msearch.gui;
 
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
-import msearch.MSearchGui;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import msearch.tool.MSConfig;
 
-public class FilmeLaden {
+public class MSearchGuiLoad {
 
 
     private enum ListenerMelden {
@@ -38,7 +37,7 @@ public class FilmeLaden {
     private final EventListenerList listeners = new EventListenerList();
     private boolean istAmLaufen = false;
 
-    public FilmeLaden() {
+    public MSearchGuiLoad() {
         msFilmeSuchen = new MSFilmeSuchen();
         msFilmeSuchen.addAdListener(new MSListenerFilmeLaden() {
             @Override

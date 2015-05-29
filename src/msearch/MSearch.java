@@ -43,7 +43,7 @@ public class MSearch implements Runnable {
     public synchronized void run() {
         // für den MServer
         serverLaufen = true;
-        MSConfig.setStop(false);//damits vom letzten mal stoppen nicht mehr gesetzt ist
+        MSConfig.setStop(false);//damits vom letzten mal stoppen nicht mehr gesetzt ist, falls es einen harten Abbruch gab
         if (MSConfig.dirFilme.isEmpty()) {
             MSLog.systemMeldung("Kein Pfad der Filmlisten angegeben");
             System.exit(-1);
@@ -77,7 +77,8 @@ public class MSearch implements Runnable {
     }
 
     private void undTschuess() {
-        listeFilme = msFilmeSuchen.getErgebnis();
+        MSConfig.setStop(false); // zurücksetzen!! sonst klappt das Lesen der Importlisten nicht!!!!!
+        listeFilme = msFilmeSuchen.listeFilmeNeu;
         ListeFilme tmpListe = new ListeFilme();
 
         //================================================

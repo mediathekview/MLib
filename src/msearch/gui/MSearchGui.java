@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package msearch;
+package msearch.gui;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -35,8 +35,8 @@ import msearch.daten.ListeFilme;
 import msearch.filmlisten.MSFilmlisteLesen;
 import msearch.filmlisten.WriteFilmlistJson;
 import msearch.filmlisten.WriteFilmlistXML;
-import msearch.gui.FilmeLaden;
-import msearch.gui.PanelSenderLaden;
+import msearch.gui.MSearchGuiLoad;
+import msearch.gui.PanelSenderSearch;
 import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
@@ -45,7 +45,7 @@ public final class MSearchGui extends javax.swing.JFrame {
 
     String pfad = "";
     public static ListeFilme listeFilme;
-    private FilmeLaden filmeLaden;
+    private MSearchGuiLoad filmeLaden;
     private final JButton[] buttonSender;
     private final String[] sender;
 
@@ -56,7 +56,7 @@ public final class MSearchGui extends javax.swing.JFrame {
         }
         MSConfig.debug = true; // ist nur zum Debug
         listeFilme = new ListeFilme();
-        filmeLaden = new FilmeLaden();
+        filmeLaden = new MSearchGuiLoad();
         if (pfad.isEmpty()) {
             jTextFieldFilmliste.setText(System.getProperty("user.home") + File.separator + ".mediathek3" + File.separator + "filme.json");
             jTextFieldFilmlisteXml.setText(System.getProperty("user.home") + File.separator + ".mediathek3" + File.separator + "filme.xml");
@@ -128,7 +128,7 @@ public final class MSearchGui extends javax.swing.JFrame {
 
         // Tab Sender laden
         jPanelSenderLaden.setLayout(new BorderLayout());
-        jPanelSenderLaden.add(new PanelSenderLaden(filmeLaden), BorderLayout.CENTER);
+        jPanelSenderLaden.add(new PanelSenderSearch(filmeLaden), BorderLayout.CENTER);
 
         // Tab Sender löschen
         sender = filmeLaden.getSenderNamen();
@@ -197,16 +197,16 @@ public final class MSearchGui extends javax.swing.JFrame {
     }
 
     private void addSender() {
-        jPanelSenderLoeschen.removeAll();
-        jPanelSenderLoeschen.setLayout(new GridLayout(0, 5));
+        jPanelSenderDelete.removeAll();
+        jPanelSenderDelete.setLayout(new GridLayout(0, 5));
         int nr = 0;
         for (String aSender : sender) {
             JButton btn = buttonSender[nr];
             btn.setText(aSender);
-            jPanelSenderLoeschen.add(btn);
+            jPanelSenderDelete.add(btn);
             ++nr;
         }
-        jPanelSenderLoeschen.repaint();
+        jPanelSenderDelete.repaint();
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -221,7 +221,7 @@ public final class MSearchGui extends javax.swing.JFrame {
         jToggleButtonSetAlles = new javax.swing.JToggleButton();
         jToggleButtonUpdate = new javax.swing.JToggleButton();
         jPanelLoeschen = new javax.swing.JPanel();
-        jPanelSenderLoeschen = new javax.swing.JPanel();
+        jPanelSenderDelete = new javax.swing.JPanel();
         jPanelTool = new javax.swing.JPanel();
         jButtonCheck = new javax.swing.JButton();
         jButtonGc = new javax.swing.JButton();
@@ -295,14 +295,14 @@ public final class MSearchGui extends javax.swing.JFrame {
 
         jTabbedPane.addTab("Suchen", jPanelSuchen);
 
-        javax.swing.GroupLayout jPanelSenderLoeschenLayout = new javax.swing.GroupLayout(jPanelSenderLoeschen);
-        jPanelSenderLoeschen.setLayout(jPanelSenderLoeschenLayout);
-        jPanelSenderLoeschenLayout.setHorizontalGroup(
-            jPanelSenderLoeschenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout jPanelSenderDeleteLayout = new javax.swing.GroupLayout(jPanelSenderDelete);
+        jPanelSenderDelete.setLayout(jPanelSenderDeleteLayout);
+        jPanelSenderDeleteLayout.setHorizontalGroup(
+            jPanelSenderDeleteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 100, Short.MAX_VALUE)
         );
-        jPanelSenderLoeschenLayout.setVerticalGroup(
-            jPanelSenderLoeschenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        jPanelSenderDeleteLayout.setVerticalGroup(
+            jPanelSenderDeleteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
@@ -312,14 +312,14 @@ public final class MSearchGui extends javax.swing.JFrame {
             jPanelLoeschenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelLoeschenLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanelSenderLoeschen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanelSenderDelete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(681, Short.MAX_VALUE))
         );
         jPanelLoeschenLayout.setVerticalGroup(
             jPanelLoeschenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelLoeschenLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanelSenderLoeschen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanelSenderDelete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(363, Short.MAX_VALUE))
         );
 
@@ -468,8 +468,8 @@ public final class MSearchGui extends javax.swing.JFrame {
     public static javax.swing.JLabel jLabelAnzahl;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanelLoeschen;
+    private javax.swing.JPanel jPanelSenderDelete;
     private javax.swing.JPanel jPanelSenderLaden;
-    private javax.swing.JPanel jPanelSenderLoeschen;
     private javax.swing.JPanel jPanelSuchen;
     private javax.swing.JPanel jPanelTool;
     private javax.swing.JTabbedPane jTabbedPane;

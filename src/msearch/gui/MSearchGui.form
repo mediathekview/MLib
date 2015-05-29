@@ -214,7 +214,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jPanelSenderLoeschen" min="-2" max="-2" attributes="0"/>
+                          <Component id="jPanelSenderDelete" min="-2" max="-2" attributes="0"/>
                           <EmptySpace pref="681" max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -223,14 +223,14 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jPanelSenderLoeschen" min="-2" max="-2" attributes="0"/>
+                          <Component id="jPanelSenderDelete" min="-2" max="-2" attributes="0"/>
                           <EmptySpace pref="363" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Container class="javax.swing.JPanel" name="jPanelSenderLoeschen">
+                <Container class="javax.swing.JPanel" name="jPanelSenderDelete">
 
                   <Layout>
                     <DimensionLayout dim="0">

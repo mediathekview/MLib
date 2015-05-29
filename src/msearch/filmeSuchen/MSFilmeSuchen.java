@@ -51,6 +51,15 @@ import msearch.tool.MSConfig;
 import msearch.tool.MSFileSize;
 import msearch.tool.MSLog;
 
+/**
+ * ###########################################################################################################
+ * Ablauf:
+ * die gefundenen Filme kommen in die "listeFilme"
+ * -> bei einem vollen Suchlauf: passiert nichts weiter
+ * -> bei einem Update: "listeFilme" mit alter Filmliste auffüllen, URLs die es schon gibt werden verworfen
+ * "listeFilme" ist dann die neue komplette Liste mit Filmen
+ * ##########################################################################################################
+ */
 public class MSFilmeSuchen {
 
     public ListeFilme listeFilmeNeu; // neu angelegte Liste und da kommen die neu gesuchten Filme rein
@@ -72,15 +81,6 @@ public class MSFilmeSuchen {
     private int anzFilme = 0; // Anzahl gesuchter Filme
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
-    /**
-     * ###########################################################################################################
-     * Ablauf:
-     * die gefundenen Filme kommen in die "listeFilme"
-     * -> bei einem vollen Suchlauf: passiert nichts weiter
-     * -> bei einem Update: "listeFilme" mit alter Filmliste auffüllen, URLs die es schon gibt werden verworfen
-     * "listeFilme" ist dann die neue komplette Liste mit Filmen
-     * ##########################################################################################################
-     */
     public MSFilmeSuchen() {
         //Reader laden Spaltenweises Laden
         mediathekListe.add(new MediathekArd(this, 0));
@@ -155,7 +155,7 @@ public class MSFilmeSuchen {
     }
 
     /**
-     * es wird nur einige Sender aktualisiert
+     * es werden nur einige Sender aktualisiert
      *
      * @param nameSender
      * @param listeFilme
@@ -177,32 +177,6 @@ public class MSFilmeSuchen {
             // dann fertig
             meldenFertig("");
         }
-    }
-
-    private String getThreads(String sender) {
-        // liefert die Anzahl Threads des Senders
-        try {
-            for (MediathekReader aMediathekListe : mediathekListe) {
-                if (aMediathekListe.getNameSender().equals(sender)) {
-                    return String.valueOf(aMediathekListe.getThreads());
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return "";
-    }
-
-    private String getWaitTime(String sender) {
-        // liefert die Wartezeit beim Seitenladen des Senders
-        try {
-            for (MediathekReader aMediathekListe : mediathekListe) {
-                if (aMediathekListe.getNameSender().equals(sender)) {
-                    return String.valueOf(aMediathekListe.getWaitTime());
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return "";
     }
 
     public synchronized void melden(String sender, int max, int progress, String text) {
@@ -285,6 +259,7 @@ public class MSFilmeSuchen {
             //nur ein Sender fertig oder noch nicht alle gestartet
             notifyProgress(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
         } else {
+            // alles fertig
             // wird einmal aufgerufen, wenn alle Sender fertig sind
             if (MSConfig.getStop()) {
                 // Abbruch melden
@@ -299,7 +274,6 @@ public class MSFilmeSuchen {
                 MSLog.systemMeldung("*************************************************************************************");
                 MSLog.systemMeldung("                                                                                     ");
                 MSLog.systemMeldung("                                                                                     ");
-                MSConfig.setStop(false); // zurücksetzen!! sonst klappt das Lesen der Importlisten nciht!!!!!1
             }
             anzFilme = listeFilmeNeu.size();
             if (MSConfig.updateFilmliste) {
@@ -317,36 +291,6 @@ public class MSFilmeSuchen {
                 MSLog.systemMeldung(s);
             }
             notifyFertig(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
-        }
-    }
-
-    public ListeFilme getErgebnis() {
-        return listeFilmeNeu;
-    }
-
-    //===================================
-    // private
-    //===================================
-    private synchronized void mrStarten(int prio) {
-        // Prio 0 laden
-        for (MediathekReader mr : mediathekListe) {
-            if (mr.getStartPrio() == prio) {
-                new Thread(mr).start();
-            }
-        }
-    }
-
-    private synchronized void mrWarten() {
-        // 4 Minuten warten, alle 10 Sekunden auf STOP prüfen
-        try {
-            for (int i = 0; i < 4 * 60; ++i) {
-                if (MSConfig.getStop()) {
-                    break;
-                }
-                this.wait(1000); // warten, Sender nach der Gesamtlaufzeit starten
-            }
-        } catch (Exception ex) {
-            MSLog.fehlerMeldung(978754213, ex);
         }
     }
 
@@ -417,6 +361,55 @@ public class MSFilmeSuchen {
         retArray.add("=================================================================================");
         retArray.add("=================================================================================");
         return retArray;
+    }
+
+    private String getThreads(String sender) {
+        // liefert die Anzahl Threads des Senders
+        try {
+            for (MediathekReader aMediathekListe : mediathekListe) {
+                if (aMediathekListe.getNameSender().equals(sender)) {
+                    return String.valueOf(aMediathekListe.getThreads());
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return "";
+    }
+
+    private String getWaitTime(String sender) {
+        // liefert die Wartezeit beim Seitenladen des Senders
+        try {
+            for (MediathekReader aMediathekListe : mediathekListe) {
+                if (aMediathekListe.getNameSender().equals(sender)) {
+                    return String.valueOf(aMediathekListe.getWaitTime());
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return "";
+    }
+
+    private synchronized void mrStarten(int prio) {
+        // Prio 0 laden
+        for (MediathekReader mr : mediathekListe) {
+            if (mr.getStartPrio() == prio) {
+                new Thread(mr).start();
+            }
+        }
+    }
+
+    private synchronized void mrWarten() {
+        // 4 Minuten warten, alle 10 Sekunden auf STOP prüfen
+        try {
+            for (int i = 0; i < 4 * 60; ++i) {
+                if (MSConfig.getStop()) {
+                    break;
+                }
+                this.wait(1000); // warten, Sender nach der Gesamtlaufzeit starten
+            }
+        } catch (Exception ex) {
+            MSLog.fehlerMeldung(978754213, ex);
+        }
     }
 
     private int getDauerSekunden() {
