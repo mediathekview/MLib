@@ -286,6 +286,21 @@ public class MSFilmeSuchen {
             notifyProgress(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
         } else {
             // wird einmal aufgerufen, wenn alle Sender fertig sind
+            if (MSConfig.getStop()) {
+                // Abbruch melden
+                MSLog.systemMeldung("                                                                                     ");
+                MSLog.systemMeldung("                                                                                     ");
+                MSLog.systemMeldung("*************************************************************************************");
+                MSLog.systemMeldung("*************************************************************************************");
+                MSLog.systemMeldung("*************************************************************************************");
+                MSLog.systemMeldung("     ----- Abbruch -----                                                             ");
+                MSLog.systemMeldung("*************************************************************************************");
+                MSLog.systemMeldung("*************************************************************************************");
+                MSLog.systemMeldung("*************************************************************************************");
+                MSLog.systemMeldung("                                                                                     ");
+                MSLog.systemMeldung("                                                                                     ");
+                MSConfig.setStop(false); // zurücksetzen!! sonst klappt das Lesen der Importlisten nciht!!!!!1
+            }
             anzFilme = listeFilmeNeu.size();
             if (MSConfig.updateFilmliste) {
                 // alte Filme eintragen wenn angefordert oder nur ein update gesucht wurde
@@ -296,6 +311,7 @@ public class MSFilmeSuchen {
             // FilmlisteMetaDaten
             listeFilmeNeu.writeMetaData();
             stopZeit = new Date(System.currentTimeMillis());
+
             ArrayList<String> ret = endeMeldung();
             for (String s : ret) {
                 MSLog.systemMeldung(s);
@@ -330,7 +346,7 @@ public class MSFilmeSuchen {
                 this.wait(1000); // warten, Sender nach der Gesamtlaufzeit starten
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(978754213,  ex);
+            MSLog.fehlerMeldung(978754213, ex);
         }
     }
 
@@ -338,18 +354,6 @@ public class MSFilmeSuchen {
         // wird einmal aufgerufen, wenn alle Sender fertig sind
         ArrayList<String> retArray = new ArrayList<>();
         String zeile;
-        if (MSConfig.getStop()) {
-            // Abbruch melden
-            retArray.add("                                                                                     ");
-            retArray.add("                                                                                     ");
-            retArray.add("*************************************************************************************");
-            retArray.add("*************************************************************************************");
-            retArray.add("     ----- Abbruch -----                                                             ");
-            retArray.add("*************************************************************************************");
-            retArray.add("*************************************************************************************");
-            retArray.add("                                                                                     ");
-            retArray.add("                                                                                     ");
-        }
         // Sender ===============================================
         // ======================================================
         retArray.add("");

@@ -24,7 +24,8 @@ import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import msearch.filmlisten.MSFilmlisteLesen;
-import msearch.filmlisten.MSFilmlisteSchreiben;
+import msearch.filmlisten.WriteFilmlistJson;
+import msearch.filmlisten.WriteFilmlistXML;
 import msearch.tool.MSConfig;
 import msearch.tool.MSLog;
 
@@ -42,6 +43,7 @@ public class MSearch implements Runnable {
     public synchronized void run() {
         // für den MServer
         serverLaufen = true;
+        MSConfig.setStop(false);//damits vom letzten mal stoppen nicht mehr gesetzt ist
         if (MSConfig.dirFilme.isEmpty()) {
             MSLog.systemMeldung("Kein Pfad der Filmlisten angegeben");
             System.exit(-1);
@@ -117,10 +119,10 @@ public class MSearch implements Runnable {
         //================================================
         // Filmliste schreiben, normal, xz und bz2 komprimiert
         MSLog.systemMeldung("");
-        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt(false /*aktDate*/), listeFilme);
-        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt(true /*aktDate*/), listeFilme);
-        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt_xz(), listeFilme);
-        new MSFilmlisteSchreiben().filmlisteSchreibenXml(MSConfig.getPathFilmlist_xml_bz2(), listeFilme);
+        new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt(false /*aktDate*/), listeFilme);
+        new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt(true /*aktDate*/), listeFilme);
+        new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt_xz(), listeFilme);
+        new WriteFilmlistXML().filmlisteSchreibenXml(MSConfig.getPathFilmlist_xml_bz2(), listeFilme);
 
         //================================================
         // Org-Diff
@@ -132,8 +134,8 @@ public class MSearch implements Runnable {
             MSLog.systemMeldung("============================================================================");
             MSLog.systemMeldung("Org-Lilste");
             MSLog.systemMeldung("  --> ersellen: " + MSConfig.getPathFilmlist_json_org());
-            new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_org(), listeFilme);
-            new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_org_xz(), listeFilme);
+            new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_org(), listeFilme);
+            new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_org_xz(), listeFilme);
         }
 
         //====================================================
@@ -157,8 +159,8 @@ public class MSearch implements Runnable {
             // nur dann macht die Arbeit sinn
             diff = listeFilme.neueFilme(tmpListe);
         }
-        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff(), diff);
-        new MSFilmlisteSchreiben().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff_xz(), diff);
+        new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff(), diff);
+        new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff_xz(), diff);
         MSLog.systemMeldung("   --> Anz. Filme Diff: " + diff.size());
 
         //================================================

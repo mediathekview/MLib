@@ -33,7 +33,8 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import msearch.daten.ListeFilme;
 import msearch.filmlisten.MSFilmlisteLesen;
-import msearch.filmlisten.MSFilmlisteSchreiben;
+import msearch.filmlisten.WriteFilmlistJson;
+import msearch.filmlisten.WriteFilmlistXML;
 import msearch.gui.FilmeLaden;
 import msearch.gui.PanelSenderLaden;
 import msearch.tool.MSConfig;
@@ -106,7 +107,7 @@ public final class MSearchGui extends javax.swing.JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                new MSFilmlisteSchreiben().filmlisteSchreibenJson(jTextFieldFilmliste.getText(), listeFilme);
+                new WriteFilmlistJson().filmlisteSchreibenJson(jTextFieldFilmliste.getText(), listeFilme);
             }
         });
         jButtonFilmliste.addActionListener(new BeobPfad());
@@ -114,7 +115,7 @@ public final class MSearchGui extends javax.swing.JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                new MSFilmlisteSchreiben().filmlisteSchreibenXml(jTextFieldFilmlisteXml.getText(), listeFilme);
+                new WriteFilmlistXML().filmlisteSchreibenXml(jTextFieldFilmlisteXml.getText(), listeFilme);
             }
         });
         jButtonFilmlisteXml.addActionListener(new BeobPfadXml());
@@ -152,7 +153,7 @@ public final class MSearchGui extends javax.swing.JFrame {
                 File dir = new File(file.getParent());
                 if (!dir.exists()) {
                     if (!dir.mkdirs()) {
-                        MSLog.fehlerMeldung(632012165,  "Kann den Pfad nicht anlegen: " + dir.toString());
+                        MSLog.fehlerMeldung(632012165, "Kann den Pfad nicht anlegen: " + dir.toString());
                     }
                 }
 
