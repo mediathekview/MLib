@@ -186,7 +186,8 @@ public class MediathekArd extends MediathekReader implements Runnable {
 //                    if (thema.equalsIgnoreCase("Eurovision Song Contest 2015")){
 //                        System.out.println("Treffer");
 //                    }
-                    if (count > 5 && !thema.equalsIgnoreCase("Eurovision Song Contest 2015")) {
+                    if (count > 5 && !thema.equalsIgnoreCase("Eurovision Song Contest 2015")
+                            && !thema.equalsIgnoreCase("alpha-Centauri")) {
                         break;
                     }
                 }
@@ -221,9 +222,11 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     urlSendung = "http://www.ardmediathek.de/tv/" + urlSendung;
                     urlSendung = urlSendung.replace("&amp;", "&");
                 }
+
                 filmSuchen2(url, thema, titel, d, datum, zeit, urlSendung);
             }
-            if (weiter && MSConfig.senderAllesLaden || weiter && thema.equalsIgnoreCase("Eurovision Song Contest 2015")) {
+            if (weiter && MSConfig.senderAllesLaden || weiter && thema.equalsIgnoreCase("Eurovision Song Contest 2015")
+                    || weiter && thema.equalsIgnoreCase("alpha-Centauri")) {
                 // dann gehts weiter
                 int maxWeiter = 0;
                 int maxTh = 10;
@@ -326,10 +329,44 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     }
                     addFilm(f);
                 } else {
-                    MSLog.fehlerMeldung(784512369, "keine URL: " + urlFilm);
+                    filmSuchen_old(urlSendung, thema, titel, dauer, datum, zeit);
+//                    MSLog.fehlerMeldung(784512369, "keine URL: " + urlFilm);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(762139874, ex);
+            }
+        }
+
+        private void filmSuchen_old(String urlSendung, String thema, String titel, long dauer, String datum, String zeit) {
+            // für ganz alte Sachen:
+                /*
+             </li><li data-ctrl-21282662-28534346-trigger="{&#039;xt_obj&#039;:{&#039;href&#039;
+             :&#039;http://cdn-vod-ios.br.de/i/mir-live/bw1XsLzS/bLQH/bLOliLioMXZhiKT1/uLoXb69zbX06/MUJIuUOVBwQIb71S/bLWCMUJIuUOVBwQIb71S/_2rp9U1S/_-J
+             S/_-4y5H1S/bc3757a9-1cfd-4aaa-a963-51e9fd0095f2_,0,A,B,E,C,.mp4.csmil/master.m3u8?__b__=200&#039;,&#039;target&#039;:&#039;_self&#039;},&#039;redirect&#0
+             39;:{&#039;name&#039;:&#039;br&#039;}}">
+             */
+            try {
+                meldung(urlSendung);
+                seite2 = getUrl.getUri_Utf(SENDERNAME, urlSendung, seite2, "");
+                if (seite2.length() == 0) {
+                    MSLog.fehlerMeldung(612031478, "Leere Seite: " + urlSendung);
+                    return;
+                }
+                String url = seite2.extract("</li><li data-ctrl-", "http://", ".m3u8");
+                if (!url.isEmpty()) {
+                    url = "http://" + url + ".m3u8";
+//                    System.out.println(url);
+                }
+                if (!url.isEmpty()) {
+                    String beschreibung = beschreibung(urlSendung);
+                    DatenFilm f = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
+                            new String[]{}/*keywords*/);
+                    addFilm(f);
+                } else {
+                    MSLog.fehlerMeldung(974125698, "keine URL: " + urlSendung);
+                }
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(102054784, ex);
             }
         }
 
