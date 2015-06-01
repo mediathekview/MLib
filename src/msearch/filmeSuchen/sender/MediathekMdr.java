@@ -364,8 +364,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                     } else {
                         if (!existiertSchon(thema, titel, datum, zeit)) {
                             meldung(urlMp4);
-                            DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, urlMp4, ""/*rtmpUrl*/, datum, zeit, duration, description,
-                                    new String[]{});
+                            DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, urlMp4, ""/*rtmpUrl*/, datum, zeit, duration, description);
                             film.addUrlKlein(urlMp4_klein, "");
                             film.addUrlHd(urlHD, "");
                             if (!subtitle.isEmpty()) {

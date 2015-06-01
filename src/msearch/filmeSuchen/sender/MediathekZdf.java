@@ -479,7 +479,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 //                System.out.print("");
 //            }
             DatenFilm film = new DatenFilm(sender, thema, filmWebsite, titel, url, "" /*urlRtmp*/, datum, zeit,
-                    extractDuration(laenge), beschreibung, new String[]{""});
+                    extractDuration(laenge), beschreibung);
             if (!subtitle.isEmpty()) {
                 subtitle = "http://" + subtitle;
                 film.addUrlSubtitle(subtitle);

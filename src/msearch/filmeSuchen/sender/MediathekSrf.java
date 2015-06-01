@@ -276,8 +276,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 if (urlHd.startsWith("https")) {
                     urlHd = urlHd.replaceFirst("https", "http");
                 }
-                DatenFilm film = new DatenFilm(SENDERNAME, theme, urlWebsite, title, url_normal, ""/*rtmpURL*/, date_str, time, duration, description,
-                        keywords);
+                DatenFilm film = new DatenFilm(SENDERNAME, theme, urlWebsite, title, url_normal, ""/*rtmpURL*/, date_str, time, duration, description);
 
                 if (!url_small.isEmpty()) {
                     film.addUrlKlein(url_small, "");

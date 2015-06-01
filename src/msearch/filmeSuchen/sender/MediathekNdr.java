@@ -333,8 +333,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                                     thema = "NDR";
                                 }
                             }
-                            DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, zeit, durationInSeconds, description,
-                                    keywords);
+                            DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, zeit, durationInSeconds, description);
                             film.addUrlSubtitle(subtitle);
                             if (url.contains(".hq.")) {
                                 String urlKlein = url.replace(".hq.", ".hi.");

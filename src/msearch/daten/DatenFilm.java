@@ -183,7 +183,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
             String datum, String zeit,
-            long dauerSekunden, String description, String[] keywords) {
+            long dauerSekunden, String description) {
         // da werden die gefundenen Filme beim Absuchen der Senderwebsites erstellt, und nur die!!
         dateigroesseL = new MSLong(0); // Dateigröße in MByte
         arr[FILM_SENDER_NR] = ssender;
@@ -211,7 +211,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static DatenFilm getDatenFilmLiveStream(String ssender, String addTitle, String uurl) {
         return new DatenFilm(ssender, ListeFilme.THEMA_LIVE, ""/* urlThema */,
                 ssender + addTitle + " " + ListeFilme.THEMA_LIVE,
-                uurl, ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "", new String[]{""});
+                uurl, ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "");
     }
 
     public void addUrlKlein(String url, String urlRtmp) {

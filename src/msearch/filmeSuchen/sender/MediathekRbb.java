@@ -228,7 +228,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 if (!urlNormal.isEmpty()) {
                     urlNormal = "http://" + urlNormal;
                     DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSeite, title, urlNormal, "" /*urlRtmp*/,
-                            datum, zeit/* zeit */, duration, description, new String[]{""});
+                            datum, zeit/* zeit */, duration, description);
                     addFilm(film);
                     if (!urlLow.isEmpty()) {
                         urlLow = "http://" + urlLow;

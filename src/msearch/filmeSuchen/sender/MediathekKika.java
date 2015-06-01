@@ -270,7 +270,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
 
             if (!urlMp4.equals("")) {
                 meldung(urlMp4);
-                DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, urlMp4, ""/*rtmpUrl*/, datum, zeit, duration, beschreibung, new String[]{});
+                DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, urlMp4, ""/*rtmpUrl*/, datum, zeit, duration, beschreibung);
                 film.addUrlKlein(urlMp4_klein, "");
                 film.addUrlHd(urlHD, "");
                 addFilm(film, urlPruefen);

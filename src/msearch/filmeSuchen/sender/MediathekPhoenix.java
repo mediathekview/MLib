@@ -228,7 +228,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
                 MSLog.fehlerMeldung(952102014,   "keine URL: " + filmWebsite);
             } else {
                 DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, "" /*urlRtmp*/, datum, zeit,
-                        extractDuration(laenge), beschreibung, new String[]{""});
+                        extractDuration(laenge), beschreibung);
                 addFilm(film);
                 film.addUrlKlein(urlKlein, "");
                 film.addUrlHd(urlHd, "");

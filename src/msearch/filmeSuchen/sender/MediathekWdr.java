@@ -462,7 +462,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 urlKlein = urlKlein.replace(mobileUrl, replaceUrl);
 
                 DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, ""/* zeit */,
-                        dauer, beschreibung, keyword);
+                        dauer, beschreibung);
                 film.addUrlKlein(urlKlein, "");
                 film.addUrlSubtitle(subtitle);
                 addFilm(film);
@@ -559,7 +559,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     } else {
                         url = "http://http-ras.wdr.de/CMS2010/mdb" + url.substring(url.indexOf("/ondemand/")) + ".mp4";
                         DatenFilm film = new DatenFilm(SENDERNAME, "MausSpots", filmWebsite, titel, url, ""/*rtmpURL*/, datum, ""/* zeit */,
-                                0, description, new String[]{""});
+                                0, description);
                         addFilm(film);
                     }
                 }
@@ -618,7 +618,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     } else {
                         url = "http://http-ras.wdr.de/mediendb/elefant_online" + url;
                         DatenFilm film = new DatenFilm(SENDERNAME, "Elefantenkino", "http://www.wdrmaus.de/elefantenseite/", titel, url, ""/*rtmpURL*/, datum, ""/* zeit */,
-                                duration, description, new String[]{""});
+                                duration, description);
                         if (!urlKlein.isEmpty()) {
                             urlKlein = "http://http-ras.wdr.de/mediendb/elefant_online/" + urlKlein;
                             film.addUrlKlein(urlKlein, "");

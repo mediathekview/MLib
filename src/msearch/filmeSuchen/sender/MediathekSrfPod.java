@@ -245,7 +245,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                                 // public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String datum, String zeit,
                                 //      long duration, String description, String thumbnailUrl, String imageUrl, String[] keywords) {
                                 addFilm(new DatenFilm(SENDERNAME, thema, strUrlFeed, titel, url, ""/*rtmpURL*/, datum, zeit,
-                                        duration, description,  keywords));
+                                        duration, description));
                             }
                         }
                     }

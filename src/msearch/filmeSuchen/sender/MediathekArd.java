@@ -319,8 +319,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 }
                 if (!url.isEmpty()) {
                     String beschreibung = beschreibung(urlSendung);
-                    DatenFilm f = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
-                            new String[]{}/*keywords*/);
+                    DatenFilm f = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung);
                     if (!urlKl.isEmpty()) {
                         f.addUrlKlein(urlKl, "");
                     }
@@ -359,8 +358,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 }
                 if (!url.isEmpty()) {
                     String beschreibung = beschreibung(urlSendung);
-                    DatenFilm f = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung,
-                            new String[]{}/*keywords*/);
+                    DatenFilm f = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung);
                     addFilm(f);
                 } else {
                     MSLog.fehlerMeldung(974125698, "keine URL: " + urlSendung);
