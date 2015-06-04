@@ -635,12 +635,25 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return formatter.format(new Date());
     }
 
-    public synchronized void setFilmNew() {
+    public synchronized int setFilmNew() {
+        int ret = 0;
         for (DatenFilm film : this) {
             if (film.arr[DatenFilm.FILM_NEU_NR].equals(Boolean.TRUE.toString())) {
                 film.neuerFilm = true;
+                ++ret;
             }
         }
+        return ret;
+    }
+
+    public synchronized int countFilmNew() {
+        int ret = 0;
+        for (DatenFilm film : this) {
+            if (film.neuerFilm) {
+                ++ret;
+            }
+        }
+        return ret;
     }
 
     /**

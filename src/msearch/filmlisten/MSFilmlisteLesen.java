@@ -211,6 +211,7 @@ public class MSFilmlisteLesen {
             }
         }
         if (MSConfig.getStop()) {
+            MSLog.systemMeldung("--> Abbruch");
             listeFilme.clear();
         }
         notifyFertig(source, listeFilme);
@@ -249,8 +250,9 @@ public class MSFilmlisteLesen {
     }
 
     private void notifyFertig(String url, ListeFilme liste) {
-        MSLog.systemMeldung("Liste Filme gelesen: " + new SimpleDateFormat("yyyy.MM.dd__HH.mm.ss").format(new Date()));
-        MSLog.systemMeldung("Anzahl Filme: " + liste.size());
+        MSLog.systemMeldung("Liste Filme gelesen am: " + new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(new Date()));
+        MSLog.systemMeldung("  erstellt am: " + liste.genDate());
+        MSLog.systemMeldung("  Anzahl Filme: " + liste.size());
         for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
             l.fertig(new MSListenerFilmeLadenEvent(url, "", max, progress, 0, false));
         }
