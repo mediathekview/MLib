@@ -36,6 +36,7 @@ import msearch.tool.Datum;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSConst;
 import msearch.tool.MSFileSize;
+import msearch.tool.MSFunktionen;
 import msearch.tool.MSLog;
 import msearch.tool.MSLong;
 
@@ -584,6 +585,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     public static String cleanDescription(String s, String thema, String titel) {
         // die Beschreibung auf x Zeichen beschränken
+
+        s = MSFunktionen.removeHtml(s); // damit die Beschreibung nicht unnötig kurz wird wenn es erst später gemacht wird
+
         for (String g : GERMAN_ONLY) {
             if (s.contains(g)) {
                 s = s.replace(g, ""); // steht auch mal in der Mitte

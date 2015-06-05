@@ -132,7 +132,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     String[] add = new String[]{"http://www.br.de/mediathek/video/" + url, thema};
                     listeThemen.addUrl(add);
                 } catch (Exception ex) {
-                    MSLog.fehlerMeldung(821213698,  ex);
+                    MSLog.fehlerMeldung(821213698, ex);
                 }
             }
         }
@@ -180,7 +180,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(821213698,  ex);
+            MSLog.fehlerMeldung(821213698, ex);
         }
     }
 
@@ -206,7 +206,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     laden(link[0] /* url */, link[1]/*thema*/, seite1, false);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(989632147,  ex);
+                MSLog.fehlerMeldung(989632147, ex);
             }
             meldungThreadUndFertig();
         }
@@ -249,10 +249,13 @@ public class MediathekBr extends MediathekReader implements Runnable {
             }
             //<meta property="og:description" content="Aktuelle Berichte aus Bayern, Hintergründe zu brisanten Themen, Geschichten, die unter die Haut gehen - das ist die Abendschau. Sie sehen uns montags bis freitags von 18.00 bis 18.45 Uhr im Bayerischen Fernsehen."/>
             description = seite.extract("<meta property=\"og:description\" content=\"", "\"");
+            if (description.isEmpty()) {
+                description = seite.extract("<div class=\"bcastContent\">", "<p>", "</p>");
+            }
             //<a href="#" onclick="return BRavFramework.register(BRavFramework('avPlayer_3f097ee3-7959-421b-b3f0-c2a249ad7c91').setup({dataURL:'/mediathek/video/sendungen/abendschau/der-grosse-max-spionageabwehr-100~meta_xsl-avtransform100_-daa09e70fbea65acdb1929dadbd4fc6cdb955b63.xml'}));" id="avPlayer_3f097ee3-7959-421b-b3f0-c2a249ad7c91">
             urlXml = seite.extract("{dataURL:'", "'");
             if (urlXml.isEmpty()) {
-                MSLog.fehlerMeldung(915263478,  "keine URL: " + urlThema);
+                MSLog.fehlerMeldung(915263478, "keine URL: " + urlThema);
             } else {
                 urlXml = "http://www.br.de" + urlXml;
                 loadXml(seiteXml, urlXml, urlThema, thema, titel, description, datum, zeit);
@@ -314,7 +317,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(datum);
                 datum = sdfOutDay.format(filmDate);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(915364789,  ex, "Datum: " + datum);
+                MSLog.fehlerMeldung(915364789, ex, "Datum: " + datum);
             }
             return datum;
         }
@@ -325,7 +328,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(zeit);
                 zeit = sdfOutTime.format(filmDate);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(312154879,  ex, "Time: " + zeit);
+                MSLog.fehlerMeldung(312154879, ex, "Time: " + zeit);
             }
             return zeit;
         }
@@ -345,7 +348,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 meldungAddThread();
                 laden();
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(954123458,   ex);
+                MSLog.fehlerMeldung(954123458, ex);
             }
             meldungThreadUndFertig();
         }
@@ -407,7 +410,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
 
                 urlXml = seite3.extract("{dataURL:'", "'");
                 if (urlXml.isEmpty()) {
-                    MSLog.fehlerMeldung(815263987,  "keine URL: " + url);
+                    MSLog.fehlerMeldung(815263987, "keine URL: " + url);
                 } else {
                     urlXml = "http://www.br.de" + urlXml;
                     loadXml(seiteXml, urlXml, url, thema, titel, description1 + description2, datum, zeit);
@@ -422,7 +425,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(datum);
                 datum = sdfOutDay.format(filmDate);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(915364789,   ex,"Datum: " + datum);
+                MSLog.fehlerMeldung(915364789, ex, "Datum: " + datum);
             }
             return datum;
         }
@@ -433,7 +436,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(zeit);
                 zeit = sdfOutTime.format(filmDate);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(312154879,  ex,"Time: " + zeit);
+                MSLog.fehlerMeldung(312154879, ex, "Time: " + zeit);
             }
             return zeit;
         }
@@ -444,7 +447,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
         long duration = 0;
         seite = getUrlIo.getUri_Utf(SENDERNAME, urlXml, seite, "");
         if (seite.length() == 0) {
-            MSLog.fehlerMeldung(820139701,   urlXml);
+            MSLog.fehlerMeldung(820139701, urlXml);
             return;
         }
 
@@ -461,7 +464,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 }
             }
         } catch (NumberFormatException ex) {
-            MSLog.fehlerMeldung(735216703,  ex, urlThema);
+            MSLog.fehlerMeldung(735216703, ex, urlThema);
         }
         String subtitle = seite.extract("<dataTimedText url=\"", "\""); // <dataTimedText url="/mediathek/video/untertitel-2528~default.xml" offset="0.0"/>
         String urlVerySmall = getUrl(seite, PATTERN_VERY_SMALL);
@@ -532,7 +535,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             try {
                 archivSuchen(anfang, ende);
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(203069877,   ex);
+                MSLog.fehlerMeldung(203069877, ex);
             }
             meldungThreadUndFertig();
         }
