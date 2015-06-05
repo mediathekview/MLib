@@ -317,7 +317,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         String beschreibung, laenge, datum;
         String zeit = "", url = "", urlKlein = "", urlHd = "", urlF4m = "";
 
-        strBuffer = getUrl.getUri_Utf(sender, urlId, strBuffer, "url: " + filmWebsite);
+        strBuffer = getUrl.getUri_Utf(sender, urlId, strBuffer, "URL-Filmwebsite: " + filmWebsite);
         if (strBuffer.length() == 0) {
             MSLog.fehlerMeldung(398745601,   "url: " + urlId);
             return null;
@@ -500,7 +500,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         final String URL = "<media href=\"";
         String url;
         int pos1 = 0, pos2;
-        strBuffer = getUrl.getUri_Utf(sender, urlf4m, strBuffer, "url: " + urlf4m);
+        strBuffer = getUrl.getUri_Utf(sender, urlf4m, strBuffer, "" /* Meldung */);
         if (strBuffer.length() == 0) {
             // MSLog.fehlerMeldung(610123987, MSLog.FEHLER_ART_MREADER, "MediathekZdf.f4mUrlHolen", "url: " + urlf4m);
             return "";

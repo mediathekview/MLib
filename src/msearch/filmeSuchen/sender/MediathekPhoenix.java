@@ -125,7 +125,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
         }
 
         private void addFilme2(String thema, String filmWebsite) {
-            getUrl.getUri_Iso(SENDERNAME, filmWebsite, seite1, "filmWebsite: " + filmWebsite);
+            getUrl.getUri_Iso(SENDERNAME, filmWebsite, seite1, "" /* Meldung */);
             String urlId = seite1.extract("<div class=\"phx_vod\" id=\"phx_vod_", "\"", 0, "http://www.phoenix.de/php/zdfplayer-v1.3/data/beitragsDetails.php?ak=web&id=");
             if (!urlId.isEmpty()) {
                 filmHolenId(thema, filmWebsite, urlId);
@@ -139,7 +139,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
                 return;
             }
             meldung(urlId);
-            getUrl.getUri_Utf(SENDERNAME, urlId, seite3, "Id: " + urlId);
+            getUrl.getUri_Utf(SENDERNAME, urlId, seite3, "" /* Meldung */);
             if (seite3.length() == 0) {
                 MSLog.fehlerMeldung(825412874,   "url: " + urlId);
                 return;

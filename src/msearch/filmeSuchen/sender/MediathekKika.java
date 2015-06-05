@@ -202,7 +202,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
         }
 
         void ladenXml(String xmlWebsite, String thema, boolean urlPruefen) {
-            seite3 = getUrlIo.getUri_Utf(sendername, xmlWebsite, seite3, xmlWebsite);
+            seite3 = getUrlIo.getUri_Utf(sendername, xmlWebsite, seite3, "" /* Meldung */);
             if (thema.isEmpty()) {
                 thema = sendername;
             }
