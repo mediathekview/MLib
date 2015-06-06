@@ -317,7 +317,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             // und jetzt die Beiträge
             if ((pos = sendungsSeite2.indexOf(MUSTER_START_1)) == -1) {
                 if ((pos = sendungsSeite2.indexOf(MUSTER_START_2)) == -1) {
-                    MSLog.fehlerMeldung(765323079, "keine Url" + strUrl);
+                    MSLog.fehlerMeldung(765323079, "keine Url: " + strUrl);
                     return;
                 }
             }

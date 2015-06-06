@@ -220,8 +220,6 @@ public class MediathekBr extends MediathekReader implements Runnable {
             String thema_;
             String datum;
             String zeit = "";
-            String dauer;
-            long duration = 0;
             String description;
             String titel;
 
@@ -466,6 +464,9 @@ public class MediathekBr extends MediathekReader implements Runnable {
         } catch (NumberFormatException ex) {
             MSLog.fehlerMeldung(735216703, ex, urlThema);
         }
+        if (description.isEmpty()) {
+            description = seite.extract("<desc>", "</desc>");
+        }
         String subtitle = seite.extract("<dataTimedText url=\"", "\""); // <dataTimedText url="/mediathek/video/untertitel-2528~default.xml" offset="0.0"/>
         String urlVerySmall = getUrl(seite, PATTERN_VERY_SMALL);
         String urlSmall = getUrl(seite, PATTERN_SMALL);
@@ -596,6 +597,13 @@ public class MediathekBr extends MediathekReader implements Runnable {
             String xmlUrl, urlFilm = "", urlFilmKlein = "", groesse = "", duration = "";
             long dauer = 0;
             xmlUrl = seiteArchiv2.extract("setup({dataURL:'", "'");
+            if (beschreibung.isEmpty()) {
+                beschreibung = seiteArchiv2.extract("<meta property=\"og:description\" content=\"", "\"");
+            }
+            if (beschreibung.isEmpty()) {
+                beschreibung = seiteArchiv2.extract("<div class=\"bcastContent\">", "<p>", "</p>");
+            }
+
             if (xmlUrl.equals("")) {
 //            MSearchLog.fehlerMeldung(-834215987, MSearchLog.FEHLER_ART_MREADER, MediathekBr.class.getName() + ".archivAdd1", "keine URL: " + urlThema);
             } else {
