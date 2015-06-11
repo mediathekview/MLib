@@ -23,9 +23,9 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import msearch.daten.DatenFilm;
-import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
+import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
@@ -86,7 +86,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                 pos1 = pos;
                 if ((pos2 = seiteTivi_1.indexOf("<", pos1)) != -1) {
                     url = seiteTivi_1.substring(pos1, pos2);
-                    url = URLDecoder.decode(url, "UTF-8");
+//                    url = URLDecoder.decode(url, "UTF-8");
                 }
                 if (url.equals("")) {
                     MSLog.fehlerMeldung(309075109,  "keine URL");
@@ -123,7 +123,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                 pos1 = pos;
                 if ((pos2 = seiteTivi_1.indexOf("<", pos1)) != -1) {
                     url = seiteTivi_1.substring(pos1, pos2);
-                    url = URLDecoder.decode(url, "UTF-8");
+//                    url = URLDecoder.decode(url, "UTF-8");
                 }
                 if (url.equals("")) {
                     MSLog.fehlerMeldung(915263985,   "keine URL");
@@ -155,7 +155,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                 pos1 = pos;
                 if ((pos2 = seiteTivi_1.indexOf("<", pos1)) != -1) {
                     url = seiteTivi_1.substring(pos1, pos2);
-                    url = URLDecoder.decode(url, "UTF-8");
+//                    url = URLDecoder.decode(url, "UTF-8");
                 }
                 if (url.equals("")) {
                     MSLog.fehlerMeldung(152378787,   "keine URL");
@@ -206,7 +206,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                 while (!MSConfig.getStop() && (pos = seite2.indexOf(MUSTER_START, pos)) != -1) {
                     pos += MUSTER_START.length();
                     url = seite2.extract("<ns3:page>", "<", pos);
-                    url = URLDecoder.decode(url, "UTF-8");
+//                    url = URLDecoder.decode(url, "UTF-8");
                     if (url.equals("")) {
                         MSLog.fehlerMeldung(732698720,   "keine URL");
                     } else {
