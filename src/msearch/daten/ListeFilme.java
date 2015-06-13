@@ -37,6 +37,7 @@ import msearch.filmeSuchen.sender.MediathekBr;
 import msearch.filmeSuchen.sender.MediathekKika;
 import msearch.filmeSuchen.sender.MediathekMdr;
 import msearch.filmeSuchen.sender.MediathekNdr;
+import msearch.filmeSuchen.sender.MediathekOrf;
 import msearch.filmeSuchen.sender.MediathekRbb;
 import msearch.filmeSuchen.sender.MediathekSr;
 import msearch.filmeSuchen.sender.MediathekSwr;
@@ -418,6 +419,10 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekSwr.SENDERNAME, "", "http://swrbw-lh.akamaihd.net/i/swrbw_live@196738/master.m3u8"));
         // KiKa
         addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekKika.SENDERNAME, "", "http://kika_geo-lh.akamaihd.net/i/livetvkika_de@75114/master.m3u8"));
+        // ORF
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-1", "http://apasfiisl.apa.at/ipad/orf1_q4a/orf.sdp/playlist.m3u8"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-2", "http://apasfiisl.apa.at/ipad/orf2_q4a/orf.sdp/playlist.m3u8"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-3", "http://apasfiisl.apa.at/ipad/orf3_q4a/orf.sdp/playlist.m3u8"));
     }
 
     public synchronized DatenFilm getFilmByUrl(final String url) {
