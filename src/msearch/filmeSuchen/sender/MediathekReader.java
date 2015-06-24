@@ -108,7 +108,7 @@ public class MediathekReader implements Runnable {
             threads = 0;
             addToList();
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(397543600,   ex, sendername);
+            MSLog.fehlerMeldung(397543600, ex, sendername);
         }
     }
 
@@ -257,7 +257,7 @@ public class MediathekReader implements Runnable {
             }
         }
         if (ret.equals("")) {
-            MSLog.fehlerMeldung(469872800,   pfad1 + " " + pfad2);
+            MSLog.fehlerMeldung(469872800, pfad1 + " " + pfad2);
         }
         return ret;
     }
@@ -300,6 +300,19 @@ public class MediathekReader implements Runnable {
                     power *= 60;
                 }
             }
+        } catch (Exception ex) {
+            return 0;
+        }
+        return dauerInSeconds;
+    }
+
+    static long extractDurationSec(String dauer) {
+        long dauerInSeconds = 0;
+        if (dauer.isEmpty()) {
+            return 0;
+        }
+        try {
+            dauerInSeconds = Long.parseLong(dauer);
         } catch (Exception ex) {
             return 0;
         }

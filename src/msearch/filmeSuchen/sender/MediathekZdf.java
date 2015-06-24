@@ -107,7 +107,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         MSStringBuilder seiteR = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         seiteR = getUrl.getUri(SENDERNAME, addr, MSConst.KODIERUNG_UTF, 6 /* versuche */, seiteR, "" /* Meldung */);
         if (seiteR.length() == 0) {
-            MSLog.fehlerMeldung(774200364,   "Leere Seite für URL: " + addr);
+            MSLog.fehlerMeldung(774200364, "Leere Seite für URL: " + addr);
         }
         int pos = 0;
         int pos1;
@@ -124,7 +124,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 url = seiteR.substring(pos1, pos2);
             }
             if (url.equals("")) {
-                MSLog.fehlerMeldung(754126900,  "keine URL: " + addr);
+                MSLog.fehlerMeldung(754126900, "keine URL: " + addr);
             } else {
                 url = "http://www.zdf.de/ZDFmediathek/kanaluebersicht/aktuellste/" + url + "?bc=rub";
                 addToList_addr(url, ANZAHL_ZDF_UPDATE); // immer nur eine "kurz"
@@ -138,7 +138,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
         seite = getUrl.getUri(SENDERNAME, addr, MSConst.KODIERUNG_UTF, 6 /* versuche */, seite, "" /* Meldung */);
         if (seite.length() == 0) {
-            MSLog.fehlerMeldung(596004563,  "Leere Seite für URL: " + addr);
+            MSLog.fehlerMeldung(596004563, "Leere Seite für URL: " + addr);
         }
         int pos = 0;
         int pos1;
@@ -169,7 +169,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 thema = seite.substring(pos1 + 2, pos2);
             }
             if (url.equals("")) {
-                MSLog.fehlerMeldung(946325890,   "keine URL: " + addr);
+                MSLog.fehlerMeldung(946325890, "keine URL: " + addr);
             } else {
                 url = "http://www.zdf.de/ZDFmediathek/kanaluebersicht/aktuellste/" + url;
                 urlThema = url;
@@ -201,7 +201,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                     meldungProgress(link[0]);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(496583200,   ex);
+                MSLog.fehlerMeldung(496583200, ex);
             }
             meldungThreadUndFertig();
         }
@@ -243,7 +243,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                         titel = seite1.substring(pos1 + 2, pos2);
                     }
                     if (urlFilm.isEmpty()) {
-                        MSLog.fehlerMeldung(643269690,  "keine URL: " + url);
+                        MSLog.fehlerMeldung(643269690, "keine URL: " + url);
                     } else {
                         // über die ID versuchen
                         urlFilm = "http://www.zdf.de/ZDFmediathek/beitrag/video/" + urlFilm;
@@ -269,12 +269,12 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                         }
                         if (!ok) {
                             // dann mit der herkömmlichen Methode versuchen
-                            MSLog.fehlerMeldung(398012379,   "auf die alte Art: " + urlFilm);
+                            MSLog.fehlerMeldung(398012379, "auf die alte Art: " + urlFilm);
                         }
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(796325800,   ex, url);
+                MSLog.fehlerMeldung(796325800, ex, url);
             }
         }
 
@@ -310,16 +310,19 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         //<length>00:00:34.000</length>
         //<airtime>02.07.2013 23:00</airtime>
         final String BESCHREIBUNG = "<detail>";
+        final String LAENGE_SEC = "<lengthSec>";
         final String LAENGE = "<length>";
         final String DATUM = "<airtime>";
         final String THEMA = "<originChannelTitle>";
         int pos1, pos2;
+        long laengeL;
+
         String beschreibung, laenge, datum;
         String zeit = "", url = "", urlKlein = "", urlHd = "", urlF4m = "";
 
         strBuffer = getUrl.getUri_Utf(sender, urlId, strBuffer, "URL-Filmwebsite: " + filmWebsite);
         if (strBuffer.length() == 0) {
-            MSLog.fehlerMeldung(398745601,   "url: " + urlId);
+            MSLog.fehlerMeldung(398745601, "url: " + urlId);
             return null;
         }
         //<caption>      <url>http://utstreaming.zdf.de/tt/2014/F0312096_deut_Die_Bergretter_Gefangen_im_Eis_111214.xml</url>
@@ -331,14 +334,20 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             beschreibung = beschreibung.replace("]]>", "");
         }
         if (beschreibung.isEmpty()) {
-            MSLog.fehlerMeldung(945123074,   "url: " + urlId);
+            MSLog.fehlerMeldung(945123074, "url: " + urlId);
         }
         if (thema.isEmpty()) {
             thema = strBuffer.extract(THEMA, "<");
         }
-        laenge = strBuffer.extract(LAENGE, "<");
-        if (laenge.contains(".")) {
-            laenge = laenge.substring(0, laenge.indexOf("."));
+        laenge = strBuffer.extract(LAENGE_SEC, "<");
+        if (!laenge.isEmpty()) {
+            laengeL = extractDurationSec(laenge);
+        } else {
+            laenge = strBuffer.extract(LAENGE, "<");
+            if (laenge.contains(".")) {
+                laenge = laenge.substring(0, laenge.indexOf("."));
+            }
+            laengeL = extractDuration(laenge);
         }
         datum = strBuffer.extract(DATUM, "<");
         if (datum.contains(" ")) {
@@ -468,18 +477,18 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 // Entferne das 1596k_p15v9.mp4 und ersetzte das Ende mit: 3056k_p15v9.mp4
                 urlHd = url.replace("1596k_p13v9.mp4", "3056k_p15v9.mp4");
             } else {
-                MSLog.fehlerMeldung(915230647,   "asx: " + filmWebsite);
+                MSLog.fehlerMeldung(915230647, "asx: " + filmWebsite);
             }
         }
         if (url.isEmpty()) {
-            MSLog.fehlerMeldung(397002891,   "keine URL: " + filmWebsite);
+            MSLog.fehlerMeldung(397002891, "keine URL: " + filmWebsite);
             return null;
         } else {
 //            if (url.contains("1456k_p13v11")) {
 //                System.out.print("");
 //            }
             DatenFilm film = new DatenFilm(sender, thema, filmWebsite, titel, url, "" /*urlRtmp*/, datum, zeit,
-                    extractDuration(laenge), beschreibung);
+                    laengeL, beschreibung);
             if (!subtitle.isEmpty()) {
                 subtitle = "http://" + subtitle;
                 film.addUrlSubtitle(subtitle);
