@@ -317,6 +317,10 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 if (urlKl.isEmpty()) {
                     urlKl = urlMid;
                 }
+                String subtitle = seite2.extract("subtitleUrl\":\"", "\"");
+                if (!subtitle.isEmpty()) {
+                    subtitle = "http://www.ardmediathek.de" + subtitle;
+                }
                 if (!url.isEmpty()) {
                     String beschreibung = beschreibung(urlSendung);
                     DatenFilm f = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung);
@@ -325,6 +329,9 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     }
                     if (!urlHD.isEmpty() && !urlHD.equals(url)) {
                         f.addUrlHd(urlHD, "");
+                    }
+                    if (!subtitle.isEmpty()) {
+                        f.addUrlSubtitle(subtitle);
                     }
                     addFilm(f);
                 } else {

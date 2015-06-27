@@ -111,7 +111,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_URL_RTMP = "UrlRTMP";
     public static final String FILM_URL_RTMP_ = "i";
     public static final int FILM_URL_RTMP_NR = 16;
-    public static final String FILM_URL_AUTH = "UrlAuth";
+    public static final String FILM_URL_AUTH = "UrlAuth";//frei für andere Sachen
     public static final String FILM_URL_AUTH_ = "j";
     public static final int FILM_URL_AUTH_NR = 17;
     public static final String FILM_URL_KLEIN = "Url_Klein";
