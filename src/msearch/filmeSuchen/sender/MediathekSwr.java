@@ -89,10 +89,10 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             thema = strSeite.extract(MUSTER_THEMA, "\"", pos);
             thema = StringEscapeUtils.unescapeHtml4(thema.trim()); //wird gleich benutzt und muss dann schon stimmen
             if (thema.isEmpty()) {
-                MSLog.fehlerMeldung(915263078,  "kein Thema");
+                MSLog.fehlerMeldung(915263078, "kein Thema");
             }
             if (url.isEmpty()) {
-                MSLog.fehlerMeldung(163255009,   "keine URL");
+                MSLog.fehlerMeldung(163255009, "keine URL");
             } else {
                 //url = url.replace("&amp;", "&");
                 String[] add = new String[]{"http://swrmediathek.de/tvshow.htm?show=" + url, thema};
@@ -121,7 +121,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     meldungProgress(link[0]);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(739285690,  ex);
+                MSLog.fehlerMeldung(739285690, ex);
             }
             meldungThreadUndFertig();
         }
@@ -131,7 +131,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             //strSeite1 = getUrl.getUri_Utf(nameSenderMReader, strUrlFeed, strSeite1, thema);
             strSeite1 = getUrlThemaLaden.getUri(SENDERNAME, strUrlFeed, MSConst.KODIERUNG_UTF, 2 /* versuche */, strSeite1, thema);
             if (strSeite1.length() == 0) {
-                MSLog.fehlerMeldung(945120365,   "Seite leer: " + strUrlFeed);
+                MSLog.fehlerMeldung(945120365, "Seite leer: " + strUrlFeed);
                 return;
             }
             meldung(strUrlFeed);
@@ -164,7 +164,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                         gefunden.add(url);
                     }
                     if (url.equals("")) {
-                        MSLog.fehlerMeldung(875012369,   "keine URL, Thema: " + thema);
+                        MSLog.fehlerMeldung(875012369, "keine URL, Thema: " + thema);
                     } else {
                         url = "http://swrmediathek.de/AjaxEntry?callback=jsonp1347979401564&ekey=" + url;
                         json(strUrlFeed, thema, url);
@@ -185,22 +185,21 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             try {
                 strSeite2 = getUrlThemaLaden.getUri_Utf(SENDERNAME, urlJson, strSeite2, "");
                 if (strSeite2.length() == 0) {
-                    MSLog.fehlerMeldung(912365478,  "Seite leer: " + urlJson);
+                    MSLog.fehlerMeldung(912365478, "Seite leer: " + urlJson);
                     return;
                 }
                 String title = getTitle();
                 String date = getDate();
                 String time = getTime();
                 String description = getDescription();
-                String thumbNailUrl = getThumbNailUrl();
                 long duration = getDuration();
-                String[] keywords = extractKeywords(strSeite2);
                 String urldHd = getHDUrl();
                 String normalUrl = getNormalUrl();
                 String smallUrl = getSmallUrl();
                 String rtmpUrl = getRtmpUrl();
+                String subtitle = strSeite2.extract("\"entry_capuri\":\"", "\"");
                 if (normalUrl.isEmpty() && smallUrl.isEmpty() && rtmpUrl.isEmpty()) {
-                    MSLog.fehlerMeldung(203690478,   thema + " NO normal and small url:  " + urlJson);
+                    MSLog.fehlerMeldung(203690478, thema + " NO normal and small url:  " + urlJson);
                 } else {
                     if (normalUrl.isEmpty() && !smallUrl.isEmpty()) {
                         normalUrl = smallUrl;
@@ -218,10 +217,13 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     if (!smallUrl.isEmpty()) {
                         film.addUrlKlein(smallUrl, "");
                     }
+                    if (!subtitle.isEmpty()) {
+                        film.addUrlSubtitle(subtitle);
+                    }
                     addFilm(film);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(939584720,   thema + " " + urlJson);
+                MSLog.fehlerMeldung(939584720, thema + " " + urlJson);
             }
         }
 
@@ -237,11 +239,6 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         private String getDescription() {
             final String PATTERN_DESCRIPTION_START = "\"entry_descl\":\"";
             return strSeite2.extract(PATTERN_DESCRIPTION_START, PATTERN_END);
-        }
-
-        private String getThumbNailUrl() {
-            final String PATTERN_THUMBNAIL_URL_START = "\"entry_image_16_9\":\"";
-            return strSeite2.extract(PATTERN_THUMBNAIL_URL_START, PATTERN_END);
         }
 
         private String getDate() {
@@ -277,7 +274,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                     }
                 }
             } catch (NumberFormatException ex) {
-                MSLog.fehlerMeldung(679012497,   "duration: " + (dur == null ? " " : duration));
+                MSLog.fehlerMeldung(679012497, "duration: " + (dur == null ? " " : duration));
             }
             return duration;
         }
@@ -351,23 +348,5 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             return HTTP + urlWithOutprot;
         }
 
-        private String[] extractKeywords(MSStringBuilder strSeite2) {
-            // {"name":"entry_keywd","attr":{"val":"Fernsehserie"},"sub":[]}
-            final String MUSTER_KEYWORD_START = "{\"name\":\"entry_keywd\",\"attr\":{\"val\":\"";
-            final String MUSTER_KEYWORD_END = "\"},\"sub\":[]}";
-
-            LinkedList<String> keywords = new LinkedList<>();
-            int pos = 0;
-            while ((pos = strSeite2.indexOf(MUSTER_KEYWORD_START, pos)) != -1) {
-                pos += MUSTER_KEYWORD_START.length();
-                int end = strSeite2.indexOf(MUSTER_KEYWORD_END, pos);
-                if (end != -1) {
-                    String keyword = strSeite2.substring(pos, end);
-                    keywords.add(keyword);
-                    pos = end;
-                }
-            }
-            return keywords.toArray(new String[keywords.size()]);
-        }
     }
 }
