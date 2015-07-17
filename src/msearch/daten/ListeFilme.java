@@ -34,6 +34,7 @@ import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekArte_de;
 import msearch.filmeSuchen.sender.MediathekBr;
+import msearch.filmeSuchen.sender.MediathekHr;
 import msearch.filmeSuchen.sender.MediathekKika;
 import msearch.filmeSuchen.sender.MediathekMdr;
 import msearch.filmeSuchen.sender.MediathekNdr;
@@ -387,42 +388,44 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
     public synchronized void liveStreamEintragen() {
         // ARD
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, "", "http://daserste_live-lh.akamaihd.net/i/daserste_de@91204/master.m3u8"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, " Tagesschau", "http://tagesschau-lh.akamaihd.net/i/tagesschau_1@119231/master.m3u8"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, "", "http://daserste_live-lh.akamaihd.net/i/daserste_de@91204/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, " Alpha", "http://livestreams.br.de/i/bralpha_germany@119899/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, " Tagesschau", "http://tagesschau-lh.akamaihd.net/i/tagesschau_1@119231/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+
+        // BR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekBr.SENDERNAME, "", "http://livestreams.br.de/i/bfsnord_germany@119898/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // ARTE
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArte_de.SENDERNAME, "", "http://delive.artestras.cshls.lldns.net/artestras/contrib/delive.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // HR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekHr.SENDERNAME, "", "http://live1_hr-lh.akamaihd.net/i/hr_fernsehen@75910/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // KiKa
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekKika.SENDERNAME, "", "http://kika_geo-lh.akamaihd.net/i/livetvkika_de@75114/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // MDR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekMdr.SENDERNAME, "", "http://mdr_th_hls-lh.akamaihd.net/i/livetvmdrthueringen_de@106903/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // NDR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekNdr.SENDERNAME, "", "http://ndr_fs-lh.akamaihd.net/i/ndrfs_nds@119224/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // RBB
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekRbb.SENDERNAME, "", "http://rbb_live-lh.akamaihd.net/i/rbb_brandenburg@107638/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // SR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekSr.SENDERNAME, "", "http://live2_sr-lh.akamaihd.net/i/sr_universal02@107595/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // SWR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekSwr.SENDERNAME, "", "http://swrbw-lh.akamaihd.net/i/swrbw_live@196738/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // WDR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekWdr.SENDERNAME, "", "http://wdr_fs_geo-lh.akamaihd.net/i/wdrfs_geogeblockt@112044/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // 3sat
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Mediathek3Sat.SENDERNAME, "", "http://zdf_hds_dach-f.akamaihd.net/i/dach10_v1@87031/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
 
         // ZDF
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, "", "http://zdf_hds_de-f.akamaihd.net/i/de14_v1@147090/master.m3u8"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".info", "http://zdf_hds_de-f.akamaihd.net/i/de12_v1@87013/master.m3u8"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".kultur", "http://zdf_hds_de-f.akamaihd.net/i/de11_v1@87013/master.m3u8"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".neo", "http://zdf_hds_de-f.akamaihd.net/i/de13_v1@147090/master.m3u8"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".heute", "http://zdf_hds_ng-f.akamaihd.net/i/none01_v1@87014/master.m3u8?dw=0"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, "", "http://zdf-hds-de-f.zdf.de/i/de14_v1@147090/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".info", "http://zdf-hds-de-f.zdf.de/i/de12_v1@87013/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".neo", "http://zdf-hds-de-f.zdf.de/i/de13_v1@147090/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".kultur", "http://zdf-hds-de-f.zdf.de/i/de11_v1@87013/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".heute", "http://zdf-hds-ng-f.zdf.de/i/none01_v1@87014/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
 
-        // 3sat
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Mediathek3Sat.SENDERNAME, "", "http://zdf_hds_dach-f.akamaihd.net/i/dach10_v1@87031/master.m3u8?b=0-710&dw=0"));
-        // ARTE
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArte_de.SENDERNAME, "", "http://delive.artestras.cshls.lldns.net/artestras/contrib/delive.m3u8"));
-        // RBB
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekRbb.SENDERNAME, "", "http://rbb_live-lh.akamaihd.net/i/rbb_brandenburg@107638/master.m3u8"));
-        // BR-alpha
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekBr.SENDERNAME, ".alpha", "http://livestreams.br.de/i/bralpha_germany@119899/master.m3u8"));
-        // BR
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekBr.SENDERNAME, "", "http://livestreams.br.de/i/bfssued_germany@119890/master.m3u8"));
-        // NDR
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekNdr.SENDERNAME, "", "http://ndr_fs-lh.akamaihd.net/i/ndrfs_nds@119224/master.m3u8"));
-        // WDR
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekWdr.SENDERNAME, "", "http://metafilegenerator.de/WDR/WDR_FS/m3u8/wdrfernsehen.m3u8"));
-        // MDR
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekMdr.SENDERNAME, "", "http://mdr_th_hls-lh.akamaihd.net/i/livetvmdrthueringen_de@106903/master.m3u8"));
-        // SR- gibts noch nicht
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekSr.SENDERNAME, "", "http://livestream.sr-online.de/live.m3u8"));
-        // SWR
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekSwr.SENDERNAME, "", "http://swrbw-lh.akamaihd.net/i/swrbw_live@196738/master.m3u8"));
-        // KiKa
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekKika.SENDERNAME, "", "http://kika_geo-lh.akamaihd.net/i/livetvkika_de@75114/master.m3u8"));
         // ORF
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-1", "http://apasfiisl.apa.at/ipad/orf1_q4a/orf.sdp/playlist.m3u8"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-2", "http://apasfiisl.apa.at/ipad/orf2_q4a/orf.sdp/playlist.m3u8"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-3", "http://apasfiisl.apa.at/ipad/orf3_q4a/orf.sdp/playlist.m3u8"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-1", "http://apasfiisl.apa.at/ipad/orf1_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-2", "http://apasfiisl.apa.at/ipad/orf2_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-3", "http://apasfiisl.apa.at/ipad/orf3_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
     }
 
     public synchronized DatenFilm getFilmByUrl(final String url) {

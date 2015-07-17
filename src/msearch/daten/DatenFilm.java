@@ -209,10 +209,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
-    public static DatenFilm getDatenFilmLiveStream(String ssender, String addTitle, String uurl) {
-        return new DatenFilm(ssender, ListeFilme.THEMA_LIVE, ""/* urlThema */,
+    public static DatenFilm getDatenFilmLiveStream(String ssender, String addTitle, String urlStream, String urlWebsite) {
+        return new DatenFilm(ssender, ListeFilme.THEMA_LIVE, urlWebsite/* urlThema */,
                 ssender + addTitle + " " + ListeFilme.THEMA_LIVE,
-                uurl, ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "");
+                urlStream, ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "");
     }
 
     public void addUrlKlein(String url, String urlRtmp) {
