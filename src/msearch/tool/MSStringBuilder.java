@@ -93,6 +93,23 @@ public class MSStringBuilder {
         return "";
     }
 
+    public void extractList(String abMuster, String musterEnde, ArrayList<String> result) {
+        try {
+            pos1 = 0;
+            while ((pos1 = cont.indexOf(abMuster, pos1)) != -1) {
+                pos1 += abMuster.length();
+                if ((pos2 = cont.indexOf(musterEnde, pos1)) != -1) {
+                    result.add(cont.substring(pos1, pos2));
+                    if (result.size() > 1000) {
+                        System.out.println("Achtung");
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            MSLog.fehlerMeldung(741203025, ex);
+        }
+    }
+
     public void extractList(String abMuster, String musterStart, String musterEnde, ArrayList<String> result) {
         try {
             pos1 = 0;
@@ -109,7 +126,7 @@ public class MSStringBuilder {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(462310871,  ex);
+            MSLog.fehlerMeldung(462310871, ex);
         }
     }
 
