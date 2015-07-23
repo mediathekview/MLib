@@ -494,6 +494,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             try {
                 if (!d.isEmpty()) {
                     duration = Long.parseLong(d);
+                    duration = duration/1000; //ms
                 }
             } catch (NumberFormatException ex) {
                 MSLog.fehlerMeldung(646490237, ex);

@@ -102,7 +102,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
                     meldungProgress(link[0]);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(825263641,   ex);
+                MSLog.fehlerMeldung(825263641, ex);
             }
             meldungThreadUndFertig();
         }
@@ -120,37 +120,42 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
                     addFilme2(thema, urlThema);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(741258410,   ex, url);
+                MSLog.fehlerMeldung(741258410, ex, url);
             }
         }
 
         private void addFilme2(String thema, String filmWebsite) {
+            // https://www.phoenix.de/php/mediaplayer/data/beitrags_details.php?ak=web&id=980552
             getUrl.getUri_Iso(SENDERNAME, filmWebsite, seite1, "" /* Meldung */);
-            String urlId = seite1.extract("<div class=\"phx_vod\" id=\"phx_vod_", "\"", 0, "http://www.phoenix.de/php/zdfplayer-v1.3/data/beitragsDetails.php?ak=web&id=");
+            String urlId = seite1.extract("<div class=\"phx_vod\" id=\"phx_vod_", "\"", 0, "http://www.phoenix.de/php/mediaplayer/data/beitrags_details.php?ak=web&id=");
+            String title = seite1.extract("<title>", "<"); //<title>phoenix  - "Gysi geht - Was wird aus der Linken?"</title>
+            title = title.replace("phoenix  -", "").trim();
             if (!urlId.isEmpty()) {
-                filmHolenId(thema, filmWebsite, urlId);
+                filmHolenId(thema, filmWebsite, urlId, title);
             } else {
-                MSLog.fehlerMeldung(912546987,   filmWebsite);
+                MSLog.fehlerMeldung(912546987, filmWebsite);
             }
         }
 
-        public void filmHolenId(String thema, String filmWebsite, String urlId) {
+        public void filmHolenId(String thema, String filmWebsite, String urlId, String title_) {
             if (MSConfig.getStop()) {
                 return;
             }
             meldung(urlId);
             getUrl.getUri_Utf(SENDERNAME, urlId, seite3, "" /* Meldung */);
             if (seite3.length() == 0) {
-                MSLog.fehlerMeldung(825412874,   "url: " + urlId);
+                MSLog.fehlerMeldung(825412874, "url: " + urlId);
                 return;
             }
 
             String titel = seite3.extract("<title>", "<");
+            if (titel.isEmpty()) {
+                titel = title_;
+            }
             titel = titel.replaceAll("", "-");
             if (titel.startsWith("\"") && titel.endsWith("\"")) {
                 titel = titel.substring(1, titel.length() - 2);
             }
-
             String beschreibung = seite3.extract("<detail>", "<");
             if (beschreibung.startsWith(titel)) {
                 beschreibung = beschreibung.replaceFirst(titel, "");
@@ -159,7 +164,12 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
             beschreibung = beschreibung.replaceAll("", "-");
 
             String laenge = seite3.extract("<lengthSec>", "<");
+            //<onlineairtime>19.09.2014 10:53</onlineairtime>
+            //<airtime>01.01.1970 01:00</airtime>
             String datum = seite3.extract("<airtime>", "<");
+            if (datum.startsWith("01.01.1970")) {
+                datum = seite3.extract("<onlineairtime>", "<");
+            }
             String zeit = "";
             if (datum.contains(" ")) {
                 zeit = datum.substring(datum.lastIndexOf(" ")).trim() + ":00";
@@ -225,7 +235,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
             }
 
             if (url.isEmpty()) {
-                MSLog.fehlerMeldung(952102014,   "keine URL: " + filmWebsite);
+                MSLog.fehlerMeldung(952102014, "keine URL: " + filmWebsite);
             } else {
                 DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, "" /*urlRtmp*/, datum, zeit,
                         extractDuration(laenge), beschreibung);
