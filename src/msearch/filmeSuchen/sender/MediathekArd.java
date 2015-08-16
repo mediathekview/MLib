@@ -271,7 +271,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     if (s.startsWith("http")) {
                         if (s.endsWith("X.mp4") || s.endsWith("xl.mp4")) {
                             urlHD = s;
-                            url = s; // vorsichtshalber
+//                            url = s; // vorsichtshalber
                             continue;
                         }
                         url = s;
