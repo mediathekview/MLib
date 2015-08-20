@@ -274,7 +274,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 if (seite2.indexOf("quality\":3") >= 0) {
                     if (liste.size() <= 0) {
                         // Fehler
-                        System.out.println("Test");
+//                        System.out.println("Test");
                     }
                 }
                 for (String s : liste) {
@@ -427,7 +427,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 MSLog.fehlerMeldung(784512036, "Leere Seite: " + strUrlFeed);
                 return "";
             }
-            return seite3.extract("<p class=\"subtitle\">", "<p class=\"teasertext\">", "<");
+            return seite3.extract("<p class=\"subtitle\">", "<p class=\"teasertext\" itemprop=\"description\">", "<");
         }
 
     }
