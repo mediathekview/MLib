@@ -91,10 +91,12 @@ public class MediathekNdr extends MediathekReader implements Runnable {
         SimpleDateFormat formatter2 = new SimpleDateFormat("dd.MM.yyyy");
         int maxTage = MSConfig.senderAllesLaden ? 30 : 20;
         for (int i = 0; i < maxTage; ++i) {
+            // https://www.ndr.de/mediathek/sendung_verpasst/epg1490_date-2015-09-05_display-all.html
             final String URL = "http://www.ndr.de/mediathek/sendung_verpasst/epg1490_date-";
             String tag = formatter1.format(new Date().getTime() - (1000 * 60 * 60 * 24 * i));
             String date = formatter2.format(new Date().getTime() - (1000 * 60 * 60 * 24 * i));
-            String urlString = URL + tag + "_display-onlyvideo.html";
+            //String urlString = URL + tag + "_display-onlyvideo.html";
+            String urlString = URL + tag + "_display-all.html";
             listeThemen.addUrl(new String[]{urlString, date});
         }
         if (MSConfig.getStop()) {
@@ -129,7 +131,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                             anz2 = anz1;
                         }
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(643208979,  strUrlFeed);
+                        MSLog.fehlerMeldung(643208979, strUrlFeed);
                     }
                 }
             }
@@ -142,7 +144,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                 ret = true;
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(913047821,  strUrlFeed);
+            MSLog.fehlerMeldung(913047821, strUrlFeed);
         }
         return ret;
     }
@@ -163,11 +165,11 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                         meldungProgress(link[1]);
                         feedEinerSeiteSuchen(link[0], link[1] /* thema */);
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(336901211,   ex);
+                        MSLog.fehlerMeldung(336901211, ex);
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(554632590,  ex);
+                MSLog.fehlerMeldung(554632590, ex);
             }
             meldungThreadUndFertig();
         }
@@ -197,7 +199,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                     pos += muster.length();
                     url = seite1.extract(MUSTER_URL, "\"", pos);
                     if (url.equals("")) {
-                        MSLog.fehlerMeldung(659210274,   "keine Url feedEinerSeiteSuchen" + strUrlFeed);
+                        MSLog.fehlerMeldung(659210274, "keine Url feedEinerSeiteSuchen" + strUrlFeed);
                         continue;
                     }
                     url = "http://www.ndr.de/" + url;
@@ -226,7 +228,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                             Date filmDate = sdfIn.parse(tmp);
                             zeit = new SimpleDateFormat("HH:mm:ss").format(filmDate);
                         } catch (Exception ex) {
-                            MSLog.fehlerMeldung(795623017,  "convertDatum: " + strUrlFeed);
+                            MSLog.fehlerMeldung(795623017, "convertDatum: " + strUrlFeed);
                         }
                     } else {
                         tmp = seite1.extract("<div class=\"subline\">", "<", pos);
@@ -237,7 +239,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                             datum = new SimpleDateFormat("dd.MM.yyyy").format(filmDate);
                             zeit = new SimpleDateFormat("HH:mm:ss").format(filmDate);
                         } catch (Exception ex) {
-                            MSLog.fehlerMeldung(623657941,  "convertDatum: " + strUrlFeed);
+                            MSLog.fehlerMeldung(623657941, "convertDatum: " + strUrlFeed);
                         }
                     }
                     if (tage) {
@@ -254,7 +256,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                                 }
                             }
                         } catch (Exception ex) {
-                            MSLog.fehlerMeldung(369015497,   ex, strUrlFeed);
+                            MSLog.fehlerMeldung(369015497, ex, strUrlFeed);
                         }
                     } else {
                         String duration = seite1.extract("Video (", ")", pos);
@@ -270,13 +272,13 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                                 }
                             }
                         } catch (Exception ex) {
-                            MSLog.fehlerMeldung(369015497,   ex, strUrlFeed);
+                            MSLog.fehlerMeldung(369015497, ex, strUrlFeed);
                         }
                     }
                     filmSuchen(strUrlFeed, thema, titel, url, datum, zeit, durationInSeconds, tage);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(693219870,   strUrlFeed);
+                MSLog.fehlerMeldung(693219870, strUrlFeed);
             }
         }
 
@@ -341,14 +343,14 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                             }
                             addFilm(film, onlyUrl);
                         } else {
-                            MSLog.fehlerMeldung(623657941,  "keine URL: " + filmWebsite);
+                            MSLog.fehlerMeldung(623657941, "keine URL: " + filmWebsite);
                         }
                     }
                 } else {
-                    MSLog.fehlerMeldung(698970145,   "keine Url: " + filmWebsite);
+                    MSLog.fehlerMeldung(698970145, "keine Url: " + filmWebsite);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(699830157,   ex);
+                MSLog.fehlerMeldung(699830157, ex);
             }
         }
 
