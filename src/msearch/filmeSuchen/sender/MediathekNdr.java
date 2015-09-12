@@ -95,7 +95,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
             final String URL = "http://www.ndr.de/mediathek/sendung_verpasst/epg1490_date-";
             String tag = formatter1.format(new Date().getTime() - (1000 * 60 * 60 * 24 * i));
             String date = formatter2.format(new Date().getTime() - (1000 * 60 * 60 * 24 * i));
-            //String urlString = URL + tag + "_display-onlyvideo.html";
+            //String urlString = URL + tag + "_display-onlyvideo.html"; --> stimmt leider nicht immer
             String urlString = URL + tag + "_display-all.html";
             listeThemen.addUrl(new String[]{urlString, date});
         }

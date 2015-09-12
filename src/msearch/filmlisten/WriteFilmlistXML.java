@@ -31,6 +31,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
+import msearch.filmeSuchen.sender.MediathekDw;
 import msearch.filmeSuchen.sender.MediathekPhoenix;
 import msearch.filmeSuchen.sender.MediathekSr;
 import msearch.tool.MSConst;
@@ -112,7 +113,8 @@ public class WriteFilmlistXML {
         while (iterator.hasNext()) {
             datenFilm = iterator.next();
             if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekPhoenix.SENDERNAME)
-                    || datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekSr.SENDERNAME)) {
+                    || datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekSr.SENDERNAME)
+                    || datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekDw.SENDERNAME)) {
                 // neue Sender werden nicht richtig angezeigt im Filter
                 continue;
             }

@@ -31,6 +31,7 @@ import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekArte_de;
 import msearch.filmeSuchen.sender.MediathekArte_fr;
 import msearch.filmeSuchen.sender.MediathekBr;
+import msearch.filmeSuchen.sender.MediathekDw;
 import msearch.filmeSuchen.sender.MediathekHr;
 import msearch.filmeSuchen.sender.MediathekKika;
 import msearch.filmeSuchen.sender.MediathekMdr;
@@ -92,6 +93,7 @@ public class MSFilmeSuchen {
         mediathekListe.add(new MediathekSwr(this, 0));
         mediathekListe.add(new MediathekNdr(this, 1));
         mediathekListe.add(new MediathekKika(this, 0));
+        mediathekListe.add(new MediathekDw(this, 0));
         // Spalte 2
         mediathekListe.add(new MediathekMdr(this, 0));
         mediathekListe.add(new MediathekWdr(this, 1));
@@ -117,6 +119,7 @@ public class MSFilmeSuchen {
         liste.add(MediathekSwr.SENDERNAME);
         liste.add(MediathekNdr.SENDERNAME);
         liste.add(MediathekKika.SENDERNAME);
+        liste.add(MediathekDw.SENDERNAME);
         // Spalte 2
         liste.add(MediathekMdr.SENDERNAME);
         liste.add(MediathekWdr.SENDERNAME);
