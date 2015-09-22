@@ -76,6 +76,13 @@ public class MSearch implements Runnable {
         undTschuess();
     }
 
+    public void stop() {
+        if (serverLaufen) {
+            // nur dann wird noch gesucht
+            MSConfig.setStop();
+        }
+    }
+
     private void undTschuess() {
         MSConfig.setStop(false); // zurücksetzen!! sonst klappt das Lesen der Importlisten nicht!!!!!
         listeFilme = msFilmeSuchen.listeFilmeNeu;
