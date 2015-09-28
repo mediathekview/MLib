@@ -20,6 +20,7 @@
 package msearch.filmeSuchen.sender;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import msearch.daten.DatenFilm;
 import msearch.filmeSuchen.MSFilmeSuchen;
@@ -67,7 +68,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                     thema = seite.substring(pos1 + 1, pos2);
                 }
                 if (url.equals("")) {
-                    MSLog.fehlerMeldung(210367600,  "keine Url");
+                    MSLog.fehlerMeldung(210367600, "keine Url");
                     continue;
                 }
                 String url_ = "http://www.ndr.de/mediathek/mediatheksuche105_broadcast-" + url;
@@ -81,7 +82,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                     listeThemen.addUrl(add);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(332945670,  ex);
+                MSLog.fehlerMeldung(332945670, ex);
             }
         }
         // noch "Verpasst" für die letzten Tage einfügen
@@ -154,6 +155,8 @@ public class MediathekNdr extends MediathekReader implements Runnable {
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
         private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private ArrayList<String> liste = new ArrayList<>();
 
         @Override
         public synchronized void run() {
@@ -175,7 +178,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
         }
 
         void feedEinerSeiteSuchen(String strUrlFeed, String tthema) {
-            final String MUSTER_URL = "<a href=\"/";
+            final String MUSTER_URL = "<a href=\"";
             seite1 = getUrlIo.getUri(SENDERNAME, strUrlFeed, MSConst.KODIERUNG_UTF, 3 /* versuche */, seite1, "Thema: " + tthema/* meldung */);
             int pos = 0;
             String url;
@@ -202,7 +205,9 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                         MSLog.fehlerMeldung(659210274, "keine Url feedEinerSeiteSuchen" + strUrlFeed);
                         continue;
                     }
-                    url = "http://www.ndr.de/" + url;
+                    if (!url.startsWith("http")) {
+                        url = "http://www.ndr.de" + url;
+                    }
                     if (tage) {
                         // <h3><a href="/fernsehen/epg/import/Rote-Rosen,sendung64120.html" title="Rote Rosen"  >Rote Rosen (1725)</a></h3>
                         thema = seite1.extract(MUSTER_URL, " title=\"", "\"", pos);
@@ -275,14 +280,14 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                             MSLog.fehlerMeldung(369015497, ex, strUrlFeed);
                         }
                     }
-                    filmSuchen(strUrlFeed, thema, titel, url, datum, zeit, durationInSeconds, tage);
+                    filmSuchen_1(strUrlFeed, thema, titel, url, datum, zeit, durationInSeconds, tage);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(693219870, strUrlFeed);
             }
         }
 
-        void filmSuchen(String strUrlThema, String thema, String titel, String filmWebsite, String datum, String zeit,
+        void filmSuchen_1(String strUrlThema, String thema, String titel, String filmWebsite, String datum, String zeit,
                 long durationInSeconds, boolean onlyUrl) {
             //playlist: [
             //{
@@ -348,9 +353,59 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                     }
                 } else {
                     MSLog.fehlerMeldung(698970145, "keine Url: " + filmWebsite);
+                    // src="/fernsehen/hallondsopplatt162-player_image-2c09ece0-0508-49bf-b4d6-afff2be2115c_theme-ndrde.html"
+                    // http://www.ndr.de/fernsehen/hallondsopplatt162-ppjson_image-2c09ece0-0508-49bf-b4d6-afff2be2115c.json
+                    // id="pp_hallondsopplatt162"
+
+                    String json = seite2.extract("-player_image-", "_");
+                    String pp = seite2.extract("id=\"pp_", "\"");
+                    if (json.isEmpty() || pp.isEmpty()) {
+                        MSLog.fehlerMeldung(915230214, "auch keine json-Url: " + filmWebsite);
+                    } else {
+                        json = "http://www.ndr.de/fernsehen/" + pp + "-ppjson_image-" + json + ".json";
+                        filmSuchen_2(strUrlThema, thema, titel, filmWebsite, json, datum, zeit, durationInSeconds, description, subtitle);
+                    }
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(699830157, ex);
+            }
+        }
+
+        void filmSuchen_2(String strUrlThema, String thema, String titel, String filmWebsite, String json, String datum, String zeit,
+                long durationInSeconds, String description, String subtitle) {
+
+            seite3 = getUrl.getUri_Utf(SENDERNAME, json, seite3, "strUrlThema: " + strUrlThema);
+            String url_hd = "", url_xl = "", url_m = "";
+            seite3.extractList("\"src\": \"http://media.ndr.de", "\"", 0, "http://media.ndr.de", liste);
+
+            for (String s : liste) {
+                if (s.endsWith(".hd.mp4")) {
+                    url_hd = s;
+                } else if (s.endsWith(".hq.mp4")) {
+                    url_xl = s;
+                } else if (s.endsWith(".hi.mp4")) {
+                    url_m = s;
+                }
+            }
+            liste.clear();
+            if (url_xl.isEmpty()) {
+                url_xl = url_m;
+                url_m = "";
+            }
+            if (!url_xl.isEmpty()) {
+                DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url_xl, ""/*rtmpURL*/, datum, zeit, durationInSeconds, description);
+                if (!subtitle.isEmpty()) {
+                    film.addUrlSubtitle(subtitle);
+                }
+                if (!url_hd.isEmpty()) {
+                    film.addUrlHd(url_hd, "");
+                }
+                if (!url_m.isEmpty()) {
+                    film.addUrlKlein(url_m, "");
+                }
+                addFilm(film);
+            } else {
+                MSLog.fehlerMeldung(915234210, "keine URL im json: " + filmWebsite);
             }
         }
 
