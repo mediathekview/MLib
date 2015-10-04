@@ -245,6 +245,11 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 zeit = convertTime(datum);
                 datum = convertDatum(datum);
             }
+            String urlSeite = seite.extract("id=\"fieldLink\" value=\"", "\"");
+            if (urlSeite.isEmpty()) {
+                MSLog.fehlerMeldung(912030145, "urlSeite leer: " + urlThema);
+                urlSeite = urlThema;
+            }
             //<meta property="og:description" content="Aktuelle Berichte aus Bayern, Hintergründe zu brisanten Themen, Geschichten, die unter die Haut gehen - das ist die Abendschau. Sie sehen uns montags bis freitags von 18.00 bis 18.45 Uhr im Bayerischen Fernsehen."/>
             description = seite.extract("<meta property=\"og:description\" content=\"", "\"");
             if (description.isEmpty()) {
@@ -256,7 +261,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 MSLog.fehlerMeldung(915263478, "keine URL: " + urlThema);
             } else {
                 urlXml = "http://www.br.de" + urlXml;
-                loadXml(seiteXml, urlXml, urlThema, thema, titel, description, datum, zeit);
+                loadXml(seiteXml, urlXml, urlSeite, thema, titel, description, datum, zeit);
             }
             if (!weitersuchen) {
                 return;
