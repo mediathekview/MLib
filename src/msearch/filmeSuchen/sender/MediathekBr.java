@@ -229,7 +229,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 // MSearchLog.fehlerMeldung(-120364780, MSearchLog.FEHLER_ART_MREADER, "MediathekBr.laden", "keine Videos: " + urlThema);
                 return;
             }
-            thema_ = seite.extract("<h3>", "<"); //<h3>Abendschau</h3>
+            thema_ = seite.extract("<h3>", "<").trim(); //<h3>Abendschau</h3>, <h3>Film und Serie  </h3>
             if (thema.isEmpty()) {
                 thema = checkThema(thema_);
             }

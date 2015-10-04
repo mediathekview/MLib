@@ -35,28 +35,27 @@ public class MediathekKika extends MediathekReader implements Runnable {
 
     public final static String SENDERNAME = "KiKA";
     private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-    LinkedListUrl listeVideos = new LinkedListUrl();
+    LinkedListUrl listeAllVideos = new LinkedListUrl();
 
     public MediathekKika(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, SENDERNAME, /* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch, SENDERNAME, /* threads */ 3, /* urlWarten */ 500, startPrio);
     }
 
     @Override
     void addToList() {
         meldungStart();
         addToListNormal();
-        addToListAllVideo();
+//        addToListAllVideo();
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
-        } else if (listeThemen.size() == 0 && listeVideos.size() == 0) {
+        } else if (listeThemen.size() == 0 && listeAllVideos.size() == 0) {
             meldungThreadUndFertig();
         } else {
             // dann den Sender aus der alten Liste löschen
             // URLs laufen nur begrenzte Zeit
-//            delSenderInAlterListe(SENDERNAME); brauchts wohl nicht mehr
-            meldungAddMax(listeThemen.size() + listeVideos.size());
+            // delSenderInAlterListe(SENDERNAME); brauchts wohl nicht mehr
+            meldungAddMax(listeThemen.size() + listeAllVideos.size());
             for (int t = 0; t < maxThreadLaufen; ++t) {
-                //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
                 th.setName(SENDERNAME + t);
                 th.start();
@@ -104,7 +103,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 seite.extractList("<div class=\"media mediaA\">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste2);
             }
             for (String s2 : liste2) {
-                listeVideos.add(new String[]{s2});
+                listeAllVideos.add(new String[]{s2});
             }
         } catch (Exception ex) {
             MSLog.fehlerMeldung(732120256, ex);
@@ -120,6 +119,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
         private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");//2014-12-12T09:45:00.000+0100
         private final SimpleDateFormat sdfOutTime = new SimpleDateFormat("HH:mm:ss");
         private final SimpleDateFormat sdfOutDay = new SimpleDateFormat("dd.MM.yyyy");
+        private ArrayList<String> liste1 = new ArrayList<>();
 
         @Override
         public synchronized void run() {
@@ -128,11 +128,11 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 String[] link;
                 while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
-                    ladenSerien(link[0] /* url */);
+                    ladenSerien_1(link[0] /* url */);
                 }
-                while (!MSConfig.getStop() && (link = listeVideos.getListeThemen()) != null) {
+                while (!MSConfig.getStop() && (link = listeAllVideos.getListeThemen()) != null) {
                     meldungProgress(link[0]);
-                    loadAllVideo(link[0] /* url */);
+                    loadAllVideo_1(link[0] /* url */);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(915236791, ex);
@@ -140,30 +140,71 @@ public class MediathekKika extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         }
 
-        void ladenSerien(String filmWebsite) {
-            final String MUSTER = "<div class=\"av-playerContainer\"";
-            seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
-            String thema = seite1.extract("<title>", "<");
-            thema = thema.replace("KiKA -", "").trim();
-            int pos = 0;
+        void ladenSerien_1(String filmWebsite) {
+            try {
+                // http://www.kika.de/feuerwehrmann-sam/sendereihe1496.html
+                // -> http://www.kika.de/feuerwehrmann-sam/sendungen/sendung51794.html
+                // nach Muster: <a href="/feuerwehrmann-sam/sendungen/
+                // suchen
+                // ToDo -> http://www.kika.de/baumhaus/baumhaus106.html
 
-            while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER, pos)) != -1) {
-                pos += MUSTER.length();
-                String xml = seite1.extract("setup({dataURL:'", "'", pos);
-                if (xml.isEmpty()) {
-                    MSLog.fehlerMeldung(701025987, "keine XML: " + filmWebsite);
-                } else {
-                    xml = "http://www.kika.de/" + xml;
-                    ladenXml(xml, thema, false /*alle*/);
+                seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
+                String th = filmWebsite.substring(0, filmWebsite.indexOf("/sendereihe"));
+                if (th.isEmpty()) {
+                    return;
                 }
+                th = th.replace("http://www.kika.de/", "");
+                String muster = "<a href=\"/" + th + "/sendungen/";
+                liste1.clear();
+                seite1.extractList(muster, "\"", 0, "http://www.kika.de/" + th + "/sendungen/", liste1);
+
+                String thema = seite1.extract("<title>", "<");
+                thema = thema.replace("KiKA -", "").trim();
+                int c = 0;
+                for (String s : liste1) {
+                    ++c;
+                    if (!MSConfig.senderAllesLaden && c > 3) {
+                        return;
+                    }
+                    if (MSConfig.getStop()) {
+                        return;
+                    }
+                    ladenSerien_2(s, thema);
+                }
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(915263147, ex);
             }
         }
 
-        void loadAllVideo(String url) {
+        void ladenSerien_2(String filmWebsite, String thema) {
+            try {
+                // http://www.kika.de/fluch-des-falken-eins/sendereihe2114.html
+                // nach Muster: <a href="/fluch-des-falken-eins/sendungen/
+                // suchen
+                final String MUSTER = "<div class=\"av-playerContainer\"";
+                seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
+
+                int pos = 0;
+                if ((pos = seite1.indexOf(MUSTER, pos)) != -1) {
+                    pos += MUSTER.length();
+                    String xml = seite1.extract("setup({dataURL:'", "'", pos);
+                    if (xml.isEmpty()) {
+                        MSLog.fehlerMeldung(701025987, "keine XML: " + filmWebsite);
+                    } else {
+                        xml = "http://www.kika.de/" + xml;
+                        ladenXml(xml, thema, false /*alle*/);
+                    }
+                }
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(801202145, ex);
+            }
+        }
+
+        void loadAllVideo_1(String url) {
             ArrayList<String> liste = new ArrayList<>();
             try {
                 seite2 = getUrlIo.getUri_Utf(sendername, url, seite2, "KiKa-Sendungen");
-                loadAllVideo_(seite2);
+                loadAllVideo_2(seite2);
                 if (MSConfig.senderAllesLaden) {
                     seite2.extractList("<div class=\"bundleNaviItem active\">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste);
                     seite2.extractList("<div class=\"bundleNaviItem \">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste);
@@ -173,14 +214,14 @@ public class MediathekKika extends MediathekReader implements Runnable {
                         break;
                     }
                     seite2 = getUrlIo.getUri_Utf(sendername, u, seite2, "KiKa-Sendungen");
-                    loadAllVideo_(seite2);
+                    loadAllVideo_2(seite2);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(825412369, ex);
             }
         }
 
-        void loadAllVideo_(MSStringBuilder sStringBuilder) {
+        void loadAllVideo_2(MSStringBuilder sStringBuilder) {
             ArrayList<String> liste = new ArrayList<>();
             String thema;
             try {
@@ -202,80 +243,84 @@ public class MediathekKika extends MediathekReader implements Runnable {
         }
 
         void ladenXml(String xmlWebsite, String thema, boolean urlPruefen) {
-            seite3 = getUrlIo.getUri_Utf(sendername, xmlWebsite, seite3, "" /* Meldung */);
-            if (thema.isEmpty()) {
-                thema = sendername;
-            }
-            String titel = seite3.extract("<title>", "<");
-            if (titel.toLowerCase().equals(thema.toLowerCase())) {
-                titel = seite3.extract("<headline>", "<");
-            }
-            if (titel.toLowerCase().equals(thema.toLowerCase())) {
-                titel = seite3.extract("<topline>", "<");
-                if (titel.isEmpty()) {
-                    // dann bleibts dabei
-                    titel = seite3.extract("<title>", "<");
-                }
-            }
-            String beschreibung = seite3.extract("<broadcastDescription>", "<");
-            String date = seite3.extract("<broadcastDate>", "<");
-            String datum = "";
-            String zeit = "";
-            if (!date.isEmpty()) {
-                datum = convertDatum(date);
-                zeit = convertTime(date);
-            } else {
-                date = seite3.extract("<webTime>", "<"); // <webTime>08.12.2014 13:16</webTime>
-                if (!date.isEmpty()) {
-                    datum = date.substring(0, date.indexOf(" ")).trim();
-                    zeit = date.substring(date.indexOf(" ")).trim() + ":00";
-                }
-            }
-            String urlSendung = seite3.extract("<broadcastURL>", "<");
-            if (urlSendung.isEmpty()) {
-                urlSendung = seite3.extract("<htmlUrl>", "<");
-            }
-            long duration = 0;
             try {
-                //<duration>00:03:07</duration>
-                String dauer = seite3.extract("<duration>", "<");
-                if (!dauer.equals("")) {
-                    String[] parts = dauer.split(":");
-                    long power = 1;
-                    for (int i = parts.length - 1; i >= 0; i--) {
-                        duration += Long.parseLong(parts[i]) * power;
-                        power *= 60;
+                seite3 = getUrlIo.getUri_Utf(sendername, xmlWebsite, seite3, "" /* Meldung */);
+                if (thema.isEmpty()) {
+                    thema = sendername;
+                }
+                String titel = seite3.extract("<title>", "<");
+                if (titel.toLowerCase().equals(thema.toLowerCase())) {
+                    titel = seite3.extract("<headline>", "<");
+                }
+                if (titel.toLowerCase().equals(thema.toLowerCase())) {
+                    titel = seite3.extract("<topline>", "<");
+                    if (titel.isEmpty()) {
+                        // dann bleibts dabei
+                        titel = seite3.extract("<title>", "<");
                     }
                 }
-            } catch (NumberFormatException ex) {
-                MSLog.fehlerMeldung(201036547, ex, xmlWebsite);
-            }
-            // Film-URLs suchen
-            final String MUSTER_URL_MP4 = "<progressiveDownloadUrl>";
-            String urlHD = seite3.extract("| MP4 Web XL |", MUSTER_URL_MP4, "<");
-            String urlMp4 = seite3.extract("| MP4 Web L |", MUSTER_URL_MP4, "<");
-            if (urlMp4.isEmpty()) {
-                urlMp4 = seite3.extract("| MP4 Web L+ |", MUSTER_URL_MP4, "<");
-            }
-            String urlMp4_klein = seite3.extract("| MP4 Web M |", MUSTER_URL_MP4, "<");
+                String beschreibung = seite3.extract("<broadcastDescription>", "<");
+                String date = seite3.extract("<broadcastDate>", "<");
+                String datum = "";
+                String zeit = "";
+                if (!date.isEmpty()) {
+                    datum = convertDatum(date);
+                    zeit = convertTime(date);
+                } else {
+                    date = seite3.extract("<webTime>", "<"); // <webTime>08.12.2014 13:16</webTime>
+                    if (!date.isEmpty()) {
+                        datum = date.substring(0, date.indexOf(" ")).trim();
+                        zeit = date.substring(date.indexOf(" ")).trim() + ":00";
+                    }
+                }
+                String urlSendung = seite3.extract("<broadcastURL>", "<");
+                if (urlSendung.isEmpty()) {
+                    urlSendung = seite3.extract("<htmlUrl>", "<");
+                }
+                long duration = 0;
+                try {
+                    //<duration>00:03:07</duration>
+                    String dauer = seite3.extract("<duration>", "<");
+                    if (!dauer.equals("")) {
+                        String[] parts = dauer.split(":");
+                        long power = 1;
+                        for (int i = parts.length - 1; i >= 0; i--) {
+                            duration += Long.parseLong(parts[i]) * power;
+                            power *= 60;
+                        }
+                    }
+                } catch (NumberFormatException ex) {
+                    MSLog.fehlerMeldung(201036547, ex, xmlWebsite);
+                }
+                // Film-URLs suchen
+                final String MUSTER_URL_MP4 = "<progressiveDownloadUrl>";
+                String urlHD = seite3.extract("| MP4 Web XL |", MUSTER_URL_MP4, "<");
+                String urlMp4 = seite3.extract("| MP4 Web L |", MUSTER_URL_MP4, "<");
+                if (urlMp4.isEmpty()) {
+                    urlMp4 = seite3.extract("| MP4 Web L+ |", MUSTER_URL_MP4, "<");
+                }
+                String urlMp4_klein = seite3.extract("| MP4 Web M |", MUSTER_URL_MP4, "<");
 
-            if (urlMp4.isEmpty()) {
-                urlMp4 = urlMp4_klein;
-                urlMp4_klein = "";
-            }
+                if (urlMp4.isEmpty()) {
+                    urlMp4 = urlMp4_klein;
+                    urlMp4_klein = "";
+                }
 
-            if (thema.isEmpty() || urlSendung.isEmpty() || titel.isEmpty() || urlMp4.isEmpty() || date.isEmpty() || zeit.isEmpty() || duration == 0 /*|| beschreibung.isEmpty()*/) {
-                MSLog.fehlerMeldung(735216987, "leer: " + xmlWebsite);
-            }
+                if (thema.isEmpty() || urlSendung.isEmpty() || titel.isEmpty() || urlMp4.isEmpty() || date.isEmpty() || zeit.isEmpty() || duration == 0 /*|| beschreibung.isEmpty()*/) {
+                    MSLog.fehlerMeldung(735216987, "leer: " + xmlWebsite);
+                }
 
-            if (!urlMp4.equals("")) {
-                meldung(urlMp4);
-                DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, urlMp4, ""/*rtmpUrl*/, datum, zeit, duration, beschreibung);
-                film.addUrlKlein(urlMp4_klein, "");
-                film.addUrlHd(urlHD, "");
-                addFilm(film, urlPruefen);
-            } else {
-                MSLog.fehlerMeldung(963215478, " xml: " + xmlWebsite);
+                if (!urlMp4.equals("")) {
+                    meldung(urlMp4);
+                    DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, urlMp4, ""/*rtmpUrl*/, datum, zeit, duration, beschreibung);
+                    film.addUrlKlein(urlMp4_klein, "");
+                    film.addUrlHd(urlHD, "");
+                    addFilm(film, urlPruefen);
+                } else {
+                    MSLog.fehlerMeldung(963215478, " xml: " + xmlWebsite);
+                }
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(784512365, ex);
             }
         }
 
