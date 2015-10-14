@@ -39,7 +39,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
     private final LinkedListUrl listeThemen_3 = new LinkedListUrl();
 
     public MediathekZdfTivi(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, SENDERNAME , 2 /* threads */, 500 /* urlWarten */, startPrio);
+        super(ssearch, SENDERNAME, 2 /* threads */, 500 /* urlWarten */, startPrio);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
         MSStringBuilder seiteTivi_1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         seiteTivi_1 = getUrlIo.getUri(SENDERNAME, "http://www.tivi.de/tiviVideos/rueckblick?view=flashXml", MSConst.KODIERUNG_UTF, 6 /* versuche */, seiteTivi_1, "" /* Meldung */);
         if (seiteTivi_1.length() == 0) {
-            MSLog.fehlerMeldung(732323698,   "Leere Seite");
+            MSLog.fehlerMeldung(732323698, "Leere Seite");
         }
         int pos = 0;
         int pos1;
@@ -86,17 +86,20 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                 pos1 = pos;
                 if ((pos2 = seiteTivi_1.indexOf("<", pos1)) != -1) {
                     url = seiteTivi_1.substring(pos1, pos2);
+                    if (url.contains("%2F")) {
+                        url = url.replace("%2F", "/");
+                    }
 //                    url = URLDecoder.decode(url, "UTF-8");
                 }
                 if (url.equals("")) {
-                    MSLog.fehlerMeldung(309075109,  "keine URL");
+                    MSLog.fehlerMeldung(309075109, "keine URL");
                 } else {
                     url = "http://www.tivi.de/tiviVideos" + url;
                     listeThemen.addUrl(new String[]{url});
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(302010498,   ex);
+            MSLog.fehlerMeldung(302010498, ex);
         }
     }
 
@@ -110,7 +113,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
         seiteTivi_1 = getUrlIo.getUri(SENDERNAME, "http://www.tivi.de/tiviVideos/?view=flashXml", MSConst.KODIERUNG_UTF, 6 /* versuche */, seiteTivi_1, "" /* Meldung */);
         ///seiteTivi_1 = getUrl.getUri(nameSenderMReader, "http://www.tivi.de/tiviVideos/?view=xml", MSearchConst.KODIERUNG_UTF, 6 /* versuche */, seiteTivi_1, "" /* Meldung */);
         if (seiteTivi_1.length() == 0) {
-            MSLog.fehlerMeldung(645121326,   "Leere Seite");
+            MSLog.fehlerMeldung(645121326, "Leere Seite");
         }
         int pos = 0;
         int pos1;
@@ -123,17 +126,20 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                 pos1 = pos;
                 if ((pos2 = seiteTivi_1.indexOf("<", pos1)) != -1) {
                     url = seiteTivi_1.substring(pos1, pos2);
+                    if (url.contains("%2F")) {
+                        url = url.replace("%2F", "/");
+                    }
 //                    url = URLDecoder.decode(url, "UTF-8");
                 }
                 if (url.equals("")) {
-                    MSLog.fehlerMeldung(915263985,   "keine URL");
+                    MSLog.fehlerMeldung(915263985, "keine URL");
                 } else {
                     url = "http://www.tivi.de/tiviVideos/beitrag" + url;
                     listeThemen.addUrl(new String[]{url});
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(730169702,   ex);
+            MSLog.fehlerMeldung(730169702, ex);
         }
     }
 
@@ -142,7 +148,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
         MSStringBuilder seiteTivi_1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         seiteTivi_1 = getUrlIo.getUri(SENDERNAME, "http://www.tivi.de/tiviVideos/navigation?view=flashXml", MSConst.KODIERUNG_UTF, 6 /* versuche */, seiteTivi_1, "" /* Meldung */);
         if (seiteTivi_1.length() == 0) {
-            MSLog.fehlerMeldung(195623078,   "Leere Seite");
+            MSLog.fehlerMeldung(195623078, "Leere Seite");
         }
         int pos = 0;
         int pos1;
@@ -155,17 +161,20 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                 pos1 = pos;
                 if ((pos2 = seiteTivi_1.indexOf("<", pos1)) != -1) {
                     url = seiteTivi_1.substring(pos1, pos2);
+                    if (url.contains("%2F")) {
+                        url = url.replace("%2F", "/");
+                    }
 //                    url = URLDecoder.decode(url, "UTF-8");
                 }
                 if (url.equals("")) {
-                    MSLog.fehlerMeldung(152378787,   "keine URL");
+                    MSLog.fehlerMeldung(152378787, "keine URL");
                 } else {
                     url = "http://www.tivi.de" + url;
                     listeThemen_3.addUrl(new String[]{url});
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(906037912,   ex);
+            MSLog.fehlerMeldung(906037912, ex);
         }
     }
 
@@ -189,7 +198,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                     meldungProgress(link[0]);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(731214569,   ex);
+                MSLog.fehlerMeldung(731214569, ex);
             }
             meldungThreadUndFertig();
         }
@@ -198,7 +207,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
             final String MUSTER_START = "<ns3:video-teaser>";
             seite2 = getUrlIo.getUri(SENDERNAME, url_, MSConst.KODIERUNG_UTF, 1 /* versuche */, seite2, "" /* Meldung */);
             if (seite2.length() == 0) {
-                MSLog.fehlerMeldung(302010698,  "Leere Seite");
+                MSLog.fehlerMeldung(302010698, "Leere Seite");
             }
             int pos = 0;
             String url;
@@ -208,14 +217,17 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                     url = seite2.extract("<ns3:page>", "<", pos);
 //                    url = URLDecoder.decode(url, "UTF-8");
                     if (url.equals("")) {
-                        MSLog.fehlerMeldung(732698720,   "keine URL");
+                        MSLog.fehlerMeldung(732698720, "keine URL");
                     } else {
+                        if (url.contains("%2F")) {
+                            url = url.replace("%2F", "/");
+                        }
                         url = "http://www.tivi.de" + url;
                         addTivi_(url);
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(701212145,   ex);
+                MSLog.fehlerMeldung(701212145, ex);
             }
         }
 
@@ -229,7 +241,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                 meldung(url);
                 seite1 = getUrl.getUri_Utf(SENDERNAME, url, seite1, "" /* Meldung */);
                 if (seite1.length() == 0) {
-                    MSLog.fehlerMeldung(301649897,   "Leere Seite Tivi-2: " + url);
+                    MSLog.fehlerMeldung(301649897, "Leere Seite Tivi-2: " + url);
                     return;
                 }
                 thema = seite1.extract("<title>", "<");
@@ -256,7 +268,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                     dauerL = ih * 60 * 60 + im * 60 + is;
                 } catch (Exception ex) {
                     dauerL = 0;
-                    MSLog.fehlerMeldung(349761012,  ex, "Dauer: " + url);
+                    MSLog.fehlerMeldung(349761012, ex, "Dauer: " + url);
                 }
                 zeit = "";
                 datum = seite1.extract("<airTime>", "<");
@@ -266,7 +278,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                     datum = sdfOut_date.format(filmDate);
                     zeit = sdfOut_time.format(filmDate);
                 } catch (Exception ex) {
-                    MSLog.fehlerMeldung(649600299,  ex, "Datum: " + url);
+                    MSLog.fehlerMeldung(649600299, ex, "Datum: " + url);
                 }
                 pos3 = 0;
                 while ((pos3 = seite1.indexOf("<ns4:quality>veryhigh</ns4:quality>", pos3)) != -1) {
@@ -277,7 +289,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                     }
                 }
                 if (urlFilm.isEmpty()) {
-                    MSLog.fehlerMeldung(159876234,  "kein Film: " + url);
+                    MSLog.fehlerMeldung(159876234, "kein Film: " + url);
                 } else {
                     // public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
                     //        String datum, String zeit,
@@ -290,7 +302,7 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                     addFilm(film);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(454123698,  ex);
+                MSLog.fehlerMeldung(454123698, ex);
             }
         }
 
