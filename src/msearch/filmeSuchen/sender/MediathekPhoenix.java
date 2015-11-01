@@ -78,7 +78,8 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
                 url = seite.substring(pos1, pos2);
                 if (!url.isEmpty()) {
                     url = "http://www.phoenix.de/content/" + url;
-                    thema = seite.extract("&quot;", "&quot;", pos);
+                    thema = seite.extract(">", "<", pos);
+                    thema = thema.replace("\"", "");
                     listeThemen.addUrl(new String[]{url, thema});
                 }
             }
