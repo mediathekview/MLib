@@ -150,7 +150,13 @@ public class MSStringBuilder {
                 pos1 += musterStart.length();
                 if ((pos2 = cont.indexOf(musterEnde, pos1)) != -1) {
                     if (stopPos <= 0 || pos2 < stopPos) {
-                        result.add(addUrl + cont.substring(pos1, pos2));
+
+                        String s = addUrl + cont.substring(pos1, pos2);
+                        if (!result.contains(s)) {
+                            result.add(s);
+                        }
+                        //result.add(addUrl + cont.substring(pos1, pos2));
+
                     }
                 }
             }
@@ -165,8 +171,13 @@ public class MSStringBuilder {
                 pos1 = cont.indexOf(musterStart2, pos1);
                 pos1 += musterStart2.length();
                 if ((pos2 = cont.indexOf(musterEnde, pos1)) != -1) {
-                    if (stopPos < 0 || pos2 < stopPos) {
-                        result.add(addUrl + cont.substring(pos1, pos2));
+                    if (stopPos <= 0 || pos2 < stopPos) {
+
+                        String s = addUrl + cont.substring(pos1, pos2);
+                        if (!result.contains(s)) {
+                            result.add(s);
+                        }
+                        //result.add(addUrl + cont.substring(pos1, pos2));
                     }
                 }
             }

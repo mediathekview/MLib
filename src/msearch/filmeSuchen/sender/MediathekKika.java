@@ -38,7 +38,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
     LinkedListUrl listeAllVideos = new LinkedListUrl();
 
     public MediathekKika(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, SENDERNAME, /* threads */ 3, /* urlWarten */ 500, startPrio);
+        super(ssearch, SENDERNAME, /* threads */ 6, /* urlWarten */ 500, startPrio);
     }
 
     @Override
@@ -46,6 +46,9 @@ public class MediathekKika extends MediathekReader implements Runnable {
         meldungStart();
         addToListNormal();
 //        addToListAllVideo();
+
+//        new ThemaLaden().ladenSerien_1("http://www.kika.de/das-mutcamp/sendereihe1834.html");
+//        meldungThreadUndFertig();
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0 && listeAllVideos.size() == 0) {
@@ -119,7 +122,8 @@ public class MediathekKika extends MediathekReader implements Runnable {
         private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");//2014-12-12T09:45:00.000+0100
         private final SimpleDateFormat sdfOutTime = new SimpleDateFormat("HH:mm:ss");
         private final SimpleDateFormat sdfOutDay = new SimpleDateFormat("dd.MM.yyyy");
-        private ArrayList<String> liste1 = new ArrayList<>();
+        private final ArrayList<String> liste1 = new ArrayList<>();
+        private final ArrayList<String> liste2 = new ArrayList<>();
 
         @Override
         public synchronized void run() {
@@ -140,60 +144,107 @@ public class MediathekKika extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         }
 
-        void ladenSerien_1(String filmWebsite) {
+        public void ladenSerien_1(String filmWebsite) {
             try {
-                // http://www.kika.de/feuerwehrmann-sam/sendereihe1496.html
-                // -> http://www.kika.de/feuerwehrmann-sam/sendungen/sendung51794.html
-                // nach Muster: <a href="/feuerwehrmann-sam/sendungen/
-                // suchen
-                // ToDo -> http://www.kika.de/baumhaus/baumhaus106.html
-
-                seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
-                String th = filmWebsite.substring(0, filmWebsite.indexOf("/sendereihe"));
-                if (th.isEmpty()) {
-                    return;
-                }
-                th = th.replace("http://www.kika.de/", "");
-                String muster = "<a href=\"/" + th + "/sendungen/";
                 liste1.clear();
-                seite1.extractList(muster, "\"", 0, "http://www.kika.de/" + th + "/sendungen/", liste1);
-
+                liste2.clear();
+                seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
                 String thema = seite1.extract("<title>", "<");
                 thema = thema.replace("KiKA -", "").trim();
-                int c = 0;
-                for (String s : liste1) {
-                    ++c;
-                    if (!MSConfig.senderAllesLaden && c > 3) {
+                String url = seite1.extract("<h2 class=\"conHeadline\">Alle Folgen</h2>", "<a href=\"", "\"");
+                if (url.isEmpty()) {
+                    url = seite1.extract("<h2 class=\"conHeadline\">Alle Sendungen</h2>", "<a href=\"", "\"");
+                }
+                if (url.isEmpty()) {
+                    url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"");
+                }
+                if (url.isEmpty()) {
+                    MSLog.fehlerMeldung(721356987, "keine URL: " + filmWebsite);
+                    return;
+                } else {
+                    if (!url.startsWith("http://www.kika.de")) {
+                        url = "http://www.kika.de" + url;
+                    }
+                    seite1 = getUrlIo.getUri(SENDERNAME, url, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
+                    seite1.extractList("", "<!--The bottom navigation -->", "<div class=\"shortInfos\">", "<a href=\"", "\"", "http://www.kika.de", liste1);
+
+                    seite1.extractList("", "", "<div class=\"bundleNaviItem \">", "<a href=\"", "\"", "http://www.kika.de", liste2);
+                    for (String s : liste2) {
+                        seite1 = getUrlIo.getUri(SENDERNAME, s, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
+                        seite1.extractList("", "<!--The bottom navigation -->", "<div class=\"shortInfos\">", "<a href=\"", "\"", "http://www.kika.de", liste1);
+                    }
+                    if (liste1.isEmpty()) {
+                        MSLog.fehlerMeldung(794512630, "keine Filme: " + filmWebsite);
                         return;
                     }
-                    if (MSConfig.getStop()) {
-                        return;
+                    int c = 0;
+                    for (int i = (liste1.size() - 1); i > 0; --i) {
+                        // die jüngsten Beiträge sind am Ende
+                        String s = liste1.get(i);
+                        ++c;
+                        if (!MSConfig.senderAllesLaden && c > 3) {
+                            return;
+                        }
+                        if (MSConfig.getStop()) {
+                            return;
+                        }
+                        ladenSerien_2(s, thema);
                     }
-                    ladenSerien_2(s, thema);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(915263147, ex);
             }
         }
 
+//        void ladenSerien_1(String filmWebsite) {
+//            try {
+//                // http://www.kika.de/feuerwehrmann-sam/sendereihe1496.html
+//                // -> http://www.kika.de/feuerwehrmann-sam/sendungen/sendung51794.html
+//                // nach Muster: <a href="/feuerwehrmann-sam/sendungen/
+//                // suchen
+//                // ToDo -> http://www.kika.de/baumhaus/baumhaus106.html
+//
+//                seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
+//                String th = filmWebsite.substring(0, filmWebsite.indexOf("/sendereihe"));
+//                if (th.isEmpty()) {
+//                    return;
+//                }
+//                th = th.replace("http://www.kika.de/", "");
+//                String muster = "<a href=\"/" + th + "/sendungen/";
+//                liste1.clear();
+//                seite1.extractList(muster, "\"", 0, "http://www.kika.de/" + th + "/sendungen/", liste1);
+//
+//                String thema = seite1.extract("<title>", "<");
+//                thema = thema.replace("KiKA -", "").trim();
+//                int c = 0;
+//                for (String s : liste1) {
+//                    ++c;
+//                    if (!MSConfig.senderAllesLaden && c > 3) {
+//                        return;
+//                    }
+//                    if (MSConfig.getStop()) {
+//                        return;
+//                    }
+//                    ladenSerien_2(s, thema);
+//                }
+//            } catch (Exception ex) {
+//                MSLog.fehlerMeldung(915263147, ex);
+//            }
+//        }
         void ladenSerien_2(String filmWebsite, String thema) {
             try {
                 // http://www.kika.de/fluch-des-falken-eins/sendereihe2114.html
                 // nach Muster: <a href="/fluch-des-falken-eins/sendungen/
                 // suchen
-                final String MUSTER = "<div class=\"av-playerContainer\"";
+                meldung(filmWebsite);
                 seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
 
-                int pos = 0;
-                if ((pos = seite1.indexOf(MUSTER, pos)) != -1) {
-                    pos += MUSTER.length();
-                    String xml = seite1.extract("setup({dataURL:'", "'", pos);
-                    if (xml.isEmpty()) {
-                        MSLog.fehlerMeldung(701025987, "keine XML: " + filmWebsite);
-                    } else {
-                        xml = "http://www.kika.de/" + xml;
-                        ladenXml(xml, thema, false /*alle*/);
-                    }
+                String xml = seite1.extract("<div class=\"av-playerContainer\"", "setup({dataURL:'", "'");
+                if (xml.isEmpty()) {
+                    MSLog.fehlerMeldung(701025987, "keine XML: " + filmWebsite);
+                } else {
+                    xml = "http://www.kika.de" + xml;
+                    ladenXml(xml, thema, false /*alle*/);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(801202145, ex);
