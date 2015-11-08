@@ -38,7 +38,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
     LinkedListUrl listeAllVideos = new LinkedListUrl();
 
     public MediathekKika(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, SENDERNAME, /* threads */ 6, /* urlWarten */ 500, startPrio);
+        super(ssearch, SENDERNAME, /* threads */ 4, /* urlWarten */ 250, startPrio);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
         addToListNormal();
 //        addToListAllVideo();
 
-//        new ThemaLaden().ladenSerien_1("http://www.kika.de/das-mutcamp/sendereihe1834.html");
+//        new ThemaLaden().ladenSerien_1("http://www.kika.de/polo/sendereihe2120.html");
 //        meldungThreadUndFertig();
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
@@ -151,12 +151,17 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
                 String thema = seite1.extract("<title>", "<");
                 thema = thema.replace("KiKA -", "").trim();
-                String url = seite1.extract("<h2 class=\"conHeadline\">Alle Folgen</h2>", "<a href=\"", "\"");
-                if (url.isEmpty()) {
-                    url = seite1.extract("<h2 class=\"conHeadline\">Alle Sendungen</h2>", "<a href=\"", "\"");
+                String url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"");
+                if (!url.isEmpty()) {
+                    if (ladenSerien_3(thema)) {
+                        return;
+                    }
                 }
                 if (url.isEmpty()) {
-                    url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"");
+                    url = seite1.extract("<h2 class=\"conHeadline\">Alle Folgen</h2>", "<a href=\"", "\"");
+                }
+                if (url.isEmpty()) {
+                    url = seite1.extract("<h2 class=\"conHeadline\">Alle Sendungen</h2>", "<a href=\"", "\"");
                 }
                 if (url.isEmpty()) {
                     MSLog.fehlerMeldung(721356987, "keine URL: " + filmWebsite);
@@ -177,18 +182,29 @@ public class MediathekKika extends MediathekReader implements Runnable {
                         MSLog.fehlerMeldung(794512630, "keine Filme: " + filmWebsite);
                         return;
                     }
-                    int c = 0;
+                    int count = 0;
+                    int err = 0;
                     for (int i = (liste1.size() - 1); i > 0; --i) {
                         // die jüngsten Beiträge sind am Ende
                         String s = liste1.get(i);
-                        ++c;
-                        if (!MSConfig.senderAllesLaden && c > 3) {
+                        ++count;
+                        if (!MSConfig.senderAllesLaden && count > 4) {
                             return;
                         }
                         if (MSConfig.getStop()) {
                             return;
                         }
-                        ladenSerien_2(s, thema);
+                        if (!ladenSerien_2(s, thema)) {
+                            //dann gibts evtl. nix mehr
+                            ++err;
+                            if (err > 2) {
+                                //bei ein paar sind Beiträge in der Zukunft angekünndigt
+                                break;
+                            }
+                        } else {
+                            err = 0;
+                        }
+
                     }
                 }
             } catch (Exception ex) {
@@ -231,7 +247,8 @@ public class MediathekKika extends MediathekReader implements Runnable {
 //                MSLog.fehlerMeldung(915263147, ex);
 //            }
 //        }
-        void ladenSerien_2(String filmWebsite, String thema) {
+        boolean ladenSerien_2(String filmWebsite, String thema) {
+            boolean ret = false;
             try {
                 // http://www.kika.de/fluch-des-falken-eins/sendereihe2114.html
                 // nach Muster: <a href="/fluch-des-falken-eins/sendungen/
@@ -243,12 +260,38 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 if (xml.isEmpty()) {
                     MSLog.fehlerMeldung(701025987, "keine XML: " + filmWebsite);
                 } else {
+                    ret = true;
                     xml = "http://www.kika.de" + xml;
                     ladenXml(xml, thema, false /*alle*/);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(801202145, ex);
             }
+            return ret;
+        }
+
+        boolean ladenSerien_3(String thema) {
+            boolean ret = false;
+            try {
+                liste1.clear();
+
+                seite1.extractList("", "", "setup({dataURL:'", "'", "http://www.kika.de", liste1);
+                if (liste1.isEmpty()) {
+                    MSLog.fehlerMeldung(495623014, "keine XML: ");
+                }
+                int count = 0;
+                for (String xml : liste1) {
+                    if (!MSConfig.senderAllesLaden && count > 4) {
+                        break;
+                    }
+
+                    ret = true;
+                    ladenXml(xml, thema, false /*alle*/);
+                }
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(821012459, ex);
+            }
+            return ret;
         }
 
         void loadAllVideo_1(String url) {
