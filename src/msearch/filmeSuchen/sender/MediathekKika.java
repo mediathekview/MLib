@@ -47,7 +47,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
         addToListNormal();
 //        addToListAllVideo();
 
-//        new ThemaLaden().ladenSerien_1("http://www.kika.de/polo/sendereihe2120.html");
+//        new ThemaLaden().ladenSerien_1("http://www.kika.de/die-schule-der-kleinen-vampire/sendereihe1202.html");
 //        meldungThreadUndFertig();
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
@@ -196,10 +196,13 @@ public class MediathekKika extends MediathekReader implements Runnable {
                         }
                         if (!ladenSerien_2(s, thema)) {
                             //dann gibts evtl. nix mehr
-                            ++err;
-                            if (err > 2) {
-                                //bei ein paar sind Beiträge in der Zukunft angekünndigt
-                                break;
+                            if (!MSConfig.senderAllesLaden) {
+                                // nur beim kurzen Suchen
+                                ++err;
+                                if (err > 2) {
+                                    //bei ein paar sind Beiträge in der Zukunft angekünndigt
+                                    break;
+                                }
                             }
                         } else {
                             err = 0;
