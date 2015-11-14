@@ -38,14 +38,14 @@ public class MediathekKika extends MediathekReader implements Runnable {
     LinkedListUrl listeAllVideos = new LinkedListUrl();
 
     public MediathekKika(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, SENDERNAME, /* threads */ 4, /* urlWarten */ 250, startPrio);
+        super(ssearch, SENDERNAME, /* threads */ 4, /* urlWarten */ 150, startPrio);
     }
 
     @Override
     void addToList() {
         meldungStart();
         addToListNormal();
-//        addToListAllVideo();
+//        addToListAllVideo(); //das Suchen dauert eh schon zu lange
 
 //        new ThemaLaden().ladenSerien_1("http://www.kika.de/die-schule-der-kleinen-vampire/sendereihe1202.html");
 //        meldungThreadUndFertig();
@@ -215,47 +215,9 @@ public class MediathekKika extends MediathekReader implements Runnable {
             }
         }
 
-//        void ladenSerien_1(String filmWebsite) {
-//            try {
-//                // http://www.kika.de/feuerwehrmann-sam/sendereihe1496.html
-//                // -> http://www.kika.de/feuerwehrmann-sam/sendungen/sendung51794.html
-//                // nach Muster: <a href="/feuerwehrmann-sam/sendungen/
-//                // suchen
-//                // ToDo -> http://www.kika.de/baumhaus/baumhaus106.html
-//
-//                seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
-//                String th = filmWebsite.substring(0, filmWebsite.indexOf("/sendereihe"));
-//                if (th.isEmpty()) {
-//                    return;
-//                }
-//                th = th.replace("http://www.kika.de/", "");
-//                String muster = "<a href=\"/" + th + "/sendungen/";
-//                liste1.clear();
-//                seite1.extractList(muster, "\"", 0, "http://www.kika.de/" + th + "/sendungen/", liste1);
-//
-//                String thema = seite1.extract("<title>", "<");
-//                thema = thema.replace("KiKA -", "").trim();
-//                int c = 0;
-//                for (String s : liste1) {
-//                    ++c;
-//                    if (!MSConfig.senderAllesLaden && c > 3) {
-//                        return;
-//                    }
-//                    if (MSConfig.getStop()) {
-//                        return;
-//                    }
-//                    ladenSerien_2(s, thema);
-//                }
-//            } catch (Exception ex) {
-//                MSLog.fehlerMeldung(915263147, ex);
-//            }
-//        }
         boolean ladenSerien_2(String filmWebsite, String thema) {
             boolean ret = false;
             try {
-                // http://www.kika.de/fluch-des-falken-eins/sendereihe2114.html
-                // nach Muster: <a href="/fluch-des-falken-eins/sendungen/
-                // suchen
                 meldung(filmWebsite);
                 seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
 
