@@ -413,14 +413,14 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // WDR
         addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekWdr.SENDERNAME, "", "http://wdr_fs_geo-lh.akamaihd.net/i/wdrfs_geogeblockt@112044/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
         // 3sat
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Mediathek3Sat.SENDERNAME, "", "http://zdf_hds_dach-f.akamaihd.net/i/dach10_v1@87031/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Mediathek3Sat.SENDERNAME, "", "http://zdf-hds-dach-f.zdf.de/i/dach10_v1@87031/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
 
         // ZDF
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, "", "http://zdf-hds-de-f.zdf.de/i/de14_v1@147090/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".info", "http://zdf-hds-de-f.zdf.de/i/de12_v1@87013/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".neo", "http://zdf-hds-de-f.zdf.de/i/de13_v1@147090/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".kultur", "http://zdf-hds-de-f.zdf.de/i/de11_v1@87013/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".heute", "http://zdf-hds-ng-f.zdf.de/i/none01_v1@87014/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, "", "http://zdf1314-lh.akamaihd.net/i/de14_v1@392878/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".info", "http://zdf1112-lh.akamaihd.net/i/de12_v1@392882/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".neo", "http://zdf1314-lh.akamaihd.net/i/de13_v1@392877/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".kultur", "http://zdf1112-lh.akamaihd.net/i/de11_v1@392881/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".heute", "http://zdf0102-lh.akamaihd.net/i/none01_v1@392849/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
 
         // ORF
         addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-1", "http://apasfiisl.apa.at/ipad/orf1_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
