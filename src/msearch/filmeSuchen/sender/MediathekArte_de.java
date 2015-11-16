@@ -22,9 +22,9 @@ package msearch.filmeSuchen.sender;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import msearch.daten.DatenFilm;
-import msearch.tool.MSConfig;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
+import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
@@ -287,9 +287,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         String datum;
         String zeit;
         String titel, thema;
-//        int count = 1;
         while ((posStart = seite1.indexOf(MUSTER_START, posStart)) != -1) {
-//            ++count;
             posStart += MUSTER_START.length();
             posStop = seite1.indexOf(MUSTER_START, posStart);
             urlJson = "";
@@ -305,14 +303,6 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                     }
                 }
             }
-//            if ((pos1 = seite1.indexOf(MUSTER_DATUM, posStart)) != -1) {
-//                pos1 += MUSTER_DATUM.length();
-//                if (posStop == -1 || pos1 < posStop) {
-//                    if ((pos2 = seite1.indexOf("\"", pos1)) != -1) {
-//                        datum = seite1.substring(pos1, pos2);
-//                    }
-//                }
-//            }
             pos = posStart;
             while ((pos = seite1.indexOf(MUSTER_DATUM, pos)) != -1) {
                 pos += MUSTER_DATUM.length();
@@ -325,14 +315,6 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                     }
                 }
             }
-//            if ((pos1 = seite1.indexOf(MUSTER_ZEIT, posStart)) != -1) {
-//                pos1 += MUSTER_ZEIT.length();
-//                if (posStop == -1 || pos1 < posStop) {
-//                    if ((pos2 = seite1.indexOf("\"", pos1)) != -1) {
-//                        zeit = seite1.substring(pos1, pos2);
-//                    }
-//                }
-//            }
             pos = posStart;
             while ((pos = seite1.indexOf(MUSTER_ZEIT, pos)) != -1) {
                 pos += MUSTER_ZEIT.length();
@@ -350,11 +332,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                 if (posStop == -1 || pos1 < posStop) {
                     if ((pos2 = seite1.indexOf("\",", pos1)) != -1) {
                         titel = seite1.substring(pos1, pos2);
-//                        //"TIT":"\"Somewhere over the Rainbow\" "
-//                        if (titel.equals("\\")) {
-//                            titel = seite1.extract("\"TIT\":\"\\\"", "\"", posStart);
                         titel = titel.replace("\\", "");
-//                        }
                     }
                 }
             }
@@ -384,12 +362,10 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         String datum = "", zeit = "";
         String urlHd = "", urlKlein = "", url = "";
         String beschreibung = "";
-        String bild = "";
         String filmWebsite = "";
         String dauerStr = "";
         String titel = "", thema = "", subTitle = "";
         long dauer = 0;
-        final String MUSTER_BILD = "programImage\":\"";
         final String MUSTER_BESCHREIBUNG = "\"VDE\":\"";
         final String MUSTER_FILM_WEBSITE = "\"VUP\":\"";
         final String MUSTER_URL_HD = "\"HBBTV\",\"VQU\":\"SQ\",\"VMT\":\"mp4\",\"VUR\":\"";
@@ -402,12 +378,6 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         }
         meldung(arr[0]);
         seite = getUrlIo.getUri_Utf(sendername, arr[0], seite, "");
-        if ((pos1 = seite.indexOf(MUSTER_BILD)) != -1) {
-            pos1 += MUSTER_BILD.length();
-            if ((pos2 = seite.indexOf("\"", pos1)) != -1) {
-                bild = seite.substring(pos1, pos2);
-            }
-        }
         if ((pos1 = seite.indexOf(MUSTER_BESCHREIBUNG)) != -1) {
             pos1 += MUSTER_BESCHREIBUNG.length();
             if ((pos2 = seite.indexOf("\",", pos1)) != -1) {
