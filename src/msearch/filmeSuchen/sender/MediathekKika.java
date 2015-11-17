@@ -151,7 +151,8 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
                 String thema = seite1.extract("<title>", "<");
                 thema = thema.replace("KiKA -", "").trim();
-                String url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"");
+                String url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"", 0, "Das könnte dir auch gefallen", "");
+                //String url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"");
                 if (!url.isEmpty()) {
                     if (ladenSerien_3(thema)) {
                         return;
