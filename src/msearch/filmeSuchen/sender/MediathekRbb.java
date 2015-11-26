@@ -209,6 +209,12 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 String urlNormal = "", urlLow = "";
                 urlLow = seite3.extract("\"_quality\":1,\"_server\":\"\",\"_cdn\":\"akamai\",\"_stream\":\"http://", "\"");
                 urlNormal = seite3.extract("\"_quality\":3,\"_server\":\"\",\"_cdn\":\"akamai\",\"_stream\":\"http://", "\"");
+                if (urlLow.contains("?url=")) {
+                    urlLow = urlLow.substring(0, urlLow.indexOf("?url="));
+                }
+                if (urlNormal.contains("?url=")) {
+                    urlNormal = urlNormal.substring(0, urlNormal.indexOf("?url="));
+                }
                 if (urlNormal.isEmpty()) {
                     if (!urlLow.isEmpty()) {
                         urlNormal = urlLow;
@@ -234,7 +240,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         urlLow = "http://" + urlLow;
                         film.addUrlKlein(urlLow, "");
                     }
-                    if (!subtitle.isEmpty()){
+                    if (!subtitle.isEmpty()) {
                         film.addUrlSubtitle(subtitle);
                     }
                 } else {
