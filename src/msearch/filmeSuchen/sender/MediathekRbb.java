@@ -208,7 +208,13 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 seite3 = getUrlIo.getUri_Utf(SENDERNAME, urlFilm, seite3, "");
                 String urlNormal = "", urlLow = "";
                 urlLow = seite3.extract("\"_quality\":1,\"_server\":\"\",\"_cdn\":\"akamai\",\"_stream\":\"http://", "\"");
+                if (urlLow.isEmpty()) {
+                    urlLow = seite3.extract("\"_quality\":1,\"_server\":\"\",\"_cdn\":\"default\",\"_stream\":\"http://", "\"");
+                }
                 urlNormal = seite3.extract("\"_quality\":3,\"_server\":\"\",\"_cdn\":\"akamai\",\"_stream\":\"http://", "\"");
+                if (urlNormal.isEmpty()) {
+                    urlNormal = seite3.extract("\"_quality\":3,\"_server\":\"\",\"_cdn\":\"default\",\"_stream\":\"http://", "\"");
+                }
                 //http://http-stream.rbb-online.de/rbb/rbbreporter/rbbreporter_20151125_solange_ich_tanze_lebe_ich_WEB_L_16_9_960x544.mp4?url=5
                 if (urlLow.contains("?url=")) {
                     urlLow = urlLow.substring(0, urlLow.indexOf("?url="));
