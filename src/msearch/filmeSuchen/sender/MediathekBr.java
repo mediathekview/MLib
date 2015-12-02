@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.Locale;
 import msearch.daten.DatenFilm;
 import msearch.filmeSuchen.MSFilmeSuchen;
@@ -46,6 +47,9 @@ public class MediathekBr extends MediathekReader implements Runnable {
     private static final String PATTERN_HD = "<asset type=\"HD\">";
     private static final String PATTERN_DLURL = "<downloadUrl>";
     private static final String PATTERN_END = "<";
+    LinkedList<String> listeAlleThemen = new LinkedList<>();
+    LinkedList<String> listeAlleThemenCount = new LinkedList<>();
+    LinkedList<String> listeAlleThemenCount_ = new LinkedList<>();
 
     public MediathekBr(MSFilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME,/* threads */ 3, /* urlWarten */ 100, startPrio);
@@ -56,6 +60,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
         if (MSConfig.senderAllesLaden) {
             maxThreadLaufen = 8;
         }
+        mSearchFilmeSuchen.listeFilmeAlt.getThema(sendername, listeAlleThemenCount_);
         meldungStart();
         getTheman(); // Themen suchen
         getTage(); // Programm der letzten Tage absuchen
@@ -113,8 +118,8 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     String thema = seite.extract("<span>", "<", pos1);
                     thema = StringEscapeUtils.unescapeXml(thema.trim());
                     thema = StringEscapeUtils.unescapeHtml4(thema.trim());
-                    if (!listeAllThemen.contains(thema)) {
-                        listeAllThemen.add(thema);
+                    if (!listeAlleThemen.contains(thema)) {
+                        listeAlleThemen.add(thema);
                     }
                     if (url.equals("")
                             || (!url.startsWith(MUSTER_URL_1) && !url.startsWith(MUSTER_URL_2))) {
@@ -182,6 +187,15 @@ public class MediathekBr extends MediathekReader implements Runnable {
         } catch (Exception ex) {
             MSLog.fehlerMeldung(821213698, ex);
         }
+    }
+
+    @Override
+    synchronized void meldungThreadUndFertig() {
+        if (threads <= 1) {
+            //wird erst ausgeführt wenn alle Threads beendet sind
+            mSearchFilmeSuchen.listeFilmeNeu.checkThema(sendername, listeAlleThemenCount_, sendername);
+        }
+        super.meldungThreadUndFertig();
     }
 
     private class ThemaLaden implements Runnable {
@@ -493,6 +507,31 @@ public class MediathekBr extends MediathekReader implements Runnable {
             urlVerySmall = urlSmall;
         }
         if (!urlNormal.isEmpty()) {
+
+            if (thema.equals(SENDERNAME)) {
+                thema = seite.extract("<broadcast>", "<");
+                System.out.println("Title: " + titel);
+                System.out.println("Thema: " + thema);
+                if (thema.equals(titel)) {
+                    titel = seite.extract("<title>", "<");
+                    System.out.println("Title: " + titel);
+                    System.out.println("Thema: " + thema);
+                }
+            }
+//            if (!thema.equals(checkThema(thema))) {
+//                System.out.println("");
+//            }
+//            thema = checkThema(thema);
+
+            if (!thema.isEmpty()) {
+                if (!listeAlleThemenCount.contains(thema)) {
+                    listeAlleThemenCount.add(thema);
+                } else if (!listeAlleThemenCount_.contains(thema)) {
+                    // gibts dann mind. 2x
+                    listeAlleThemenCount_.add(thema);
+                }
+            }
+
             DatenFilm film = new DatenFilm(SENDERNAME, thema, urlThema, titel, urlNormal, "" /*urlRtmp*/,
                     datum, zeit,
                     duration, description);
@@ -522,6 +561,22 @@ public class MediathekBr extends MediathekReader implements Runnable {
      */
     private String getUrl(MSStringBuilder seiteXml, String pattern) {
         return seiteXml.extract(pattern, PATTERN_DLURL, PATTERN_END);
+    }
+
+    private String checkThema(String thema) {
+        thema = StringEscapeUtils.unescapeXml(thema.trim());
+        thema = StringEscapeUtils.unescapeHtml4(thema.trim());
+        for (String s : listeAlleThemen) {
+            if (thema.equalsIgnoreCase(s)) {
+                return s;
+            }
+        }
+        for (String s : listeAlleThemen) {
+            if (thema.toLowerCase().startsWith(s.toLowerCase())) {
+                return s;
+            }
+        }
+        return sendername;
     }
 
     private class ArchivLaden implements Runnable {

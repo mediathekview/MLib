@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.SimpleTimeZone;
 import java.util.TreeSet;
@@ -413,7 +414,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // WDR
         addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekWdr.SENDERNAME, "", "http://wdr_fs_geo-lh.akamaihd.net/i/wdrfs_geogeblockt@112044/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
         // 3sat
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Mediathek3Sat.SENDERNAME, "", "http://zdf-hds-dach-f.zdf.de/i/dach10_v1@87031/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Mediathek3Sat.SENDERNAME, "", "http://zdf0910-lh.akamaihd.net/i/dach10_v1@392872/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
 
         // ZDF
         addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, "", "http://zdf1314-lh.akamaihd.net/i/de14_v1@392878/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
@@ -438,6 +439,27 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             }
         }
         return null;
+    }
+
+    public synchronized void checkThema(String sender, LinkedList<String> liste, String thema) {
+        for (DatenFilm film : this) {
+            if (film.arr[DatenFilm.FILM_SENDER_NR].equals(sender)) {
+                if (!film.arr[DatenFilm.FILM_THEMA_NR].equals(ListeFilme.THEMA_LIVE)
+                        && !liste.contains(film.arr[DatenFilm.FILM_THEMA_NR])) {
+                    film.arr[DatenFilm.FILM_THEMA_NR] = thema;
+                }
+            }
+        }
+    }
+
+    public synchronized void getThema(String sender, LinkedList<String> liste) {
+        for (DatenFilm film : this) {
+            if (film.arr[DatenFilm.FILM_SENDER_NR].equals(sender)) {
+                if (!liste.contains(film.arr[DatenFilm.FILM_THEMA_NR])) {
+                    liste.add(film.arr[DatenFilm.FILM_THEMA_NR]);
+                }
+            }
+        }
     }
 
     public synchronized DatenFilm getFilmByUrl_klein_hoch_hd(String url) {

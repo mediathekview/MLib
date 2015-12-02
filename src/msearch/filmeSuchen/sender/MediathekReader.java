@@ -31,7 +31,6 @@ import msearch.filmeSuchen.MSGetUrl;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSConfig;
 import msearch.tool.MSLog;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekReader implements Runnable {
 
@@ -44,7 +43,6 @@ public class MediathekReader implements Runnable {
     int progress = 0;
     int startPrio = 1; // es gibt die Werte: 0->startet sofort, 1->später und 2->zuletzt
     LinkedListUrl listeThemen = new LinkedListUrl();
-    LinkedList<String> listeAllThemen = new LinkedList<>();
     MSGetUrl getUrlIo;
     MSFilmeSuchen mSearchFilmeSuchen;
 
@@ -161,16 +159,6 @@ public class MediathekReader implements Runnable {
             }
         }
         return ret;
-    }
-
-    String checkThema(String thema) {
-        thema = StringEscapeUtils.unescapeXml(thema.trim());
-        thema = StringEscapeUtils.unescapeHtml4(thema.trim());
-        if (listeAllThemen.contains(thema)) {
-            return thema;
-        } else {
-            return sendername;
-        }
     }
 
     // Meldungen
