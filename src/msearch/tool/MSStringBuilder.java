@@ -101,6 +101,14 @@ public class MSStringBuilder {
         return extract(musterStart1, musterStart2, musterEnde, abPos, 0, "");
     }
 
+    public String extract(String musterStart1, String musterStart2, String musterStart3, String musterEnde, String addUrl) {
+        int p = indexOf(musterStart1);
+        if (p <= 0) {
+            p = 0;
+        }
+        return extract(musterStart2, musterStart3, musterEnde, p, 0, addUrl);
+    }
+
     public String extract(String musterStart1, String musterStart2, String musterEnde, int abPos, String bisMuster, String addUrl) {
         int bisPos = cont.indexOf(bisMuster, abPos);
         return extract(musterStart1, musterStart2, musterEnde, abPos, bisPos, addUrl);

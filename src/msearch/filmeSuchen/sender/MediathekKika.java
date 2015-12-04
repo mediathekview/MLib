@@ -38,16 +38,19 @@ public class MediathekKika extends MediathekReader implements Runnable {
     LinkedListUrl listeAllVideos = new LinkedListUrl();
 
     public MediathekKika(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, SENDERNAME, /* threads */ 4, /* urlWarten */ 150, startPrio);
+        super(ssearch, SENDERNAME, /* threads */ 8, /* urlWarten */ 200, startPrio);
     }
 
     @Override
     void addToList() {
-        meldungStart();
-        addToListNormal();
-//        addToListAllVideo(); //das Suchen dauert eh schon zu lange
 
-//        new ThemaLaden().ladenSerien_1("http://www.kika.de/die-schule-der-kleinen-vampire/sendereihe1202.html");
+        meldungStart();
+        if (MSConfig.senderAllesLaden) {
+            addToListNormal();
+        }
+        addToListAllVideo();
+
+//        new ThemaLaden().ladenSerien_1("http://www.kika.de/hexe-lilli/sendereihe700.html");
 //        meldungThreadUndFertig();
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
@@ -130,13 +133,13 @@ public class MediathekKika extends MediathekReader implements Runnable {
             try {
                 meldungAddThread();
                 String[] link;
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
-                    meldungProgress(link[0]);
-                    ladenSerien_1(link[0] /* url */);
-                }
                 while (!MSConfig.getStop() && (link = listeAllVideos.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     loadAllVideo_1(link[0] /* url */);
+                }
+                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                    meldungProgress(link[0]);
+                    ladenSerien_1(link[0] /* url */);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(915236791, ex);
@@ -151,18 +154,22 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
                 String thema = seite1.extract("<title>", "<");
                 thema = thema.replace("KiKA -", "").trim();
-                String url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"", 0, "Das könnte dir auch gefallen", "");
+//                String url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"", 0, "Das könnte dir auch gefallen", "");
                 //String url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"");
-                if (!url.isEmpty()) {
-                    if (ladenSerien_3(thema)) {
-                        return;
-                    }
-                }
+//                if (!url.isEmpty()) {
+//                    if (ladenSerien_3(thema)) {
+//                        return;
+//                    }
+//                }
+                String url = "";
                 if (url.isEmpty()) {
                     url = seite1.extract("<h2 class=\"conHeadline\">Alle Folgen</h2>", "<a href=\"", "\"");
                 }
                 if (url.isEmpty()) {
                     url = seite1.extract("<h2 class=\"conHeadline\">Alle Sendungen</h2>", "<a href=\"", "\"");
+                }
+                if (url.isEmpty()) {
+                    url = seite1.extract("<h2 class=\"conHeadline\">Nächste Folge</h2>", "<span class=\"moreBtn\">", "<a href=\"", "\"", "");
                 }
                 if (url.isEmpty()) {
                     MSLog.fehlerMeldung(721356987, "keine URL: " + filmWebsite);
