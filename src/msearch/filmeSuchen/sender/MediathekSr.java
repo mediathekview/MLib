@@ -55,7 +55,8 @@ public class MediathekSr extends MediathekReader implements Runnable {
             maxSeiten = 120;
         }
         for (int i = 1; i < maxSeiten; ++i) {
-            String[] add = new String[]{"http://sr-mediathek.sr-online.de/index.php?seite=2&f=v&s=" + i + "&o=d", ""/*thema*/};
+            //                                 http://www.sr-mediathek.de/index.php?seite=2&f=v&s=1&o=d
+            String[] add = new String[]{"http://www.sr-mediathek.de/index.php?seite=2&f=v&s=" + i + "&o=d", ""/*thema*/};
             listeThemen.add(add);
         }
 
@@ -91,19 +92,19 @@ public class MediathekSr extends MediathekReader implements Runnable {
                     bearbeiteTage(link[0]/*url*/);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(951236547,   ex);
+                MSLog.fehlerMeldung(951236547, ex);
             }
             meldungThreadUndFertig();
         }
 
         private void bearbeiteTage(String urlSeite) {
             seite1 = getUrlIo.getUri_Utf(SENDERNAME, urlSeite, seite1, "");
-            seite1.extractList("<div class=\"list_mi_mi\">", "<a href=\"index.php?seite=", "\"", erg);
+            seite1.extractList("<h3 class=\"teaser__text__header\">", "<a href=\"index.php?seite=", "\"", erg);
             for (String url : erg) {
                 if (MSConfig.getStop()) {
                     break;
                 }
-                addFilme("http://sr-mediathek.sr-online.de/index.php?seite=" + url);
+                addFilme("http://www.sr-mediathek.de/index.php?seite=" + url);
             }
             erg.clear();
         }
@@ -130,29 +131,35 @@ public class MediathekSr extends MediathekReader implements Runnable {
                         }
                     }
                 } catch (Exception ex) {
-                    MSLog.fehlerMeldung(732012546,  "d: " + d);
+                    MSLog.fehlerMeldung(732012546, "d: " + d);
                 }
-                description = seite2.extract("<meta name=\"description\" content=\"", ">");
+                description = seite2.extract("<meta property=\"og:description\" content=\"", "\"");
                 datum = seite2.extract("Video | ", "|").trim();
+                // <title>SR-Mediathek.de: Wir im Saarland – Warten aufs Christkind</title>
+                // <title>SR-Mediathek.de: mags spezial: Innewennzisch-Ausewennzisch (08.10.2015)</title>
+                // <title>SR-Mediathek.de: Wir im Saarland – Ein Kommissar als Zeitschenker (20.11.2015)</title>
                 titel = seite2.extract("<title>", "<");
-                if (titel.contains(" ::")) {
-                    titel = titel.substring(titel.indexOf("::") + 2).trim();
+                if (titel.startsWith("SR-Mediathek.de:")) {
+                    titel = titel.replaceFirst("SR-Mediathek.de:", "");
                 }
                 if (titel.contains(" - ")) {
                     thema = titel.substring(0, titel.indexOf(" - ")).trim();
                     titel = titel.substring(titel.indexOf(" - ") + 3).trim();
+                } else if (titel.contains(": ")) {
+                    thema = titel.substring(0, titel.indexOf(": ")).trim();
+                    titel = titel.substring(titel.indexOf(": ") + 2).trim();
+                } else if (titel.contains(" – ")) {
+                    thema = titel.substring(0, titel.indexOf(" – ")).trim();
+                    titel = titel.substring(titel.indexOf(" – ") + 3).trim();
                 } else if (titel.contains("(")) {
                     thema = titel.substring(0, titel.indexOf("(")).trim();
                     //titel = titel.substring(titel.indexOf("(") + 1).trim();
                     //titel = titel.replace(")", "");
                 }
-                if (thema.contains(":")) {
-                    thema = thema.substring(0, thema.indexOf(":")).trim();
-                }
                 String subtitle = seite2.extract("http_get.utPath", "= '", "'"); //http_get.utPath             = 'ut/AB_20150228.xml';
                 url = seite2.extract("var mediaURLs = ['", "'");
                 if (url.isEmpty()) {
-                    MSLog.fehlerMeldung(301245789,  "keine URL für: " + urlSeite);
+                    MSLog.fehlerMeldung(301245789, "keine URL für: " + urlSeite);
                 } else {
                     // DatenFilm(String ssender, String tthema, String urlThema, String ttitel, String uurl, String uurlorg, String uurlRtmp, String datum, String zeit) {
                     //DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, furl, datum, "");
@@ -164,7 +171,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
                     addFilm(film);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(402583366,   ex);
+                MSLog.fehlerMeldung(402583366, ex);
             }
         }
 
