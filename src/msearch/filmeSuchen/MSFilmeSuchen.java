@@ -444,7 +444,7 @@ public class MSFilmeSuchen {
         MSLog.systemMeldung("");
         MSLog.systemMeldung("=======================================");
         MSLog.systemMeldung("Start Filme laden:");
-        if (MSConfig.senderAllesLaden) {
+        if (MSConfig.loadBig()) {
             MSLog.systemMeldung("Filme laden: alle laden");
         } else {
             MSLog.systemMeldung("Filme laden: nur update laden");

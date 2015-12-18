@@ -157,7 +157,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 }
 
                 // noch nach weiteren Seiten suchen
-                if (weiter && MSConfig.senderAllesLaden) {
+                if (weiter && MSConfig.loadBig()) {
                     for (int i = 2; i < 10; ++i) {
                         if (seite1.indexOf("mcontents=page." + i) != -1) {
                             // dann gibts weiter Seiten

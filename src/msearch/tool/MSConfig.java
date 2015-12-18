@@ -31,7 +31,12 @@ public class MSConfig {
     public static int bandbreite = 0; // maxBandbreite in Byte
     public static String importUrl_1__anhaengen = "";
     public static String importUrl_2__anhaengen = "";
-    public static boolean senderAllesLaden = false;
+
+    public static final int LOAD_UPDATE = 0;
+    public static final int LOAD_BIG = 1;
+    public static final int LOAD_MAX = 2;
+    public static int senderLoad = LOAD_UPDATE;
+
     public static boolean updateFilmliste = false; // die bestehende Filmliste wird aktualisiert und bleibt erhalten
     public static String[] nurSenderLaden = null; // es wird nur dieser Sender geladen => "senderAllesLaden"=false, "updateFillmliste"=true
     public static String orgFilmliste = ""; // OrgFilmliste, zum Erstellen des Diff, angelegt wird sie immer im Ordner der Filmlisten, wenn leer wird die eigene Org-Liste gesucht
@@ -67,6 +72,18 @@ public class MSConfig {
         } else {
             return userAgent;
         }
+    }
+
+    public static boolean loadUpdate() {
+        return senderLoad == LOAD_UPDATE;
+    }
+
+    public static boolean loadBig() {
+        return senderLoad >= LOAD_BIG;
+    }
+
+    public static boolean loadMax() {
+        return senderLoad == LOAD_MAX;
     }
 
     /*public static String getUserAgent_dynamic() {

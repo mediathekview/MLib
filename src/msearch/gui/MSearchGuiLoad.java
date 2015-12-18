@@ -28,7 +28,6 @@ import msearch.tool.MSConfig;
 
 public class MSearchGuiLoad {
 
-
     private enum ListenerMelden {
 
         START, PROGRESS, FINISHED
@@ -62,12 +61,11 @@ public class MSearchGuiLoad {
     // #######################################
     // Filme bei den Sendern laden
     // #######################################
-    public void filmeBeimSenderSuchen(boolean senderAllesLaden, boolean filmlisteUpdate) {
+    public void filmeBeimSenderSuchen(boolean filmlisteUpdate) {
         // Filme bei allen Sender suchen
         if (!istAmLaufen) {
             // nicht doppelt starten
             istAmLaufen = true;
-            MSConfig.senderAllesLaden = senderAllesLaden;
             MSConfig.updateFilmliste = filmlisteUpdate;
             msFilmeSuchen.filmeBeimSenderLaden(MSearchGui.listeFilme);
         }

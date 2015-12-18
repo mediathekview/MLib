@@ -121,7 +121,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 String urlFeed = "http://www.srf.ch/play/tv/episodesfromshow?id=" + urlThema + "&pageNumber=1&layout=json";
                 overviewPageFilm = getUrl.getUri_Utf(SENDERNAME, urlFeed, overviewPageFilm, "");
                 addFilmsFromPage(overviewPageFilm, thema, urlFeed);
-                if (MSConfig.senderAllesLaden) {
+                if (MSConfig.loadBig()) {
                     String url = urlFeed.substring(0, urlFeed.indexOf("&pageNumber=1"));
                     for (int i = 2; i <= MAX_SEITEN_THEMA; ++i) {
                         if (overviewPageFilm.indexOf("pageNumber=" + i) == -1) {
@@ -150,7 +150,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     break;
                 }
                 ++count;
-                if (!MSConfig.senderAllesLaden && count > MAX_FILME_KURZ) {
+                if (!MSConfig.loadBig() && count > MAX_FILME_KURZ) {
                     break;
                 }
                 //http://www.srf.ch/play/tv/episodesfromshow?id=c38cc259-b5cd-4ac1-b901-e3fddd901a3d&pageNumber=1&layout=json

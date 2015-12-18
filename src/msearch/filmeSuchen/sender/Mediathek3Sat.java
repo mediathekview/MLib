@@ -62,7 +62,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
     private void tageLaden() {
         // http://www.3sat.de/mediathek/?datum=20140105&cx=108
         String date;
-        for (int i = 0; i < (MSConfig.senderAllesLaden ? 21 : 7); ++i) {
+        for (int i = 0; i < (MSConfig.loadBig() ? 21 : 7); ++i) {
             date = new SimpleDateFormat("yyyyMMdd").format(new Date().getTime() - i * (1000 * 60 * 60 * 24));
             String url = "http://www.3sat.de/mediathek/?datum=" + date + "&cx=108";
             listeThemen.add(new String[]{url, ""});
@@ -129,7 +129,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
 
             final String MUSTER_START = "<div class=\"BoxPicture MediathekListPic\">";
             String url;
-            for (int i = 0; i < (MSConfig.senderAllesLaden ? 40 : 5); ++i) {
+            for (int i = 0; i < (MSConfig.loadBig() ? 40 : 5); ++i) {
                 //http://www.3sat.de/mediathek/?type=1&red=nano&mode=verpasst3
                 if (thema.isEmpty()) {
                     // dann ist es aus "TAGE"

@@ -57,7 +57,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
 
     @Override
     void addToList() {
-        if (MSConfig.senderAllesLaden) {
+        if (MSConfig.loadBig()) {
             maxThreadLaufen = 8;
         }
         mSearchFilmeSuchen.listeFilmeAlt.getThema(sendername, listeAlleThemenCount_);
@@ -71,7 +71,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
         } else {
             meldungAddMax(listeThemen.size() + listeTage.size());
             // erst hier starten (Archiv, Klassik), sonst beendet er sich/und sucht doch!
-            if (MSConfig.senderAllesLaden) {
+            if (MSConfig.loadBig()) {
                 // Archiv durchsuchen
                 Thread thArchiv;
                 thArchiv = new Thread(new ArchivLaden(1, 100));
@@ -158,7 +158,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             seite1 = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite1, "");
             String url;
             int max_;
-            if (MSConfig.senderAllesLaden) {
+            if (MSConfig.loadBig()) {
                 max_ = 21;
             } else {
                 max_ = 7;
@@ -284,7 +284,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             // <h3>Mehr von <strong>Abendschau</strong></h3>
             // <a href="/mediathek/video/sendungen/abendschau/der-grosse-max-spionageabwehr-100.html" class="teaser link_video contenttype_podcast der-grosse-max-spionageabwehr-100" title="zur Detailseite">
             int pos1, count = 0;
-            int max = (MSConfig.senderAllesLaden ? 20 : 0);
+            int max = (MSConfig.loadBig() ? 20 : 0);
             final String STOP = "<h3>Besucher, die dieses Video angesehen haben, sahen auch</h3>";
             int stop = seite.indexOf(STOP);
             if (max > 0) {
@@ -403,7 +403,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 if (MSConfig.getStop()) {
                     break;
                 }
-                if (!MSConfig.senderAllesLaden) {
+                if (!MSConfig.loadBig()) {
                     ++count;
                     if (count > 20) {
                         break;

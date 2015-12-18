@@ -51,7 +51,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
         // seite2: http://sr-mediathek.sr-online.de/index.php?seite=2&f=v&s=2&o=d
         // seite3: http://sr-mediathek.sr-online.de/index.php?seite=2&f=v&s=3&o=d
         int maxSeiten = 15;
-        if (MSConfig.senderAllesLaden) {
+        if (MSConfig.loadBig()) {
             maxSeiten = 120;
         }
         for (int i = 1; i < maxSeiten; ++i) {

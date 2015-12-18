@@ -80,12 +80,30 @@ public final class MSearchGui extends javax.swing.JFrame {
             }
         });
 
-        jToggleButtonSetAlles.addActionListener(new ActionListener() {
+        jRadioButtonUpdate.setSelected(true);
+        MSConfig.senderLoad = MSConfig.LOAD_UPDATE;
+        jRadioButtonUpdate.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
-                MSConfig.senderAllesLaden = jToggleButtonSetAlles.isSelected();
+                MSConfig.senderLoad = MSConfig.LOAD_UPDATE;
             }
         });
+        jRadioButtonBig.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MSConfig.senderLoad = MSConfig.LOAD_BIG;
+            }
+        });
+        jRadioButtonMax.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MSConfig.senderLoad = MSConfig.LOAD_MAX;
+            }
+        });
+
         jToggleButtonUpdate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -98,7 +116,7 @@ public final class MSearchGui extends javax.swing.JFrame {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        filmeLaden.filmeBeimSenderSuchen(jToggleButtonSetAlles.isSelected(), true);
+                        filmeLaden.filmeBeimSenderSuchen(true);
                     }
                 }).start();
             }
@@ -212,14 +230,17 @@ public final class MSearchGui extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         jTabbedPane = new javax.swing.JTabbedPane();
         jPanelSuchen = new javax.swing.JPanel();
         jButtonFilmlisteLoeschen = new javax.swing.JButton();
         jButtonAlleSenderLaden = new javax.swing.JButton();
         jPanelSenderLaden = new javax.swing.JPanel();
-        jToggleButtonSetAlles = new javax.swing.JToggleButton();
         jToggleButtonUpdate = new javax.swing.JToggleButton();
+        jRadioButtonUpdate = new javax.swing.JRadioButton();
+        jRadioButtonBig = new javax.swing.JRadioButton();
+        jRadioButtonMax = new javax.swing.JRadioButton();
         jPanelLoeschen = new javax.swing.JPanel();
         jPanelSenderDelete = new javax.swing.JPanel();
         jPanelTool = new javax.swing.JPanel();
@@ -256,9 +277,17 @@ public final class MSearchGui extends javax.swing.JFrame {
             .addGap(0, 408, Short.MAX_VALUE)
         );
 
-        jToggleButtonSetAlles.setText("[-alles] setzen");
-
         jToggleButtonUpdate.setText("[-update] setzen");
+
+        buttonGroup1.add(jRadioButtonUpdate);
+        jRadioButtonUpdate.setSelected(true);
+        jRadioButtonUpdate.setText("Update");
+
+        buttonGroup1.add(jRadioButtonBig);
+        jRadioButtonBig.setText("Big");
+
+        buttonGroup1.add(jRadioButtonMax);
+        jRadioButtonMax.setText("Max");
 
         javax.swing.GroupLayout jPanelSuchenLayout = new javax.swing.GroupLayout(jPanelSuchen);
         jPanelSuchen.setLayout(jPanelSuchenLayout);
@@ -272,11 +301,14 @@ public final class MSearchGui extends javax.swing.JFrame {
                         .addComponent(jButtonFilmlisteLoeschen)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButtonAlleSenderLaden)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jToggleButtonSetAlles)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jToggleButtonUpdate)
-                        .addGap(0, 133, Short.MAX_VALUE)))
+                        .addGap(0, 339, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanelSuchenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jRadioButtonBig)
+                    .addComponent(jRadioButtonUpdate)
+                    .addComponent(jRadioButtonMax))
                 .addContainerGap())
         );
         jPanelSuchenLayout.setVerticalGroup(
@@ -286,11 +318,20 @@ public final class MSearchGui extends javax.swing.JFrame {
                 .addGroup(jPanelSuchenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonFilmlisteLoeschen)
                     .addComponent(jButtonAlleSenderLaden)
-                    .addComponent(jToggleButtonSetAlles)
                     .addComponent(jToggleButtonUpdate))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanelSenderLaden, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addGroup(jPanelSuchenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelSuchenLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanelSenderLaden, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(jPanelSuchenLayout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addComponent(jRadioButtonUpdate)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jRadioButtonBig)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jRadioButtonMax)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         jTabbedPane.addTab("Suchen", jPanelSuchen);
@@ -313,7 +354,7 @@ public final class MSearchGui extends javax.swing.JFrame {
             .addGroup(jPanelLoeschenLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanelSenderDelete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(681, Short.MAX_VALUE))
+                .addContainerGap(814, Short.MAX_VALUE))
         );
         jPanelLoeschenLayout.setVerticalGroup(
             jPanelLoeschenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -341,7 +382,7 @@ public final class MSearchGui extends javax.swing.JFrame {
                     .addComponent(jButtonCheck, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButtonGc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButtonLog, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(642, Short.MAX_VALUE))
+                .addContainerGap(775, Short.MAX_VALUE))
         );
 
         jPanelToolLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButtonCheck, jButtonGc});
@@ -453,6 +494,7 @@ public final class MSearchGui extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButtonAlleSenderLaden;
     private javax.swing.JButton jButtonCheck;
     private javax.swing.JButton jButtonFilmliste;
@@ -472,10 +514,12 @@ public final class MSearchGui extends javax.swing.JFrame {
     private javax.swing.JPanel jPanelSenderLaden;
     private javax.swing.JPanel jPanelSuchen;
     private javax.swing.JPanel jPanelTool;
+    private javax.swing.JRadioButton jRadioButtonBig;
+    private javax.swing.JRadioButton jRadioButtonMax;
+    private javax.swing.JRadioButton jRadioButtonUpdate;
     private javax.swing.JTabbedPane jTabbedPane;
     private javax.swing.JTextField jTextFieldFilmliste;
     private javax.swing.JTextField jTextFieldFilmlisteXml;
-    private javax.swing.JToggleButton jToggleButtonSetAlles;
     private javax.swing.JToggleButton jToggleButtonUpdate;
     // End of variables declaration//GEN-END:variables
 

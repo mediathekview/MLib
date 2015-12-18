@@ -45,13 +45,13 @@ public class MediathekKika extends MediathekReader implements Runnable {
     void addToList() {
 
         meldungStart();
-        if (MSConfig.senderAllesLaden) {
+        if (MSConfig.loadBig()) {
             addToListNormal();
         }
         addToListAllVideo();
 
-//        new ThemaLaden().ladenSerien_1("http://www.kika.de/hexe-lilli/sendereihe700.html");
-//        meldungThreadUndFertig();
+////        new ThemaLaden().ladenSerien_1("http://www.kika.de/die-schule-der-kleinen-vampire/sendungen/sendung37314.html");
+////        meldungThreadUndFertig();
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0 && listeAllVideos.size() == 0) {
@@ -192,11 +192,11 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     }
                     int count = 0;
                     int err = 0;
-                    for (int i = (liste1.size() - 1); i > 0; --i) {
+                    for (int i = (liste1.size() - 1); i >= 0; --i) {
                         // die jüngsten Beiträge sind am Ende
                         String s = liste1.get(i);
                         ++count;
-                        if (!MSConfig.senderAllesLaden && count > 4) {
+                        if (!MSConfig.loadBig() && count > 4) {
                             return;
                         }
                         if (MSConfig.getStop()) {
@@ -204,7 +204,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                         }
                         if (!ladenSerien_2(s, thema)) {
                             //dann gibts evtl. nix mehr
-                            if (!MSConfig.senderAllesLaden) {
+                            if (!MSConfig.loadBig()) {
                                 // nur beim kurzen Suchen
                                 ++err;
                                 if (err > 2) {
@@ -254,7 +254,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 }
                 int count = 0;
                 for (String xml : liste1) {
-                    if (!MSConfig.senderAllesLaden && count > 4) {
+                    if (!MSConfig.loadBig() && count > 4) {
                         break;
                     }
 
@@ -272,7 +272,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             try {
                 seite2 = getUrlIo.getUri_Utf(sendername, url, seite2, "KiKa-Sendungen");
                 loadAllVideo_2(seite2);
-                if (MSConfig.senderAllesLaden) {
+                if (MSConfig.loadBig()) {
                     seite2.extractList("<div class=\"bundleNaviItem active\">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste);
                     seite2.extractList("<div class=\"bundleNaviItem \">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste);
                 }

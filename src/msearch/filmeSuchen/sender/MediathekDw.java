@@ -83,7 +83,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
                 if (url.equals("")) {
                     continue;
                 }
-                if (MSConfig.senderAllesLaden) {
+                if (MSConfig.loadBig()) {
                     //http://www.dw.com/de/media-center/alle-inhalte/s-100814/filter/programs/3204/sort/date/results/16/
                     url = "http://www.dw.com/de/media-center/alle-inhalte/s-100814/filter/programs/" + url + "/sort/date/results/100/";
                 } else {
