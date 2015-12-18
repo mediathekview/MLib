@@ -83,6 +83,20 @@ public class MSearch implements Runnable {
         }
     }
 
+    private void importUrl(ListeFilme tmpListe, String importUrl) {
+        //================================================
+        // noch anere Listen importieren
+        MSLog.systemMeldung("Filmliste importieren von: " + importUrl);
+        tmpListe.clear();
+        new MSFilmlisteLesen().readFilmListe(importUrl, tmpListe, 0 /*all days*/);
+        MSLog.systemMeldung("--> von  Anz. Filme: " + listeFilme.size());
+        listeFilme.updateListe(tmpListe, false /* nur URL vergleichen */, false /*ersetzen*/);
+        MSLog.systemMeldung("--> nach Anz. Filme: " + listeFilme.size());
+        tmpListe.clear();
+        System.gc();
+        listeFilme.sort();
+    }
+
     private void undTschuess() {
         MSConfig.setStop(false); // zurücksetzen!! sonst klappt das Lesen der Importlisten nicht!!!!!
         listeFilme = msFilmeSuchen.listeFilmeNeu;
@@ -91,37 +105,21 @@ public class MSearch implements Runnable {
         //================================================
         // noch anere Listen importieren
         MSLog.systemMeldung("");
-        if (!MSConfig.importUrl__anhaengen.isEmpty()) {
+        if (!MSConfig.importUrl_1__anhaengen.isEmpty()) {
             // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
             MSLog.systemMeldung("");
             MSLog.systemMeldung("============================================================================");
-            MSLog.systemMeldung("Filmliste importieren (anhängen) von: " + MSConfig.importUrl__anhaengen);
-            MSLog.systemMeldung("   --> von Anz. Filme: " + listeFilme.size());
-            tmpListe.clear();
-            new MSFilmlisteLesen().readFilmListe(MSConfig.importUrl__anhaengen, tmpListe, 0 /*all days*/);
-            listeFilme.updateListe(tmpListe, false /* nur URL vergleichen */, false /*ersetzen*/);
-            MSLog.systemMeldung("   --> nach Anz. Filme: " + listeFilme.size());
-            tmpListe.clear();
-            System.gc();
-            listeFilme.sort();
+            MSLog.systemMeldung("Filmliste Import 1");
+            importUrl(tmpListe, MSConfig.importUrl_1__anhaengen);
+            MSLog.systemMeldung("");
         }
-        if (!MSConfig.importUrl__ersetzen.isEmpty()) {
-            // wenn eine ImportUrl angegeben, dann noch eine Liste importieren, Filme die es schon gibt
-            // werden ersetzt
+        if (!MSConfig.importUrl_2__anhaengen.isEmpty()) {
+            // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
             MSLog.systemMeldung("");
             MSLog.systemMeldung("============================================================================");
-            MSLog.systemMeldung("Filmliste importieren (ersetzen) von: " + MSConfig.importUrl__ersetzen);
-            MSLog.systemMeldung("   --> von Anz. Filme: " + listeFilme.size());
-            tmpListe.clear();
-            new MSFilmlisteLesen().readFilmListe(MSConfig.importUrl__ersetzen, tmpListe, 0 /*all days*/);
-            /////// toDo
-            tmpListe.updateListe(listeFilme, false /* nur URL vergleichen */, false /*ersetzen*/);
-            tmpListe.metaDaten = listeFilme.metaDaten;
-            listeFilme.clear();
-            System.gc();
-            tmpListe.sort(); // jetzt sollte alles passen
-            listeFilme = tmpListe;
-            MSLog.systemMeldung("   --> nach Anz. Filme: " + listeFilme.size());
+            MSLog.systemMeldung("Filmliste Import 2");
+            importUrl(tmpListe, MSConfig.importUrl_2__anhaengen);
+            MSLog.systemMeldung("");
         }
 
         //================================================

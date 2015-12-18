@@ -130,8 +130,8 @@ public class MSLog {
         } else {
             systemMeldung("Filmliste:  neu erstellen");
         }
-        systemMeldung("Import (ersetzen):  " + MSConfig.importUrl__ersetzen);
-        systemMeldung("Import (anhängen):  " + MSConfig.importUrl__anhaengen);
+        systemMeldung("ImportURL 1:  " + MSConfig.importUrl_1__anhaengen);
+        systemMeldung("ImportURL 2:  " + MSConfig.importUrl_2__anhaengen);
         if (MSConfig.nurSenderLaden != null) {
             systemMeldung("Nur Sender laden:  " + StringUtils.join(MSConfig.nurSenderLaden, ','));
         }

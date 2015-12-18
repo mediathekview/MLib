@@ -32,7 +32,6 @@ import msearch.filmeSuchen.sender.MediathekSrfPod;
 import msearch.filmeSuchen.sender.MediathekSwr;
 import msearch.filmeSuchen.sender.MediathekZdf;
 import msearch.filmeSuchen.sender.MediathekZdfTivi;
-import msearch.tool.Datum;
 import msearch.tool.DatumFilm;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSConst;

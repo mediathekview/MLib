@@ -29,8 +29,8 @@ public class MSConfig {
     public static int proxyPort = -1;
     public static int warten = 1;
     public static int bandbreite = 0; // maxBandbreite in Byte
-    public static String importUrl__anhaengen = "";
-    public static String importUrl__ersetzen = "";
+    public static String importUrl_1__anhaengen = "";
+    public static String importUrl_2__anhaengen = "";
     public static boolean senderAllesLaden = false;
     public static boolean updateFilmliste = false; // die bestehende Filmliste wird aktualisiert und bleibt erhalten
     public static String[] nurSenderLaden = null; // es wird nur dieser Sender geladen => "senderAllesLaden"=false, "updateFillmliste"=true

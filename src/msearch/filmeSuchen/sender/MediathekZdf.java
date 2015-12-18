@@ -383,10 +383,10 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 
         //===================================================
         if (urlHd.isEmpty()) {
-            MSLog.fehlerMeldung(912024587, "keine URL: " + filmWebsite);
+//            MSLog.fehlerMeldung(912024587, "keine URL: " + filmWebsite);
         }
         if (urlKlein.isEmpty()) {
-            MSLog.fehlerMeldung(310254698, "keine URL: " + filmWebsite);
+//            MSLog.fehlerMeldung(310254698, "keine URL: " + filmWebsite);
         }
         if (url.isEmpty()) {
             MSLog.fehlerMeldung(397002891, "keine URL: " + filmWebsite);
