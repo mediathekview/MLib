@@ -182,7 +182,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             }
             while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER, pos)) != -1) {
                 ++count;
-                if (!MSConfig.loadBig()) {
+                if (!MSConfig.loadLongMax()) {
 //                    if (thema.equalsIgnoreCase("Eurovision Song Contest 2015")){
 //                        System.out.println("Treffer");
 //                    }
@@ -225,7 +225,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
 
                 filmSuchen2(url, thema, titel, d, datum, zeit, urlSendung);
             }
-            if (weiter && MSConfig.loadBig() || weiter && thema.equalsIgnoreCase("Eurovision Song Contest 2015")
+            if (weiter && MSConfig.loadLongMax() || weiter && thema.equalsIgnoreCase("Eurovision Song Contest 2015")
                     || weiter && thema.equalsIgnoreCase("alpha-Centauri")) {
                 // dann gehts weiter
                 int maxWeiter = 0;

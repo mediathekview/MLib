@@ -103,7 +103,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrlThemaLaden = new MSGetUrl(MSConfig.loadBig() ? wartenLang : wartenKurz);
+        MSGetUrl getUrlThemaLaden = new MSGetUrl(MSConfig.loadLongMax() ? wartenLang : wartenKurz);
         private MSStringBuilder strSeite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder strSeite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         ArrayList<String> gefunden = new ArrayList<>();
@@ -141,7 +141,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
             int max = 0;
             gefunden.clear();
             while (!MSConfig.getStop() && (pos1 = strSeite1.indexOf(MUSTER_URL, pos1)) != -1) {
-                if (!MSConfig.loadBig()) {
+                if (!MSConfig.loadLongMax()) {
                     ++max;
                     if (max > 2) {
                         break;

@@ -75,7 +75,7 @@ public class MSFilmeSuchen {
     private final ArrayList<String> runde2 = new ArrayList<>();
     private final ArrayList<String> runde3 = new ArrayList<>();
     private final String[] titel1 = {"Sender laden ", "[min]", "Seiten", "Filme", "Fehler", "FVersuche", "FZeit[s]", "AnzÜberProxy"};
-    private final String[] titel2 = {"Sender laden ", "Geladen[MB]", "Nix", "Deflaet", "Gzip", "noBuff[s]", "D-Rate[kByte/s]"};
+    private final String[] titel2 = {"Sender laden ", "Geladen[MB]", "Nix", "Deflaet", "Gzip", "noBuff[s]", "D-Rate[kByte/s]", "ms/Seite"};
     private final String[] titel3 = {"Dateigroesse ", "getGroesse:", "mit_403", "OkMitProxy", "Threads", "Wait"};
     private final static String TRENNER = " | ";
     private boolean allStarted = false;
@@ -223,6 +223,13 @@ public class MSFilmeSuchen {
             if (groesseKB > 0 && dauerS > 0) {
                 rate = String.valueOf(groesseKB / dauerS);
             }
+            String dauerSeite = "";
+            long s = MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SEITEN_ZAEHLER, run.sender);
+            long d = dauerS * 1000;
+            long ds = d / s;
+
+            dauerSeite = ds / 1000 + "," + ds % 1000;
+
             String groesse = (groesseKB / 1000 == 0) ? "<1" : Long.toString(groesseKB / 1000);
             //String groesse = (MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_KBYTE, run.sender) == 0) ? "<1" : Long.toString(MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SUMME_KBYTE, run.sender));
             String[] ladeart = MSGetUrl.getZaehlerLadeArt(run.sender);
@@ -246,6 +253,7 @@ public class MSFilmeSuchen {
             zeile += textLaenge(titel2[4].length(), ladeart[2]) + TRENNER;
             zeile += textLaenge(titel2[5].length(), String.valueOf(MSGetUrl.getSeitenZaehler(MSGetUrl.LISTE_SEITEN_NO_BUFFER, run.sender))) + TRENNER;
             zeile += textLaenge(titel2[6].length(), rate) + TRENNER;
+            zeile += textLaenge(titel2[7].length(), dauerSeite) + TRENNER;
             runde2.add(zeile);
             // =================================
             // Zeile3
@@ -444,10 +452,12 @@ public class MSFilmeSuchen {
         MSLog.systemMeldung("");
         MSLog.systemMeldung("=======================================");
         MSLog.systemMeldung("Start Filme laden:");
-        if (MSConfig.loadBig()) {
-            MSLog.systemMeldung("Filme laden: alle laden");
+        if (MSConfig.loadMax()) {
+            MSLog.systemMeldung("Filme laden: max");
+        } else if (MSConfig.loadLongMax()) {
+            MSLog.systemMeldung("Filme laden: long");
         } else {
-            MSLog.systemMeldung("Filme laden: nur update laden");
+            MSLog.systemMeldung("Filme laden: short");
         }
         if (MSConfig.updateFilmliste) {
             MSLog.systemMeldung("Filmliste: aktualisieren");

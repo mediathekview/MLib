@@ -45,7 +45,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
     void addToList() {
 
         meldungStart();
-        if (MSConfig.loadBig()) {
+        if (MSConfig.loadLongMax()) {
             addToListNormal();
         }
         addToListAllVideo();
@@ -196,7 +196,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                         // die jüngsten Beiträge sind am Ende
                         String s = liste1.get(i);
                         ++count;
-                        if (!MSConfig.loadBig() && count > 4) {
+                        if (!MSConfig.loadLongMax() && count > 4) {
                             return;
                         }
                         if (MSConfig.getStop()) {
@@ -204,7 +204,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                         }
                         if (!ladenSerien_2(s, thema)) {
                             //dann gibts evtl. nix mehr
-                            if (!MSConfig.loadBig()) {
+                            if (!MSConfig.loadLongMax()) {
                                 // nur beim kurzen Suchen
                                 ++err;
                                 if (err > 2) {
@@ -254,7 +254,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 }
                 int count = 0;
                 for (String xml : liste1) {
-                    if (!MSConfig.loadBig() && count > 4) {
+                    if (!MSConfig.loadLongMax() && count > 4) {
                         break;
                     }
 
@@ -272,7 +272,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             try {
                 seite2 = getUrlIo.getUri_Utf(sendername, url, seite2, "KiKa-Sendungen");
                 loadAllVideo_2(seite2);
-                if (MSConfig.loadBig()) {
+                if (MSConfig.loadLongMax()) {
                     seite2.extractList("<div class=\"bundleNaviItem active\">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste);
                     seite2.extractList("<div class=\"bundleNaviItem \">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste);
                 }

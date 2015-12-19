@@ -65,7 +65,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         listeElefant.clear();
         meldungStart();
         addToList__("http://www1.wdr.de/mediathek/video/sendungen/index.html");
-        if (MSConfig.loadBig()) {
+        if (MSConfig.loadLongMax()) {
             maus();
             elefant();
             rockpalast();
@@ -254,7 +254,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             meldung(strUrl);
             // Sendungen auf der Seite
             sendungsSeitenSuchen2(strUrl);
-            if (!MSConfig.loadBig()) {
+            if (!MSConfig.loadLongMax()) {
                 // dann wars das
                 return;
             }

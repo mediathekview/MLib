@@ -126,21 +126,24 @@
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jPanelSenderLaden" max="32767" attributes="0"/>
+                              <Group type="102" attributes="0">
+                                  <Component id="jPanelSenderLaden" max="32767" attributes="0"/>
+                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="jRadioButtonLong" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jRadioButtonShort" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jRadioButtonMax" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jCheckBoxLoadTime" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
                               <Group type="102" attributes="0">
                                   <Component id="jButtonFilmlisteLoeschen" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                   <Component id="jButtonAlleSenderLaden" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jToggleButtonUpdate" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="0" pref="339" max="32767" attributes="0"/>
+                                  <EmptySpace min="0" pref="424" max="32767" attributes="0"/>
                               </Group>
-                          </Group>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jRadioButtonBig" min="-2" max="-2" attributes="0"/>
-                              <Component id="jRadioButtonUpdate" min="-2" max="-2" attributes="0"/>
-                              <Component id="jRadioButtonMax" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -163,11 +166,13 @@
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                                  <Component id="jRadioButtonUpdate" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jRadioButtonShort" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="jRadioButtonBig" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jRadioButtonLong" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                   <Component id="jRadioButtonMax" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                                  <Component id="jCheckBoxLoadTime" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="32767" attributes="0"/>
                               </Group>
                           </Group>
@@ -213,21 +218,21 @@
                     <Property name="text" type="java.lang.String" value="[-update] setzen"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JRadioButton" name="jRadioButtonUpdate">
+                <Component class="javax.swing.JRadioButton" name="jRadioButtonShort">
                   <Properties>
                     <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                       <ComponentRef name="buttonGroup1"/>
                     </Property>
                     <Property name="selected" type="boolean" value="true"/>
-                    <Property name="text" type="java.lang.String" value="Update"/>
+                    <Property name="text" type="java.lang.String" value="Short"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JRadioButton" name="jRadioButtonBig">
+                <Component class="javax.swing.JRadioButton" name="jRadioButtonLong">
                   <Properties>
                     <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
                       <ComponentRef name="buttonGroup1"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Big"/>
+                    <Property name="text" type="java.lang.String" value="Long"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JRadioButton" name="jRadioButtonMax">
@@ -236,6 +241,11 @@
                       <ComponentRef name="buttonGroup1"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Max"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="jCheckBoxLoadTime">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Ladezeit"/>
                   </Properties>
                 </Component>
               </SubComponents>

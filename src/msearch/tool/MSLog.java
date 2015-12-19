@@ -120,7 +120,7 @@ public class MSLog {
         systemMeldung("##################################################################################");
         systemMeldung("");
         systemMeldung("");
-        if (MSConfig.loadBig()) {
+        if (MSConfig.loadLongMax()) {
             systemMeldung("Laden:  alles");
         } else {
             systemMeldung("Laden:  nur update");

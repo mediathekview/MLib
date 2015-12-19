@@ -60,13 +60,13 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
-            if (MSConfig.loadBig()) {
+            if (MSConfig.loadLongMax()) {
                 addConcert();
             } else {
                 meldungThreadUndFertig();
             }
         } else {
-            if (MSConfig.loadBig()) {
+            if (MSConfig.loadLongMax()) {
                 addConcert();
             }
             meldungAddMax(listeThemen.size());

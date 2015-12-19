@@ -166,7 +166,7 @@ public class MediathekReader implements Runnable {
         max = 0;
         progress = 0;
         MSLog.systemMeldung("===============================================================");
-        MSLog.systemMeldung("Starten[" + ((MSConfig.loadBig()) ? "alles" : "update") + "] " + sendername + ": " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
+        MSLog.systemMeldung("Starten[" + ((MSConfig.loadLongMax()) ? "alles" : "update") + "] " + sendername + ": " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
         MSLog.systemMeldung("   maxThreadLaufen: " + maxThreadLaufen);
         MSLog.systemMeldung("   wartenSeiteLaden: " + wartenSeiteLaden);
         MSLog.systemMeldung("");

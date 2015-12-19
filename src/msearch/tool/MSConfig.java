@@ -32,10 +32,10 @@ public class MSConfig {
     public static String importUrl_1__anhaengen = "";
     public static String importUrl_2__anhaengen = "";
 
-    public static final int LOAD_UPDATE = 0;
-    public static final int LOAD_BIG = 1;
+    public static final int LOAD_SHORT = 0;
+    public static final int LOAD_LONG = 1;
     public static final int LOAD_MAX = 2;
-    public static int senderLoad = LOAD_UPDATE;
+    public static int senderLoadHow = LOAD_SHORT;
 
     public static boolean updateFilmliste = false; // die bestehende Filmliste wird aktualisiert und bleibt erhalten
     public static String[] nurSenderLaden = null; // es wird nur dieser Sender geladen => "senderAllesLaden"=false, "updateFillmliste"=true
@@ -74,16 +74,20 @@ public class MSConfig {
         }
     }
 
-    public static boolean loadUpdate() {
-        return senderLoad == LOAD_UPDATE;
+    public static boolean loadShort() {
+        return senderLoadHow == LOAD_SHORT;
     }
 
-    public static boolean loadBig() {
-        return senderLoad >= LOAD_BIG;
+    public static boolean loadLong() {
+        return senderLoadHow == LOAD_LONG;
+    }
+
+    public static boolean loadLongMax() {
+        return senderLoadHow >= LOAD_LONG;
     }
 
     public static boolean loadMax() {
-        return senderLoad == LOAD_MAX;
+        return senderLoadHow == LOAD_MAX;
     }
 
     /*public static String getUserAgent_dynamic() {

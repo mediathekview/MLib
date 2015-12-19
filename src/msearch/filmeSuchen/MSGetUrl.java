@@ -27,6 +27,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.locks.Lock;
@@ -41,6 +42,8 @@ import msearch.tool.MSStringBuilder;
 
 public class MSGetUrl {
 
+    public static boolean showLoadTime = false;
+
     public static final int LISTE_SEITEN_ZAEHLER = 1;
     public static final int LISTE_SEITEN_ZAEHLER_FEHlER = 2;
     public static final int LISTE_SEITEN_ZAEHLER_FEHLERVERSUCHE = 3;
@@ -49,7 +52,6 @@ public class MSGetUrl {
     public static final int LISTE_SEITEN_PROXY = 6;
     public static final int LISTE_SEITEN_NO_BUFFER = 7;
     private static final long UrlWartenBasis = 500;//ms, Basiswert zu dem dann der Faktor multipliziert wird
-//    private int faktorWarten = 1;
     private int timeout = 10000;
     private long wartenBasis = UrlWartenBasis;
     private static final LinkedList<Seitenzaehler> listeSeitenZaehler = new LinkedList<>();
@@ -149,7 +151,7 @@ public class MSGetUrl {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(698963200,  ex, sender);
+                MSLog.fehlerMeldung(698963200, ex, sender);
             }
         } while (!MSConfig.getStop() && aktVer < maxVersuche);
         return seite;
@@ -283,13 +285,20 @@ public class MSGetUrl {
         int ladeArt = LADE_ART_UNBEKANNT;
         MVInputStream mvIn = null;
         String encoding;
+        Date start = null;
+        Date stop = null;
+        if (showLoadTime) {
+            start = new Date();
+        }
+
         // immer etwas bremsen
         try {
             long w = wartenBasis;// * faktorWarten;
             this.wait(w);
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(976120379,  ex, sender);
+            MSLog.fehlerMeldung(976120379, ex, sender);
         }
+
         try {
             // conn = url.openConnection(Proxy.NO_PROXY);
             conn = (HttpURLConnection) new URL(addr).openConnection();
@@ -306,19 +315,14 @@ public class MSGetUrl {
             } else {
                 if (retCode == 403 || retCode == 408) {
                     if (!MSConfig.proxyUrl.isEmpty() && MSConfig.proxyPort > 0) {
-                        // nur dann verwenden
-                        // ein anderer Versuch
-                        // wenn möglich, einen Proxy einrichten
-                        //SocketAddress saddr = new InetSocketAddress("localhost", 9050);
+                        // nur dann verwenden, ein anderer Versuch und wenn möglich, einen Proxy einrichten
                         SocketAddress saddr = new InetSocketAddress(MSConfig.proxyUrl, MSConfig.proxyPort);
                         Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
-
                         conn = (HttpURLConnection) new URL(addr).openConnection(proxy);
-                        // dafür gibts den:
-                        // Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0
+
                         conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0");
-                        //conn.setRequestProperty("User-Agent", MSearchConfig.getUserAgent_dynamic());
                         conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
+
                         if (timeout > 0) {
                             conn.setReadTimeout(timeout);
                             conn.setConnectTimeout(timeout);
@@ -329,7 +333,7 @@ public class MSGetUrl {
                     }
                 } else {
                     // dann wars das
-                    MSLog.fehlerMeldung(974532107,    new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
+                    MSLog.fehlerMeldung(974532107, new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
                 }
             }
             if (mvIn == null) {
@@ -352,16 +356,19 @@ public class MSGetUrl {
                 in = mvIn;
             }
             inReader = new InputStreamReader(in, kodierung);
-//            char[] zeichen = new char[1];
-//            while (!MSearchConfig.getStop() && inReader.read(zeichen) != -1) {
-//                // hier wird andlich geladen
-//                seite.append(zeichen);
-//            }
             char[] buffer = new char[1024];
             int n;
             while (!MSConfig.getStop() && (n = inReader.read(buffer)) != -1) {
                 // hier wird andlich geladen
                 seite.append(buffer, 0, n);
+            }
+
+            if (showLoadTime) {
+                stop = new Date();
+                if (start != null) {
+                    long diff = stop.getTime() - start.getTime();
+                    System.out.println("\nDauer: " + diff / 1000 + "," + diff % 1000);
+                }
             }
             incSeitenZaehler(LISTE_SUMME_KBYTE, sender, mvIn.summe, ladeArt);
         } catch (IOException ex) {
@@ -375,7 +382,7 @@ public class MSGetUrl {
                         inReader.close();
                     }
                 } catch (Exception e) {
-                    MSLog.fehlerMeldung(645105987,  e, "");
+                    MSLog.fehlerMeldung(645105987, e, "");
                 }
             }
             if (lVersuch) {
@@ -391,11 +398,11 @@ public class MSGetUrl {
                 switch (ex.getMessage()) {
                     case "Read timed out":
                         text[0] = "TimeOut: ";
-                        MSLog.fehlerMeldung(502739817,  text);
+                        MSLog.fehlerMeldung(502739817, text);
                         break;
                     case "No buffer space available":
                         text[0] = "No buffer space available";
-                        MSLog.fehlerMeldung(915263697,  text);
+                        MSLog.fehlerMeldung(915263697, text);
                         try {
                             // Pause zum Abbauen von Verbindungen
                             final int WARTEN = 2;
@@ -405,19 +412,19 @@ public class MSGetUrl {
                         }
                         break;
                     default:
-                        MSLog.fehlerMeldung(379861049,  ex, text);
+                        MSLog.fehlerMeldung(379861049, ex, text);
                         break;
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(973969801,  ex, "");
+            MSLog.fehlerMeldung(973969801, ex, "");
         } finally {
             try {
                 if (in != null) {
                     in.close();
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(696321478,  ex, "");
+                MSLog.fehlerMeldung(696321478, ex, "");
             }
         }
         return seite;

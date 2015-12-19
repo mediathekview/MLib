@@ -53,12 +53,12 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         listeThemen.clear();
         meldungStart();
-        if (MSConfig.loadBig()) {
+        if (MSConfig.loadLongMax()) {
             bearbeiteAdresseSendung(seite);
         }
         bearbeiteAdresseThemen(seite);
         listeSort(listeThemen, 1);
-        int maxTage = MSConfig.loadBig() ? 9 : 2;
+        int maxTage = MSConfig.loadLongMax() ? 9 : 2;
         for (int i = 0; i < maxTage; ++i) {
             String vorTagen = getGestern(i).toLowerCase();
             bearbeiteAdresseTag("http://tvthek.orf.at/schedule/" + vorTagen, seite);
@@ -199,7 +199,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             int count = 0, max = 3;
             seite1.extractList(URL, "\"", 0, "", alSendung);
             for (String s : alSendung) {
-                if (!MSConfig.loadBig()) {
+                if (!MSConfig.loadLongMax()) {
                     if (count > max) {
                         continue;
                     }
