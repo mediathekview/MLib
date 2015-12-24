@@ -43,12 +43,12 @@ public class MSConst {
     public static final String XML_DATEI = "mediathek.xml";
     public static final String XML_DATEI_FILME = "filme.xml";
     // 
-    public static final int MIN_DATEI_GROESSE_FILM = 256 * 1024; //minimale Größe (256 KiB) eines Films um nicht als Fehler zu gelten
+    public static final int MIN_DATEI_GROESSE_FILM = 256 * 1000; //minimale Größe (256 kB) eines Films um nicht als Fehler zu gelten
     public static final String KODIERUNG_UTF = "UTF-8";
     public static final String KODIERUNG_ISO15 = "ISO-8859-15";
     public static final String XML_START = "Mediathek";
     public static final int MAX_SENDER_FILME_LADEN = 2;//es können maximal soviele Filme eines Senders/Servers gleichzeitig geladen werden
-    public static final int STRING_BUFFER_START_BUFFER = 10 * 1024 * 8; // 10 KiB
+    public static final int STRING_BUFFER_START_BUFFER = 8 * 1024 * 8; // 8 KiB
     public static final String FORMAT_ZIP = ".zip";
     public static final String FORMAT_BZ2 = ".bz2";
     public static final String FORMAT_XZ = ".xz";

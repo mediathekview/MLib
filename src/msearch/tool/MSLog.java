@@ -91,11 +91,11 @@ public class MSLog {
         systemMeldung("##################################################################################");
         systemMeldung("##################################################################################");
         long totalMem = Runtime.getRuntime().totalMemory();
-        systemMeldung("totalMemory: " + totalMem / (1024L * 1024L) + " MiB");
+        systemMeldung("totalMemory: " + totalMem / (1000L * 1000L) + " MB");
         long maxMem = Runtime.getRuntime().maxMemory();
-        systemMeldung("maxMemory: " + maxMem / (1024L * 1024L) + " MiB");
+        systemMeldung("maxMemory: " + maxMem / (1000L * 1000L) + " MB");
         long freeMem = Runtime.getRuntime().freeMemory();
-        systemMeldung("freeMemory: " + freeMem / (1024L * 1024L) + " MiB");
+        systemMeldung("freeMemory: " + freeMem / (1000L * 1000L) + " MB");
         systemMeldung("##################################################################################");
         //Version
         systemMeldung(MSConst.PROGRAMMNAME + MSFunktionen.getProgVersionString());

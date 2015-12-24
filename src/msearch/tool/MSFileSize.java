@@ -5,54 +5,12 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
+import msearch.filmeSuchen.MSFilmeSuchen;
+import msearch.filmeSuchen.MSRunSender;
 
 public class MSFileSize {
 
     final static int TIMEOUT = 3000; // ms //ToDo evtl. wieder kürzen!!
-    //private static int anz = 0;
-    private static String[] sender;
-    private static int[] anz;
-    private static int[] anz403;
-    private static int[] anzProxy;
-
-    public static void resetZaehler(String[] ssender) {
-        sender = ssender;
-        anz = new int[sender.length];
-        anz403 = new int[sender.length];
-        anzProxy = new int[sender.length];
-        for (int i = 0; i < ssender.length; ++i) {
-            anz[i] = 0;
-            anz403[i] = 0;
-            anzProxy[i] = 0;
-        }
-    }
-
-    public static int getZaehler(String ssender) {
-        for (int i = 0; i < sender.length; ++i) {
-            if (sender[i].equalsIgnoreCase(ssender)) {
-                return anz[i];
-            }
-        }
-        return 0;
-    }
-
-    public static int getZaehler403(String ssender) {
-        for (int i = 0; i < sender.length; ++i) {
-            if (sender[i].equalsIgnoreCase(ssender)) {
-                return anz403[i];
-            }
-        }
-        return 0;
-    }
-
-    public static int getZaehlerProxy(String ssender) {
-        for (int i = 0; i < sender.length; ++i) {
-            if (sender[i].equalsIgnoreCase(ssender)) {
-                return anzProxy[i];
-            }
-        }
-        return 0;
-    }
 
     public static String laengeString(String url) {
         // liefert die Dateigröße einer URL in MB!!
@@ -62,11 +20,11 @@ public class MSFileSize {
 
     public static String laengeString(String url, String ssender) {
         // liefert die Dateigröße einer URL in MB!!
-        // Anzeige der Größe in MB und deshalb: Faktor 1000
+        // Anzeige der Größe in MiB und deshalb: Faktor 1000
         String groesseStr = "";
         long l = laenge(url, ssender);
         if (l > 1000 * 1000) {
-            // größer als 1MB sonst kann ich mirs sparen
+            // größer als 1MiB sonst kann ich mirs sparen
             groesseStr = String.valueOf(l / (1000 * 1000));
         } else if (l > 0) {
             groesseStr = "1";
@@ -82,7 +40,7 @@ public class MSFileSize {
         if (!url.toLowerCase().startsWith("http")) {
             return ret;
         }
-        countArray(anz, ssender);
+        MSFilmeSuchen.listeSenderLaufen.inc(ssender, MSRunSender.Count.SIZE_SUM);
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
@@ -96,7 +54,7 @@ public class MSFileSize {
 
             // dann über eine Proxy
             if (retCode == 403) {
-                countArray(anz403, ssender);
+                MSFilmeSuchen.listeSenderLaufen.inc(ssender, MSRunSender.Count.SIZE_SUM403);
                 if (!MSConfig.proxyUrl.isEmpty() && MSConfig.proxyPort > 0) {
                     // nur dann verwenden, wenn ein Proxy angegeben
                     try {
@@ -109,38 +67,28 @@ public class MSFileSize {
                         ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
                         conn.disconnect();
                         if (ret > 0) {
-                            countArray(anzProxy, ssender);
+                            MSFilmeSuchen.listeSenderLaufen.inc(ssender, MSRunSender.Count.SIZE_PROXY);
                         }
                     } catch (Exception ex) {
                         ret = -1;
-                        MSLog.fehlerMeldung(963215478,   ex);
+                        MSLog.fehlerMeldung(963215478, ex);
                     }
                 }
             }
         } catch (Exception ex) {
             ret = -1;
             if (ex.getMessage().equals("Read timed out")) {
-                MSLog.fehlerMeldung(825141452,  "Read timed out: " + ssender);
+                MSLog.fehlerMeldung(825141452, "Read timed out: " + ssender);
             } else {
-                MSLog.fehlerMeldung(643298301,   ex);
+                MSLog.fehlerMeldung(643298301, ex);
             }
         }
-        if (ret < 1000 * 1024) {
-            // alles unter 1M sind Playlisten, ORF: Trailer bei im Ausland gesperrten Filmen, ...
+        if (ret < 1000 * 1000) {
+            // alles unter 1MB sind Playlisten, ORF: Trailer bei im Ausland gesperrten Filmen, ...
             // dann wars nix
             ret = -1;
         }
         return ret;
     }
 
-    private static void countArray(int[] arr, String ssender) {
-        if (!ssender.isEmpty()) {
-            for (int i = 0; i < sender.length; ++i) {
-                if (sender[i].equalsIgnoreCase(ssender)) {
-                    ++arr[i];
-                    break;
-                }
-            }
-        }
-    }
 }

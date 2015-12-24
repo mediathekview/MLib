@@ -28,8 +28,6 @@ import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.GZIPInputStream;
@@ -44,58 +42,14 @@ public class MSGetUrl {
 
     public static boolean showLoadTime = false;
 
-    public static final int LISTE_SEITEN_ZAEHLER = 1;
-    public static final int LISTE_SEITEN_ZAEHLER_FEHlER = 2;
-    public static final int LISTE_SEITEN_ZAEHLER_FEHLERVERSUCHE = 3;
-    public static final int LISTE_SEITEN_ZAEHLER_WARTEZEIT_FEHLVERSUCHE = 4;
-    public static final int LISTE_SUMME_KBYTE = 5;
-    public static final int LISTE_SEITEN_PROXY = 6;
-    public static final int LISTE_SEITEN_NO_BUFFER = 7;
     private static final long UrlWartenBasis = 500;//ms, Basiswert zu dem dann der Faktor multipliziert wird
+    private final int WARTEN_NO_BUFFER = 2 * 1000; // s warten nach einem No-Buffer
     private int timeout = 10000;
     private long wartenBasis = UrlWartenBasis;
-    private static final LinkedList<Seitenzaehler> listeSeitenZaehler = new LinkedList<>();
-    private static final LinkedList<Seitenzaehler> listeSeitenZaehlerFehler = new LinkedList<>();
-    private static final LinkedList<Seitenzaehler> listeSeitenZaehlerFehlerVersuche = new LinkedList<>();
-    private static final LinkedList<Seitenzaehler> listeSeitenZaehlerWartezeitFehlerVersuche = new LinkedList<>(); // Wartezeit für Wiederholungen [s]
-    private static final LinkedList<Seitenzaehler> listeSummeByte = new LinkedList<>(); // Summe Daten in Byte für jeden Sender
-    private static final LinkedList<Seitenzaehler> listeSeitenProxy = new LinkedList<>(); // Anzahl Seiten über Proxy geladen
-    private static final LinkedList<Seitenzaehler> listeSeitenNoBuffer = new LinkedList<>(); // Anzahl Seiten bei BufferOverRun
-    private static final int LADE_ART_UNBEKANNT = 0;
-    private static final int LADE_ART_NIX = 1;
-    private static final int LADE_ART_DEFLATE = 2;
-    private static final int LADE_ART_GZIP = 3;
+    public static final int LADE_ART_NIX = 1;
+    public static final int LADE_ART_DEFLATE = 2;
+    public static final int LADE_ART_GZIP = 3;
     final static Lock lock = new ReentrantLock();
-    private static long summeByte = 0;
-
-    private class Seitenzaehler {
-
-        String senderName = "";
-        long seitenAnzahl = 0;
-        long ladeArtNix = 0;
-        long ladeArtDeflate = 0;
-        long ladeArtGzip = 0;
-
-        public Seitenzaehler(String ssenderName, long sseitenAnzahl) {
-            senderName = ssenderName;
-            seitenAnzahl = sseitenAnzahl;
-        }
-
-        public void addLadeArt(int ladeArt, long inc) {
-            switch (ladeArt) {
-                case LADE_ART_NIX:
-                    ladeArtNix += inc;
-                    break;
-                case LADE_ART_DEFLATE:
-                    ladeArtDeflate += inc;
-                    break;
-                case LADE_ART_GZIP:
-                    ladeArtGzip += inc;
-                    break;
-                default:
-            }
-        }
-    }
 
     public MSGetUrl(long wwartenBasis) {
         wartenBasis = wwartenBasis;
@@ -134,7 +88,7 @@ public class MSGetUrl {
                         MSLog.systemMeldung(text);
                     }
                     // nur dann zählen
-                    incSeitenZaehler(LISTE_SEITEN_ZAEHLER, sender, 1, LADE_ART_UNBEKANNT);
+                    MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.ANZAHL);
                     return seite;
                 } else {
                     // hat nicht geklappt
@@ -143,11 +97,11 @@ public class MSGetUrl {
                     } else {
                         wartezeit = (aktTimeout);
                     }
-                    incSeitenZaehler(LISTE_SEITEN_ZAEHLER_WARTEZEIT_FEHLVERSUCHE, sender, wartezeit / 1000, LADE_ART_UNBEKANNT);
-                    incSeitenZaehler(LISTE_SEITEN_ZAEHLER_FEHLERVERSUCHE, sender, 1, LADE_ART_UNBEKANNT);
+                    MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.FEHLVERSUCHE);
+                    MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.WARTEZEIT_FEHLVERSUCHE.ordinal(), wartenBasis);
                     if (letzterVersuch) {
                         // dann wars leider nichts
-                        incSeitenZaehler(LISTE_SEITEN_ZAEHLER_FEHlER, sender, 1, LADE_ART_UNBEKANNT);
+                        MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.FEHLER);
                     }
                 }
             } catch (Exception ex) {
@@ -165,124 +119,13 @@ public class MSGetUrl {
         return timeout;
     }
 
-    public static synchronized String getSummeMegaByte() {
-        // liefert MB zurück
-        return summeByte == 0 ? "0" : ((summeByte / 1024 / 1024) == 0 ? "<1" : String.valueOf(summeByte / 1024 / 1024));
-    }
-
-    public static synchronized long getSeitenZaehler(int art, String sender) {
-        long ret = 0;
-        LinkedList<Seitenzaehler> liste = getListe(art);
-        Iterator<Seitenzaehler> it = liste.iterator();
-        Seitenzaehler sz;
-        while (it.hasNext()) {
-            sz = it.next();
-            if (sz.senderName.equals(sender)) {
-                ret = sz.seitenAnzahl;
-            }
-        }
-        if (art == LISTE_SUMME_KBYTE) {
-            // Byte in kByte
-            ret = ret / 1024;
-        }
-        return ret;
-    }
-
-    public static synchronized long getSeitenZaehler(int art) {
-        long ret = 0;
-        LinkedList<Seitenzaehler> liste = getListe(art);
-        for (Seitenzaehler entry : liste) {
-            ret += entry.seitenAnzahl;
-        }
-        if (art == LISTE_SUMME_KBYTE) {
-            // Byte in kByte
-            ret = ret / 1024;
-        }
-        return ret;
-    }
-
-    public static synchronized String[] getZaehlerLadeArt(String sender) {
-        String[] ret = {"", "", ""};
-        LinkedList<Seitenzaehler> liste = getListe(LISTE_SUMME_KBYTE);
-        for (Seitenzaehler sz : liste) {
-            if (sz.senderName.equals(sender)) {
-                ret[0] = (sz.ladeArtNix == 0 ? "0" : ((sz.ladeArtNix / 1024 / 1024) == 0 ? "<1" : String.valueOf(sz.ladeArtNix / 1024 / 1024)));
-                ret[1] = (sz.ladeArtDeflate == 0 ? "0" : ((sz.ladeArtDeflate / 1024 / 1024) == 0 ? "<1" : String.valueOf(sz.ladeArtDeflate / 1024 / 1024)));
-                ret[2] = (sz.ladeArtGzip == 0 ? "0" : ((sz.ladeArtGzip / 1024 / 1024) == 0 ? "<1" : String.valueOf(sz.ladeArtGzip / 1024 / 1024)));
-            }
-        }
-        return ret;
-    }
-
-    public static synchronized void resetZaehler() {
-        listeSeitenZaehler.clear();
-        listeSeitenZaehlerFehler.clear();
-        listeSeitenZaehlerFehlerVersuche.clear();
-        listeSeitenZaehlerWartezeitFehlerVersuche.clear();
-        listeSummeByte.clear();
-        listeSeitenProxy.clear();
-        listeSeitenNoBuffer.clear();
-        summeByte = 0;
-    }
-
-    //===================================
-    // private
-    //===================================
-    private static synchronized LinkedList<Seitenzaehler> getListe(int art) {
-        switch (art) {
-            case LISTE_SEITEN_ZAEHLER:
-                return listeSeitenZaehler;
-            case LISTE_SEITEN_ZAEHLER_FEHLERVERSUCHE:
-                return listeSeitenZaehlerFehlerVersuche;
-            case LISTE_SEITEN_ZAEHLER_FEHlER:
-                return listeSeitenZaehlerFehler;
-            case LISTE_SEITEN_ZAEHLER_WARTEZEIT_FEHLVERSUCHE:
-                return listeSeitenZaehlerWartezeitFehlerVersuche;
-            case LISTE_SUMME_KBYTE:
-                return listeSummeByte;
-            case LISTE_SEITEN_PROXY:
-                return listeSeitenProxy;
-            case LISTE_SEITEN_NO_BUFFER:
-                return listeSeitenNoBuffer;
-            default:
-                return null;
-        }
-    }
-
-    private void incSeitenZaehler(int art, String sender, long inc, int ladeArt) {
-        lock.lock();
-        try {
-            boolean gefunden = false;
-            LinkedList<Seitenzaehler> liste = getListe(art);
-            Iterator<Seitenzaehler> it = liste.iterator();
-            Seitenzaehler sz;
-            while (it.hasNext()) {
-                sz = it.next();
-                if (sz.senderName.equals(sender)) {
-                    sz.seitenAnzahl += inc;
-                    sz.addLadeArt(ladeArt, inc);
-                    gefunden = true;
-                    break;
-                }
-            }
-            if (!gefunden) {
-                Seitenzaehler s = new Seitenzaehler(sender, inc);
-                s.addLadeArt(ladeArt, inc);
-                liste.add(s);
-            }
-        } catch (Exception ignored) {
-        } finally {
-            lock.unlock();
-        }
-    }
-
     private synchronized MSStringBuilder getUri(String sender, String addr, MSStringBuilder seite, String kodierung, int timeout, String meldung, int versuch, boolean lVersuch) {
         seite.setLength(0);
         HttpURLConnection conn = null;
         InputStream in = null;
         InputStreamReader inReader = null;
         int retCode;
-        int ladeArt = LADE_ART_UNBEKANNT;
+        int ladeArt;
         MVInputStream mvIn = null;
         String encoding;
         Date start = null;
@@ -293,8 +136,7 @@ public class MSGetUrl {
 
         // immer etwas bremsen
         try {
-            long w = wartenBasis;// * faktorWarten;
-            this.wait(w);
+            this.wait(wartenBasis);
         } catch (Exception ex) {
             MSLog.fehlerMeldung(976120379, ex, sender);
         }
@@ -329,7 +171,7 @@ public class MSGetUrl {
                         }
                         encoding = conn.getContentEncoding();
                         mvIn = new MVInputStream(conn);
-                        incSeitenZaehler(LISTE_SEITEN_PROXY, sender, 1, ladeArt);
+                        MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.PROXY);
                     }
                 } else {
                     // dann wars das
@@ -358,9 +200,11 @@ public class MSGetUrl {
             inReader = new InputStreamReader(in, kodierung);
             char[] buffer = new char[1024];
             int n;
+            long load = 0;
             while (!MSConfig.getStop() && (n = inReader.read(buffer)) != -1) {
                 // hier wird andlich geladen
                 seite.append(buffer, 0, n);
+                load += n;
             }
 
             if (showLoadTime) {
@@ -370,7 +214,20 @@ public class MSGetUrl {
                     System.out.println("\nDauer: " + diff / 1000 + "," + diff % 1000);
                 }
             }
-            incSeitenZaehler(LISTE_SUMME_KBYTE, sender, mvIn.summe, ladeArt);
+            MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.SUM_DATA_BYTE.ordinal(), load);
+            MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.SUM_TRAFFIC_BYTE.ordinal(), mvIn.summe);
+            switch (ladeArt) {
+                case MSGetUrl.LADE_ART_NIX:
+                    MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.SUM_TRAFFIC_LOADART_NIX.ordinal(), mvIn.summe);
+                    break;
+                case MSGetUrl.LADE_ART_DEFLATE:
+                    MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.SUM_TRAFFIC_LOADART_DEFLATE.ordinal(), mvIn.summe);
+                    break;
+                case MSGetUrl.LADE_ART_GZIP:
+                    MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.SUM_TRAFFIC_LOADART_GZIP.ordinal(), mvIn.summe);
+                    break;
+                default:
+            }
         } catch (IOException ex) {
             if (conn != null) {
                 try {
@@ -405,9 +262,8 @@ public class MSGetUrl {
                         MSLog.fehlerMeldung(915263697, text);
                         try {
                             // Pause zum Abbauen von Verbindungen
-                            final int WARTEN = 2;
-                            this.wait(WARTEN * 1000);
-                            incSeitenZaehler(LISTE_SEITEN_NO_BUFFER, sender, WARTEN, LADE_ART_UNBEKANNT);
+                            this.wait(WARTEN_NO_BUFFER);
+                            MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.NO_BUFFER);
                         } catch (Exception ignored) {
                         }
                         break;
@@ -457,7 +313,6 @@ public class MSGetUrl {
             nr = in.read();
             if (nr != -  1) {
                 ++summe;
-                ++summeByte;
             }
             return nr;
         }
@@ -467,7 +322,6 @@ public class MSGetUrl {
             nr = in.read(b);
             if (nr != -  1) {
                 summe += nr;
-                summeByte += nr;
             }
             return nr;
         }
@@ -477,7 +331,6 @@ public class MSGetUrl {
             nr = in.read(b, off, len);
             if (nr != -1) {
                 summe += nr;
-                summeByte += nr;
             }
             return nr;
         }

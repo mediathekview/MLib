@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import msearch.daten.DatenFilm;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
+import msearch.filmeSuchen.MSRunSender;
 import msearch.tool.GermanStringSorter;
 import msearch.tool.MSConfig;
 import msearch.tool.MSLog;
@@ -130,7 +131,10 @@ public class MediathekReader implements Runnable {
         }
         film.setUrlHistory();
         film.setGeo();
-        mSearchFilmeSuchen.listeFilmeNeu.addFilmVomSender(film);
+        if (mSearchFilmeSuchen.listeFilmeNeu.addFilmVomSender(film)) {
+            // dann ist er neu
+            MSFilmeSuchen.listeSenderLaufen.inc(film.arr[DatenFilm.FILM_SENDER_NR], MSRunSender.Count.FILME);
+        }
     }
 
     DatenFilm istInFilmListe(String sender, String thema, String titel) {
@@ -171,6 +175,9 @@ public class MediathekReader implements Runnable {
         MSLog.systemMeldung("   wartenSeiteLaden: " + wartenSeiteLaden);
         MSLog.systemMeldung("");
         mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
+        MSFilmeSuchen.listeSenderLaufen.inc(sendername, MSRunSender.Count.RUN_MAX_THREAD, maxThreadLaufen); //runSender ist erst jetzt angelegt
+        MSFilmeSuchen.listeSenderLaufen.inc(sendername, MSRunSender.Count.WAIT_ON_LOAD, wartenSeiteLaden);
+
     }
 
     synchronized void meldungAddMax(int mmax) {
