@@ -123,6 +123,10 @@ public class MediathekBr extends MediathekReader implements Runnable {
         String url = "";
         if ((pos1 = seite.indexOf("<ul class=\"clearFix\">")) != -1) {
             while ((pos1 = seite.indexOf(MUSTER_URL, pos1)) != -1) {
+                if (MSConfig.getStop()) {
+                    break;
+                }
+
                 try {
                     pos1 += MUSTER_URL.length();
                     if ((pos2 = seite.indexOf("\"", pos1)) != -1) {
@@ -523,18 +527,10 @@ public class MediathekBr extends MediathekReader implements Runnable {
 
             if (thema.equals(SENDERNAME)) {
                 thema = seite.extract("<broadcast>", "<");
-                System.out.println("Title: " + titel);
-                System.out.println("Thema: " + thema);
                 if (thema.equals(titel)) {
                     titel = seite.extract("<title>", "<");
-                    System.out.println("Title: " + titel);
-                    System.out.println("Thema: " + thema);
                 }
             }
-//            if (!thema.equals(checkThema(thema))) {
-//                System.out.println("");
-//            }
-//            thema = checkThema(thema);
 
             if (!thema.isEmpty()) {
                 if (!listeAlleThemenCount.contains(thema)) {

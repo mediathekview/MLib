@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import msearch.daten.DatenFilm;
 import msearch.filmeSuchen.MSFilmeSuchen;
+import static msearch.filmeSuchen.MSFilmeSuchen.listeSenderLaufen;
 import msearch.filmeSuchen.MSGetUrl;
 import msearch.filmeSuchen.MSRunSender;
 import msearch.tool.GermanStringSorter;
@@ -37,7 +38,7 @@ public class MediathekReader implements Runnable {
 
     public String sendername = ""; // ist der Name, den der Mediathekreader hat, der ist eindeutig
     int maxThreadLaufen = 4;
-    long wartenSeiteLaden = 500; //ms, Basiswert zu dem dann der Faktor multipliziert wird
+    int wartenSeiteLaden = 500; //ms, Basiswert zu dem dann der Faktor multipliziert wird
     boolean updateOn = false;
     int threads = 0;
     int max = 0;
@@ -175,9 +176,9 @@ public class MediathekReader implements Runnable {
         MSLog.systemMeldung("   wartenSeiteLaden: " + wartenSeiteLaden);
         MSLog.systemMeldung("");
         mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
-        MSFilmeSuchen.listeSenderLaufen.inc(sendername, MSRunSender.Count.RUN_MAX_THREAD, maxThreadLaufen); //runSender ist erst jetzt angelegt
-        MSFilmeSuchen.listeSenderLaufen.inc(sendername, MSRunSender.Count.WAIT_ON_LOAD, wartenSeiteLaden);
-
+        MSRunSender runSender = listeSenderLaufen.getSender(sendername);
+        runSender.maxThreads = maxThreadLaufen; //runSender ist erst jetzt angelegt
+        runSender.waitOnLoad = wartenSeiteLaden;
     }
 
     synchronized void meldungAddMax(int mmax) {

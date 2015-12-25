@@ -139,7 +139,7 @@ public class MSFilmlistenSuchen {
             listeFilmlistenUrls_diff.sort();
         }
         if (tmp.isEmpty()) {
-            MSLog.systemMeldung(new String[]{"Es ist ein Fehler aufgetreten!",
+            MSLog.fehlerMeldung(491203216, new String[]{"Es ist ein Fehler aufgetreten!",
                 "Es konnten keine Updateserver zum aktualisieren der Filme",
                 "gefunden werden."});
         }
@@ -182,7 +182,7 @@ public class MSFilmlistenSuchen {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(821069874,  ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
+            MSLog.fehlerMeldung(821069874, ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
         }
     }
 

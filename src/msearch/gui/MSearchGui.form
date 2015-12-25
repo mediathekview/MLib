@@ -134,6 +134,7 @@
                                       <Component id="jRadioButtonShort" min="-2" max="-2" attributes="0"/>
                                       <Component id="jRadioButtonMax" alignment="0" min="-2" max="-2" attributes="0"/>
                                       <Component id="jCheckBoxLoadTime" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jCheckBoxDebug" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                               <Group type="102" attributes="0">
@@ -173,6 +174,8 @@
                                   <Component id="jRadioButtonMax" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace type="separate" max="-2" attributes="0"/>
                                   <Component id="jCheckBoxLoadTime" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                  <Component id="jCheckBoxDebug" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="32767" attributes="0"/>
                               </Group>
                           </Group>
@@ -246,6 +249,11 @@
                 <Component class="javax.swing.JCheckBox" name="jCheckBoxLoadTime">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Ladezeit"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="jCheckBoxDebug">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Debug"/>
                   </Properties>
                 </Component>
               </SubComponents>

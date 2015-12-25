@@ -36,7 +36,6 @@ public class Main {
                 if (args != null) {
                     for (String s : args) {
                         if (s.equalsIgnoreCase("-gui")) {
-                            MSLog.versionsMeldungen();
                             new MSearchGui(args).setVisible(true);
                         }
                     }

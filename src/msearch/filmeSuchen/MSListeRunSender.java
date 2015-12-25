@@ -139,41 +139,69 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
     private static final String SENDER = " Sender ";
 
     public ArrayList<String> getTextCount(ArrayList<String> ret) {
-        String zeile;
-        zeile = SENDER + TRENNER;
 
+        get(ret, new MSRunSender.Count[]{MSRunSender.Count.ANZAHL, MSRunSender.Count.FILME, MSRunSender.Count.FEHLER,
+            MSRunSender.Count.FEHLVERSUCHE, MSRunSender.Count.WARTEZEIT_FEHLVERSUCHE,
+            MSRunSender.Count.PROXY, MSRunSender.Count.NO_BUFFER});
+        ret.add("");
+        ret.add("");
+
+        get(ret, new MSRunSender.Count[]{MSRunSender.Count.SUM_DATA_BYTE, MSRunSender.Count.SUM_TRAFFIC_BYTE,
+            MSRunSender.Count.SUM_TRAFFIC_LOADART_NIX, MSRunSender.Count.SUM_TRAFFIC_LOADART_DEFLATE, MSRunSender.Count.SUM_TRAFFIC_LOADART_GZIP,
+            MSRunSender.Count.SIZE_SUM, MSRunSender.Count.SIZE_SUM403, MSRunSender.Count.SIZE_PROXY});
+
+        ret.add("");
+        ret.add("");
+        return ret;
+    }
+
+    private ArrayList<String> get(ArrayList<String> ret, MSRunSender.Count[] spalten) {
+        String zeile;
         String[] names = MSRunSender.Count.getNames();
-        for (String s : names) {
-            zeile += textLaenge(s.length(), s) + TRENNER;
+
+        // Titelzeile
+        zeile = SENDER + TRENNER;
+        for (int i = 0; i < names.length; ++i) {
+            // alle Spalten checken, ob gebraucht
+            for (MSRunSender.Count sp : spalten) {
+                if (i == sp.ordinal()) {
+                    zeile += textLaenge(names[i].length(), names[i]) + TRENNER;
+                }
+            }
         }
 
         ret.add(zeile);
         ret.add("-------------------------------------------------------");
+
         for (MSRunSender run : this) {
             zeile = textLaenge(SENDER.length(), run.sender) + TRENNER;
             for (int i = 0; i < names.length; ++i) {
-                if (i == MSRunSender.Count.SUM_DATA_BYTE.ordinal() || i == MSRunSender.Count.SUM_TRAFFIC_BYTE.ordinal()
-                        || i == MSRunSender.Count.SUM_TRAFFIC_LOADART_DEFLATE.ordinal()
-                        || i == MSRunSender.Count.SUM_TRAFFIC_LOADART_GZIP.ordinal()
-                        || i == MSRunSender.Count.SUM_TRAFFIC_LOADART_NIX.ordinal()) {
-                    zeile += textLaenge(names[i].length(), String.valueOf(MSRunSender.getStringZaehler(get(run.sender, i)))) + TRENNER;
-                } else if (i == MSRunSender.Count.WARTEZEIT_FEHLVERSUCHE.ordinal()) {
-                    long l = get(run.sender, i) / 1000; // dann sinds s
-                    zeile += textLaenge(names[i].length(), String.valueOf(l == 0 ? "0" : (l < 1000 ? "<1" : l / 1000))) + TRENNER;
-                } else {
-                    zeile += textLaenge(names[i].length(), String.valueOf(get(run.sender, i))) + TRENNER;
+                // alle Spalten chekcken, ob gebraucht
+                for (MSRunSender.Count sp : spalten) {
+                    if (i == sp.ordinal()) {
+                        if (i == MSRunSender.Count.SUM_DATA_BYTE.ordinal() || i == MSRunSender.Count.SUM_TRAFFIC_BYTE.ordinal()
+                                || i == MSRunSender.Count.SUM_TRAFFIC_LOADART_DEFLATE.ordinal()
+                                || i == MSRunSender.Count.SUM_TRAFFIC_LOADART_GZIP.ordinal()
+                                || i == MSRunSender.Count.SUM_TRAFFIC_LOADART_NIX.ordinal()) {
+                            zeile += textLaenge(names[i].length(), String.valueOf(MSRunSender.getStringZaehler(get(run.sender, i)))) + TRENNER;
+                        } else if (i == MSRunSender.Count.WARTEZEIT_FEHLVERSUCHE.ordinal()) {
+                            long l = get(run.sender, i) / 1000; // dann sinds s
+                            zeile += textLaenge(names[i].length(), String.valueOf(l == 0 ? "0" : (l < 1000 ? "<1" : l / 1000))) + TRENNER;
+                        } else {
+                            zeile += textLaenge(names[i].length(), String.valueOf(get(run.sender, i))) + TRENNER;
+                        }
+                    }
                 }
             }
             ret.add(zeile);
         }
-        ret.add("");
         ret.add("");
         return ret;
     }
 
     public void getTextSum(ArrayList<String> retArray) {
         //wird ausgeführt wenn Sender beendet ist
-        final String[] titel1 = {"Sender laden ", "[min]", "[kB/s]", "ms/Seite"};
+        final String[] titel1 = {" Sender ", "[min]", "[kB/s]", "ms/Seite", "Threads", "Wait"};
         String zeile = "";
         String[] names = new String[titel1.length];
         for (int i = 0; i < titel1.length; ++i) {
@@ -184,20 +212,19 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
         retArray.add("-------------------------------------------------------");
 
         for (MSRunSender run : this) {
-
             int dauerSender = run.getLaufzeitSekunden();
+            long groesseByte = this.get(run.sender, MSRunSender.Count.SUM_TRAFFIC_BYTE);
+            long anzahlSeiten = this.get(run.sender, MSRunSender.Count.ANZAHL);
 
-            long groesseKB = this.get(run.sender, MSRunSender.Count.SUM_TRAFFIC_BYTE);
             String rate = "";
-            if (groesseKB > 0 && dauerSender > 0) {
-                double doub = (1.0 * groesseKB / dauerSender / 1000);
+            if (groesseByte > 0 && dauerSender > 0) {
+                double doub = (1.0 * groesseByte / dauerSender / 1000); // kB/s
                 rate = doub < 1 ? "<1" : String.format("%.1f", (doub));
             }
 
             String dauerSeite = "";
-            long anzahlSeiten = this.get(run.sender, MSRunSender.Count.ANZAHL);
             if (anzahlSeiten > 0) {
-                dauerSeite = String.format("%.2f", (1.0 * dauerSender / anzahlSeiten));
+                dauerSeite = String.format("%.1f", (1.0 * dauerSender / anzahlSeiten));
             }
 
             // =================================
@@ -206,6 +233,8 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
             zeile += textLaenge(titel1[1].length(), run.getLaufzeitMinuten()) + TRENNER;
             zeile += textLaenge(titel1[2].length(), rate) + TRENNER;
             zeile += textLaenge(titel1[3].length(), dauerSeite) + TRENNER;
+            zeile += textLaenge(titel1[4].length(), run.maxThreads + "") + TRENNER;
+            zeile += textLaenge(titel1[5].length(), run.waitOnLoad + "") + TRENNER;
             retArray.add(zeile);
         }
         retArray.add("");

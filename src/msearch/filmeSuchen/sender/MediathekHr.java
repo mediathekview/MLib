@@ -96,6 +96,9 @@ public class MediathekHr extends MediathekReader implements Runnable {
         ArrayList<String> erg = new ArrayList<>();
         seite.extractList(RUBRIK_MUSTER, "\"", 0, RUBRIK_PREFIX, erg);
         for (String s : erg) {
+            if (MSConfig.getStop()) {
+                break;
+            }
             rubrik(s);
         }
     }

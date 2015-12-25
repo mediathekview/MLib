@@ -249,13 +249,6 @@ public class MSLog {
         systemmeldung_(new String[]{text});
     }
 
-    public static synchronized void debugMeldung(String text) {
-        if (MSConfig.debug) {
-            resetProgress();
-            System.out.println("|||| " + text);
-        }
-    }
-
     public static synchronized void progress(String texte) {
         progress = true;
         if (!texte.isEmpty()) {

@@ -36,8 +36,6 @@ import msearch.filmeSuchen.MSGetUrl;
 import msearch.filmlisten.MSFilmlisteLesen;
 import msearch.filmlisten.WriteFilmlistJson;
 import msearch.filmlisten.WriteFilmlistXML;
-import msearch.gui.MSearchGuiLoad;
-import msearch.gui.PanelSenderSearch;
 import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
@@ -55,7 +53,6 @@ public final class MSearchGui extends javax.swing.JFrame {
         if (ar != null && ar.length > 0 && !ar[0].startsWith("-")) {
             pfad = ar[0];
         }
-        MSConfig.debug = true; // ist nur zum Debug
         listeFilme = new ListeFilme();
         filmeLaden = new MSearchGuiLoad();
         if (pfad.isEmpty()) {
@@ -104,11 +101,20 @@ public final class MSearchGui extends javax.swing.JFrame {
                 MSConfig.senderLoadHow = MSConfig.LOAD_MAX;
             }
         });
+        MSGetUrl.showLoadTime = jCheckBoxLoadTime.isSelected();
         jCheckBoxLoadTime.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 MSGetUrl.showLoadTime = jCheckBoxLoadTime.isSelected();
+            }
+        });
+        MSConfig.debug = jCheckBoxDebug.isSelected();
+        jCheckBoxDebug.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MSConfig.debug = jCheckBoxDebug.isSelected();
             }
         });
         jToggleButtonUpdate.addActionListener(new ActionListener() {
@@ -249,6 +255,7 @@ public final class MSearchGui extends javax.swing.JFrame {
         jRadioButtonLong = new javax.swing.JRadioButton();
         jRadioButtonMax = new javax.swing.JRadioButton();
         jCheckBoxLoadTime = new javax.swing.JCheckBox();
+        jCheckBoxDebug = new javax.swing.JCheckBox();
         jPanelLoeschen = new javax.swing.JPanel();
         jPanelSenderDelete = new javax.swing.JPanel();
         jPanelTool = new javax.swing.JPanel();
@@ -299,6 +306,8 @@ public final class MSearchGui extends javax.swing.JFrame {
 
         jCheckBoxLoadTime.setText("Ladezeit");
 
+        jCheckBoxDebug.setText("Debug");
+
         javax.swing.GroupLayout jPanelSuchenLayout = new javax.swing.GroupLayout(jPanelSuchen);
         jPanelSuchen.setLayout(jPanelSuchenLayout);
         jPanelSuchenLayout.setHorizontalGroup(
@@ -313,7 +322,8 @@ public final class MSearchGui extends javax.swing.JFrame {
                             .addComponent(jRadioButtonLong)
                             .addComponent(jRadioButtonShort)
                             .addComponent(jRadioButtonMax)
-                            .addComponent(jCheckBoxLoadTime)))
+                            .addComponent(jCheckBoxLoadTime)
+                            .addComponent(jCheckBoxDebug)))
                     .addGroup(jPanelSuchenLayout.createSequentialGroup()
                         .addComponent(jButtonFilmlisteLoeschen)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -345,6 +355,8 @@ public final class MSearchGui extends javax.swing.JFrame {
                         .addComponent(jRadioButtonMax)
                         .addGap(18, 18, 18)
                         .addComponent(jCheckBoxLoadTime)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jCheckBoxDebug)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
@@ -518,6 +530,7 @@ public final class MSearchGui extends javax.swing.JFrame {
     private javax.swing.JButton jButtonLog;
     private javax.swing.JButton jButtonSpeichern;
     private javax.swing.JButton jButtonSpeichernXml;
+    private javax.swing.JCheckBox jCheckBoxDebug;
     private javax.swing.JCheckBox jCheckBoxLoadTime;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
