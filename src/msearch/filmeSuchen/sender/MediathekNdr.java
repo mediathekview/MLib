@@ -352,7 +352,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                         }
                     }
                 } else {
-                    MSLog.fehlerMeldung(698970145, "keine Url: " + filmWebsite);
+//                    MSLog.fehlerMeldung(698970145, "keine Url: " + filmWebsite);
                     // src="/fernsehen/hallondsopplatt162-player_image-2c09ece0-0508-49bf-b4d6-afff2be2115c_theme-ndrde.html"
                     // http://www.ndr.de/fernsehen/hallondsopplatt162-ppjson_image-2c09ece0-0508-49bf-b4d6-afff2be2115c.json
                     // id="pp_hallondsopplatt162"

@@ -35,7 +35,6 @@ import msearch.daten.ListeFilme;
 import msearch.filmeSuchen.MSGetUrl;
 import msearch.filmlisten.MSFilmlisteLesen;
 import msearch.filmlisten.WriteFilmlistJson;
-import msearch.filmlisten.WriteFilmlistXML;
 import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
@@ -57,10 +56,8 @@ public final class MSearchGui extends javax.swing.JFrame {
         filmeLaden = new MSearchGuiLoad();
         if (pfad.isEmpty()) {
             jTextFieldFilmliste.setText(System.getProperty("user.home") + File.separator + ".mediathek3" + File.separator + "filme.json");
-            jTextFieldFilmlisteXml.setText(System.getProperty("user.home") + File.separator + ".mediathek3" + File.separator + "filme.xml");
         } else {
             jTextFieldFilmliste.setText(pfad);
-            jTextFieldFilmlisteXml.setText(pfad.replace(".json", ".xml"));
         }
         new MSFilmlisteLesen().readFilmListe(jTextFieldFilmliste.getText(), listeFilme, 0 /*all days*/);
         jLabelAnzahl.setText(MSearchGui.listeFilme.size() + "");
@@ -142,20 +139,6 @@ public final class MSearchGui extends javax.swing.JFrame {
             }
         });
         jButtonFilmliste.addActionListener(new BeobPfad());
-        jButtonSpeichernXml.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new WriteFilmlistXML().filmlisteSchreibenXml(jTextFieldFilmlisteXml.getText(), listeFilme);
-            }
-        });
-        jButtonFilmlisteXml.addActionListener(new BeobPfadXml());
-        jButtonGc.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.gc();
-            }
-        });
 
         // Tab Sender laden
         jPanelSenderLaden.setLayout(new BorderLayout());
@@ -268,10 +251,6 @@ public final class MSearchGui extends javax.swing.JFrame {
         jTextFieldFilmliste = new javax.swing.JTextField();
         jButtonFilmliste = new javax.swing.JButton();
         jButtonSpeichern = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
-        jTextFieldFilmlisteXml = new javax.swing.JTextField();
-        jButtonSpeichernXml = new javax.swing.JButton();
-        jButtonFilmlisteXml = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -439,14 +418,6 @@ public final class MSearchGui extends javax.swing.JFrame {
 
         jButtonSpeichern.setText("Speichern");
 
-        jLabel3.setText("Filmliste (xml):");
-
-        jTextFieldFilmlisteXml.setText("jTextField1");
-
-        jButtonSpeichernXml.setText("Speichern");
-
-        jButtonFilmlisteXml.setText("Auswählen");
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -461,21 +432,14 @@ public final class MSearchGui extends javax.swing.JFrame {
                         .addComponent(jLabelAnzahl)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel1))
+                        .addGap(37, 37, 37)
+                        .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextFieldFilmliste)
-                            .addComponent(jTextFieldFilmlisteXml))))
+                        .addComponent(jTextFieldFilmliste)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButtonFilmliste, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButtonFilmlisteXml, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jButtonFilmliste)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButtonSpeichern, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButtonSpeichernXml, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jButtonSpeichern)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -488,13 +452,7 @@ public final class MSearchGui extends javax.swing.JFrame {
                     .addComponent(jTextFieldFilmliste, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonFilmliste)
                     .addComponent(jButtonSpeichern))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jTextFieldFilmlisteXml, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonSpeichernXml)
-                    .addComponent(jButtonFilmlisteXml))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jLabelAnzahl))
@@ -502,8 +460,6 @@ public final class MSearchGui extends javax.swing.JFrame {
         );
 
         jPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jButtonFilmliste, jButtonSpeichern, jLabel1, jTextFieldFilmliste});
-
-        jPanel1Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jButtonFilmlisteXml, jButtonSpeichernXml, jTextFieldFilmlisteXml});
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -525,16 +481,13 @@ public final class MSearchGui extends javax.swing.JFrame {
     private javax.swing.JButton jButtonCheck;
     private javax.swing.JButton jButtonFilmliste;
     private javax.swing.JButton jButtonFilmlisteLoeschen;
-    private javax.swing.JButton jButtonFilmlisteXml;
     private javax.swing.JButton jButtonGc;
     private javax.swing.JButton jButtonLog;
     private javax.swing.JButton jButtonSpeichern;
-    private javax.swing.JButton jButtonSpeichernXml;
     private javax.swing.JCheckBox jCheckBoxDebug;
     private javax.swing.JCheckBox jCheckBoxLoadTime;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     public static javax.swing.JLabel jLabelAnzahl;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanelLoeschen;
@@ -547,7 +500,6 @@ public final class MSearchGui extends javax.swing.JFrame {
     private javax.swing.JRadioButton jRadioButtonShort;
     private javax.swing.JTabbedPane jTabbedPane;
     private javax.swing.JTextField jTextFieldFilmliste;
-    private javax.swing.JTextField jTextFieldFilmlisteXml;
     private javax.swing.JToggleButton jToggleButtonUpdate;
     // End of variables declaration//GEN-END:variables
 
@@ -581,28 +533,6 @@ public final class MSearchGui extends javax.swing.JFrame {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
                     jTextFieldFilmliste.setText(chooser.getSelectedFile().getAbsolutePath());
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private class BeobPfadXml implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            int returnVal;
-            JFileChooser chooser = new JFileChooser();
-            if (!jTextFieldFilmlisteXml.getText().equals("")) {
-                chooser.setCurrentDirectory(new File(jTextFieldFilmlisteXml.getText()));
-            }
-            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            chooser.setFileHidingEnabled(false);
-            returnVal = chooser.showOpenDialog(null);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                try {
-                    jTextFieldFilmlisteXml.setText(chooser.getSelectedFile().getAbsolutePath());
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

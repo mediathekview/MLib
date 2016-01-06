@@ -53,27 +53,16 @@
                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                          <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
+                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jTextFieldFilmliste" max="32767" attributes="0"/>
-                              <Component id="jTextFieldFilmlisteXml" max="32767" attributes="0"/>
-                          </Group>
+                          <Component id="jTextFieldFilmliste" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="jButtonFilmliste" max="32767" attributes="0"/>
-                      <Component id="jButtonFilmlisteXml" max="32767" attributes="0"/>
-                  </Group>
+                  <Component id="jButtonFilmliste" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="jButtonSpeichern" max="32767" attributes="0"/>
-                      <Component id="jButtonSpeichernXml" max="32767" attributes="0"/>
-                  </Group>
+                  <Component id="jButtonSpeichern" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -89,14 +78,7 @@
                       <Component id="jButtonFilmliste" linkSize="2" alignment="2" min="-2" max="-2" attributes="0"/>
                       <Component id="jButtonSpeichern" linkSize="2" alignment="2" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jTextFieldFilmlisteXml" linkSize="3" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jButtonSpeichernXml" linkSize="3" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jButtonFilmlisteXml" linkSize="3" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <EmptySpace pref="14" max="32767" attributes="0"/>
+                  <EmptySpace type="unrelated" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabelAnzahl" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -393,26 +375,6 @@
         <Component class="javax.swing.JButton" name="jButtonSpeichern">
           <Properties>
             <Property name="text" type="java.lang.String" value="Speichern"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="jLabel3">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Filmliste (xml):"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JTextField" name="jTextFieldFilmlisteXml">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="jTextField1"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JButton" name="jButtonSpeichernXml">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Speichern"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JButton" name="jButtonFilmlisteXml">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Ausw&#xe4;hlen"/>
           </Properties>
         </Component>
       </SubComponents>

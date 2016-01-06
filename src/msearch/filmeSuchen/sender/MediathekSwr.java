@@ -20,7 +20,6 @@
 package msearch.filmeSuchen.sender;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import msearch.daten.DatenFilm;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
@@ -50,6 +49,9 @@ public class MediathekSwr extends MediathekReader implements Runnable {
         //Theman suchen
         listeThemen.clear();
         addToList__();
+        if (MSConfig.loadLongMax()) {
+            addToList_verpasst(); // brauchst eigentlich nicht und dauer zu lange
+        }
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
@@ -98,6 +100,20 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                 String[] add = new String[]{"http://swrmediathek.de/tvshow.htm?show=" + url, thema};
                 listeThemen.addUrl(add);
             }
+        }
+    }
+
+    private void addToList_verpasst() {
+        //Theman suchen
+        MSStringBuilder strSeite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        strSeite = getUrlIo.getUri(SENDERNAME, "http://swrmediathek.de/sendungverpasst.htm", MSConst.KODIERUNG_UTF, 2, strSeite, "");
+        ArrayList<String> list = new ArrayList<>();
+        strSeite.extractList("<ul class=\"progChannelList\" tabindex=\"-1\">", "<div class=\"box mediBoxBorder\"",
+                "<a href=\"sendungverpasst.htm?show=&date=", "\"", "http://www.swrmediathek.de/sendungverpasst.htm?show=&date=", list);
+        for (String s : list) {
+            //url = url.replace("&amp;", "&");
+            String[] add = new String[]{s, ""};
+            listeThemen.addUrl(add);
         }
     }
 
@@ -198,6 +214,9 @@ public class MediathekSwr extends MediathekReader implements Runnable {
                 String smallUrl = getSmallUrl();
                 String rtmpUrl = getRtmpUrl();
                 String subtitle = strSeite2.extract("\"entry_capuri\":\"", "\"");
+                if (thema.isEmpty()) {
+                    thema = strSeite2.extract("\"group_title\":\"", "\"");
+                }
                 if (normalUrl.isEmpty() && smallUrl.isEmpty() && rtmpUrl.isEmpty()) {
                     MSLog.fehlerMeldung(203690478, thema + " NO normal and small url:  " + urlJson);
                 } else {

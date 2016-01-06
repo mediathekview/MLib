@@ -97,8 +97,6 @@ public class MSFilmlisteLesen {
     private InputStream selectDecompressor(String source, InputStream in) throws Exception {
         if (source.endsWith(MSConst.FORMAT_XZ)) {
             in = new XZInputStream(in);
-        } else if (source.endsWith(MSConst.FORMAT_BZ2)) {
-            in = new BZip2CompressorInputStream(in);
         } else if (source.endsWith(MSConst.FORMAT_ZIP)) {
             ZipInputStream zipInputStream = new ZipInputStream(in);
             zipInputStream.getNextEntry();

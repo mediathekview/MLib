@@ -201,7 +201,7 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
 
     public void getTextSum(ArrayList<String> retArray) {
         //wird ausgeführt wenn Sender beendet ist
-        final String[] titel1 = {" Sender ", "[min]", "[kB/s]", "ms/Seite", "Threads", "Wait"};
+        final String[] titel1 = {" Sender ", " [min] ", " [kB/s] ", "ms/Seite", "Threads", "Wait"};
         String zeile = "";
         String[] names = new String[titel1.length];
         for (int i = 0; i < titel1.length; ++i) {

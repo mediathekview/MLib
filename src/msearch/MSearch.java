@@ -25,7 +25,6 @@ import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import msearch.filmlisten.MSFilmlisteLesen;
 import msearch.filmlisten.WriteFilmlistJson;
-import msearch.filmlisten.WriteFilmlistXML;
 import msearch.tool.MSConfig;
 import msearch.tool.MSLog;
 
@@ -128,7 +127,6 @@ public class MSearch implements Runnable {
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt(false /*aktDate*/), listeFilme);
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt(true /*aktDate*/), listeFilme);
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt_xz(), listeFilme);
-        new WriteFilmlistXML().filmlisteSchreibenXml(MSConfig.getPathFilmlist_xml_bz2(), listeFilme);
 
         //================================================
         // Org-Diff

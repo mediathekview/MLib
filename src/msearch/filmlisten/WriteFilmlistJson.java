@@ -58,9 +58,6 @@ public class WriteFilmlistJson {
                 LZMA2Options options = new LZMA2Options();
                 xZOutputStream = new XZOutputStream(new FileOutputStream(file), options);
                 jg = jsonF.createGenerator(xZOutputStream);
-            } else if (datei.endsWith(MSConst.FORMAT_BZ2)) {
-                bZipOutputStream = new BZip2CompressorOutputStream(new FileOutputStream(file), 9 /*Blocksize: 1 - 9*/);
-                jg = jsonF.createGenerator(bZipOutputStream, JsonEncoding.UTF8);
             } else if (datei.endsWith(MSConst.FORMAT_ZIP)) {
                 zipOutputStream = new ZipOutputStream(new FileOutputStream(file));
                 ZipEntry entry = new ZipEntry(MSConst.XML_DATEI_FILME);

@@ -50,7 +50,6 @@ public class MSConst {
     public static final int MAX_SENDER_FILME_LADEN = 2;//es können maximal soviele Filme eines Senders/Servers gleichzeitig geladen werden
     public static final int STRING_BUFFER_START_BUFFER = 8 * 1024 * 8; // 8 KiB
     public static final String FORMAT_ZIP = ".zip";
-    public static final String FORMAT_BZ2 = ".bz2";
     public static final String FORMAT_XZ = ".xz";
     public static final String FORMAT_JSON = ".json";
     public static final String RTMP_PRTOKOLL = "rtmp";

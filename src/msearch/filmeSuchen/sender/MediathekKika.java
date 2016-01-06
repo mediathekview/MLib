@@ -231,7 +231,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
 
                 String xml = seite1.extract("<div class=\"av-playerContainer\"", "setup({dataURL:'", "'");
                 if (xml.isEmpty()) {
-                    MSLog.fehlerMeldung(701025987, "keine XML: " + filmWebsite);
+//                    MSLog.fehlerMeldung(701025987, "keine XML: " + filmWebsite);
                 } else {
                     ret = true;
                     xml = "http://www.kika.de" + xml;
