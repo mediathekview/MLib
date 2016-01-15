@@ -159,7 +159,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
                     if (url.endsWith(".mp4")) {
                         String description = seite2.extract("<meta name=\"description\" content=\"", "\"");
                         String datum = seite2.extract("| DW.COM | ", "\"");
-                        String dur = seite2.extract("<strong>Dauer</strong>", "Min.");
+                        String dur = seite2.extract("<strong>Dauer</strong>", "Min.").trim();
                         dur = dur.replace("\n", "");
                         dur = dur.replace("\r", "");
                         long duration = 0;
@@ -168,6 +168,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
                                 String[] parts = dur.split(":");
                                 long power = 1;
                                 for (int i = parts.length - 1; i >= 0; i--) {
+                                    String s = parts[i];
                                     duration += Long.parseLong(parts[i]) * power;
                                     power *= 60;
                                 }
