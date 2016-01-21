@@ -37,11 +37,11 @@ public class MSRunSender {
 
     public static enum Count {
 
-        ANZAHL("Anzahl"), FILME("Filme"), FEHLER("Fehler"), FEHLVERSUCHE("FVers"), WARTEZEIT_FEHLVERSUCHE("ZeitFV" /*ms*/),
+        ANZAHL("Seiten"), FILME("Filme"), FEHLER("Fehler"), FEHLVERSUCHE("FVers"), WARTEZEIT_FEHLVERSUCHE("ZeitFV[s]"),
         PROXY("Proxy" /*Seite über Proxy laden*/), NO_BUFFER("NoBuffer"),
         SUM_DATA_BYTE("sumData" /*Datenmenge, entpackt*/), SUM_TRAFFIC_BYTE("sumTraffic" /*Datenmenge die übertragen wird*/),
         SUM_TRAFFIC_LOADART_NIX("trNix"), SUM_TRAFFIC_LOADART_DEFLATE("trDeflate"), SUM_TRAFFIC_LOADART_GZIP("trGzip"),
-        SIZE_SUM("getSize"), SIZE_SUM403("gS-403"), SIZE_PROXY("gS-proxy");
+        GET_SIZE_SUM("getSize"), GET_SIZE_SUM403("gS-403"), GET_SIZE_PROXY("gS-proxy");
 
         final String name;
 

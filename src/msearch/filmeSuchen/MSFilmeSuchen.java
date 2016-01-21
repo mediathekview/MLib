@@ -174,14 +174,15 @@ public class MSFilmeSuchen {
         }
     }
 
-    public synchronized void melden(String sender, int max, int progress, String text) {
+    public synchronized MSRunSender melden(String sender, int max, int progress, String text) {
         MSRunSender runSender = listeSenderLaufen.getSender(sender);
         if (runSender != null) {
             runSender.max = max;
             runSender.progress = progress;
         } else {
             // Sender startet
-            listeSenderLaufen.add(new MSRunSender(sender, max, progress));
+            runSender = new MSRunSender(sender, max, progress);
+            listeSenderLaufen.add(runSender);
             //wird beim Start des Senders aufgerufen, 1x
             if (listeSenderLaufen.size() <= 1 /* erster Aufruf */) {
                 notifyStart(new MSListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
@@ -189,6 +190,7 @@ public class MSFilmeSuchen {
         }
         notifyProgress(new MSListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
         progressBar();
+        return runSender;
     }
 
     public synchronized void meldenFertig(String sender) {

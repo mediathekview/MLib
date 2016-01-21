@@ -40,7 +40,7 @@ public class MSFileSize {
         if (!url.toLowerCase().startsWith("http")) {
             return ret;
         }
-        MSFilmeSuchen.listeSenderLaufen.inc(ssender, MSRunSender.Count.SIZE_SUM);
+        MSFilmeSuchen.listeSenderLaufen.inc(ssender, MSRunSender.Count.GET_SIZE_SUM);
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
@@ -54,7 +54,7 @@ public class MSFileSize {
 
             // dann über eine Proxy
             if (retCode == 403) {
-                MSFilmeSuchen.listeSenderLaufen.inc(ssender, MSRunSender.Count.SIZE_SUM403);
+                MSFilmeSuchen.listeSenderLaufen.inc(ssender, MSRunSender.Count.GET_SIZE_SUM403);
                 if (!MSConfig.proxyUrl.isEmpty() && MSConfig.proxyPort > 0) {
                     // nur dann verwenden, wenn ein Proxy angegeben
                     try {
@@ -67,7 +67,7 @@ public class MSFileSize {
                         ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
                         conn.disconnect();
                         if (ret > 0) {
-                            MSFilmeSuchen.listeSenderLaufen.inc(ssender, MSRunSender.Count.SIZE_PROXY);
+                            MSFilmeSuchen.listeSenderLaufen.inc(ssender, MSRunSender.Count.GET_SIZE_PROXY);
                         }
                     } catch (Exception ex) {
                         ret = -1;

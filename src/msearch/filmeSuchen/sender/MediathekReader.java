@@ -175,8 +175,8 @@ public class MediathekReader implements Runnable {
         MSLog.systemMeldung("   maxThreadLaufen: " + maxThreadLaufen);
         MSLog.systemMeldung("   wartenSeiteLaden: " + wartenSeiteLaden);
         MSLog.systemMeldung("");
-        mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
-        MSRunSender runSender = listeSenderLaufen.getSender(sendername);
+        MSRunSender runSender = mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
+//        MSRunSender runSender = listeSenderLaufen.getSender(sendername);
         runSender.maxThreads = maxThreadLaufen; //runSender ist erst jetzt angelegt
         runSender.waitOnLoad = wartenSeiteLaden;
     }
