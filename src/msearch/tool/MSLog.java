@@ -132,6 +132,7 @@ public class MSLog {
         }
         systemMeldung("ImportURL 1:  " + MSConfig.importUrl_1__anhaengen);
         systemMeldung("ImportURL 2:  " + MSConfig.importUrl_2__anhaengen);
+        systemMeldung("ImportOLD:  " + MSConfig.importOld);
         if (MSConfig.nurSenderLaden != null) {
             systemMeldung("Nur Sender laden:  " + StringUtils.join(MSConfig.nurSenderLaden, ','));
         }

@@ -285,31 +285,6 @@ public class MSFilmeSuchen {
         return retArray;
     }
 
-//    private String getThreads(String sender) {
-//        // liefert die Anzahl Threads des Senders
-//        try {
-//            for (MediathekReader aMediathekListe : mediathekListe) {
-//                if (aMediathekListe.getNameSender().equals(sender)) {
-//                    return String.valueOf(aMediathekListe.getThreads());
-//                }
-//            }
-//        } catch (Exception ignored) {
-//        }
-//        return "";
-//    }
-//
-//    private String getWaitTime(String sender) {
-//        // liefert die Wartezeit beim Seitenladen des Senders
-//        try {
-//            for (MediathekReader aMediathekListe : mediathekListe) {
-//                if (aMediathekListe.getNameSender().equals(sender)) {
-//                    return String.valueOf(aMediathekListe.getWaitTime());
-//                }
-//            }
-//        } catch (Exception ignored) {
-//        }
-//        return "";
-//    }
     private synchronized void mrStarten(int prio) {
         // Prio 0 laden
         for (MediathekReader mr : mediathekListe) {
@@ -407,15 +382,6 @@ public class MSFilmeSuchen {
         }
     }
 
-//    private String textLaenge(int max, String text) {
-//        if (text.length() > max) {
-//            text = text.substring(0, max - 1);
-//        }
-//        while (text.length() < max) {
-//            text = text + " ";
-//        }
-//        return text;
-//    }
     private void notifyStart(MSListenerFilmeLadenEvent event) {
         for (Object l : listeners.getListenerList()) {
             if (l instanceof MSListenerFilmeLaden) {

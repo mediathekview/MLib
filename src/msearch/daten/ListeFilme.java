@@ -31,9 +31,12 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.SimpleTimeZone;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekArte_de;
+import msearch.filmeSuchen.sender.MediathekArte_fr;
 import msearch.filmeSuchen.sender.MediathekBr;
 import msearch.filmeSuchen.sender.MediathekHr;
 import msearch.filmeSuchen.sender.MediathekKika;
@@ -45,6 +48,7 @@ import msearch.filmeSuchen.sender.MediathekSr;
 import msearch.filmeSuchen.sender.MediathekSwr;
 import msearch.filmeSuchen.sender.MediathekWdr;
 import msearch.filmeSuchen.sender.MediathekZdf;
+import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSFileSize;
 import msearch.tool.MSFunktionen;
@@ -177,6 +181,91 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             }
         }
         hash.clear();
+    }
+
+    final int COUNTER_MAX = 20;
+    int counter = 0;
+    int treffer = 0;
+
+    public synchronized int updateListeOld(ListeFilme listeEinsortieren) {
+        // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
+        // es werden nur Filme die noch nicht vorhanden sind, einsortiert
+        // "ersetzen": true: dann werden gleiche (index/URL) in der Liste durch neue ersetzt
+        HashSet<String> hash = new HashSet<>();
+        Iterator<DatenFilm> it;
+        // ==============================================
+        it = this.iterator();
+        while (it.hasNext()) {
+            DatenFilm f = it.next();
+            if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
+                // beim KIKA ändern sich die URLs laufend
+                hash.add(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR]);
+            } else {
+                hash.add(f.getIndex());
+            }
+        }
+        it = listeEinsortieren.iterator();
+        while (it.hasNext()) {
+            DatenFilm f = it.next();
+            if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
+                if (hash.contains(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR])) {
+                    it.remove();
+                }
+            } else {
+                if (hash.contains(f.getIndex())) {
+                    it.remove();
+                }
+            }
+        }
+        hash.clear();
+        for (int i = 0; i < COUNTER_MAX; ++i) {
+            new Thread(new AddOld(listeEinsortieren)).start();
+        }
+        int count = 0;
+        while (!MSConfig.getStop() && counter > 0) {
+            try {
+                System.out.println("s: " + 2 * (count++) + "  Liste: " + listeEinsortieren.size() + "  Treffer: " + treffer + "   Threads: " + counter);
+                wait(2000);
+            } catch (InterruptedException ex) {
+            }
+        }
+        return treffer;
+    }
+
+    private class AddOld implements Runnable {
+
+        private DatenFilm film;
+        private final ListeFilme listeOld;
+
+        public AddOld(ListeFilme listeOld) {
+            this.listeOld = listeOld;
+            ++counter;
+        }
+
+        @Override
+        public void run() {
+            while ((film = popOld(listeOld)) != null) {
+                String size = MSFileSize.laengeString(film.arr[DatenFilm.FILM_URL_NR]);
+                if (!size.isEmpty()) {
+                    addOld(film);
+                }
+            }
+            --counter;
+        }
+    }
+
+    private synchronized DatenFilm popOld(ListeFilme listeOld) {
+        if (listeOld.size() > 0) {
+            return listeOld.remove(0);
+        }
+        return null;
+    }
+
+    private synchronized boolean addOld(DatenFilm film) {
+        ++treffer;
+//        film.arr[DatenFilm.FILM_THEMA_NR] = "ALT__" + film.arr[DatenFilm.FILM_THEMA_NR];
+        film.init();
+        return add(film);
     }
 
     private boolean addInit(DatenFilm film) {

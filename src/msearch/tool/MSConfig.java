@@ -31,6 +31,7 @@ public class MSConfig {
     public static int bandbreite = 0; // maxBandbreite in Byte
     public static String importUrl_1__anhaengen = "";
     public static String importUrl_2__anhaengen = "";
+    public static String importOld = ""; // alte Liste importieren
 
     public static final int LOAD_SHORT = 0;
     public static final int LOAD_LONG = 1;

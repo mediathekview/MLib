@@ -96,7 +96,23 @@ public class MSearch implements Runnable {
         listeFilme.sort();
     }
 
+    private void importOld(ListeFilme tmpListe, String importUrl) {
+        //================================================
+        // noch anere Listen importieren
+        MSLog.systemMeldung("Alte Filmliste importieren von: " + importUrl);
+        tmpListe.clear();
+        new MSFilmlisteLesen().readFilmListe(importUrl, tmpListe, 0 /*all days*/);
+        MSLog.systemMeldung("--> von  Anz. Filme: " + listeFilme.size());
+        int anz = listeFilme.updateListeOld(tmpListe);
+        MSLog.systemMeldung("    gefunden: " + anz);
+        MSLog.systemMeldung("--> nach Anz. Filme: " + listeFilme.size());
+        tmpListe.clear();
+        System.gc();
+        listeFilme.sort();
+    }
+
     private void undTschuess() {
+        boolean stop = MSConfig.getStop();
         MSConfig.setStop(false); // zurücksetzen!! sonst klappt das Lesen der Importlisten nicht!!!!!
         listeFilme = msFilmeSuchen.listeFilmeNeu;
         ListeFilme tmpListe = new ListeFilme();
@@ -118,6 +134,14 @@ public class MSearch implements Runnable {
             MSLog.systemMeldung("============================================================================");
             MSLog.systemMeldung("Filmliste Import 2");
             importUrl(tmpListe, MSConfig.importUrl_2__anhaengen);
+            MSLog.systemMeldung("");
+        }
+        if (!stop && !MSConfig.importOld.isEmpty() && MSConfig.loadLongMax()) {
+            // wenn angeben, dann Filme die noch "gehen" aus einer alten Liste anhängen
+            MSLog.systemMeldung("");
+            MSLog.systemMeldung("============================================================================");
+            MSLog.systemMeldung("Filmliste OLD importieren");
+            importOld(tmpListe, MSConfig.importOld);
             MSLog.systemMeldung("");
         }
 
