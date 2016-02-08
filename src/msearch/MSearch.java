@@ -136,7 +136,7 @@ public class MSearch implements Runnable {
             importUrl(tmpListe, MSConfig.importUrl_2__anhaengen);
             MSLog.systemMeldung("");
         }
-        if (!stop && !MSConfig.importOld.isEmpty() && MSConfig.loadLongMax()) {
+        if (!MSConfig.importOld.isEmpty() && MSConfig.loadLongMax()) {
             // wenn angeben, dann Filme die noch "gehen" aus einer alten Liste anhängen
             MSLog.systemMeldung("");
             MSLog.systemMeldung("============================================================================");
