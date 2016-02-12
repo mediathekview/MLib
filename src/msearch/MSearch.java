@@ -82,6 +82,10 @@ public class MSearch implements Runnable {
         }
     }
 
+    public ListeFilme getListeFilme() {
+        return listeFilme;
+    }
+
     private void importUrl(ListeFilme tmpListe, String importUrl) {
         //================================================
         // noch anere Listen importieren
@@ -146,22 +150,27 @@ public class MSearch implements Runnable {
         }
 
         //================================================
-        // Filmliste schreiben, normal, xz und bz2 komprimiert
+        // Filmliste schreiben, normal, xz komprimiert
         MSLog.systemMeldung("");
+        MSLog.systemMeldung("");
+        MSLog.systemMeldung("============================================================================");
+        MSLog.systemMeldung("============================================================================");
+        MSLog.systemMeldung("Filmeliste fertig: " + listeFilme.size() + " Filme");
+        MSLog.systemMeldung("============================================================================");
+        MSLog.systemMeldung("");
+        MSLog.systemMeldung("   --> und schreiben:");
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt(false /*aktDate*/), listeFilme);
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt(true /*aktDate*/), listeFilme);
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt_xz(), listeFilme);
 
         //================================================
-        // Org-Diff
+        // Org
         MSLog.systemMeldung("");
-        MSLog.systemMeldung("Filmeliste fertig: " + listeFilme.size() + " Filme");
         if (MSConfig.orgFilmlisteErstellen) {
             // org-Liste anlegen, typ. erste Liste am Tag
             MSLog.systemMeldung("");
             MSLog.systemMeldung("============================================================================");
-            MSLog.systemMeldung("Org-Lilste");
-            MSLog.systemMeldung("  --> ersellen: " + MSConfig.getPathFilmlist_json_org());
+            MSLog.systemMeldung("Org-Lilste schreiben: " + MSConfig.getPathFilmlist_json_org());
             new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_org(), listeFilme);
             new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_org_xz(), listeFilme);
         }
@@ -177,16 +186,17 @@ public class MSearch implements Runnable {
         new MSFilmlisteLesen().readFilmListe(org, tmpListe, 0 /*all days*/);
         if (tmpListe.isEmpty()) {
             // dann ist die komplette Liste das diff
-            MSLog.systemMeldung(" --> Lesefehler der Orgliste: Diff bleibt leer!");
+            MSLog.systemMeldung("   --> Lesefehler der Orgliste: Diff bleibt leer!");
             diff = new ListeFilme();
         } else if (tmpListe.isOlderThan(24 * 60 * 60)) {
             // älter als ein Tag, dann stimmt was nicht!
-            MSLog.systemMeldung(" --> Orgliste zu alt: Diff bleibt leer!");
+            MSLog.systemMeldung("   --> Orgliste zu alt: Diff bleibt leer!");
             diff = new ListeFilme();
         } else {
             // nur dann macht die Arbeit sinn
             diff = listeFilme.neueFilme(tmpListe);
         }
+        MSLog.systemMeldung("   --> und schreiben:");
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff(), diff);
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff_xz(), diff);
         MSLog.systemMeldung("   --> Anz. Filme Diff: " + diff.size());
