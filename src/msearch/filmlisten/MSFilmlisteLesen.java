@@ -39,7 +39,6 @@ import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.tukaani.xz.XZInputStream;
 
 public class MSFilmlisteLesen {
