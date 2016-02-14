@@ -54,7 +54,6 @@ public class MSConfig {
     // Namen der Filmlisten im: Konfig-Ordner/filmlisten/
     public static final String nameAktFilmlist = "filme.json"; // ist die aktuelle Filmliste
     public static final String nameAktFilmlist_xz = "filme.xz"; // ist die aktuelle Filmliste, xz komprimiert
-    public static final String nameAktFilmlist_bz2 = "filme-xml.bz2"; // ist die aktuelle Filmliste (xml Format), bz2 komprimiert, für die Programmversion <4
 
     public static final String nameOrgFilmlist = "filme-org.json"; // ist die "ORG" Filmliste, typ. die erste am Tag
     public static final String nameOrgFilmlist_xz = "filme-org.xz"; // ist die "ORG" Filmliste, typ. die erste am Tag, xz komprimiert
@@ -110,10 +109,6 @@ public class MSConfig {
 
     public static String getPathFilmlist_json_akt_xz() {
         return MSFunktionen.addsPfad(dirFilme, nameAktFilmlist_xz);
-    }
-
-    public static String getPathFilmlist_xml_bz2() {
-        return MSFunktionen.addsPfad(dirFilme, nameAktFilmlist_bz2);
     }
 
     public static String getPathFilmlist_json_org() {
