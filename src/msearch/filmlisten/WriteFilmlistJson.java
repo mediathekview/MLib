@@ -31,7 +31,6 @@ import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
 
