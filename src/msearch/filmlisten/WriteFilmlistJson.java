@@ -39,7 +39,6 @@ public class WriteFilmlistJson {
 
     public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
         ZipOutputStream zipOutputStream = null;
-        BZip2CompressorOutputStream bZipOutputStream = null;
         XZOutputStream xZOutputStream = null;
         JsonGenerator jg = null;
         try {
@@ -121,9 +120,6 @@ public class WriteFilmlistJson {
                 // die werden nicht immer korrekt geschlossen !??!
                 if (zipOutputStream != null) {
                     zipOutputStream.close();
-                }
-                if (bZipOutputStream != null) {
-                    bZipOutputStream.close();
                 }
                 if (xZOutputStream != null) {
                     xZOutputStream.close();
