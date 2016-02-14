@@ -31,7 +31,6 @@ import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
 import msearch.tool.MSConst;
 import msearch.tool.MSLog;
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
 
@@ -39,7 +38,6 @@ public class WriteFilmlistJson {
 
     public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
         ZipOutputStream zipOutputStream = null;
-        BZip2CompressorOutputStream bZipOutputStream = null;
         XZOutputStream xZOutputStream = null;
         JsonGenerator jg = null;
         try {
@@ -121,9 +119,6 @@ public class WriteFilmlistJson {
                 // die werden nicht immer korrekt geschlossen !??!
                 if (zipOutputStream != null) {
                     zipOutputStream.close();
-                }
-                if (bZipOutputStream != null) {
-                    bZipOutputStream.close();
                 }
                 if (xZOutputStream != null) {
                     xZOutputStream.close();
