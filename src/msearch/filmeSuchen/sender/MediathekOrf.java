@@ -112,7 +112,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(826341789,  ex);
+            MSLog.fehlerMeldung(826341789, ex);
         }
     }
 
@@ -131,7 +131,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(826341789,   ex);
+            MSLog.fehlerMeldung(826341789, ex);
         }
     }
 
@@ -164,11 +164,11 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                                 break;
                         }
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(795633581,   ex);
+                        MSLog.fehlerMeldung(795633581, ex);
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(554012398,   ex);
+                MSLog.fehlerMeldung(554012398, ex);
             }
             meldungThreadUndFertig();
         }
@@ -229,7 +229,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             long duration = 0;
             String description;
             String tmp;
-            String urlRtmpKlein = "", urlRtmp = "", url = "", urlKlein = "";
+            String urlRtmpKlein = "", urlRtmp = "", url = "", urlKlein = "", urlHD = "";
             String titel;
             String subtitle;
             int tmpPos1, tmpPos2;
@@ -249,7 +249,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
             if ((posStart = seite2.indexOf("\"is_one_segment_episode\":false")) == -1) {
                 if ((posStart = seite2.indexOf("\"is_one_segment_episode\":true")) == -1) {
-                    MSLog.fehlerMeldung(989532147,  "keine Url: " + strUrlFeed);
+                    MSLog.fehlerMeldung(989532147, "keine Url: " + strUrlFeed);
                     return;
                 }
             }
@@ -293,10 +293,11 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                     if (!description.equals(StringEscapeUtils.unescapeJava(description))) {
                         description = StringEscapeUtils.unescapeJava(description).trim();
                     }
+                    url = "";
+                    urlHD = "";
+                    urlKlein = "";
                     // =======================================================
                     // url
-                    url = "";
-                    urlKlein = "";
                     tmpPos1 = pos;
                     final String MUSTER_URL = "quality\":\"Q6A\",\"quality_string\":\"hoch\",\"src\":\"http";
                     while ((tmpPos1 = seite2.indexOf(MUSTER_URL, tmpPos1)) != -1) {
@@ -324,6 +325,26 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                                 urlRtmp = "-r " + url + " -y " + url.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
                             }
                         }
+                    }
+                    // =======================================================
+                    // urlHD
+                    tmpPos1 = pos;
+                    final String MUSTER_URL_HD = "quality\":\"Q8C\",\"quality_string\":\"sehr hoch (HD)\",\"src\":\"http";
+                    while ((tmpPos1 = seite2.indexOf(MUSTER_URL_HD, tmpPos1)) != -1) {
+                        tmpPos1 += MUSTER_URL_HD.length();
+                        if (tmpPos1 > posStopEpisode) {
+                            break;
+                        }
+                        if ((tmpPos2 = seite2.indexOf("\"", tmpPos1)) != -1) {
+                            urlHD = seite2.substring(tmpPos1, tmpPos2);
+                            if (urlHD.endsWith(".mp4")) {
+                                break;
+                            }
+                        }
+                    }
+                    if (!urlHD.isEmpty()) {
+                        urlHD = urlHD.replace("\\/", "/");
+                        urlHD = "http" + urlHD;
                     }
                     // =======================================================
                     // urlKlein
@@ -366,6 +387,9 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                         if (!urlKlein.isEmpty()) {
                             film.addUrlKlein(urlKlein, urlRtmpKlein);
                         }
+                        if (!urlHD.isEmpty()) {
+////                            film.addUrlHd(urlHD, "");
+                        }
                         if (!subtitle.isEmpty()) {
                             // "srt_file_url":"http:\/\/tvthek.orf.at\/dynamic\/get_asset.php?a=orf_episodes%2Fsrt_file%2F9346995.srt"
                             subtitle = subtitle.replace("\\/", "/");
@@ -374,7 +398,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                         }
                         addFilm(film, nurUrlPruefen);
                     } else {
-                        MSLog.fehlerMeldung(989532147,  "keine Url: " + strUrlFeed);
+                        MSLog.fehlerMeldung(989532147, "keine Url: " + strUrlFeed);
                     }
                 }
             }
