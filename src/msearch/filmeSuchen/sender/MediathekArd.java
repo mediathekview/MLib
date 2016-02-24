@@ -193,6 +193,12 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 }
                 pos += MUSTER.length();
                 url = seite1.extract("documentId=", "&", pos);
+//                if (!url.contains("\"")) {
+//                    System.out.println("soso");
+//                }
+                if (url.contains("\"")) {
+                    url = url.substring(0, url.indexOf("\""));
+                }
                 if (url.equals("")) {
                     continue;
                 }
