@@ -21,7 +21,6 @@
  */
 package msearch.filmeSuchen.sender;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,7 +29,6 @@ import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
 import msearch.tool.MSConfig;
 import msearch.tool.MSConst;
-import msearch.tool.MSFunktionen;
 import msearch.tool.MSLog;
 import msearch.tool.MSStringBuilder;
 
@@ -64,21 +62,21 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         listeMaus.clear();
         listeElefant.clear();
         meldungStart();
-        addToList__("http://www1.wdr.de/mediathek/video/sendungen/index.html");
+        addToList__();
         if (MSConfig.loadLongMax()) {
-            maus();
-            elefant();
-            rockpalast();
-            festival();
-            // damit sie auch gestartet werden (im idealfall in unterschiedlichen Threads
-            String[] add = new String[]{ROCKPALAST_URL, "Rockpalast"};
-            listeThemen.addUrl(add);
-            add = new String[]{ROCKPALAST_FESTIVAL, "Rockpalast"};
-            listeThemen.addUrl(add);
-            add = new String[]{MAUS, "Maus"};
-            listeThemen.addUrl(add);
-            add = new String[]{ELEFANT, "Elefant"};
-            listeThemen.addUrl(add);
+//////            maus();
+//////            elefant();
+//////            rockpalast();
+//////            festival();
+//////            // damit sie auch gestartet werden (im idealfall in unterschiedlichen Threads
+//////            String[] add = new String[]{ROCKPALAST_URL, "Rockpalast"};
+//////            listeThemen.addUrl(add);
+//////            add = new String[]{ROCKPALAST_FESTIVAL, "Rockpalast"};
+//////            listeThemen.addUrl(add);
+//////            add = new String[]{MAUS, "Maus"};
+//////            listeThemen.addUrl(add);
+//////            add = new String[]{ELEFANT, "Elefant"};
+//////            listeThemen.addUrl(add);
         }
 
         // Sendung verpasst, da sind einige die nicht in einer "Sendung" enthalten sind
@@ -161,23 +159,28 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         }
     }
 
-    private void addToList__(String ADRESSE) {
+    private void addToList__() {
         // http://www1.wdr.de/mediathek/video/sendungen/abisz-b100.html
         //Theman suchen
-        final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/abisz-";
-        seite_1 = getUrlIo.getUri_Iso(SENDERNAME, ADRESSE, seite_1, "");
-        int pos1 = 0;
+        final String URL = "http://www1.wdr.de/mediathek/video/sendungen-a-z/index.html";
+        final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen-a-z/";
+        seite_1 = getUrlIo.getUri_Iso(SENDERNAME, URL, seite_1, "");
+        int pos1;
         int pos2;
         String url;
-        themenSeitenSuchen(ADRESSE); // ist die erste Seite: "a"
+        themenSeitenSuchen(URL); // ist die erste Seite: "a"
+        pos1 = seite_1.indexOf("<strong>A</strong>");
         while (!MSConfig.getStop() && (pos1 = seite_1.indexOf(MUSTER_URL, pos1)) != -1) {
             pos1 += MUSTER_URL.length();
             if ((pos2 = seite_1.indexOf("\"", pos1)) != -1) {
                 url = seite_1.substring(pos1, pos2);
+                if (url.equals("index.html")) {
+                    continue;
+                }
                 if (url.equals("")) {
                     MSLog.fehlerMeldung(995122047, "keine URL");
                 } else {
-                    url = "http://www1.wdr.de/mediathek/video/sendungen/abisz-" + url;
+                    url = "http://www1.wdr.de/mediathek/video/sendungen-a-z/" + url;
                     themenSeitenSuchen(url);
                 }
             }
@@ -185,17 +188,12 @@ public class MediathekWdr extends MediathekReader implements Runnable {
     }
 
     private void themenSeitenSuchen(String strUrlFeed) {
-        final String MUSTER_START = "<ul class=\"linkList pictured\">";
         final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
-        int pos1;
+        int pos1 = 0;
         int pos2;
         String url;
         seite_2 = getUrlIo.getUri_Iso(SENDERNAME, strUrlFeed, seite_2, "");
         meldung(strUrlFeed);
-        if ((pos1 = seite_2.indexOf(MUSTER_START)) == -1) {
-            MSLog.fehlerMeldung(460857479, "keine Url" + strUrlFeed);
-            return;
-        }
         while (!MSConfig.getStop() && (pos1 = seite_2.indexOf(MUSTER_URL, pos1)) != -1) {
             pos1 += MUSTER_URL.length();
             if ((pos2 = seite_2.indexOf("\"", pos1)) != -1) {
@@ -247,7 +245,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         }
 
         private void sendungsSeitenSuchen1(String strUrl) {
-            // http://www1.wdr.de/mediathek/video/sendungen/ein_fall_fuer_die_anrheiner/filterseite-ein-fall-fuer-die-anrheiner100_compage-2_paginationId-picturedList0.html#picturedList0
+            final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
             int pos1;
             int pos2;
             int ende;
@@ -259,6 +257,9 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 return;
             }
             sendungsSeite1 = getUrl.getUri_Utf(SENDERNAME, strUrl, sendungsSeite1, "");
+            if (sendungsSeite1.length() == 0) {
+                return;
+            }
             // weitere Seiten suchen
             if ((pos1 = sendungsSeite1.indexOf("<ul class=\"pageCounterNavi\">")) == -1) {
                 return;
@@ -266,7 +267,8 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             if ((ende = sendungsSeite1.indexOf("</ul>", pos1)) == -1) {
                 return;
             }
-            while ((pos1 = sendungsSeite1.indexOf("<a href=\"/mediathek/video/sendungen/", pos1)) != -1) {
+            while ((pos1 = sendungsSeite1.indexOf(MUSTER_URL, pos1)) != -1) {
+                pos1 += MUSTER_URL.length();
                 if (pos1 > ende) {
                     // dann wars das
                     return;
@@ -283,207 +285,166 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         }
 
         private void sendungsSeitenSuchen2(String strUrl) {
-            final String MUSTER_START_1 = "<ul class=\"linkList pictured\">";
-            final String MUSTER_START_2 = "<div id=\"pageLeadIn\">";
-
-            final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
-            final String MUSTER_TITEL = "<strong>";
-            final String MUSTER_DAUER = "<span class=\"hidden\">L&auml;nge: </span>";
-            final String MUSTER_THEMA = "<title>";
-            int pos;
-            int pos1;
-            int pos2;
-            int ende;
+            final String MUSTER_URL = "<div class=\"teaser hideTeasertext\">";
+            int pos = 0;
             String url;
             String titel;
             String dauer;
-            String datum = "";
+            String datum;
             String thema;
             long duration = 0;
-            boolean verpasst = false;
-            pos = 0;
+
             if (strUrl.startsWith("http://www1.wdr.de/mediathek/video/sendungen/lokalzeit/uebersicht-lokalzeiten100_tag")) {
                 // brauchts nicht
                 return;
             }
             sendungsSeite2 = getUrl.getUri_Utf(SENDERNAME, strUrl, sendungsSeite2, "");
+            if (sendungsSeite2.length() == 0) {
+                return;
+            }
             meldung(strUrl);
 
-            thema = sendungsSeite2.extract(MUSTER_THEMA, "<", pos);
-            thema = thema.replace("- WDR MEDIATHEK", "").trim();
-            if (thema.startsWith("Sendung verpasst ")) {
-                verpasst = true;
-            }
-            // und jetzt die Beiträge
-            if ((pos = sendungsSeite2.indexOf(MUSTER_START_1)) == -1) {
-                if ((pos = sendungsSeite2.indexOf(MUSTER_START_2)) == -1) {
-                    MSLog.fehlerMeldung(765323079, "keine Url: " + strUrl);
-                    return;
-                }
-            }
-            if ((ende = sendungsSeite2.indexOf("<ul class=\"pageCounterNavi\">", pos)) == -1) {
-                if ((ende = sendungsSeite2.indexOf("<div id=\"socialBookmarks\">", pos)) == -1) {
-                    if ((ende = sendungsSeite2.indexOf("<span>Hilfe zur Steuerung der \"Sendung verpasst\"")) == -1) {
-                        MSLog.fehlerMeldung(646897321, "keine Url" + strUrl);
-                        return;
-                    }
-                }
-            }
+            thema = sendungsSeite2.extract("<title>", "<", pos);
+            thema = thema.replace("- Sendung - Video - Mediathek - WDR", "").trim();
+
+            pos = 0;
             while (!MSConfig.getStop() && (pos = sendungsSeite2.indexOf(MUSTER_URL, pos)) != -1) {
-                if (pos > ende) {
-                    break;
-                }
                 pos += MUSTER_URL.length();
-                pos1 = pos;
-                if ((pos2 = sendungsSeite2.indexOf("\"", pos)) != -1) {
-                    url = sendungsSeite2.substring(pos1, pos2).trim();
-                    if (!url.equals("")) {
-                        url = "http://www1.wdr.de/mediathek/video/sendungen/" + url;
+                url = sendungsSeite2.extract("<a href=\"/mediathek/video/sendungen/", "\"", pos);
+                if (!url.equals("")) {
+                    url = "http://www1.wdr.de/mediathek/video/sendungen/" + url;
 
-                        titel = sendungsSeite2.extract(MUSTER_TITEL, "<", pos).trim();
-                        if (verpasst) {
-                            thema = "";
-                            // dann Thema aus dem Titel
-                            if (titel.contains(":")) {
-                                thema = titel.substring(0, titel.indexOf(":")).trim();
-                                if (thema.contains(" - ")) {
-                                    thema = thema.substring(0, thema.indexOf(" - ")).trim();
-                                }
+                    titel = sendungsSeite2.extract("<span class=\"hidden\">Video:</span>", "<", pos).trim();
+                    titel = titel.replace("\n", "");
+
+                    datum = sendungsSeite2.extract("<p class=\"programInfo\">", "|", pos).trim();
+                    dauer = sendungsSeite2.extract("<span class=\"hidden\">L&auml;nge: </span>", "<", pos).trim();
+                    try {
+                        if (!dauer.equals("")) {
+                            String[] parts = dauer.split(":");
+                            duration = 0;
+                            long power = 1;
+                            for (int i = parts.length - 1; i >= 0; i--) {
+                                duration += Long.parseLong(parts[i]) * power;
+                                power *= 60;
                             }
                         }
-                        // putzen
-                        titel = titel.replace("\n", "");
-                        if (titel.contains("-")) {
-                            titel = titel.substring(titel.indexOf("-") + 1, titel.length());
-                        }
-                        if (titel.contains(":")) {
-                            datum = titel.substring(titel.lastIndexOf(":") + 1, titel.length()).trim();
-                            if (datum.contains(" vom")) {
-                                datum = datum.substring(datum.indexOf(" vom") + " vom".length()).trim();
-                            }
-                            titel = titel.substring(0, titel.lastIndexOf(":")).trim();
-                        }
-
-                        dauer = sendungsSeite2.extract(MUSTER_DAUER, "<", pos).trim();
-                        try {
-                            if (!dauer.equals("")) {
-                                String[] parts = dauer.split(":");
-                                duration = 0;
-                                long power = 1;
-                                for (int i = parts.length - 1; i >= 0; i--) {
-                                    duration += Long.parseLong(parts[i]) * power;
-                                    power *= 60;
-                                }
-                            }
-                        } catch (Exception ex) {
-                            MSLog.fehlerMeldung(306597519, ex, strUrl);
-                        }
-
-                        //weiter gehts
-                        addFilm1(thema, titel, url, duration, datum);
-                    } else {
-                        MSLog.fehlerMeldung(646432970, "keine Url" + strUrl);
+                    } catch (Exception ex) {
+                        MSLog.fehlerMeldung(306597519, ex, strUrl);
                     }
+
+                    //weiter gehts
+                    addFilm1(thema, titel, url, duration, datum);
+                } else {
+                    MSLog.fehlerMeldung(646432970, "keine Url" + strUrl);
                 }
             }
+
         }
 
         private void addFilm1(String thema, String titel, String filmWebsite, long dauer, String datum) {
-            // http://www1.wdr.de/mediathek/video/sendungen/die_story/videopharmasklaven100-videoplayer_size-L.html
-
-            final String MUSTER_URL_START = "<span class=\"videoLink\"";
-            final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
-
-            final String MUSTER_KEYWORDS = "<meta name=\"Keywords\" content=\"";
             meldung(filmWebsite);
             sendungsSeite3 = getUrl.getUri_Utf(SENDERNAME, filmWebsite, sendungsSeite3, "");
-            String url;
-            String description;
-            String[] keywords;
-            description = sendungsSeite3.extract("<meta name=\"Description\" content=\"", "\"");
-            String k = sendungsSeite3.extract(MUSTER_KEYWORDS, "\"");
-            keywords = k.split(", ");
+            if (sendungsSeite3.length() == 0) {
+                return;
+            }
+            if (sendungsSeite3.length() == 0) {
+                MSLog.fehlerMeldung(751236547, new String[]{"leere Seite: " + filmWebsite});
+            }
+            String description = sendungsSeite3.extract("<p class=\"text\">", "<");
 
             // URL suchen
-            url = sendungsSeite3.extract(MUSTER_URL_START, MUSTER_URL, "\"");
-            String subtitle = sendungsSeite3.extract(MUSTER_URL_START, "data-extension=\"{ 'mediaObj': { 'url': '", "'");
-            if (url.isEmpty()) {
-                url = sendungsSeite3.extract("<li class=\"mediathekvideo\" >", MUSTER_URL, "\"");
-                subtitle = sendungsSeite3.extract("<li class=\"mediathekvideo\" >", "data-extension=\"{ 'mediaObj': { 'url': '", "'");
-            }
-            if (!subtitle.isEmpty()) {
-                sendungsSeite3 = getUrl.getUri_Utf(SENDERNAME, subtitle, sendungsSeite3, "");
-                subtitle = sendungsSeite3.extract("{\"captionURL\":\"", "\"");
-            }
+            String url = sendungsSeite3.extract("mediaObj': { 'url': '", "'");
             if (!url.equals("")) {
-                addFilm2(filmWebsite, thema, titel, "http://www1.wdr.de/mediathek/video/sendungen/" + url, dauer, datum, description, keywords, subtitle);
+                addFilm2(filmWebsite, thema, titel, url, dauer, datum, description);
             } else {
                 MSLog.fehlerMeldung(763299001, new String[]{"keine Url: " + filmWebsite});
             }
 
         }
 
-        private void addFilm2(String filmWebsite, String thema, String titel, String urlFilmSuchen, long dauer, String datum, String beschreibung, String[] keyword, String subtitle) {
-            // ;dslSrc=rtmp://gffstream.fcod.llnwd.net/a792/e1/media/video/2009/02/14/20090214_a40_komplett_big.flv&amp;isdnSrc=rtm
-            // <p class="wsArticleAutor">Ein Beitrag von Heinke Schröder, 24.11.2010	</p>
-            final String MUSTER_URL_L = "<a rel=\"webL\"  href=\"";
-            final String MUSTER_URL_M = "<a rel=\"webM\"  href=\"";
-            final String MUSTER_URL_S = "<a rel=\"webS\"  href=\"";
+        private void addFilm2(String filmWebsite, String thema, String titel, String urlFilmSuchen, long dauer, String datum, String beschreibung) {
             meldung(urlFilmSuchen);
             sendungsSeite4 = getUrl.getUri_Utf(SENDERNAME, urlFilmSuchen, sendungsSeite4, "");
-            String url;
-            String urlKlein;
+            if (sendungsSeite4.length() == 0) {
+                return;
+            }
+            String url, urlMax = "", urlKlein = "";
+            String zeit = "";
 
             // URL suchen
-            url = sendungsSeite4.extract(MUSTER_URL_L, "\"");
-            urlKlein = sendungsSeite4.extract(MUSTER_URL_M, "\"");
-            if (url.equals("")) {
-                url = urlKlein;
-                urlKlein = "";
-            }
-            if (url.equals("")) {
-                url = sendungsSeite4.extract(MUSTER_URL_S, "\"");
-            } else if (urlKlein.equals("")) {
-                urlKlein = sendungsSeite4.extract(MUSTER_URL_S, "\"");
+            url = sendungsSeite4.extract("\"alt\":{\"videoURL\":\"", "\"");
+            String f4m = sendungsSeite4.extract("\"dflt\":{\"videoURL\":\"", "\"");
+
+            if (!f4m.isEmpty() && url.contains("_") && url.endsWith(".mp4")) {
+                // http://adaptiv.wdr.de/z/medp/ww/fsk0/104/1048369/,1048369_11885064,1048369_11885062,1048369_11885066,.mp4.csmil/manifest.f4m
+                // http://ondemand-ww.wdr.de/medp/fsk0/104/1048369/1048369_11885062.mp4
+                String s1 = url.substring(url.lastIndexOf("_") + 1, url.indexOf(".mp4"));
+                String s2 = url.substring(0, url.lastIndexOf("_") + 1);
+                try {
+                    int nr = Integer.parseInt(s1);
+                    if (f4m.contains(nr + 2 + "")) {
+                        urlMax = s2 + (nr + 2) + ".mp4";
+                    }
+                    if (f4m.contains(nr + 4 + "")) {
+                        urlKlein = s2 + (nr + 4) + ".mp4";
+                    }
+                } catch (Exception ignore) {
+                }
+                if (!urlMax.isEmpty()) {
+                    urlKlein = url;
+                    url = urlMax;
+                }
+            } else {
+                System.out.println("nix");
             }
 
-            if (url.isEmpty()) {
-                url = sendungsSeite4.extract("<a rel=\"adaptiv\" type=\"application/vnd.apple.mpegURL\" href=\"", "\"");
+            if (titel.isEmpty()) {
+                titel = sendungsSeite4.extract("\"trackerClipTitle\":\"", "\"");
             }
+            String subtitle = sendungsSeite4.extract("\"captionURL\":\"", "\"");
             if (datum.isEmpty()) {
-                String d = sendungsSeite4.extract("<meta name=\"DC.Date\" content=\"", "\"");
-                datum = convertDatum(d);
+                String d = sendungsSeite4.extract("\"trackerClipAirTime\":\"", "\"");
+                if (d.contains(" ")) {
+                    zeit = d.substring(d.indexOf(" ")) + ":00";
+                    datum = d.substring(0, d.indexOf(" "));
+                }
+            } else {
+                String d = sendungsSeite4.extract("\"trackerClipAirTime\":\"", "\"");
+                if (d.contains(" ")) {
+                    zeit = d.substring(d.indexOf(" ")) + ":00";
+                } else {
+                    System.out.println("Zeit");
+                }
             }
             if (!url.isEmpty()) {
-                // URL bauen von
-                final String mobileUrl = "http://mobile-ondemand.wdr.de/";
-                final String replaceUrl = "http://http-ras.wdr.de/";
-                url = url.replace(mobileUrl, replaceUrl);
-                urlKlein = urlKlein.replace(mobileUrl, replaceUrl);
 
-                DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, ""/* zeit */,
+                DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, zeit,
                         dauer, beschreibung);
-                film.addUrlKlein(urlKlein, "");
-                film.addUrlSubtitle(subtitle);
+                if (!subtitle.isEmpty()) {
+                    film.addUrlSubtitle(subtitle);
+                }
+                if (!urlKlein.isEmpty()) {
+                    film.addUrlKlein(urlKlein, "");
+                }
                 addFilm(film);
             } else {
                 MSLog.fehlerMeldung(978451239, new String[]{"keine Url: " + urlFilmSuchen, "UrlThema: " + filmWebsite});
             }
         }
 
-        private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX");// 2014-07-07T00:35+01:00
-        private final SimpleDateFormat sdfOutDay = new SimpleDateFormat("dd.MM.yyyy");
-
-        private String convertDatum(String datum) {
-            try {
-                Date filmDate = sdf.parse(datum);
-                datum = sdfOutDay.format(filmDate);
-            } catch (ParseException ex) {
-                MSLog.fehlerMeldung(731025789, ex, "Datum: " + datum);
-            }
-            return datum;
-        }
-
+//        private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX");// 2014-07-07T00:35+01:00
+//        private final SimpleDateFormat sdfOutDay = new SimpleDateFormat("dd.MM.yyyy");
+//
+//        private String convertDatum(String datum) {
+//            try {
+//                Date filmDate = sdf.parse(datum);
+//                datum = sdfOutDay.format(filmDate);
+//            } catch (ParseException ex) {
+//                MSLog.fehlerMeldung(731025789, ex, "Datum: " + datum);
+//            }
+//            return datum;
+//        }
         private void themenSeiteRockpalast() {
             try {
                 for (String s : listeRochpalast) {
@@ -637,7 +598,6 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             String url;
             long duration = 0;
             String description;
-            String[] keywords;
 
             String titel = sendungsSeite1.extract("headline: \"", "\"");
             titel = titel.replace("\n", "");
@@ -658,9 +618,6 @@ public class MediathekWdr extends MediathekReader implements Runnable {
 
             description = sendungsSeite1.extract("<meta name=\"Description\" content=\"", "\"");
 
-            String k = sendungsSeite1.extract("<meta name=\"Keywords\" content=\"", "\"");
-            keywords = k.split(", ");
-
             String datum = sendungsSeite1.extract("Konzert vom", "\"").trim();
             if (datum.isEmpty()) {
                 datum = sendungsSeite1.extract("Sendung vom ", "\"").trim();
@@ -670,7 +627,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 MSLog.fehlerMeldung(915236547, "keine URL: " + filmWebsite);
             } else {
                 url = "http://www1.wdr.de/fernsehen/kultur/rockpalast/videos/av/" + url;
-                addFilm2(filmWebsite, thema, titel, url, duration, datum, description, keywords, "" /*subtitle*/);
+                addFilm2(filmWebsite, thema, titel, url, duration, datum, description);
             }
         }
     }
