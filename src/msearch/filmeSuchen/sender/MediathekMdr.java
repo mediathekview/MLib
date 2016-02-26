@@ -47,7 +47,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
      * @param startPrio
      */
     public MediathekMdr(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, SENDERNAME, /* threads */ 2, /* urlWarten */ 500, startPrio);
+        super(ssearch, SENDERNAME, /* threads */ 3, /* urlWarten */ 500, startPrio);
     }
 
     /**
@@ -55,12 +55,16 @@ public class MediathekMdr extends MediathekReader implements Runnable {
      */
     @Override
     public void addToList() {
-        final String URL_SENDUNGEN = "http://www.mdr.de/mediathek/fernsehen/a-z/sendungenabisz100.html";
+        // <a href="/mediathek/fernsehen/a-z/sendungenabisz100_inheritancecontext-header_letter-A_numberofelements-1_zc-ef89b6fa.html#letternavi
+
+        final String URL_SENDUNGEN = "http://www.mdr.de/mediathek/fernsehen/a-z/index.html";
+        final String MUSTER = "<a href=\"/mediathek/fernsehen/a-z/sendungenabisz100_inheritancecontext-header_letter";
+        final String MUSTER_ADD = "http://www.mdr.de/mediathek/fernsehen/a-z/sendungenabisz100_inheritancecontext-header_letter";
+
         final String URL_TAGE = "http://www.mdr.de/mediathek/fernsehen/index.html";
-        final String MUSTER = "<a href=\"/mediathek/fernsehen/a-z/sendungenabisz100_letter-";
-        final String MUSTER_ADD = "http://www.mdr.de/mediathek/fernsehen/a-z/sendungenabisz100_letter-";
         final String MUSTER_TAGE = "<a href=\"/mediathek/fernsehen/sendungverpasst100-multiGroupClosed_boxIndex-";
         final String MUSTER_ADD_TAGE = "http://www.mdr.de/mediathek/fernsehen/sendungverpasst100-multiGroupClosed_boxIndex-";
+
         MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         listeThemen.clear();
         listeTage.clear();
@@ -82,28 +86,31 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                 MSLog.fehlerMeldung(889216307, "keine URL");
             } else {
                 url = MUSTER_ADD + url;
+                if (url.contains("#")) {
+                    url = url.substring(0, url.indexOf("#"));
+                }
                 listeThemen.addUrl(new String[]{url});
             }
         }
-        seite = getUrlIo.getUri_Utf(SENDERNAME, URL_TAGE, seite, "");
-        pos = 0;
-        url = "";
-        while ((pos = seite.indexOf(MUSTER_TAGE, pos)) != -1) {
-            pos += MUSTER_TAGE.length();
-            pos1 = pos;
-            pos2 = seite.indexOf("\"", pos);
-            if (pos1 != -1 && pos2 != -1) {
-                url = seite.substring(pos1, pos2);
-            }
-            if (url.equals("")) {
-                MSLog.fehlerMeldung(461225808, "keine URL");
-            } else {
-                url = MUSTER_ADD_TAGE + url;
-                if (!istInListe(listeTage, url)) {
-                    listeTage.add(url);
-                }
-            }
-        }
+//        seite = getUrlIo.getUri_Utf(SENDERNAME, URL_TAGE, seite, "");
+//        pos = 0;
+//        url = "";
+//        while ((pos = seite.indexOf(MUSTER_TAGE, pos)) != -1) {
+//            pos += MUSTER_TAGE.length();
+//            pos1 = pos;
+//            pos2 = seite.indexOf("\"", pos);
+//            if (pos1 != -1 && pos2 != -1) {
+//                url = seite.substring(pos1, pos2);
+//            }
+//            if (url.equals("")) {
+//                MSLog.fehlerMeldung(461225808, "keine URL");
+//            } else {
+//                url = MUSTER_ADD_TAGE + url;
+//                if (!istInListe(listeTage, url)) {
+//                    listeTage.add(url);
+//                }
+//            }
+//        }
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0 && listeTage.size() == 0) {
@@ -126,6 +133,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
         private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite33 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite4 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite5 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
@@ -202,178 +210,163 @@ public class MediathekMdr extends MediathekReader implements Runnable {
         }
 
         void addThema(String strUrlFeed) {
-            final String MUSTER_TITEL = "title=\"Alle verfügbaren Sendungen anzeigen\">";
-            final String MUSTER_URL = "<h3><a href=\"/mediathek/fernsehen/a-z/";
-            final String MUSTER_ADD = "http://www.mdr.de/mediathek/fernsehen/a-z/";
+            final String MUSTER = "<div class=\"media mediaA \">";
 
             int pos = 0;
-            int pos2;
-            String thema = "";
-            String url;
+            String thema, url = "";
             try {
-                seite2 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite2, "");
-                while (!MSConfig.getStop() && (pos = seite2.indexOf(MUSTER_URL, pos)) != -1) {
-                    pos += MUSTER_URL.length();
-                    pos2 = seite2.indexOf("\"", pos);
-                    if (pos != -1 && pos2 != -1) {
-                        url = seite2.substring(pos, pos2);
-                        pos = pos2;
-                        if ((pos = seite2.indexOf(MUSTER_TITEL, pos)) != -1) {
-                            pos += MUSTER_TITEL.length();
-                            pos2 = seite2.indexOf("<", pos);
-                            if (pos != -1 && pos2 != -1) {
-                                thema = seite2.substring(pos, pos2);
-                                pos = pos2;
-                            }
-                            if (url.equals("")) {
-                                MSLog.fehlerMeldung(766250249, "keine URL: " + strUrlFeed);
-                            } else {
-                                meldung(url);
-                                addSendug(strUrlFeed, thema, MUSTER_ADD + url);
-                            }
-                        }
+                seite2 = getUrl.getUri(SENDERNAME, strUrlFeed, MSConst.KODIERUNG_UTF, 2 /* versuche */, seite2, "");
+                while (!MSConfig.getStop() && (pos = seite2.indexOf(MUSTER, pos)) != -1) {
+                    pos += MUSTER.length();
+                    url = seite2.extract("<a href=\"/mediathek/fernsehen/", "\"", pos);
+                    thema = seite2.extract(" class=\"headline\" title=\"\">", "<", pos);
+                    if (url.equals("")) {
+                        MSLog.fehlerMeldung(952136547, "keine URL: " + strUrlFeed);
+                    } else {
+                        meldung(url);
+                        url = "http://www.mdr.de/mediathek/fernsehen/" + url;
+                        addSendugen(strUrlFeed, thema, url);
                     }
+                }
+                if (url.equals("")) {
+                    MSLog.fehlerMeldung(766250249, "keine URL: " + strUrlFeed);
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(316874602, ex);
             }
         }
 
-        private void addSendug(String strUrlFeed, String thema, String urlThema) {
-            final String MUSTER_START = "<span class=\"ressortHead\">Sendungen von A bis Z</span>";
-            final String MUSTER_XML = "{container:'mediathekStage',dataURL:'/mediathek/fernsehen/a-z";
-            final String MUSTER_ADD = "http://www.mdr.de/mediathek/fernsehen/a-z/";
-            LinkedList<String> tmpListe = new LinkedList<>();
-            seite3 = getUrl.getUri_Utf(SENDERNAME, urlThema, seite3, "Thema: " + thema);
-            int pos;
+        private void addSendugen(String strUrlFeed, String thema, String urlThema) {
+            seite3 = getUrl.getUri(SENDERNAME, urlThema, MSConst.KODIERUNG_UTF, 2 /* versuche */, seite3, "Thema: " + thema);
+            final String muster;
+            if (seite3.indexOf("div class=\"media mediaA \">") != -1) {
+                muster = "div class=\"media mediaA \">";
+            } else {
+                muster = "<span class=\"broadcastSeriesTitle\">";
+            }
+            int pos = 0, count = 0;
+            String url = "";
+            while ((pos = seite3.indexOf(muster, pos)) != -1) {
+                ++count;
+                if (!MSConfig.loadLongMax()) {
+                    if (count > 5) {
+                        return;
+                    }
+                }
+                pos += muster.length();
+                url = seite3.extract("<a href=\"/mediathek/fernsehen/a-z", "\"", pos);
+                if (url.equals("")) {
+                    MSLog.fehlerMeldung(915263421, new String[]{"keine URL: " + urlThema, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
+                } else {
+                    url = "http://www.mdr.de/mediathek/fernsehen/a-z" + url;
+                    addSendug(strUrlFeed, thema, url);
+                }
+            }
+
+            if (url.equals("")) {
+                MSLog.fehlerMeldung(765213014, new String[]{"keine URL: " + urlThema, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
+            }
+        }
+
+        private void addSendug(String strUrlFeed, String thema, String urlSendung) {
+            final String MUSTER_XML = "'playerXml':'";
+            final String MUSTER_ADD = "http://www.mdr.de";
+            seite33 = getUrl.getUri_Utf(SENDERNAME, urlSendung, seite33, "Thema: " + thema);
+            int pos = 0;
             int pos1;
             int pos2;
             String url = "";
-            if ((pos = seite3.indexOf(MUSTER_START)) != -1) {
-                while ((pos = seite3.indexOf(MUSTER_XML, pos)) != -1) {
-                    pos += MUSTER_XML.length();
-                    pos1 = pos;
-                    if ((pos2 = seite3.indexOf("'", pos)) != -1) {
-                        url = seite3.substring(pos1, pos2);
-                    }
-                    if (url.equals("")) {
-                        MSLog.fehlerMeldung(256987304, new String[]{"keine URL: " + urlThema, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
-                    } else {
-                        url = MUSTER_ADD + url;
-                        if (!tmpListe.contains(url)) {
-                            tmpListe.add(url);
-                        }
-                    }
+            while ((pos = seite33.indexOf(MUSTER_XML, pos)) != -1) {
+                pos += MUSTER_XML.length();
+                pos1 = pos;
+                if ((pos2 = seite33.indexOf("'", pos)) != -1) {
+                    url = seite33.substring(pos1, pos2);
+                }
+                if (url.equals("")) {
+                    MSLog.fehlerMeldung(256987304, new String[]{"keine URL: " + urlSendung, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
+                } else {
+                    url = url.replace("\\", "");
+                    url = MUSTER_ADD + url;
+                    addXml(strUrlFeed, thema, url, urlSendung);
                 }
             }
-            Iterator<String> it = tmpListe.iterator();
-            while (!MSConfig.getStop() && it.hasNext()) {
-                addXml(strUrlFeed, thema, it.next(), urlThema);
+            if (url.equals("")) {
+                MSLog.fehlerMeldung(256987304, new String[]{"keine URL: " + urlSendung, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
             }
         }
 
         void addXml(String strUrlFeed, String thema, String xmlSite, String filmSite) {
-            final String MUSTER_START = "<avDocument>";
-            final String MUSTER_ENDE = "</avDocument>";
-            final String MUSTER_TITEL = "<title>";
-            final String MUSTER_DATUM = "<broadcastStartDate>";
-            final String MUSTER_DURATION = "<duration>";
-            final String MUSTER_DURATION_END = "</duration>";
-            final String MUSTER_DESCRIPTION = "<teaserText>";
-            final String MUSTER_DESCRIPTION_END = "</teaserText>";
             final String MUSTER_URL_MP4 = "<progressiveDownloadUrl>";
-            //<progressiveDownloadUrl>http://x4100mp4dynonlc22033.f.o.l.lb.core-cdn.net/22033mdr/ondemand/4100mp4dynonl/FCMS-ad2e1bc5-d967-4791-b7ce-e5630252531a-c7cca1d51b4b.mp4</progressiveDownloadUrl>
-            //<broadcastStartDate>23.08.2012 22:05</broadcastStartDate>
-            int pos = 0;
-            int pos1;
-            int pos2;
-            String titel, datum, zeit, width, urlMp4, urlMp4_klein, urlHD, urlSendung;
+            String titel, datum, zeit, urlMp4, urlMp4_klein, urlHD, urlSendung, description;
             long duration;
-            String description;
+
             try {
                 seite4 = getUrl.getUri_Utf(SENDERNAME, xmlSite, seite4, "Thema: " + thema);
-                if ((pos = seite4.indexOf(MUSTER_START)) == -1) {
+                if (seite4.length() == 0) {
                     MSLog.fehlerMeldung(903656532, xmlSite);
                     return;
                 }
-                while ((pos = seite4.indexOf(MUSTER_TITEL, pos)) != -1) {
-                    pos += MUSTER_TITEL.length();
-                    if (seite4.indexOf(MUSTER_ENDE, pos) == -1) {
-                        MSLog.fehlerMeldung(804142536, xmlSite);
-                        continue;
-                    }
-                    titel = "";
-                    datum = "";
-                    zeit = "";
-                    duration = 0;
 
-                    if ((pos1 = seite4.indexOf(MUSTER_DURATION, pos)) != -1) {
-                        pos1 += MUSTER_DURATION.length();
-                        if ((pos2 = seite4.indexOf(MUSTER_DURATION_END, pos1)) != -1) {
-                            try {
-                                String d = seite4.substring(pos1, pos2);
-                                if (!d.equals("")) {
-                                    String[] parts = d.split(":");
-                                    duration = 0;
-                                    long power = 1;
-                                    for (int i = parts.length - 1; i >= 0; i--) {
-                                        duration += Long.parseLong(parts[i]) * power;
-                                        power *= 60;
-                                    }
-                                }
-                            } catch (Exception ex) {
-                                MSLog.fehlerMeldung(313698749, ex, xmlSite);
-                            }
+                duration = 0;
+                try {
+                    String d = seite4.extract("<duration>", "<");
+                    if (!d.equals("")) {
+                        String[] parts = d.split(":");
+                        duration = 0;
+                        long power = 1;
+                        for (int i = parts.length - 1; i >= 0; i--) {
+                            duration += Long.parseLong(parts[i]) * power;
+                            power *= 60;
                         }
                     }
+                } catch (Exception ex) {
+                    MSLog.fehlerMeldung(313698749, ex, xmlSite);
+                }
 
-                    description = seite4.extract(MUSTER_DESCRIPTION, MUSTER_DESCRIPTION_END, pos);
-                    String subtitle = seite4.extract("<videoSubtitleUrl>", "<", pos); //<videoSubtitleUrl>http://www.mdr.de/mediathek/fernsehen/a-z/video209948-videoSubtitle_zc-ea9f5e14_zs-dea15b49.xml</videoSubtitleUrl>
-                    urlSendung = seite4.extract("<htmlUrl>", "<", pos);
-                    if (urlSendung.isEmpty()) {
-                        urlSendung = filmSite;
-                    }
+                titel = seite4.extract("<title>", "<");
+                description = seite4.extract("<teaserText>", "<");
+                String subtitle = seite4.extract("<videoSubtitleUrl>", "<");
+                datum = seite4.extract("<broadcastStartDate>", "<");
+                if (datum.isEmpty()) {
+                    datum = seite4.extract("<datetimeOfBroadcasting>", "<");
+                }
+                if (datum.isEmpty()) {
+                    datum = seite4.extract("<webTime>", "<");
+                }
+                zeit = convertZeitXml(datum);
+                datum = convertDatumXml(datum);
+                urlSendung = seite4.extract("<htmlUrl>", "<");
+                if (urlSendung.isEmpty()) {
+                    urlSendung = filmSite;
+                }
 
-                    pos1 = pos;
-                    if ((pos2 = seite4.indexOf("<", pos)) != -1) {
-                        titel = seite4.substring(pos1, pos2);
-                    }
-                    if ((pos1 = seite4.indexOf(MUSTER_DATUM, pos)) != -1) {
-                        pos1 += MUSTER_DATUM.length();
-                        if ((pos2 = seite4.indexOf("<", pos1)) != -1) {
-                            datum = seite4.substring(pos1, pos2);
-                            zeit = convertZeitXml(datum);
-                            datum = convertDatumXml(datum);
-                        }
-                    }
+                // Film-URLs suchen
+                urlHD = seite4.extract("| MP4 Web XL |", MUSTER_URL_MP4, "<");
+                urlMp4 = seite4.extract("| MP4 Web L |", MUSTER_URL_MP4, "<");
+                if (urlMp4.isEmpty()) {
+                    urlMp4 = seite4.extract("| MP4 Web L+ |", MUSTER_URL_MP4, "<");
+                }
+                urlMp4_klein = seite4.extract("| MP4 Web M |", MUSTER_URL_MP4, "<");
 
-                    // Film-URLs suchen
-                    urlHD = seite4.extract("| MP4 Web XL |", MUSTER_URL_MP4, "<", pos);
-                    urlMp4 = seite4.extract("| MP4 Web L |", MUSTER_URL_MP4, "<", pos);
-                    if (urlMp4.isEmpty()) {
-                        urlMp4 = seite4.extract("| MP4 Web L+ |", MUSTER_URL_MP4, "<", pos);
-                    }
-                    urlMp4_klein = seite4.extract("| MP4 Web M |", MUSTER_URL_MP4, "<", pos);
+                if (urlMp4.isEmpty()) {
+                    urlMp4 = urlMp4_klein;
+                    urlMp4_klein = "";
+                }
 
-                    if (urlMp4.isEmpty()) {
-                        urlMp4 = urlMp4_klein;
-                        urlMp4_klein = "";
-                    }
-                    if (urlMp4.equals("")) {
-                        MSLog.fehlerMeldung(326541230, new String[]{"keine URL: " + xmlSite, "Thema: " + thema, " UrlFeed: " + strUrlFeed});
-                    } else {
-                        if (!existiertSchon(thema, titel, datum, zeit)) {
-                            meldung(urlMp4);
-                            DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, urlMp4, ""/*rtmpUrl*/, datum, zeit, duration, description);
-                            film.addUrlKlein(urlMp4_klein, "");
-                            film.addUrlHd(urlHD, "");
-                            if (!subtitle.isEmpty()) {
-                                film.addUrlSubtitle(subtitle);
-                            }
-                            addFilm(film);
-                        }
+                if (urlMp4.equals("")) {
+                    MSLog.fehlerMeldung(326541230, new String[]{"keine URL: " + xmlSite, "Thema: " + thema, " UrlFeed: " + strUrlFeed});
+                } else {
+                    if (!existiertSchon(thema, titel, datum, zeit)) {
+                        meldung(urlMp4);
+
+                        DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, urlMp4, ""/*rtmpUrl*/, datum, zeit, duration, description);
+                        film.addUrlKlein(urlMp4_klein, "");
+                        film.addUrlHd(urlHD, "");
+                        film.addUrlSubtitle(subtitle);
+                        addFilm(film);
                     }
                 }
+
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(446286970, ex);
             }
