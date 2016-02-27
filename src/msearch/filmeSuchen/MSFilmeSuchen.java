@@ -228,6 +228,7 @@ public class MSFilmeSuchen {
                 MSLog.systemMeldung("                                                                                     ");
                 MSLog.systemMeldung("                                                                                     ");
             }
+            mrClear();
             if (MSConfig.updateFilmliste) {
                 // alte Filme eintragen wenn angefordert oder nur ein update gesucht wurde
                 //////toDo
@@ -291,6 +292,13 @@ public class MSFilmeSuchen {
             if (mr.getStartPrio() == prio) {
                 new Thread(mr).start();
             }
+        }
+    }
+
+    private synchronized void mrClear() {
+        //die MediathekReader aufräumen
+        for (MediathekReader mr : mediathekListe) {
+            mr.clear();
         }
     }
 

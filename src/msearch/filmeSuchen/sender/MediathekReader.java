@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import msearch.daten.DatenFilm;
 import msearch.filmeSuchen.MSFilmeSuchen;
-import static msearch.filmeSuchen.MSFilmeSuchen.listeSenderLaufen;
 import msearch.filmeSuchen.MSGetUrl;
 import msearch.filmeSuchen.MSRunSender;
 import msearch.tool.GermanStringSorter;
@@ -98,6 +97,10 @@ public class MediathekReader implements Runnable {
 
     public void delSenderInAlterListe(String sender) {
         mSearchFilmeSuchen.listeFilmeAlt.deleteAllFilms(sender);
+    }
+
+    public void clear() {
+        //aufräumen
     }
 
     @Override

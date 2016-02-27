@@ -392,7 +392,9 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 } catch (Exception ignore) {
                 }
                 if (!urlMax.isEmpty()) {
-                    urlKlein = url;
+                    if (urlKlein.isEmpty()) {
+                        urlKlein = url;
+                    }
                     url = urlMax;
                 }
             } else {
