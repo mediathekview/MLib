@@ -212,16 +212,14 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 }
                 titel = seite1.extract("<h4 class=\"headline\">", "<", pos);
                 dauer = seite1.extract("<p class=\"subtitle\">", "<", pos);
-                dauer = dauer.replace("min", "").trim();
                 try {
-                    if (dauer.contains(":")) {
-                        String s = dauer.substring(0, dauer.indexOf(":"));
-                        d = Long.parseLong(s);
-                        d *= 60;
-                        s = dauer.substring(dauer.indexOf(":") + 1);
-                        d += Long.parseLong(s);
-                    }
+                    dauer = dauer.replace("Min.", "").trim();
+                    dauer = dauer.replace("| UT", "").trim();
+                    d = Long.parseLong(dauer) * 60;
                 } catch (Exception ex) {
+                }
+                if (d == 0) {
+                    MSLog.fehlerMeldung(915263621, "Dauer==0: " + strUrlFeed);
                 }
                 urlSendung = seite1.extract("<a href=\"/tv/", "\"", pos);
                 if (!urlSendung.isEmpty()) {
