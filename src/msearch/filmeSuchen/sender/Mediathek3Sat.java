@@ -60,11 +60,11 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
     }
 
     private void tageLaden() {
-        // http://www.3sat.de/mediathek/?datum=20140105&cx=108
+        // https://www.3sat.de/mediathek/index.php?datum=20160303&cx=134
         String date;
         for (int i = 0; i < (MSConfig.loadLongMax() ? 21 : 7); ++i) {
             date = new SimpleDateFormat("yyyyMMdd").format(new Date().getTime() - i * (1000 * 60 * 60 * 24));
-            String url = "http://www.3sat.de/mediathek/?datum=" + date + "&cx=108";
+            String url = "https://www.3sat.de/mediathek/index.php?datum=" + date + "&cx=134";
             listeThemen.add(new String[]{url, ""});
         }
     }
@@ -72,7 +72,8 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
     private void sendungenLaden() {
         // ><a class="SubItem" href="?red=kulturzeit">Kulturzeit</a>
         final String ADRESSE = "http://www.3sat.de/mediathek/";
-        final String MUSTER_URL = "<a class=\"SubItem\" href=\"?red=";
+        final String MUSTER_URL = "<a class=\"SubItem\" href=\"http://www.3sat.de/mediathek/?red=";
+        
         MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         seite = getUrlIo.getUri_Utf(SENDERNAME, ADRESSE, seite, "");
         int pos1 = 0;
@@ -95,6 +96,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                 }
                 // in die Liste eintragen
                 // http://www.3sat.de/mediathek/?red=nano&type=1
+                // type=1 => nur ganze Sendungen
                 String[] add = new String[]{"http://www.3sat.de/mediathek/?red=" + url + "&type=1", thema};
                 listeThemen.addUrl(add);
             } catch (Exception ex) {
@@ -156,7 +158,8 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                     titel = seite1.extract("<a class=\"MediathekLink\"  title='Video abspielen:", "'", pos1).trim();
                     // ID
                     // http://www.3sat.de/mediathek/?mode=play&obj=40860
-                    urlId = seite1.extract("href=\"?mode=play&amp;obj=", "\"", pos1);
+                    // href="http://www.3sat.de/mediathek/?mode=play&amp;obj=54458"
+                    urlId = seite1.extract("href=\"http://www.3sat.de/mediathek/?mode=play&amp;obj=", "\"", pos1);
                     if (urlId.isEmpty()) {
                         //href="?obj=24138"
                         urlId = seite1.extract("href=\"?obj=", "\"", pos1);
