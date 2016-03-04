@@ -32,6 +32,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
 
     public final static String SENDERNAME = "ARD";
     MSStringBuilder seiteFeed = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+    private final String THEMA_TAGE = "TAGE";
 
     /**
      *
@@ -44,6 +45,25 @@ public class MediathekArd extends MediathekReader implements Runnable {
 
     @Override
     void addToList() {
+        listeThemen.clear();
+        addThema();
+        listeThemen.addUrl(new String[]{THEMA_TAGE, ""});
+        if (MSConfig.getStop()) {
+            meldungThreadUndFertig();
+        } else if (listeThemen.size() == 0) {
+            meldungThreadUndFertig();
+        } else {
+            meldungAddMax(listeThemen.size());
+            listeSort(listeThemen, 1);
+            for (int t = 0; t < maxThreadLaufen; ++t) {
+                Thread th = new Thread(new ThemaLaden());
+                th.setName(SENDERNAME + t);
+                th.start();
+            }
+        }
+    }
+
+    private void addThema() {
         final String ADRESSE = "http://www.ardmediathek.de/tv";
         final String MUSTER_URL = "<a href=\"/tv/sendungen-a-z?buchstabe=";
         listeThemen.clear();
@@ -77,19 +97,6 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 feedSuchen1(url);
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(698732167, ex, "kein Thema");
-            }
-        }
-        if (MSConfig.getStop()) {
-            meldungThreadUndFertig();
-        } else if (listeThemen.size() == 0) {
-            meldungThreadUndFertig();
-        } else {
-            meldungAddMax(listeThemen.size());
-            listeSort(listeThemen, 1);
-            for (int t = 0; t < maxThreadLaufen; ++t) {
-                Thread th = new Thread(new ThemaLaden());
-                th.setName(SENDERNAME + t);
-                th.start();
             }
         }
     }
@@ -155,7 +162,11 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 String[] link;
                 while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
-                    filmSuchen1(link[0] /* url */, link[1], true);
+                    if (link[0].equals(THEMA_TAGE)) {
+                        addTage();
+                    } else {
+                        filmSuchen1(link[0] /* url */, link[1], true);
+                    }
                 }
             } catch (Exception ex) {
                 MSLog.fehlerMeldung(487326921, ex);
@@ -163,9 +174,63 @@ public class MediathekArd extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         }
 
+        private void addTage() {
+            // http://www.ardmediathek.de/tv/sendungVerpasst?tag=0 ... 6
+            for (int i = 0; i <= 6; ++i) {
+                String urlTage = "http://www.ardmediathek.de/tv/sendungVerpasst?tag=" + i;
+                final String MUSTER = "<span class=\"date\">";
+                seite1 = getUrl.getUri_Utf(SENDERNAME, urlTage, seite1, "");
+                if (seite1.length() == 0) {
+                    MSLog.fehlerMeldung(765323214, "Leere Seite: " + urlTage);
+                    return;
+                }
+                int pos = 0;
+                String url, datum, zeit = "", titel, dauer, urlSendung, thema = "";
+                long d = 0;
+                while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER, pos)) != -1) {
+                    zeit = seite1.extract("<span class=\"date\">", "<", pos) + ":00";
+                    pos += MUSTER.length();
+
+                    url = seite1.extract("documentId=", "&", pos);
+                    if (url.contains("\"")) {
+                        url = url.substring(0, url.indexOf("\""));
+                    }
+                    if (url.equals("")) {
+                        continue;
+                    }
+                    url = url.replace("&amp;", "&");
+                    thema = seite1.extract("<span class=\"titel\">", "<", pos);
+                    if (thema.endsWith("Uhr") && thema.contains(",")) {
+                        // tagesschau, 09:00 Uhr
+                        thema = thema.substring(0, thema.indexOf(","));
+                    }
+                    datum = seite1.extract("<title>Videos (TV-Sendungen) des Senders Das Erste vom", "- ARD").trim();
+                    titel = seite1.extract("<h4 class=\"headline\">", "<", pos);
+                    dauer = seite1.extract("<p class=\"subtitle\">", "<", pos);
+                    try {
+                        dauer = dauer.replace("Min.", "").trim();
+                        dauer = dauer.replace("| UT", "").trim();
+                        d = Long.parseLong(dauer) * 60;
+                    } catch (Exception ex) {
+                    }
+                    if (d == 0) {
+                        MSLog.fehlerMeldung(915263621, "Dauer==0: " + urlTage);
+                    }
+                    urlSendung = seite1.extract("<a href=\"/tv/", "\"", pos);
+                    if (!urlSendung.isEmpty()) {
+                        urlSendung = "http://www.ardmediathek.de/tv/" + urlSendung;
+                        urlSendung = urlSendung.replace("&amp;", "&");
+                    }
+
+                    filmSuchen2(url, thema, titel, d, datum, zeit, urlSendung);
+                }
+            }
+
+        }
+
         private void filmSuchen1(String strUrlFeed, String thema, boolean weiter) {
             final String MUSTER = "<div class=\"mediaCon\">";
-            final String MUSTER_START = "Videos und Audios der Sendung";
+            final String MUSTER_START = "Beiträge der Sendung";
             seite1 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite1, "");
             if (seite1.length() == 0) {
                 MSLog.fehlerMeldung(765323214, "Leere Seite: " + strUrlFeed);
@@ -183,19 +248,12 @@ public class MediathekArd extends MediathekReader implements Runnable {
             while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER, pos)) != -1) {
                 ++count;
                 if (!MSConfig.loadLongMax()) {
-//                    if (thema.equalsIgnoreCase("Eurovision Song Contest 2015")){
-//                        System.out.println("Treffer");
-//                    }
-                    if (count > 5 && !thema.equalsIgnoreCase("Eurovision Song Contest 2015")
-                            && !thema.equalsIgnoreCase("alpha-Centauri")) {
+                    if (count > 5 && !thema.equalsIgnoreCase("alpha-Centauri")) {
                         break;
                     }
                 }
                 pos += MUSTER.length();
                 url = seite1.extract("documentId=", "&", pos);
-//                if (!url.contains("\"")) {
-//                    System.out.println("soso");
-//                }
                 if (url.contains("\"")) {
                     url = url.substring(0, url.indexOf("\""));
                 }
