@@ -185,7 +185,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     return;
                 }
                 int pos = 0;
-                String url, datum, zeit = "", titel, dauer, urlSendung, thema = "";
+                String url, datum, zeit = "", titel, dauer, urlSendung, thema;
                 long d = 0;
                 while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER, pos)) != -1) {
                     zeit = seite1.extract("<span class=\"date\">", "<", pos) + ":00";
@@ -287,14 +287,10 @@ public class MediathekArd extends MediathekReader implements Runnable {
 
                 filmSuchen2(url, thema, titel, d, datum, zeit, urlSendung);
             }
-            if (weiter && MSConfig.loadLongMax() || weiter && thema.equalsIgnoreCase("Eurovision Song Contest 2015")
-                    || weiter && thema.equalsIgnoreCase("alpha-Centauri")) {
+            if (weiter && MSConfig.loadLongMax() || weiter && thema.equalsIgnoreCase("alpha-Centauri")) {
                 // dann gehts weiter
                 int maxWeiter = 0;
                 int maxTh = 10;
-                if (thema.equalsIgnoreCase("Eurovision Song Contest 2015")) {
-                    maxTh = 20;
-                }
                 String urlWeiter = strUrlFeed + "&mcontents=page.";
                 for (int i = 2; i < maxTh; ++i) {
                     ///tv/Abendschau/Sendung?documentId=14913430&amp;bcastId=14913430&amp;mcontents=page.2"
