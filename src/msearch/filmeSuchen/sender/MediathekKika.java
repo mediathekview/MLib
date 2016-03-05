@@ -38,7 +38,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
     LinkedListUrl listeAllVideos = new LinkedListUrl();
 
     public MediathekKika(MSFilmeSuchen ssearch, int startPrio) {
-        super(ssearch, SENDERNAME, /* threads */ 8, /* urlWarten */ 200, startPrio);
+        super(ssearch, SENDERNAME, /* threads */ 5, /* urlWarten */ 200, startPrio);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             seite.extractList(MUSTER_URL, "\"", 0, "http://www.kika.de/videos/allevideos/allevideos-buendelgruppen100_page-", liste1);
             for (String s1 : liste1) {
                 seite = getUrlIo.getUri_Utf(sendername, s1, seite, "KiKa-Sendungen");
-                seite.extractList("<div class=\"media mediaA\">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste2);
+                seite.extractList("<div class=\"media mediaA\">\n<a href=\"/", "\"", 0, "http://www.kika.de/", liste2);
             }
             for (String s2 : liste2) {
                 listeAllVideos.add(new String[]{s2});
@@ -292,12 +292,12 @@ public class MediathekKika extends MediathekReader implements Runnable {
             ArrayList<String> liste = new ArrayList<>();
             String thema;
             try {
-                thema = sStringBuilder.extract("<h1 class=\"headline\">Alle Videos von", "<").trim();
+                thema = sStringBuilder.extract("<h1 class=\"headline\">", "<").trim();
                 if (thema.isEmpty()) {
                     thema = sStringBuilder.extract("<title>KiKA -", "<").trim();
                 }
 
-                sStringBuilder.extractList(".setup({dataURL:'/videos/allevideos/", "'", 0, "http://www.kika.de/videos/allevideos/", liste);
+                sStringBuilder.extractList(".setup({dataURL:'/", "'", 0, "http://www.kika.de/", liste);
                 for (String s : liste) {
                     if (MSConfig.getStop()) {
                         break;
