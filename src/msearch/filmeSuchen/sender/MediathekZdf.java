@@ -412,6 +412,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         String ret = "";
         tmp = "";
         int posAnfang, posEnde;
+        mainloop:
         for (String qual : arr) {
             posAnfang = 0;
             while (true) {
@@ -431,10 +432,13 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                         ret = checkUrl(tmp);
                     }
                     if (!ret.isEmpty()) {
-                        return ret;
+                        break mainloop;
                     }
                 }
             }
+        }
+        if (ret.startsWith("http://tvdl.zdf.de")) {
+            ret = ret.replace("http://tvdl.zdf.de", "http://nrodl.zdf.de");
         }
         return ret;
     }
