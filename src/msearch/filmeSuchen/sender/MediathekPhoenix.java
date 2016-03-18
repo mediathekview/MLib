@@ -238,6 +238,16 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
             if (url.isEmpty()) {
                 MSLog.fehlerMeldung(952102014, "keine URL: " + filmWebsite);
             } else {
+                if (url.startsWith("http://tvdl.zdf.de")) {
+                    url = url.replace("http://tvdl.zdf.de", "http://nrodl.zdf.de");
+                }
+                if (urlKlein.startsWith("http://tvdl.zdf.de")) {
+                    urlKlein = urlKlein.replace("http://tvdl.zdf.de", "http://nrodl.zdf.de");
+                }
+                if (urlHd.startsWith("http://tvdl.zdf.de")) {
+                    urlHd = url.replace("http://tvdl.zdf.de", "http://nrodl.zdf.de");
+                }
+
                 DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, "" /*urlRtmp*/, datum, zeit,
                         extractDuration(laenge), beschreibung);
                 addFilm(film);
