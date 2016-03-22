@@ -134,6 +134,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
 
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
         private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seiteTage = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite4 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
@@ -191,11 +192,11 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             int pos = 0;
             String thema, url = "";
             try {
-                seite1 = getUrl.getUri(SENDERNAME, urlSeite, MSConst.KODIERUNG_UTF, 2 /* versuche */, seite1, "");
-                while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER, pos)) != -1) {
+                seiteTage = getUrl.getUri(SENDERNAME, urlSeite, MSConst.KODIERUNG_UTF, 2 /* versuche */, seiteTage, "");
+                while (!MSConfig.getStop() && (pos = seiteTage.indexOf(MUSTER, pos)) != -1) {
                     pos += MUSTER.length();
-                    url = seite1.extract("<a href=\"/mediathek/", "\"", pos);
-                    thema = seite1.extract(" class=\"headline\" title=\"\">", "<", pos);
+                    url = seiteTage.extract("<a href=\"/mediathek/", "\"", pos);
+                    thema = seiteTage.extract(" class=\"headline\" title=\"\">", "<", pos);
                     if (url.equals("")) {
                         MSLog.fehlerMeldung(975401478, "keine URL: " + urlSeite);
                     } else {
@@ -252,7 +253,11 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             int pos1;
             int pos2;
             String url = "";
+            int stop = seite3.indexOf("Meistgeklickt");
             while ((pos = seite3.indexOf(MUSTER_XML, pos)) != -1) {
+                if (stop > 0 && pos > stop) {
+                    break;
+                }
                 pos += MUSTER_XML.length();
                 pos1 = pos;
                 if ((pos2 = seite3.indexOf("'", pos)) != -1) {
