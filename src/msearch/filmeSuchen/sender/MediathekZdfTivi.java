@@ -19,7 +19,6 @@
  */
 package msearch.filmeSuchen.sender;
 
-import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import msearch.daten.DatenFilm;
@@ -291,6 +290,10 @@ public class MediathekZdfTivi extends MediathekReader implements Runnable {
                 if (urlFilm.isEmpty()) {
                     MSLog.fehlerMeldung(159876234, "kein Film: " + url);
                 } else {
+                    if (urlFilm.startsWith("http://tvdl.zdf.de")) {
+                        urlFilm = urlFilm.replace("http://tvdl.zdf.de", "http://nrodl.zdf.de");
+                    }
+
                     // public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
                     //        String datum, String zeit,
                     //        long dauerSekunden, String description, String imageUrl, String[] keywords) {
