@@ -89,6 +89,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         } else {
             meldungAddMax(listeThemen.size());
             //alles auswerten
+            
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
@@ -332,6 +333,12 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         }
 
         subtitle = strBuffer.extract("<caption>", "<url>http://", "<", "http://");
+        if (subtitle.isEmpty()) {
+            subtitle = strBuffer.extract("<caption>", "<url>https://", "<", "https://");
+//            if (!subtitle.isEmpty()) {
+//                System.out.println("Hallo");
+//            }
+        }
         beschreibung = strBuffer.extract(BESCHREIBUNG, "<");
         if (beschreibung.isEmpty()) {
             beschreibung = strBuffer.extract(BESCHREIBUNG, "</");
