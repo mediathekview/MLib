@@ -229,6 +229,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
         arr[FILM_URL_SUBTITLE_NR] = url;
     }
 
+    public String getUrlSubtitle() {
+        return arr[FILM_URL_SUBTITLE_NR];
+    }
+
     public String getUrlFuerAufloesung(String aufloesung) {
         if (aufloesung.equals(AUFLOESUNG_KLEIN)) {
             return getUrlNormalKlein();
