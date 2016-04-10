@@ -151,7 +151,6 @@ public class MediathekWdr extends MediathekReader implements Runnable {
 //            MSLog.fehlerMeldung(432365698, ex);
 //        }
 //    }
-
     private void addTage() {
         // Sendung verpasst, da sind einige die nicht in einer "Sendung" enthalten sind
         // URLs nach dem Muster bauen:
@@ -225,6 +224,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         private MSStringBuilder sendungsSeite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder sendungsSeite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder sendungsSeite4 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder m3u8Page = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
 
         @Override
         public void run() {
@@ -389,47 +389,72 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         }
 
         private void addFilm2(String filmWebsite, String thema, String titel, String urlFilmSuchen, long dauer, String datum, String beschreibung) {
+            final String INDEX_0 = "index_0_av.m3u8"; //kleiner
+            final String INDEX_1 = "index_1_av.m3u8"; //klein
+            final String INDEX_2 = "index_2_av.m3u8"; //hohe Auflösung
             meldung(urlFilmSuchen);
             sendungsSeite4 = getUrl.getUri_Utf(SENDERNAME, urlFilmSuchen, sendungsSeite4, "");
             if (sendungsSeite4.length() == 0) {
                 return;
             }
-            String url, urlMax = "", urlKlein = "";
+            String urlNorm, urlHd = "", urlKlein = "";
             String zeit = "";
 
             // URL suchen
-            url = sendungsSeite4.extract("\"alt\":{\"videoURL\":\"", "\"");
+            urlNorm = sendungsSeite4.extract("\"alt\":{\"videoURL\":\"", "\"");
             String f4m = sendungsSeite4.extract("\"dflt\":{\"videoURL\":\"", "\"");
 
-            if (!f4m.isEmpty() && url.contains("_") && url.endsWith(".mp4")) {
+            if (urlNorm.endsWith(".m3u8")) {
+                final String urlM3 = urlNorm;
+                m3u8Page = getUrl.getUri_Utf(SENDERNAME, urlNorm, m3u8Page, "");
+                if (m3u8Page.indexOf(INDEX_2) != -1) {
+                    urlNorm = getUrlFromM3u8(urlM3, INDEX_2);
+                } else if (m3u8Page.indexOf(INDEX_1) != -1) {
+                    urlNorm = getUrlFromM3u8(urlM3, INDEX_1);
+                }
+                if (m3u8Page.indexOf(INDEX_0) != -1) {
+                    urlKlein = getUrlFromM3u8(urlM3, INDEX_0);
+                } else if (m3u8Page.indexOf(INDEX_1) != -1) {
+                    urlKlein = getUrlFromM3u8(urlM3, INDEX_1);
+                }
+
+                if (urlNorm.isEmpty() && !urlKlein.isEmpty()) {
+                    urlNorm = urlKlein;
+                }
+                if (urlNorm.equals(urlKlein)) {
+                    urlKlein = "";
+                }
+            }
+
+            if (!f4m.isEmpty() && urlNorm.contains("_") && urlNorm.endsWith(".mp4")) {
                 // http://adaptiv.wdr.de/z/medp/ww/fsk0/104/1048369/,1048369_11885064,1048369_11885062,1048369_11885066,.mp4.csmil/manifest.f4m
                 // http://ondemand-ww.wdr.de/medp/fsk0/104/1048369/1048369_11885062.mp4
-                String s1 = url.substring(url.lastIndexOf("_") + 1, url.indexOf(".mp4"));
-                String s2 = url.substring(0, url.lastIndexOf("_") + 1);
+                String s1 = urlNorm.substring(urlNorm.lastIndexOf("_") + 1, urlNorm.indexOf(".mp4"));
+                String s2 = urlNorm.substring(0, urlNorm.lastIndexOf("_") + 1);
                 try {
                     int nr = Integer.parseInt(s1);
                     if (f4m.contains(nr + 2 + "")) {
-                        urlMax = s2 + (nr + 2) + ".mp4";
+                        urlHd = s2 + (nr + 2) + ".mp4";
                     }
                     if (f4m.contains(nr + 4 + "")) {
                         urlKlein = s2 + (nr + 4) + ".mp4";
                     }
                 } catch (Exception ignore) {
                 }
-                if (!urlMax.isEmpty()) {
+                if (!urlHd.isEmpty()) {
                     if (urlKlein.isEmpty()) {
-                        urlKlein = url;
+                        urlKlein = urlNorm;
                     }
-                    url = urlMax;
+                    urlNorm = urlHd;
                 }
-            } else {
-                System.out.println("nix");
             }
 
             if (titel.isEmpty()) {
                 titel = sendungsSeite4.extract("\"trackerClipTitle\":\"", "\"");
             }
+
             String subtitle = sendungsSeite4.extract("\"captionURL\":\"", "\"");
+
             if (datum.isEmpty()) {
                 String d = sendungsSeite4.extract("\"trackerClipAirTime\":\"", "\"");
                 if (d.contains(" ")) {
@@ -444,9 +469,10 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     System.out.println("Zeit");
                 }
             }
-            if (!url.isEmpty()) {
 
-                DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url, ""/*rtmpURL*/, datum, zeit,
+            if (!urlNorm.isEmpty()) {
+
+                DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, urlNorm, ""/*rtmpURL*/, datum, zeit,
                         dauer, beschreibung);
                 if (!subtitle.isEmpty()) {
                     film.addUrlSubtitle(subtitle);
@@ -458,6 +484,12 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             } else {
                 MSLog.fehlerMeldung(978451239, new String[]{"keine Url: " + urlFilmSuchen, "UrlThema: " + filmWebsite});
             }
+        }
+
+        private String getUrlFromM3u8(String m3u8Url, String qualityIndex) {
+            final String CSMIL = "csmil/";
+            String url = m3u8Url.substring(0, m3u8Url.indexOf(CSMIL)) + CSMIL + qualityIndex;
+            return url;
         }
 
 //        private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX");// 2014-07-07T00:35+01:00
