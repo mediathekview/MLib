@@ -234,7 +234,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
 //                    MSLog.fehlerMeldung(701025987, "keine XML: " + filmWebsite);
                 } else {
                     ret = true;
-                    xml = "http://www.kika.de" + xml;
+//                    xml = "http://www.kika.de" + xml;
                     ladenXml(xml, thema, false /*alle*/);
                 }
             } catch (Exception ex) {
@@ -243,30 +243,29 @@ public class MediathekKika extends MediathekReader implements Runnable {
             return ret;
         }
 
-        boolean ladenSerien_3(String thema) {
-            boolean ret = false;
-            try {
-                liste1.clear();
-
-                seite1.extractList("", "", "setup({dataURL:'", "'", "http://www.kika.de", liste1);
-                if (liste1.isEmpty()) {
-                    MSLog.fehlerMeldung(495623014, "keine XML: ");
-                }
-                int count = 0;
-                for (String xml : liste1) {
-                    if (!MSConfig.loadLongMax() && count > 4) {
-                        break;
-                    }
-
-                    ret = true;
-                    ladenXml(xml, thema, false /*alle*/);
-                }
-            } catch (Exception ex) {
-                MSLog.fehlerMeldung(821012459, ex);
-            }
-            return ret;
-        }
-
+//        boolean ladenSerien_3(String thema) {
+//            boolean ret = false;
+//            try {
+//                liste1.clear();
+//
+//                seite1.extractList("", "", "setup({dataURL:'", "'", "http://www.kika.de", liste1);
+//                if (liste1.isEmpty()) {
+//                    MSLog.fehlerMeldung(495623014, "keine XML: ");
+//                }
+//                int count = 0;
+//                for (String xml : liste1) {
+//                    if (!MSConfig.loadLongMax() && count > 4) {
+//                        break;
+//                    }
+//
+//                    ret = true;
+//                    ladenXml(xml, thema, false /*alle*/);
+//                }
+//            } catch (Exception ex) {
+//                MSLog.fehlerMeldung(821012459, ex);
+//            }
+//            return ret;
+//        }
         void loadAllVideo_1(String url) {
             ArrayList<String> liste = new ArrayList<>();
             try {
@@ -297,7 +296,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     thema = sStringBuilder.extract("<title>KiKA -", "<").trim();
                 }
 
-                sStringBuilder.extractList(".setup({dataURL:'/", "'", 0, "http://www.kika.de/", liste);
+                sStringBuilder.extractList(".setup({dataURL:'", "'", liste);
                 for (String s : liste) {
                     if (MSConfig.getStop()) {
                         break;
