@@ -190,7 +190,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized int updateListeOld(ListeFilme listeEinsortieren) {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
-        // "ersetzen": true: dann werden gleiche (index/URL) in der Liste durch neue ersetzt
         HashSet<String> hash = new HashSet<>();
         Iterator<DatenFilm> it;
         // ==============================================
