@@ -283,11 +283,6 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                     }
 
                     subtitle = seite2.extract("\"srt_file_url\":\"", "\"", pos, posStopEpisode);
-//                    if (subtitle.isEmpty()) {
-//                        //"vtt_file_url":"http:\/\/tvthek.orf.at\/subtitle\/segment\/9341793.vtt" ---> sind jetzt leer
-//                        //"ttml_file_url":"http:\/\/tvthek.orf.at\/subtitle\/segment\/9341793.ttml" --> und die jetzt auch :)
-//                        // subtitle = seite2.extract("\"ttml_file_url\":\"", "\"", pos, posStopEpisode);
-//                    }
 
                     description = seite2.extract("\"description\":\"", "\"", pos, posStopEpisode);
                     if (!description.equals(StringEscapeUtils.unescapeJava(description))) {
@@ -388,7 +383,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                             film.addUrlKlein(urlKlein, urlRtmpKlein);
                         }
                         if (!urlHD.isEmpty()) {
-////                            film.addUrlHd(urlHD, "");
+                            film.addUrlHd(urlHD, "");
                         }
                         if (!subtitle.isEmpty()) {
                             // "srt_file_url":"http:\/\/tvthek.orf.at\/dynamic\/get_asset.php?a=orf_episodes%2Fsrt_file%2F9346995.srt"
