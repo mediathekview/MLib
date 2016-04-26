@@ -141,7 +141,16 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public MSLong dateigroesseL; // Dateigröße in MByte
     public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
     public int nr;
-    public boolean neuerFilm = false;
+    private boolean neuerFilm = false;
+
+    public boolean isNew() {
+        return neuerFilm;
+    }
+
+    public void setNew(final boolean newFilm)
+    {
+        neuerFilm = newFilm;
+    }
 
     public DatenFilm() {
         dateigroesseL = new MSLong(0); // Dateigröße in MByte
