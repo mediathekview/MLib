@@ -101,6 +101,9 @@ public class WriteFilmlistJson {
                             thema = datenFilm.arr[m];
                             jg.writeString(datenFilm.arr[m]);
                         }
+                    } else if (DatenFilm.COLUMN_NAMES_JSON[i] == DatenFilm.FILM_NEU_NR) {
+                        datenFilm.arr[DatenFilm.FILM_NEU_NR] = Boolean.toString(datenFilm.isNew()); // damit wirs beim nächsten Programmstart noch wissen
+                        jg.writeString(datenFilm.arr[m]);
                     } else {
                         jg.writeString(datenFilm.arr[m]);
                     }
