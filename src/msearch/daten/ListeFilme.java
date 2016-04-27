@@ -24,26 +24,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import msearch.filmeSuchen.sender.Mediathek3Sat;
-import msearch.filmeSuchen.sender.MediathekArd;
-import msearch.filmeSuchen.sender.MediathekArte_de;
-import msearch.filmeSuchen.sender.MediathekBr;
-import msearch.filmeSuchen.sender.MediathekHr;
-import msearch.filmeSuchen.sender.MediathekKika;
-import msearch.filmeSuchen.sender.MediathekMdr;
-import msearch.filmeSuchen.sender.MediathekNdr;
-import msearch.filmeSuchen.sender.MediathekOrf;
-import msearch.filmeSuchen.sender.MediathekRbb;
-import msearch.filmeSuchen.sender.MediathekSr;
-import msearch.filmeSuchen.sender.MediathekSwr;
-import msearch.filmeSuchen.sender.MediathekWdr;
-import msearch.filmeSuchen.sender.MediathekZdf;
-import msearch.tool.MSConfig;
-import msearch.tool.MSConst;
-import msearch.tool.MSFileSize;
-import msearch.tool.MSFunktionen;
-import msearch.tool.MSLog;
+import msearch.filmeSuchen.sender.*;
+import msearch.tool.*;
 
 public class ListeFilme extends ArrayList<DatenFilm> {
 

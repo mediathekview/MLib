@@ -84,6 +84,8 @@ public class WriteFilmlistJson {
             iterator = listeFilme.listIterator();
             while (iterator.hasNext()) {
                 datenFilm = iterator.next();
+                datenFilm.arr[DatenFilm.FILM_NEU_NR] = Boolean.toString(datenFilm.isNew()); // damit wirs beim nächsten Programmstart noch wissen
+
                 jg.writeArrayFieldStart(DatenFilm.FILME_);
                 for (int i = 0; i < DatenFilm.COLUMN_NAMES_JSON.length; ++i) {
                     int m = DatenFilm.COLUMN_NAMES_JSON[i];
