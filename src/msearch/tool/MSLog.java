@@ -144,10 +144,8 @@ public class MSLog {
         systemMeldung("");
         systemMeldung("");
         systemMeldung("");
-        ArrayList<String> ret = fehlerMeldungen();
-        for (String s : ret) {
-            systemMeldung(s);
-        }
+
+        fehlerMeldungen().forEach(MSLog::systemMeldung);
 
         // Laufzeit ausgeben
         Date stopZeit = new Date(System.currentTimeMillis());
@@ -352,17 +350,14 @@ public class MSLog {
     }
 
     private static void printLog() {
-        for (String s : logList) {
-            System.out.println(s);
-        }
+        logList.forEach(System.out::println);
+
         if (logFile != null) {
-            try {
-                OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(logFile, true), MSConst.KODIERUNG_UTF);
+            try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(logFile, true), MSConst.KODIERUNG_UTF)) {
                 for (String s : logList) {
                     out.write(s);
                     out.write("\n");
                 }
-                out.close();
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }

@@ -43,7 +43,6 @@ public class MSGetUrl {
     public static boolean showLoadTime = false;
 
     private static final long UrlWartenBasis = 500;//ms, Basiswert zu dem dann der Faktor multipliziert wird
-    private final int WARTEN_NO_BUFFER = 2 * 1000; // s warten nach einem No-Buffer
     private int timeout = 10000;
     private long wartenBasis = UrlWartenBasis;
     public static final int LADE_ART_NIX = 1;
@@ -70,8 +69,8 @@ public class MSGetUrl {
         final int PAUSE = 1000;
         int aktTimeout = timeout;
         int aktVer = 0;
-        int wartezeit;
         boolean letzterVersuch;
+
         do {
             ++aktVer;
             try {
@@ -91,12 +90,6 @@ public class MSGetUrl {
                     MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.ANZAHL);
                     return seite;
                 } else {
-                    // hat nicht geklappt
-                    if (aktVer > 1) {
-                        wartezeit = (aktTimeout + PAUSE);
-                    } else {
-                        wartezeit = (aktTimeout);
-                    }
                     MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.FEHLVERSUCHE);
                     MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.WARTEZEIT_FEHLVERSUCHE.ordinal(), wartenBasis);
                     if (letzterVersuch) {
@@ -129,7 +122,7 @@ public class MSGetUrl {
         MVInputStream mvIn = null;
         String encoding;
         Date start = null;
-        Date stop = null;
+        Date stop;
         if (showLoadTime) {
             start = new Date();
         }
@@ -262,6 +255,7 @@ public class MSGetUrl {
                         MSLog.fehlerMeldung(915263697, text);
                         try {
                             // Pause zum Abbauen von Verbindungen
+                            final int WARTEN_NO_BUFFER = 2 * 1000;
                             this.wait(WARTEN_NO_BUFFER);
                             MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.NO_BUFFER);
                         } catch (Exception ignored) {

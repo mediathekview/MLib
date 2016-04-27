@@ -29,15 +29,12 @@ public class Main {
      */
     public static void main(final String args[]) {
 
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                MSLog.versionsMeldungen();
-                if (args != null) {
-                    for (String s : args) {
-                        if (s.equalsIgnoreCase("-gui")) {
-                            new MSearchGui(args).setVisible(true);
-                        }
+        java.awt.EventQueue.invokeLater(() -> {
+            MSLog.versionsMeldungen();
+            if (args != null) {
+                for (String s : args) {
+                    if (s.equalsIgnoreCase("-gui")) {
+                        new MSearchGui(args).setVisible(true);
                     }
                 }
             }

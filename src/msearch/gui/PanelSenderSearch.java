@@ -48,12 +48,7 @@ public class PanelSenderSearch extends JPanel {
 
         addSender();
 
-        jButtonStop.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                MSConfig.setStop(true);
-            }
-        });
+        jButtonStop.addActionListener(e -> MSConfig.setStop(true));
 
         filmeLaden.addAdListener(new MSListenerFilmeLaden() {
             @Override
@@ -135,7 +130,7 @@ public class PanelSenderSearch extends JPanel {
         jProgressBar1 = new javax.swing.JProgressBar();
         jLabelProgress = new javax.swing.JLabel();
         jButtonStop = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
         jLabelAnzahl = new javax.swing.JLabel();
 
         panelSender.setBorder(javax.swing.BorderFactory.createTitledBorder("Sender"));
@@ -205,7 +200,6 @@ public class PanelSenderSearch extends JPanel {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonStop;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabelAnzahl;
     private javax.swing.JLabel jLabelProgress;
     private javax.swing.JProgressBar jProgressBar1;

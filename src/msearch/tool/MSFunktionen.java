@@ -49,7 +49,7 @@ public class MSFunktionen {
                 File jarFile = new File(cS.getLocation().toURI().getPath());
                 String jarDir = jarFile.getParentFile().getPath();
                 propFile = new File(jarDir + File.separator + pFilePath);
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
         String s = propFile.getAbsolutePath().replace(pFilePath, "");
@@ -150,7 +150,7 @@ public class MSFunktionen {
         char c;
         for (int i = 0; i < ret.length(); ++i) {
             c = ret.charAt(i);
-            char hex = ret.charAt(i);
+            //char hex = ret.charAt(i);
             if (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.BASIC_LATIN) {
                 r += c;
             } else // Umlaute, 

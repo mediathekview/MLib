@@ -153,7 +153,7 @@ public class MSearchGuiLoad {
             } else {
                 SwingUtilities.invokeLater(r);
             }
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
 
         }
     }

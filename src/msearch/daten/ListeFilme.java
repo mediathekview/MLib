@@ -67,13 +67,10 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         MSFunktionen.unescape(film);
 
         // erst mal schauen obs das schon gibt
-        DatenFilm f;
-        String idx = film.getIndex();
+        final String idx = film.getIndex();
         for (DatenFilm datenFilm : this) {
-            f = datenFilm;
-            if (f.getIndex().equals(idx)) {
+            if (datenFilm.getIndex().equals(idx))
                 return false;
-            }
         }
         return addInit(film);
     }

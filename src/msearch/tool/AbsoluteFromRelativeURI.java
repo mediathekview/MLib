@@ -115,7 +115,7 @@ public class AbsoluteFromRelativeURI {
      * @return The string after conversion
      */
     private static String replaceChars(String str) {
-        StringBuffer buf = new StringBuffer(str);
+        StringBuilder buf = new StringBuilder(str);
         int length = buf.length();
         for (int i = 0; i < length; i++) {
             char currentChar = buf.charAt(i);
