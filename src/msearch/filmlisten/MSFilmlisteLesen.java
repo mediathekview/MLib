@@ -165,7 +165,16 @@ public class MSFilmlisteLesen {
                             }
                         }
 
-                        datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] = jp.nextTextValue();
+                        if (DatenFilm.COLUMN_NAMES_JSON[i] == DatenFilm.FILM_NEU_NR) {
+                            final String value = jp.nextTextValue();
+                            //This value is unused...
+                            //datenFilm.arr[DatenFilm.FILM_NEU_NR] = value;
+                            datenFilm.setNew(Boolean.parseBoolean(value));
+                        }
+                        else {
+                            datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] = jp.nextTextValue();
+                        }
+
                         /// für die Entwicklungszeit
                         if (datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] == null) {
                             datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] = "";
@@ -204,7 +213,7 @@ public class MSFilmlisteLesen {
                 if (jp != null) {
                     jp.close();
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         if (MSConfig.getStop()) {

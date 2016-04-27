@@ -22,21 +22,12 @@ package msearch.daten;
 import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.ListIterator;
-import java.util.SimpleTimeZone;
-import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import msearch.filmeSuchen.sender.Mediathek3Sat;
 import msearch.filmeSuchen.sender.MediathekArd;
 import msearch.filmeSuchen.sender.MediathekArte_de;
-import msearch.filmeSuchen.sender.MediathekArte_fr;
 import msearch.filmeSuchen.sender.MediathekBr;
 import msearch.filmeSuchen.sender.MediathekHr;
 import msearch.filmeSuchen.sender.MediathekKika;
@@ -109,13 +100,11 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
         // "ersetzen": true: dann werden gleiche (index/URL) in der Liste durch neue ersetzt
-        HashSet<String> hash = new HashSet<>();
-        Iterator<DatenFilm> it;
+        final HashSet<String> hash = new HashSet<>(listeEinsortieren.size()+1,1);
+
         if (ersetzen) {
             // ==========================================
-            it = listeEinsortieren.iterator();
-            while (it.hasNext()) {
-                DatenFilm f = it.next();
+            for (DatenFilm f : listeEinsortieren) {
                 if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
                     // beim KIKA ändern sich die URLs laufend
                     hash.add(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR]);
@@ -125,7 +114,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                     hash.add(DatenFilm.getUrl(f));
                 }
             }
-            it = this.iterator();
+
+            Iterator<DatenFilm> it = this.iterator();
             while (it.hasNext()) {
                 DatenFilm f = it.next();
                 if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
@@ -143,16 +133,11 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                     }
                 }
             }
-            it = listeEinsortieren.iterator();
-            while (it.hasNext()) {
-                DatenFilm f = it.next();
-                this.addInit(f);
-            }
+
+            listeEinsortieren.forEach(this::addInit);
         } else {
             // ==============================================
-            it = this.iterator();
-            while (it.hasNext()) {
-                DatenFilm f = it.next();
+            for (DatenFilm f : this) {
                 if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
                     // beim KIKA ändern sich die URLs laufend
                     hash.add(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR]);
@@ -162,9 +147,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                     hash.add(DatenFilm.getUrl(f));
                 }
             }
-            it = listeEinsortieren.iterator();
-            while (it.hasNext()) {
-                DatenFilm f = it.next();
+
+            for (DatenFilm f : listeEinsortieren) {
                 if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
                     if (!hash.contains(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR])) {
                         addInit(f);
@@ -190,12 +174,10 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized int updateListeOld(ListeFilme listeEinsortieren) {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
-        HashSet<String> hash = new HashSet<>();
+        HashSet<String> hash = new HashSet<>(listeEinsortieren.size()+1,1);
         Iterator<DatenFilm> it;
         // ==============================================
-        it = this.iterator();
-        while (it.hasNext()) {
-            DatenFilm f = it.next();
+        for (DatenFilm f : this) {
             if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
                 // beim KIKA ändern sich die URLs laufend
                 hash.add(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR]);
@@ -203,6 +185,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 hash.add(f.getIndex());
             }
         }
+
         it = listeEinsortieren.iterator();
         while (it.hasNext()) {
             DatenFilm f = it.next();
@@ -217,6 +200,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             }
         }
         hash.clear();
+
         for (int i = 0; i < COUNTER_MAX; ++i) {
             new Thread(new AddOld(listeEinsortieren)).start();
         }
@@ -225,7 +209,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             try {
                 System.out.println("s: " + 2 * (count++) + "  Liste: " + listeEinsortieren.size() + "  Treffer: " + treffer + "   Threads: " + counter);
                 wait(2000);
-            } catch (InterruptedException ex) {
+            } catch (InterruptedException ignored) {
             }
         }
         return treffer;
@@ -285,14 +269,10 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         int count = 0;
         final SimpleDateFormat sdfClean = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         MSLog.systemMeldung("cleanList start: " + sdfClean.format(System.currentTimeMillis()));
-        ListeFilme tmp = new ListeFilme();
-        for (DatenFilm datenFilm : this) {
-            if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekBr.SENDERNAME)) {
-                if (datenFilm.arr[DatenFilm.FILM_THEMA_NR].equals(MediathekBr.SENDERNAME)) {
-                    tmp.add(datenFilm);
-                }
-            }
-        }
+        ListeFilme tmp = this.stream().filter(datenFilm -> datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekBr.SENDERNAME))
+                .filter(datenFilm -> datenFilm.arr[DatenFilm.FILM_THEMA_NR].equals(MediathekBr.SENDERNAME))
+                .collect(Collectors.toCollection(ListeFilme::new));
+
         for (DatenFilm tFilm : tmp) {
             for (DatenFilm datenFilm : this) {
                 if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekBr.SENDERNAME)) {
@@ -306,6 +286,9 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 }
             }
         }
+
+        tmp.clear();
+
         MSLog.systemMeldung("cleanList stop: " + sdfClean.format(System.currentTimeMillis()));
         MSLog.systemMeldung("cleanList count: " + count);
     }
@@ -408,21 +391,21 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // die im Vergleich zur Liste "orgListe"
         // neu sind, also ein Diff mit nur den neuen Filmen in DIESER Liste
         ListeFilme ret = new ListeFilme();
-        HashSet<String> hashSet = new HashSet<>();
-        Iterator<DatenFilm> it = orgListe.listIterator();
-        while (it.hasNext()) {
-            DatenFilm film = it.next();
-            String s = film.arr[DatenFilm.FILM_SENDER_NR] + film.arr[DatenFilm.FILM_THEMA_NR] + film.arr[DatenFilm.FILM_TITEL_NR] + film.arr[DatenFilm.FILM_URL_NR];
+        final HashSet<String> hashSet = new HashSet<>(orgListe.size() + 1, 1);
+
+        for (DatenFilm film : orgListe) {
+            final String s = film.arr[DatenFilm.FILM_SENDER_NR] + film.arr[DatenFilm.FILM_THEMA_NR] + film.arr[DatenFilm.FILM_TITEL_NR] + film.arr[DatenFilm.FILM_URL_NR];
             hashSet.add(s);
         }
-        it = listIterator();
-        while (it.hasNext()) {
-            DatenFilm film = it.next();
-            String s = film.arr[DatenFilm.FILM_SENDER_NR] + film.arr[DatenFilm.FILM_THEMA_NR] + film.arr[DatenFilm.FILM_TITEL_NR] + film.arr[DatenFilm.FILM_URL_NR];
-            if (!hashSet.contains(s)) {
+
+        for (DatenFilm film : this) {
+            final String s = film.arr[DatenFilm.FILM_SENDER_NR] + film.arr[DatenFilm.FILM_THEMA_NR] + film.arr[DatenFilm.FILM_TITEL_NR] + film.arr[DatenFilm.FILM_URL_NR];
+            if (!hashSet.contains(s))
                 ret.add(film);
-            }
         }
+
+        hashSet.clear();
+
         ret.metaDaten = metaDaten;
         return ret;
     }
@@ -530,33 +513,23 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
     public synchronized void checkThema(String sender, LinkedList<String> liste, String thema) {
-        for (DatenFilm film : this) {
-            if (film.arr[DatenFilm.FILM_SENDER_NR].equals(sender)) {
-                if (!film.arr[DatenFilm.FILM_THEMA_NR].equals(ListeFilme.THEMA_LIVE)
-                        && !liste.contains(film.arr[DatenFilm.FILM_THEMA_NR])) {
-                    film.arr[DatenFilm.FILM_THEMA_NR] = thema;
-                }
-            }
-        }
+        this.stream().filter(film -> film.arr[DatenFilm.FILM_SENDER_NR].equals(sender))
+                .filter(film -> !film.arr[DatenFilm.FILM_THEMA_NR].equals(ListeFilme.THEMA_LIVE)
+                && !liste.contains(film.arr[DatenFilm.FILM_THEMA_NR]))
+                .forEach(film -> film.arr[DatenFilm.FILM_THEMA_NR] = thema);
     }
 
     public synchronized void getThema(String sender, LinkedList<String> liste) {
-        for (DatenFilm film : this) {
-            if (film.arr[DatenFilm.FILM_SENDER_NR].equals(sender)) {
-                if (!liste.contains(film.arr[DatenFilm.FILM_THEMA_NR])) {
-                    liste.add(film.arr[DatenFilm.FILM_THEMA_NR]);
-                }
-            }
-        }
+        this.stream().filter(film -> film.arr[DatenFilm.FILM_SENDER_NR].equals(sender))
+                .filter(film -> !liste.contains(film.arr[DatenFilm.FILM_THEMA_NR]))
+                .forEach(film -> liste.add(film.arr[DatenFilm.FILM_THEMA_NR]));
     }
 
     public synchronized DatenFilm getFilmByUrl_klein_hoch_hd(String url) {
         // Problem wegen gleicher URLs
         // wird versucht, einen Film mit einer kleinen/Hoher/HD-URL zu finden
         DatenFilm ret = null;
-        ListIterator<DatenFilm> it = this.listIterator(0);
-        while (it.hasNext()) {
-            DatenFilm f = it.next();
+        for (DatenFilm f : this) {
             if (f.arr[DatenFilm.FILM_URL_NR].equals(url)) {
                 ret = f;
                 break;
@@ -568,6 +541,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 break;
             }
         }
+
         return ret;
     }
 
@@ -756,25 +730,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return formatter.format(new Date());
     }
 
-    public synchronized int setFilmNew() {
-        int ret = 0;
-        for (DatenFilm film : this) {
-            if (film.arr[DatenFilm.FILM_NEU_NR].equals(Boolean.TRUE.toString())) {
-                film.neuerFilm = true;
-                ++ret;
-            }
-        }
-        return ret;
-    }
-
-    public synchronized int countFilmNew() {
-        int ret = 0;
-        for (DatenFilm film : this) {
-            if (film.neuerFilm) {
-                ++ret;
-            }
-        }
-        return ret;
+    public long countNewFilms() {
+        return this.stream().filter(DatenFilm::isNew).count();
     }
 
     /**
