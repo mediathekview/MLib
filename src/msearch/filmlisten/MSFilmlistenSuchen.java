@@ -218,7 +218,7 @@ public class MSFilmlistenSuchen {
                     }
                 }
             }
-        } catch (XMLStreamException ex) {
+        } catch (XMLStreamException ignored) {
         }
 
     }

@@ -62,82 +62,23 @@ public final class MSearchGui extends javax.swing.JFrame {
         new MSFilmlisteLesen().readFilmListe(jTextFieldFilmliste.getText(), listeFilme, 0 /*all days*/);
         jLabelAnzahl.setText(MSearchGui.listeFilme.size() + "");
 
-        jButtonFilmlisteLoeschen.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                listeFilme.clear();
-            }
-        });
-        jButtonCheck.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                listeFilme.check();
-            }
-        });
+        jButtonFilmlisteLoeschen.addActionListener(e -> listeFilme.clear());
+        jButtonCheck.addActionListener(e -> listeFilme.check());
 
         jRadioButtonShort.setSelected(true);
         MSConfig.senderLoadHow = MSConfig.LOAD_SHORT;
-        jRadioButtonShort.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                MSConfig.senderLoadHow = MSConfig.LOAD_SHORT;
-            }
-        });
-        jRadioButtonLong.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                MSConfig.senderLoadHow = MSConfig.LOAD_LONG;
-            }
-        });
-        jRadioButtonMax.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                MSConfig.senderLoadHow = MSConfig.LOAD_MAX;
-            }
-        });
+        jRadioButtonShort.addActionListener(e -> MSConfig.senderLoadHow = MSConfig.LOAD_SHORT);
+        jRadioButtonLong.addActionListener(e -> MSConfig.senderLoadHow = MSConfig.LOAD_LONG);
+        jRadioButtonMax.addActionListener(e -> MSConfig.senderLoadHow = MSConfig.LOAD_MAX);
         MSGetUrl.showLoadTime = jCheckBoxLoadTime.isSelected();
-        jCheckBoxLoadTime.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                MSGetUrl.showLoadTime = jCheckBoxLoadTime.isSelected();
-            }
-        });
+        jCheckBoxLoadTime.addActionListener(e -> MSGetUrl.showLoadTime = jCheckBoxLoadTime.isSelected());
         MSConfig.debug = jCheckBoxDebug.isSelected();
-        jCheckBoxDebug.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                MSConfig.debug = jCheckBoxDebug.isSelected();
-            }
-        });
-        jToggleButtonUpdate.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                MSConfig.updateFilmliste = jToggleButtonUpdate.isSelected();
-            }
-        });
-        jButtonAlleSenderLaden.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        filmeLaden.filmeBeimSenderSuchen(true);
-                    }
-                }).start();
-            }
-        });
-        jButtonSpeichern.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new WriteFilmlistJson().filmlisteSchreibenJson(jTextFieldFilmliste.getText(), listeFilme);
-            }
-        });
+        jCheckBoxDebug.addActionListener(e -> MSConfig.debug = jCheckBoxDebug.isSelected());
+        jToggleButtonUpdate.addActionListener(e -> MSConfig.updateFilmliste = jToggleButtonUpdate.isSelected());
+        jButtonAlleSenderLaden.addActionListener(e -> new Thread(() -> {
+            filmeLaden.filmeBeimSenderSuchen(true);
+        }).start());
+        jButtonSpeichern.addActionListener(e -> new WriteFilmlistJson().filmlisteSchreibenJson(jTextFieldFilmliste.getText(), listeFilme));
         jButtonFilmliste.addActionListener(new BeobPfad());
 
         // Tab Sender laden
@@ -152,61 +93,57 @@ public final class MSearchGui extends javax.swing.JFrame {
             buttonSender[i].addActionListener(new BeobSenderLoeschen(sender[i]));
         }
         addSender();
-        jButtonLog.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-                String datei = "/tmp/testfile"; //////////////
-                Date aktTime = new Date(System.currentTimeMillis());
-                String aktTimeStr = sdf.format(aktTime);
-                MSLog.systemMeldung("");
-                MSLog.systemMeldung("Log schreiben: " + datei);
-                MSLog.systemMeldung("--> " + aktTimeStr);
-                File file = new File(datei);
-                File dir = new File(file.getParent());
-                if (!dir.exists()) {
-                    if (!dir.mkdirs()) {
-                        MSLog.fehlerMeldung(632012165, "Kann den Pfad nicht anlegen: " + dir.toString());
-                    }
+        jButtonLog.addActionListener(e -> {
+            final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+            String datei = "/tmp/testfile"; //////////////
+            Date aktTime = new Date(System.currentTimeMillis());
+            String aktTimeStr = sdf.format(aktTime);
+            MSLog.systemMeldung("");
+            MSLog.systemMeldung("Log schreiben: " + datei);
+            MSLog.systemMeldung("--> " + aktTimeStr);
+            File file = new File(datei);
+            File dir = new File(file.getParent());
+            if (!dir.exists()) {
+                if (!dir.mkdirs()) {
+                    MSLog.fehlerMeldung(632012165, "Kann den Pfad nicht anlegen: " + dir.toString());
                 }
-
-                try {
-                    OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, true), MSConst.KODIERUNG_UTF);
-                    out.write("===============================================================");
-                    out.write("===============================================================");
-                    out.write("\n");
-                    out.write("--> " + aktTimeStr);
-                    out.write("\n");
-                    ArrayList<String> ret;
-                    ret = filmeLaden.msFilmeSuchen.endeMeldung();
-                    for (String s : ret) {
-                        out.write(s);
-                        out.write("\n");
-                    }
-                    ret = MSLog.fehlerMeldungen();
-                    for (String s : ret) {
-                        out.write(s);
-                        out.write("\n");
-                    }
-                    out.write("\n");
-                    out.write("\n");
-                    out.write("\n");
-                    out.write("\n");
-                    out.write("\n");
-                    out.write("\n");
-                    out.write("\n");
-                    out.write("\n");
-                    out.write("\n");
-                    out.write("\n");
-                    out.close();
-
-                    MSLog.systemMeldung("--> geschrieben!");
-                } catch (Exception ex) {
-                    MSLog.fehlerMeldung(846930145, ex, "nach: " + datei);
-                }
-
             }
+
+            try {
+                OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, true), MSConst.KODIERUNG_UTF);
+                out.write("===============================================================");
+                out.write("===============================================================");
+                out.write("\n");
+                out.write("--> " + aktTimeStr);
+                out.write("\n");
+                ArrayList<String> ret;
+                ret = filmeLaden.msFilmeSuchen.endeMeldung();
+                for (String s : ret) {
+                    out.write(s);
+                    out.write("\n");
+                }
+                ret = MSLog.fehlerMeldungen();
+                for (String s : ret) {
+                    out.write(s);
+                    out.write("\n");
+                }
+                out.write("\n");
+                out.write("\n");
+                out.write("\n");
+                out.write("\n");
+                out.write("\n");
+                out.write("\n");
+                out.write("\n");
+                out.write("\n");
+                out.write("\n");
+                out.write("\n");
+                out.close();
+
+                MSLog.systemMeldung("--> geschrieben!");
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(846930145, ex, "nach: " + datei);
+            }
+
         });
     }
 
@@ -226,10 +163,10 @@ public final class MSearchGui extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        buttonGroup1 = new javax.swing.ButtonGroup();
-        jPanel1 = new javax.swing.JPanel();
-        jTabbedPane = new javax.swing.JTabbedPane();
-        jPanelSuchen = new javax.swing.JPanel();
+        javax.swing.ButtonGroup buttonGroup1 = new javax.swing.ButtonGroup();
+        javax.swing.JPanel jPanel1 = new javax.swing.JPanel();
+        javax.swing.JTabbedPane jTabbedPane = new javax.swing.JTabbedPane();
+        javax.swing.JPanel jPanelSuchen = new javax.swing.JPanel();
         jButtonFilmlisteLoeschen = new javax.swing.JButton();
         jButtonAlleSenderLaden = new javax.swing.JButton();
         jPanelSenderLaden = new javax.swing.JPanel();
@@ -239,14 +176,14 @@ public final class MSearchGui extends javax.swing.JFrame {
         jRadioButtonMax = new javax.swing.JRadioButton();
         jCheckBoxLoadTime = new javax.swing.JCheckBox();
         jCheckBoxDebug = new javax.swing.JCheckBox();
-        jPanelLoeschen = new javax.swing.JPanel();
+        javax.swing.JPanel jPanelLoeschen = new javax.swing.JPanel();
         jPanelSenderDelete = new javax.swing.JPanel();
-        jPanelTool = new javax.swing.JPanel();
+        javax.swing.JPanel jPanelTool = new javax.swing.JPanel();
         jButtonCheck = new javax.swing.JButton();
-        jButtonGc = new javax.swing.JButton();
+        javax.swing.JButton jButtonGc = new javax.swing.JButton();
         jButtonLog = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel2 = new javax.swing.JLabel();
         jLabelAnzahl = new javax.swing.JLabel();
         jTextFieldFilmliste = new javax.swing.JTextField();
         jButtonFilmliste = new javax.swing.JButton();
@@ -476,29 +413,20 @@ public final class MSearchGui extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButtonAlleSenderLaden;
     private javax.swing.JButton jButtonCheck;
     private javax.swing.JButton jButtonFilmliste;
     private javax.swing.JButton jButtonFilmlisteLoeschen;
-    private javax.swing.JButton jButtonGc;
     private javax.swing.JButton jButtonLog;
     private javax.swing.JButton jButtonSpeichern;
     private javax.swing.JCheckBox jCheckBoxDebug;
     private javax.swing.JCheckBox jCheckBoxLoadTime;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     public static javax.swing.JLabel jLabelAnzahl;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanelLoeschen;
     private javax.swing.JPanel jPanelSenderDelete;
     private javax.swing.JPanel jPanelSenderLaden;
-    private javax.swing.JPanel jPanelSuchen;
-    private javax.swing.JPanel jPanelTool;
     private javax.swing.JRadioButton jRadioButtonLong;
     private javax.swing.JRadioButton jRadioButtonMax;
     private javax.swing.JRadioButton jRadioButtonShort;
-    private javax.swing.JTabbedPane jTabbedPane;
     private javax.swing.JTextField jTextFieldFilmliste;
     private javax.swing.JToggleButton jToggleButtonUpdate;
     // End of variables declaration//GEN-END:variables

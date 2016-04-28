@@ -239,10 +239,8 @@ public class MSFilmeSuchen {
             stopZeit = new Date(System.currentTimeMillis());
             listeFilmeNeu.writeMetaData();
 
-            ArrayList<String> ret = endeMeldung();
-            for (String s : ret) {
-                MSLog.systemMeldung(s);
-            }
+            endeMeldung().forEach(MSLog::systemMeldung);
+
             notifyFertig(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), (int) listeSenderLaufen.get(MSRunSender.Count.FILME), false));
         }
     }
@@ -287,19 +285,12 @@ public class MSFilmeSuchen {
     }
 
     private synchronized void mrStarten(int prio) {
-        // Prio 0 laden
-        for (MediathekReader mr : mediathekListe) {
-            if (mr.getStartPrio() == prio) {
-                new Thread(mr).start();
-            }
-        }
+        mediathekListe.stream().filter(mr -> mr.getStartPrio() == prio).forEach(mr -> new Thread(mr).start());
     }
 
     private synchronized void mrClear() {
         //die MediathekReader aufräumen
-        for (MediathekReader mr : mediathekListe) {
-            mr.clear();
-        }
+        mediathekListe.forEach(MediathekReader::clear);
     }
 
     private synchronized void mrWarten() {

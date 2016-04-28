@@ -35,7 +35,7 @@ public class MSRunSender {
     public boolean fertig = false;
     long[] counter = new long[Count.values().length];
 
-    public static enum Count {
+    public enum Count {
 
         ANZAHL("Seiten"), FILME("Filme"), FEHLER("Fehler"), FEHLVERSUCHE("FVers"), WARTEZEIT_FEHLVERSUCHE("ZeitFV[s]"),
         PROXY("Proxy" /*Seite über Proxy laden*/), NO_BUFFER("NoBuffer"),
@@ -45,7 +45,7 @@ public class MSRunSender {
 
         final String name;
 
-        private Count(String name) {
+        Count(String name) {
             this.name = name;
         }
 
@@ -97,7 +97,6 @@ public class MSRunSender {
     }
 
     public static synchronized String getStringZaehler(long z) {
-        String ret = z == 0 ? "0" : ((z / 1000 / 1000) == 0 ? "<1" : String.valueOf(z / 1000 / 1000));
-        return ret;
+        return z == 0 ? "0" : ((z / 1000 / 1000) == 0 ? "<1" : String.valueOf(z / 1000 / 1000));
     }
 }

@@ -24,7 +24,8 @@ import java.util.ArrayList;
 public class MSStringBuilder {
 
     private final StringBuilder cont;
-    private int pos1 = 0, pos2 = 0, pos3 = 0;
+    private int pos1 = 0;
+    private int pos2 = 0;
 
     public MSStringBuilder() {
         cont = new StringBuilder();
@@ -221,6 +222,7 @@ public class MSStringBuilder {
                 pos1 += abMuster.length();
                 if ((pos2 = cont.indexOf(musterStart, pos1)) != -1) {
                     pos2 += musterStart.length();
+                    int pos3;
                     if ((pos3 = cont.indexOf(musterEnde, pos2)) != -1) {
                         result.add(cont.substring(pos2, pos3));
                         if (result.size() > 1000) {
