@@ -277,14 +277,19 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                         duration = Long.parseLong(tmp) / 1000; // time in milliseconds
                     } catch (Exception ex) {
                     }
-                    titel = seite2.extract("\"header\":\"", "\",", pos, posStopEpisode);//"header":"Lehrerdienstrecht beschlossen"
+                    titel = seite2.extract("\"header\":\"", "\",\"", pos, posStopEpisode);//"header":"Lehrerdienstrecht beschlossen"
                     if (!titel.equals(StringEscapeUtils.unescapeJava(titel))) {
                         titel = StringEscapeUtils.unescapeJava(titel).trim();
                     }
 
                     subtitle = seite2.extract("\"srt_file_url\":\"", "\"", pos, posStopEpisode);
 
-                    description = seite2.extract("\"description\":\"", "\"", pos, posStopEpisode);
+                    description = seite2.extract("\"description\":\"", "\",\"", pos, posStopEpisode);
+                    String d = seite2.extract("\"description\":\"", "\"", pos, posStopEpisode);
+                    if (!d.equals(description)) {
+                        System.out.println("Soso");
+                    }
+
                     if (!description.equals(StringEscapeUtils.unescapeJava(description))) {
                         description = StringEscapeUtils.unescapeJava(description).trim();
                     }
