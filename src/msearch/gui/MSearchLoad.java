@@ -1,6 +1,6 @@
 /*
  * MediathekView
- * Copyright (C) 2016 W. Xaver
+ * Copyright (C) 2008 W. Xaver
  * W.Xaver[at]googlemail.com
  * http://zdfmediathk.sourceforge.net/
  *
@@ -19,14 +19,14 @@
  */
 package msearch.gui;
 
-import javafx.application.Platform;
+import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import msearch.tool.MSConfig;
 
-public class MSearchGuiLoad {
+public class MSearchLoad {
 
     private enum ListenerMelden {
 
@@ -36,38 +36,24 @@ public class MSearchGuiLoad {
     private final EventListenerList listeners = new EventListenerList();
     private boolean istAmLaufen = false;
 
-    public MSearchGuiLoad() {
+    public MSearchLoad() {
         msFilmeSuchen = new MSFilmeSuchen();
         msFilmeSuchen.addAdListener(new MSListenerFilmeLaden() {
             @Override
             public synchronized void start(MSListenerFilmeLadenEvent event) {
-                for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-                    Platform.runLater(() -> {
-                        l.start(event);
-                    });
-                }
+                notifyStart(event);
             }
 
             @Override
             public synchronized void progress(MSListenerFilmeLadenEvent event) {
-                for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-                    Platform.runLater(() -> {
-                        l.progress(event);
-                    });
-                }
+                notifyProgress(event);
             }
 
             @Override
             public synchronized void fertig(MSListenerFilmeLadenEvent event) {
                 // Ergebnisliste listeFilme eintragen -> Feierabend!
                 Data.listeFilme = msFilmeSuchen.listeFilmeNeu;
-                istAmLaufen = false;
-                for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-                    Platform.runLater(() -> {
-                        l.fertig(event);
-                    });
-                }
-                System.gc();
+                undEnde(event);
             }
         });
     }
@@ -96,19 +82,16 @@ public class MSearchGuiLoad {
 
     // #######################################
     // #######################################
-    public static String[] getSenderNamen() {
+    public String[] getSenderNamen() {
         return MSFilmeSuchen.getNamenSender();
     }
 
-//    private void undEnde(MSListenerFilmeLadenEvent event) {
-//        istAmLaufen = false;
-//        for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-//            Platform.runLater(() -> {
-//                l.fertig(event);
-//            });
-//        }
-//        System.gc();
-//    }
+    private void undEnde(MSListenerFilmeLadenEvent event) {
+        istAmLaufen = false;
+        notifyFertig(event);
+        System.gc();
+    }
+
     // ###########################
     // Listener
     // ###########################
@@ -116,27 +99,62 @@ public class MSearchGuiLoad {
         listeners.add(MSListenerFilmeLaden.class, listener);
     }
 
-//    private void notifyStart(MSListenerFilmeLadenEvent event) {
-//        for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-//            Platform.runLater(() -> {
-//                l.start(event);
-//            });
-//        }
-//    }
-//
-//    private void notifyProgress(MSListenerFilmeLadenEvent event) {
-//        for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-//            Platform.runLater(() -> {
-//                l.progress(event);
-//            });
-//        }
-//    }
-//
-//    private void notifyFertig(MSListenerFilmeLadenEvent event) {
-//        for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-//            Platform.runLater(() -> {
-//                l.fertig(event);
-//            });
-//        }
-//    }
+    private void notifyStart(MSListenerFilmeLadenEvent event) {
+        for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
+            run_(new Start(l, event, ListenerMelden.START));
+        }
+    }
+
+    private void notifyProgress(MSListenerFilmeLadenEvent event) {
+        for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
+            run_(new Start(l, event, ListenerMelden.PROGRESS));
+        }
+    }
+
+    private void notifyFertig(MSListenerFilmeLadenEvent event) {
+        for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
+            run_(new Start(l, event, ListenerMelden.FINISHED));
+        }
+    }
+
+    private class Start implements Runnable {
+
+        private final MSListenerFilmeLaden listenerFilmeLaden;
+        private final MSListenerFilmeLadenEvent event;
+        private final ListenerMelden listenerMelden;
+
+        public Start(MSListenerFilmeLaden llistenerFilmeLaden, MSListenerFilmeLadenEvent eevent, ListenerMelden lliListenerMelden) {
+            listenerFilmeLaden = llistenerFilmeLaden;
+            event = eevent;
+            listenerMelden = lliListenerMelden;
+        }
+
+        @Override
+        public synchronized void run() {
+            switch (listenerMelden) {
+                case START:
+                    listenerFilmeLaden.start(event);
+                    break;
+                case PROGRESS:
+                    listenerFilmeLaden.progress(event);
+                    break;
+                case FINISHED:
+                    listenerFilmeLaden.fertig(event);
+                    break;
+            }
+        }
+    }
+
+    private void run_(Runnable r) {
+        try {
+            if (SwingUtilities.isEventDispatchThread()) {
+                // entweder hier
+                r.run();
+            } else {
+                SwingUtilities.invokeLater(r);
+            }
+        } catch (Exception ignored) {
+
+        }
+    }
 }

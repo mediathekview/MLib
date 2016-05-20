@@ -1,6 +1,6 @@
 /*
  * MediathekView
- * Copyright (C) 2013 W. Xaver
+ * Copyright (C) 2016 W. Xaver
  * W.Xaver[at]googlemail.com
  * http://zdfmediathk.sourceforge.net/
  *
@@ -17,28 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package msearch;
+package msearch.gui;
 
-import javafx.application.Application;
-import msearch.gui.MSG;
-import msearch.tool.MSLog;
+import java.net.URL;
+import java.util.ResourceBundle;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 
-public class Main {
+public class PanelToolController implements Initializable {
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(final String args[]) {
+    @FXML
+    private Button btnCheck;
 
-        java.awt.EventQueue.invokeLater(() -> {
-            MSLog.versionsMeldungen();
-            if (args != null) {
-                for (String s : args) {
-                    if (s.equalsIgnoreCase("-gui")) {
-                        Application.launch(MSG.class, args);
-                    }
-                }
-            }
-        });
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        initPanelTool();
+    }
+
+    private void initPanelTool() {
+        btnCheck.setOnAction(e -> Data.listeFilme.check());
     }
 }

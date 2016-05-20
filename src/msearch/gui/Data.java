@@ -1,6 +1,6 @@
 /*
  * MediathekView
- * Copyright (C) 2013 W. Xaver
+ * Copyright (C) 2016 W. Xaver
  * W.Xaver[at]googlemail.com
  * http://zdfmediathk.sourceforge.net/
  *
@@ -17,28 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package msearch;
+package msearch.gui;
 
-import javafx.application.Application;
-import msearch.gui.MSG;
-import msearch.tool.MSLog;
+import msearch.daten.ListeFilme;
 
-public class Main {
+public class Data {
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(final String args[]) {
+    public static ListeFilme listeFilme = new ListeFilme();
+    public static String pathFilmlist = "";
+    public static MSearchGuiController mSearchGuiController = null;
 
-        java.awt.EventQueue.invokeLater(() -> {
-            MSLog.versionsMeldungen();
-            if (args != null) {
-                for (String s : args) {
-                    if (s.equalsIgnoreCase("-gui")) {
-                        Application.launch(MSG.class, args);
-                    }
-                }
-            }
-        });
-    }
 }
