@@ -19,16 +19,33 @@
  */
 package msearch.gui;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
+import javafx.stage.FileChooser;
 
 public class PanelToolController implements Initializable {
 
     @FXML
     private Button btnCheck;
+    @FXML
+    private Button btnPlay;
+    @FXML
+    private Button btnPath;
+    @FXML
+    private Button btnStop;
+    @FXML
+    private TextField txtPlay;
+    @FXML
+    private MediaView mv;
+    private MediaPlayer mediaPlayer;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -37,5 +54,40 @@ public class PanelToolController implements Initializable {
 
     private void initPanelTool() {
         btnCheck.setOnAction(e -> Data.listeFilme.check());
+        btnPlay.setOnAction(e -> play());
+        btnPath.setOnAction(e -> getPath());
+        btnStop.setOnAction(e -> stop());
+        txtPlay.setText("/tmp/film.mp4");
     }
+
+    private void play() {
+        File file = new File(txtPlay.getText());
+
+        final String MEDIA_URL = file.toURI().toString();
+        Media media = new Media(MEDIA_URL);
+        mediaPlayer = new MediaPlayer(media);
+        mv.setMediaPlayer(mediaPlayer);
+
+        mediaPlayer.play();
+    }
+
+    private void stop() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+        }
+    }
+
+    private void getPath() {
+        FileChooser chooser = new FileChooser();
+        chooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        File f = chooser.showOpenDialog(null);
+        if (f != null) {
+            try {
+                txtPlay.setText(f.getAbsolutePath());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
 }

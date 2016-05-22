@@ -19,19 +19,16 @@
  */
 package msearch.gui;
 
-
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javax.swing.JFileChooser;
+import javafx.stage.FileChooser;
 import msearch.filmlisten.MSFilmlisteLesen;
 import msearch.filmlisten.WriteFilmlistJson;
 
@@ -86,27 +83,22 @@ public class MSearchGuiController implements Initializable {
             lblSum.setText(Data.listeFilme.size() + "");
         });
         btnSave.setOnAction(e -> new WriteFilmlistJson().filmlisteSchreibenJson(txtFilmList.getText(), Data.listeFilme));
-        btnSelect.setOnAction(e -> new BeobPfad());
+        btnSelect.setOnAction(e -> getPath());
     }
 
-    private class BeobPfad implements EventHandler<ActionEvent> {
-
-        @Override
-        public void handle(ActionEvent t) {
-            int returnVal;
-            JFileChooser chooser = new JFileChooser();
-            if (!txtFilmList.getText().equals("")) {
-                chooser.setCurrentDirectory(new File(txtFilmList.getText()));
-            }
-            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            chooser.setFileHidingEnabled(false);
-            returnVal = chooser.showOpenDialog(null);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                try {
-                    txtFilmList.setText(chooser.getSelectedFile().getAbsolutePath());
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+    private void getPath() {
+        FileChooser chooser = new FileChooser();
+        if (!txtFilmList.getText().equals("")) {
+            chooser.setInitialDirectory(
+                    new File(System.getProperty("user.home"))
+            );
+        }
+        File f = chooser.showOpenDialog(null);
+        if (f != null) {
+            try {
+                txtFilmList.setText(f.getAbsolutePath());
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
     }

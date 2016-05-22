@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
+import javafx.animation.RotateTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -35,6 +36,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.util.Duration;
 import msearch.filmeSuchen.MSGetUrl;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
@@ -88,7 +90,18 @@ public class PanelSearchController implements Initializable {
 
     private void initPanelSearch() {
         lblSum.setText("");
-        btnStop.setOnAction(e -> MSConfig.setStop(true));
+        btnStop.setOnAction(e -> {
+            RotateTransition tr = new RotateTransition();
+            tr.setNode(btnStop);
+            tr.setDuration(Duration.millis(750));
+            tr.setFromAngle(0);
+            tr.setToAngle(220);
+            tr.setAutoReverse(true);
+            tr.setCycleCount(2);
+            tr.play();
+
+            MSConfig.setStop(true);
+        });
         mSearchGuiLoad = new MSearchGuiLoad();
 
         rbShort.setSelected(true);
