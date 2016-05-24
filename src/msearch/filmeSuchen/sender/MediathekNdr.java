@@ -392,6 +392,10 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                 url_xl = url_m;
                 url_m = "";
             }
+
+            if (subtitle.isEmpty()) {
+                subtitle = seite3.extract("\"tracks\":", "\"/", "\"", "http://www.ndr.de/");
+            }
             if (!url_xl.isEmpty()) {
                 DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, url_xl, ""/*rtmpURL*/, datum, zeit, durationInSeconds, description);
                 if (!subtitle.isEmpty()) {
