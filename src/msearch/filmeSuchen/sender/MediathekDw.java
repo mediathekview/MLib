@@ -19,6 +19,7 @@
  */
 package msearch.filmeSuchen.sender;
 
+import java.util.ArrayList;
 import msearch.daten.DatenFilm;
 import msearch.filmeSuchen.MSFilmeSuchen;
 import msearch.filmeSuchen.MSGetUrl;
@@ -110,6 +111,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
         private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private ArrayList<String> listUrl = new ArrayList<>();
 
         @Override
         public synchronized void run() {
@@ -145,49 +147,72 @@ public class MediathekDw extends MediathekReader implements Runnable {
         }
 
         void laden2(String urlThema, String thema, String titel, String urlSendung) {
-
-            final String MUSTER_START = "%22file%22%3A%22";
-            String url;
+            String url = "", urlLow = "", urlHd = "";
+            final String ADDURL = "http://tv-download.dw.de/dwtv_video/flv/";
             meldung(urlThema);
             seite2 = getUrlIo.getUri_Utf(SENDERNAME, urlSendung, seite2, "");
-            int pos1 = 0, pos2;
-            while ((pos1 = seite2.indexOf(MUSTER_START, pos1)) != -1) {
-                pos1 += MUSTER_START.length();
-                pos2 = seite2.indexOf("%22%7D", pos1);
-                if (pos2 != -1) {
-                    url = seite2.substring(pos1, pos2);
-                    if (url.endsWith(".mp4")) {
-                        String description = seite2.extract("<meta name=\"description\" content=\"", "\"");
-                        String datum = seite2.extract("| DW.COM | ", "\"");
-                        String dur = seite2.extract("<strong>Dauer</strong>", "Min.").trim();
-                        dur = dur.replace("\n", "");
-                        dur = dur.replace("\r", "");
-                        long duration = 0;
-                        try {
-                            if (!dur.equals("")) {
-                                String[] parts = dur.split(":");
-                                long power = 1;
-                                for (int i = parts.length - 1; i >= 0; i--) {
-                                    String s = parts[i];
-                                    duration += Long.parseLong(parts[i]) * power;
-                                    power *= 60;
-                                }
-                            }
-                        } catch (Exception ex) {
-                            MSLog.fehlerMeldung(912034567, "duration: " + dur);
-                        }
 
-                        url = url.replace("%2F", "/");
-                        url = "http://tv-download.dw.com/dwtv_video/flv/" + url;
-                        // DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
-                        // String datum, String zeit, long dauerSekunden, String description) {
-
-                        DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, "", datum, ""/*Zeit*/, duration, description);
-                        addFilm(film);
-                        return;
-                    }
+            seite2.extractList("%22file%22%3A%22", "%22%7D", listUrl);
+            for (String u : listUrl) {
+                u = u.replace("%2F", "/");
+                if (urlLow.isEmpty() && u.endsWith("vp6.flv")) {
+                    urlLow = u;
+                    urlLow = ADDURL + urlLow;
+                }
+                if (url.isEmpty() && u.endsWith("sor.flv")) {
+                    url = u;
+                    url = url.replace("_sor.flv", "_sor.mp4");
+                    url = ADDURL + url;
+                }
+                if (urlHd.isEmpty() && u.endsWith(".mp4")) {
+                    urlHd = u;
+                    urlHd = ADDURL + urlHd;
                 }
             }
+            listUrl.clear();
+
+            String description = seite2.extract("<meta name=\"description\" content=\"", "\"");
+            String datum = seite2.extract("| DW.COM | ", "\"");
+            String dur = seite2.extract("<strong>Dauer</strong>", "Min.").trim();
+            dur = dur.replace("\n", "");
+            dur = dur.replace("\r", "");
+            long duration = 0;
+            try {
+                if (!dur.equals("")) {
+                    String[] parts = dur.split(":");
+                    long power = 1;
+                    for (int i = parts.length - 1; i >= 0; i--) {
+                        String s = parts[i];
+                        duration += Long.parseLong(parts[i]) * power;
+                        power *= 60;
+                    }
+                }
+            } catch (Exception ex) {
+                MSLog.fehlerMeldung(912034567, "duration: " + dur);
+            }
+
+            if (url.isEmpty() && !urlLow.isEmpty()) {
+                url = urlLow;
+                urlLow = "";
+            }
+            if (url.isEmpty() && !urlHd.isEmpty()) {
+                url = urlHd;
+                urlHd = "";
+            }
+            if (url.isEmpty()) {
+                MSLog.fehlerMeldung(643230120, "empty URL: " + urlSendung);
+            } else {
+                DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, "", datum, ""/*Zeit*/, duration, description);
+                if (!urlLow.isEmpty()) {
+                    film.addUrlKlein(urlLow, "");
+                }
+                if (!urlHd.isEmpty()) {
+                    film.addUrlHd(urlHd, "");
+                }
+                addFilm(film);
+            }
+
         }
+
     }
 }
