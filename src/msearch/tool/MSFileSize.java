@@ -22,6 +22,7 @@ public class MSFileSize {
         // liefert die Dateigröße einer URL in MB!!
         // Anzeige der Größe in MiB und deshalb: Faktor 1000
         String groesseStr = "";
+
         long l = laenge(url, ssender);
         if (l > 1000 * 1000) {
             // größer als 1MiB sonst kann ich mirs sparen

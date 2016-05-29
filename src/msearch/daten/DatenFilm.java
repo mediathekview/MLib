@@ -147,8 +147,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return neuerFilm;
     }
 
-    public void setNew(final boolean newFilm)
-    {
+    public void setNew(final boolean newFilm) {
         neuerFilm = newFilm;
     }
 
@@ -309,6 +308,12 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public String getIndex() {
         // liefert einen eindeutigen Index für die Filmliste
         return arr[FILM_SENDER_NR].toLowerCase() + arr[FILM_THEMA_NR].toLowerCase() + DatenFilm.getUrl(this);
+    }
+
+    public String getIndexAddOld() {
+        // liefert einen eindeutigen Index zum Anhängen einer alten Liste
+        //return arr[FILM_SENDER_NR].toLowerCase() + arr[FILM_THEMA_NR].toLowerCase() + DatenFilm.getUrl(this);
+        return arr[FILM_SENDER_NR].toLowerCase() + arr[FILM_THEMA_NR].toLowerCase() + arr[FILM_TITEL_NR] + arr[FILM_DATUM_NR];
     }
 
     public static String getUrl(DatenFilm film) {

@@ -161,7 +161,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 // beim KIKA ändern sich die URLs laufend
                 hash.add(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR]);
             } else {
-                hash.add(f.getIndex());
+                hash.add(f.getIndexAddOld());
             }
         }
 
@@ -173,7 +173,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                     it.remove();
                 }
             } else {
-                if (hash.contains(f.getIndex())) {
+                if (hash.contains(f.getIndexAddOld())) {
                     it.remove();
                 }
             }
