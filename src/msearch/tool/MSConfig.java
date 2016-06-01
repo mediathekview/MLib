@@ -32,6 +32,7 @@ public class MSConfig {
     public static String importUrl_1__anhaengen = "";
     public static String importUrl_2__anhaengen = "";
     public static String importOld = ""; // alte Liste importieren
+    public static String importLive = ""; // live-streams
 
     public static final int LOAD_SHORT = 0;
     public static final int LOAD_LONG = 1;

@@ -86,6 +86,20 @@ public class MSearch implements Runnable {
         return listeFilme;
     }
 
+    private void importLive(ListeFilme tmpListe, String importUrl) {
+        //================================================
+        // noch anere Listen importieren
+        MSLog.systemMeldung("Live-Streams importieren von: " + importUrl);
+        tmpListe.clear();
+        new MSFilmlisteLesen().readFilmListe(importUrl, tmpListe, 0 /*all days*/);
+        MSLog.systemMeldung("--> von  Anz. Filme: " + listeFilme.size());
+        listeFilme.addLive(tmpListe);
+        MSLog.systemMeldung("--> nach Anz. Filme: " + listeFilme.size());
+        tmpListe.clear();
+        System.gc();
+        listeFilme.sort();
+    }
+
     private void importUrl(ListeFilme tmpListe, String importUrl) {
         //================================================
         // noch anere Listen importieren
@@ -123,6 +137,14 @@ public class MSearch implements Runnable {
         //================================================
         // noch anere Listen importieren
         MSLog.systemMeldung("");
+        if (!MSConfig.importLive.isEmpty()) {
+            // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
+            MSLog.systemMeldung("");
+            MSLog.systemMeldung("============================================================================");
+            MSLog.systemMeldung("Live-Streams importieren");
+            importLive(tmpListe, MSConfig.importLive);
+            MSLog.systemMeldung("");
+        }
         if (!MSConfig.importUrl_1__anhaengen.isEmpty()) {
             // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
             MSLog.systemMeldung("");

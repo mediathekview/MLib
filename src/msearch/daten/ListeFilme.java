@@ -69,8 +69,9 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // erst mal schauen obs das schon gibt
         final String idx = film.getIndex();
         for (DatenFilm datenFilm : this) {
-            if (datenFilm.getIndex().equals(idx))
+            if (datenFilm.getIndex().equals(idx)) {
                 return false;
+            }
         }
         return addInit(film);
     }
@@ -79,7 +80,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
         // "ersetzen": true: dann werden gleiche (index/URL) in der Liste durch neue ersetzt
-        final HashSet<String> hash = new HashSet<>(listeEinsortieren.size()+1,1);
+        final HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
 
         if (ersetzen) {
             // ==========================================
@@ -146,6 +147,24 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         hash.clear();
     }
 
+    public synchronized void addLive(ListeFilme listeEinsortieren) {
+        // live-streams einfügen, es werde die vorhandenen ersetzt!
+
+        if (listeEinsortieren.size() <= 0) {
+            //dann wars wohl nix
+            return;
+        }
+
+        Iterator<DatenFilm> it = this.iterator();
+        while (it.hasNext()) {
+            DatenFilm f = it.next();
+            if (f.arr[DatenFilm.FILM_THEMA_NR].equals(ListeFilme.THEMA_LIVE)) {
+                it.remove();
+            }
+        }
+        listeEinsortieren.forEach(this::add);
+    }
+
     final int COUNTER_MAX = 20;
     int counter = 0;
     int treffer = 0;
@@ -153,7 +172,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized int updateListeOld(ListeFilme listeEinsortieren) {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
-        HashSet<String> hash = new HashSet<>(listeEinsortieren.size()+1,1);
+        HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
         Iterator<DatenFilm> it;
         // ==============================================
         for (DatenFilm f : this) {
@@ -379,8 +398,9 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
         for (DatenFilm film : this) {
             final String s = film.arr[DatenFilm.FILM_SENDER_NR] + film.arr[DatenFilm.FILM_THEMA_NR] + film.arr[DatenFilm.FILM_TITEL_NR] + film.arr[DatenFilm.FILM_URL_NR];
-            if (!hashSet.contains(s))
+            if (!hashSet.contains(s)) {
                 ret.add(film);
+            }
         }
 
         hashSet.clear();
@@ -494,7 +514,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized void checkThema(String sender, LinkedList<String> liste, String thema) {
         this.stream().filter(film -> film.arr[DatenFilm.FILM_SENDER_NR].equals(sender))
                 .filter(film -> !film.arr[DatenFilm.FILM_THEMA_NR].equals(ListeFilme.THEMA_LIVE)
-                && !liste.contains(film.arr[DatenFilm.FILM_THEMA_NR]))
+                        && !liste.contains(film.arr[DatenFilm.FILM_THEMA_NR]))
                 .forEach(film -> film.arr[DatenFilm.FILM_THEMA_NR] = thema);
     }
 
