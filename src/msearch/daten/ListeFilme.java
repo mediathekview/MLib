@@ -172,33 +172,55 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized int updateListeOld(ListeFilme listeEinsortieren) {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
+        counter = 0;
+        treffer = 0;
+        int size = listeEinsortieren.size();
+
         HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
         Iterator<DatenFilm> it;
-        // ==============================================
-        for (DatenFilm f : this) {
-            if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
-                // beim KIKA ändern sich die URLs laufend
-                hash.add(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR]);
-            } else {
-                hash.add(f.getIndexAddOld());
-            }
-        }
 
-        it = listeEinsortieren.iterator();
-        while (it.hasNext()) {
-            DatenFilm f = it.next();
-            if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
-                if (hash.contains(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR])) {
-                    it.remove();
-                }
-            } else {
-                if (hash.contains(f.getIndexAddOld())) {
-                    it.remove();
-                }
-            }
-        }
+        // ==============================================
+        // nach "Thema-Titel" suchen
+        this.stream().forEach((f) -> hash.add(f.getIndexAddOld()));
+        listeEinsortieren.removeIf((f) -> hash.contains(f.getIndexAddOld()));
         hash.clear();
 
+//        it = listeEinsortieren.iterator();
+//        while (it.hasNext()) {
+//            if (hash.contains(it.next().getIndexAddOld())) {
+//                it.remove();
+//            }
+//        }
+//        hash.clear();
+        MSLog.systemMeldung("===== Liste einsortieren Hash =====");
+        MSLog.systemMeldung("Liste einsortieren, Anzahl: " + size);
+        MSLog.systemMeldung("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
+        MSLog.systemMeldung("Liste einsortieren, noch einsortieren: " + listeEinsortieren.size());
+        MSLog.systemMeldung("");
+        size = listeEinsortieren.size();
+
+        // ==============================================
+        // nach "URL" suchen
+        this.stream().forEach((f) -> hash.add(DatenFilm.getUrl(f)));
+        listeEinsortieren.removeIf((f) -> hash.contains(DatenFilm.getUrl(f)));
+        hash.clear();
+
+//        it = listeEinsortieren.iterator();
+//        while (it.hasNext()) {
+//            DatenFilm f = it.next();
+//            if (hash.contains(DatenFilm.getUrl(f))) {
+//                it.remove();
+//            }
+//        }
+//        hash.clear();
+        MSLog.systemMeldung("===== Liste einsortieren URL =====");
+        MSLog.systemMeldung("Liste einsortieren, Anzahl: " + size);
+        MSLog.systemMeldung("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
+        MSLog.systemMeldung("Liste einsortieren, noch einsortieren: " + listeEinsortieren.size());
+        MSLog.systemMeldung("");
+        size = listeEinsortieren.size();
+
+        // Rest nehmen wir wenn noch online
         for (int i = 0; i < COUNTER_MAX; ++i) {
             new Thread(new AddOld(listeEinsortieren)).start();
         }
@@ -210,6 +232,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             } catch (InterruptedException ignored) {
             }
         }
+        MSLog.systemMeldung("===== Liste einsortieren: Noch online =====");
+        MSLog.systemMeldung("Liste einsortieren, Anzahl: " + size);
+        MSLog.systemMeldung("Liste einsortieren, entfernt: " + (size - treffer));
+        MSLog.systemMeldung("");
+        MSLog.systemMeldung("In Liste einsortiert: " + treffer);
+        MSLog.systemMeldung("");
         return treffer;
     }
 
