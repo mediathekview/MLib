@@ -50,9 +50,9 @@ public class MediathekRbb extends MediathekReader implements Runnable {
         meldungStart();
         try {
             seite = getUrlIo.getUri(SENDERNAME, ADRESSE_1, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
-            seite.extractList(URL, "\"", 0, "", liste);
+            seite.extractList("", "", URL, "\"", "", liste);
             seite = getUrlIo.getUri(SENDERNAME, ADRESSE_2, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
-            seite.extractList(URL, "\"", 0, "", liste);
+            seite.extractList("", "", URL, "\"", "", liste);
             for (String s : liste) {
                 if (s.isEmpty() || !s.contains("documentId=")) {
                     continue;

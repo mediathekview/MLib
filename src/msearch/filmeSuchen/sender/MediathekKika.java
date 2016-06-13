@@ -78,7 +78,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
         listeThemen.clear();
         try {
             seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 3, seite, "KiKA: Startseite");
-            seite.extractList(MUSTER_URL, "\"", 0, "http://www.kika.de/sendungen/sendungenabisz100_", liste1);
+            seite.extractList("", "", MUSTER_URL, "\"", "http://www.kika.de/sendungen/sendungenabisz100_", liste1);
 
             for (String s : liste1) {
                 seite = getUrlIo.getUri_Utf(sendername, s, seite, "KiKa-Sendungen");
@@ -103,10 +103,10 @@ public class MediathekKika extends MediathekReader implements Runnable {
 
         try {
             seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 3, seite, "KiKA: Startseite alle Videos");
-            seite.extractList(MUSTER_URL, "\"", 0, "http://www.kika.de/videos/allevideos/allevideos-buendelgruppen100_page-", liste1);
+            seite.extractList("", "", MUSTER_URL, "\"", "http://www.kika.de/videos/allevideos/allevideos-buendelgruppen100_page-", liste1);
             for (String s1 : liste1) {
                 seite = getUrlIo.getUri_Utf(sendername, s1, seite, "KiKa-Sendungen");
-                seite.extractList("<div class=\"media mediaA\">\n<a href=\"/", "\"", 0, "http://www.kika.de/", liste2);
+                seite.extractList("", "", "<div class=\"media mediaA\">\n<a href=\"/", "\"", "http://www.kika.de/", liste2);
             }
             for (String s2 : liste2) {
                 listeAllVideos.add(new String[]{s2});
@@ -169,7 +169,11 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     url = seite1.extract("<h2 class=\"conHeadline\">Alle Sendungen</h2>", "<a href=\"", "\"");
                 }
                 if (url.isEmpty()) {
-                    url = seite1.extract("<h2 class=\"conHeadline\">Nächste Folge</h2>", "<span class=\"moreBtn\">", "<a href=\"", "\"", "");
+                    int p = seite1.indexOf("<h2 class=\"conHeadline\">Nächste Folge</h2>");
+                    if (p <= 0) {
+                        p = 0;
+                    }
+                    url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"", p, 0, "");
                 }
                 if (url.isEmpty()) {
                     MSLog.fehlerMeldung(721356987, "keine URL: " + filmWebsite);
@@ -272,8 +276,8 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 seite2 = getUrlIo.getUri_Utf(sendername, url, seite2, "KiKa-Sendungen");
                 loadAllVideo_2(seite2);
                 if (MSConfig.loadLongMax()) {
-                    seite2.extractList("<div class=\"bundleNaviItem active\">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste);
-                    seite2.extractList("<div class=\"bundleNaviItem \">\n<a href=\"/videos/allevideos/", "\"", 0, "http://www.kika.de/videos/allevideos/", liste);
+                    seite2.extractList("", "", "<div class=\"bundleNaviItem active\">\n<a href=\"/videos/allevideos/", "\"", "http://www.kika.de/videos/allevideos/", liste);
+                    seite2.extractList("", "", "<div class=\"bundleNaviItem \">\n<a href=\"/videos/allevideos/", "\"", "http://www.kika.de/videos/allevideos/", liste);
                 }
                 for (String u : liste) {
                     if (MSConfig.getStop()) {

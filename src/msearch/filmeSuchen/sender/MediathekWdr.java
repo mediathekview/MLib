@@ -225,6 +225,8 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         private MSStringBuilder sendungsSeite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder sendungsSeite4 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         MSStringBuilder m3u8Page = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private ArrayList<String> liste_1 = new ArrayList<>();
+        private ArrayList<String> liste_2 = new ArrayList<>();
 
         @Override
         public void run() {
@@ -258,48 +260,23 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         }
 
         private void sendungsSeitenSuchen1(String strUrl) {
-            final String MUSTER_URL = "<a href=\"/mediathek/video/sendungen/";
-            int pos1;
-            int pos2;
-            int ende;
             meldung(strUrl);
             // Sendungen auf der Seite
-            sendungsSeitenSuchen2(strUrl);
-            if (!MSConfig.loadLongMax()) {
-                // dann wars das
-                return;
+            liste_1.clear();
+            liste_1.add(strUrl);
+            if (MSConfig.loadLongMax()) {
+                // sonst wars das
+                sendungsSeite1 = getUrl.getUri_Utf(SENDERNAME, strUrl, sendungsSeite1, "");
+                sendungsSeite1.extractList("<ul class=\"pageCounterNavi\">", "</ul>", "<a href=\"/mediathek/video/sendungen/", "\"", "http://www1.wdr.de/mediathek/video/sendungen/", liste_1);
             }
-            sendungsSeite1 = getUrl.getUri_Utf(SENDERNAME, strUrl, sendungsSeite1, "");
-            if (sendungsSeite1.length() == 0) {
-                return;
-            }
-            // weitere Seiten suchen
-            if ((pos1 = sendungsSeite1.indexOf("<ul class=\"pageCounterNavi\">")) == -1) {
-                return;
-            }
-            if ((ende = sendungsSeite1.indexOf("</ul>", pos1)) == -1) {
-                return;
-            }
-            while ((pos1 = sendungsSeite1.indexOf(MUSTER_URL, pos1)) != -1) {
-                pos1 += MUSTER_URL.length();
-                if (pos1 > ende) {
-                    // dann wars das
-                    return;
-                }
-                pos1 += "<a href=\"/mediathek/video/sendungen/".length();
-                if ((pos2 = sendungsSeite1.indexOf("\"", pos1)) != -1) {
-                    String urlWeiter = sendungsSeite1.substring(pos1, pos2);
-                    if (!urlWeiter.equals("")) {
-                        // Sendungen auf der Seite
-                        sendungsSeitenSuchen2("http://www1.wdr.de/mediathek/video/sendungen/" + urlWeiter);
-                    }
-                }
-            }
+            liste_1.stream().forEach((u) -> {
+                sendungsSeitenSuchen2(u);
+            });
         }
 
         private void sendungsSeitenSuchen2(String strUrl) {
             final String MUSTER_URL = "<div class=\"teaser hideTeasertext\">";
-            int pos = 0;
+            int pos;
             String url;
             String titel;
             String dauer;
@@ -317,10 +294,16 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             }
             meldung(strUrl);
 
-            thema = sendungsSeite2.extract("<title>", "<", pos);
+            thema = sendungsSeite2.extract("<title>", "<");
             thema = thema.replace("- Sendung - Video - Mediathek - WDR", "").trim();
             if (thema.startsWith("Unser Sendungsarchiv")) {
                 thema = "";
+            }
+
+            //Lokalzeit, ..
+            String u = sendungsSeite2.extract("data-extension=\"{ 'mediaObj': { 'url': '", "'");
+            if (!u.isEmpty()) {
+                sendungsSeitenSuchenNeu(strUrl, sendungsSeite2, thema);
             }
 
             pos = 0;
@@ -355,7 +338,35 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     MSLog.fehlerMeldung(646432970, "keine Url" + strUrl);
                 }
             }
+        }
 
+        private void sendungsSeitenSuchenNeu(String strUrl, MSStringBuilder seite, String thema) {
+            //Lokalzeit, ..
+            String u = seite.extract("data-extension=\"{ 'mediaObj': { 'url': '", "'");
+            if (!u.isEmpty()) {
+                addFilm2(strUrl, thema, "", u, 0, "", "");
+            }
+
+            liste_2.clear();
+            seite.extractList("Letzte Sendungen", "Neuer Abschnitt", "<a href=\"", "\"", "http://www1.wdr.de", liste_2);
+            for (String ur : liste_2) {
+                seite = getUrl.getUri_Utf(SENDERNAME, ur, seite, "");
+                if (seite.length() == 0) {
+                    continue;
+                }
+                meldung(strUrl);
+
+                thema = seite.extract("<title>", "<");
+                thema = thema.replace("- Sendung - Video - Mediathek - WDR", "").trim();
+                if (thema.startsWith("Unser Sendungsarchiv")) {
+                    thema = "";
+                }
+
+                u = seite.extract("data-extension=\"{ 'mediaObj': { 'url': '", "'");
+                if (!u.isEmpty()) {
+                    addFilm2(strUrl, thema, "", u, 0, "", "");
+                }
+            }
         }
 
         private void addFilm1(String thema, String titel, String filmWebsite, long dauer, String datum) {
@@ -492,18 +503,6 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             return url;
         }
 
-//        private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX");// 2014-07-07T00:35+01:00
-//        private final SimpleDateFormat sdfOutDay = new SimpleDateFormat("dd.MM.yyyy");
-//
-//        private String convertDatum(String datum) {
-//            try {
-//                Date filmDate = sdf.parse(datum);
-//                datum = sdfOutDay.format(filmDate);
-//            } catch (ParseException ex) {
-//                MSLog.fehlerMeldung(731025789, ex, "Datum: " + datum);
-//            }
-//            return datum;
-//        }
         private void themenSeiteRockpalast() {
             try {
                 for (String s : listeRochpalast) {

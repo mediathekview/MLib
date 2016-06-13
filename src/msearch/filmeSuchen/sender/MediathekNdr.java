@@ -210,8 +210,8 @@ public class MediathekNdr extends MediathekReader implements Runnable {
                     }
                     if (tage) {
                         // <h3><a href="/fernsehen/epg/import/Rote-Rosen,sendung64120.html" title="Rote Rosen"  >Rote Rosen (1725)</a></h3>
-                        thema = seite1.extract(MUSTER_URL, " title=\"", "\"", pos);
-                        titel = seite1.extract(MUSTER_URL, ">", "<", pos);
+                        thema = seite1.extract(MUSTER_URL, " title=\"", "\"", pos, 0, "");
+                        titel = seite1.extract(MUSTER_URL, ">", "<", pos, 0, "");
                         if (titel.contains("(Wdh.)")) {
                             // dann sollte der Beitrag schon in der Liste sein
                             continue;
@@ -376,7 +376,7 @@ public class MediathekNdr extends MediathekReader implements Runnable {
 
             seite3 = getUrl.getUri_Utf(SENDERNAME, json, seite3, "strUrlThema: " + strUrlThema);
             String url_hd = "", url_xl = "", url_m = "";
-            seite3.extractList("\"src\": \"http://media.ndr.de", "\"", 0, "http://media.ndr.de", liste);
+            seite3.extractList("", "", "\"src\": \"http://media.ndr.de", "\"", "http://media.ndr.de", liste);
 
             for (String s : liste) {
                 if (s.endsWith(".hd.mp4")) {

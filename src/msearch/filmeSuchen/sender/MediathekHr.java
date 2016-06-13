@@ -79,7 +79,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
         final String TAGE_PREFIX = "http://www.hr-online.de/website/includes/medianew-playlist.xml.jsp?logic=start_multimedia_document_logic_";
         final String TAGE_MUSTER = "http://www.hr-online.de/website/includes/medianew-playlist.xml.jsp?logic=start_multimedia_document_logic_";
         ArrayList<String> erg = new ArrayList<>();
-        seite.extractList(TAGE_MUSTER, "&", 0, TAGE_PREFIX, erg);
+        seite.extractList("", "", TAGE_MUSTER, "&", TAGE_PREFIX, erg);
         for (String url : erg) {
             String[] add = new String[]{url, ""/*thema*/, "http://www.hr-online.de/website/fernsehen/sendungen/index.jsp"/*filmsite*/};
             if (!istInListe(listeThemen, url, 0)) {
@@ -94,7 +94,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
         final String RUBRIK_PREFIX = "http://www.hr-online.de/website/fernsehen/sendungen/index.jsp?rubrik=";
         final String RUBRIK_MUSTER = "<option value=\"/website/fernsehen/sendungen/index.jsp?rubrik=";
         ArrayList<String> erg = new ArrayList<>();
-        seite.extractList(RUBRIK_MUSTER, "\"", 0, RUBRIK_PREFIX, erg);
+        seite.extractList("", "", RUBRIK_MUSTER, "\"", RUBRIK_PREFIX, erg);
         for (String s : erg) {
             if (MSConfig.getStop()) {
                 break;

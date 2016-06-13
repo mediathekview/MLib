@@ -82,7 +82,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         // <a href="http://tvthek.orf.at/program/Kultur-heute/3078759/Kultur-Heute/7152535" class="item_inner clearfix">
         seite = getUrlIo.getUri(SENDERNAME, adresse, MSConst.KODIERUNG_UTF, 2, seite, "");
         ArrayList<String> al = new ArrayList<>();
-        seite.extractList("<a href=\"http://tvthek.orf.at/program/", "\"", 0, "http://tvthek.orf.at/program/", al);
+        seite.extractList("", "", "<a href=\"http://tvthek.orf.at/program/", "\"", "http://tvthek.orf.at/program/", al);
         for (String s : al) {
             String[] add = new String[]{s, THEMA_TAG}; // werden extra behandelt
             if (!istInListe(listeThemen, add[0], 0)) {
@@ -97,7 +97,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         ArrayList<String> al = new ArrayList<>();
         String thema;
         try {
-            seite.extractList(URL, "#", 0, "", al);
+            seite.extractList("", "", URL, "#", "", al);
             for (String s : al) {
                 thema = "";
                 if (s.contains("/")) {
@@ -122,7 +122,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         ArrayList<String> al = new ArrayList<>();
         String thema;
         try {
-            seite.extractList(URL, "\"", 0, "", al);
+            seite.extractList("", "", URL, "\"", "", al);
             for (String s : al) {
                 thema = THEMA_SENDUNGEN;
                 String[] add = new String[]{URL + s, thema};
@@ -178,7 +178,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             seite1 = getUrlIo.getUri(SENDERNAME, url, MSConst.KODIERUNG_UTF, 2, seite1, "");
             alSendung.clear();
             String thema;
-            seite1.extractList(URL, "\"", 0, "", alSendung);
+            seite1.extractList("", "", URL, "\"", "", alSendung);
             for (String s : alSendung) {
                 thema = "";
                 if (s.contains("/")) {
@@ -197,7 +197,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             alSendung.clear();
             String thema, themaAlt = "";
             int count = 0, max = 3;
-            seite1.extractList(URL, "\"", 0, "", alSendung);
+            seite1.extractList("", "", URL, "\"", "", alSendung);
             for (String s : alSendung) {
                 if (!MSConfig.loadLongMax()) {
                     if (count > max) {
