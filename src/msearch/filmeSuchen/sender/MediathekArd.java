@@ -82,7 +82,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
         int pos1;
         int pos2;
         String url = "";
-        while ((pos = seite.indexOf(MUSTER_URL, pos)) != -1) {
+        while (!MSConfig.getStop() && (pos = seite.indexOf(MUSTER_URL, pos)) != -1) {
             try {
                 pos += MUSTER_URL.length();
                 pos1 = pos;
@@ -177,6 +177,9 @@ public class MediathekArd extends MediathekReader implements Runnable {
         private void addTage() {
             // http://www.ardmediathek.de/tv/sendungVerpasst?tag=0 ... 6
             for (int i = 0; i <= 6; ++i) {
+                if (MSConfig.getStop()) {
+                    break;
+                }
                 String urlTage = "http://www.ardmediathek.de/tv/sendungVerpasst?tag=" + i;
                 final String MUSTER = "<span class=\"date\">";
                 seite1 = getUrl.getUri_Utf(SENDERNAME, urlTage, seite1, "");
@@ -287,7 +290,8 @@ public class MediathekArd extends MediathekReader implements Runnable {
 
                 filmSuchen2(url, thema, titel, d, datum, zeit, urlSendung);
             }
-            if (weiter && MSConfig.loadLongMax() || weiter && thema.equalsIgnoreCase("alpha-Centauri")) {
+            if (!MSConfig.getStop() && weiter
+                    && (MSConfig.loadLongMax() || thema.equalsIgnoreCase("alpha-Centauri"))) {
                 // dann gehts weiter
                 int maxWeiter = 0;
                 int maxTh = 10;
@@ -301,6 +305,9 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     }
                 }
                 for (int i = 2; i < maxTh; ++i) {
+                    if (MSConfig.getStop()) {
+                        break;
+                    }
                     if (i <= maxWeiter) {
                         filmSuchen1(urlWeiter + i, thema, false);
                     } else {

@@ -26,6 +26,9 @@ public class MSStringBuilder {
     private final StringBuilder cont;
     private int pos1 = 0;
     private int pos2 = 0;
+    private int stopPos = 0;
+    private int count = 0;
+    private String str = "";
 
     public MSStringBuilder() {
         cont = new StringBuilder();
@@ -210,20 +213,29 @@ public class MSStringBuilder {
     }
 
     public void extractList(String abMuster, String bisMuster, String musterStart1, String musterStart2, String musterEnde, String addUrl, ArrayList<String> result) {
-        int pos1 = 0, pos2 = 0;
-        if (!abMuster.isEmpty() && (pos1 = cont.indexOf(abMuster)) == -1) {
+//        int pos1 = 0, pos2 = 0, stopPos = 0;
+//        String str = "";
+        count = 0;
+        pos1 = abMuster.isEmpty() ? 0 : cont.indexOf(abMuster);
+        if (pos1 == -1) {
             return;
         }
-        int stopPos = bisMuster.isEmpty() ? -1 : cont.indexOf(bisMuster, pos1);
+
+        stopPos = bisMuster.isEmpty() ? -1 : cont.indexOf(bisMuster, pos1);
 
         while ((pos1 = cont.indexOf(musterStart1, pos1)) != -1) {
+            ++count;
+            if (count > 10_000) {
+                DebugMsg.print("Achtung");
+                break;
+            }
             pos1 += musterStart1.length();
 
             if (!musterStart2.isEmpty()) {
-                if ((pos1 = cont.indexOf(musterStart2, pos1)) == -1) {
+                if ((pos2 = cont.indexOf(musterStart2, pos1)) == -1) {
                     continue;
                 }
-                pos1 += musterStart2.length();
+                pos1 = pos2 + musterStart2.length();
             }
 
             if ((pos2 = cont.indexOf(musterEnde, pos1)) == -1) {
@@ -233,13 +245,16 @@ public class MSStringBuilder {
                 continue;
             }
 
-            String s = cont.substring(pos1, pos2);
-            if (s.isEmpty()) {
+            str = cont.substring(pos1, pos2);
+            if (str.isEmpty()) {
                 continue;
             }
-            s = addUrl + cont.substring(pos1, pos2);
-            if (!result.contains(s)) {
-                result.add(s);
+            str = addUrl + str;
+            if (!result.contains(str)) {
+                result.add(str);
+                if (result.size() > 1000) {
+                    DebugMsg.print("Achtung");
+                }
             }
         }
     }

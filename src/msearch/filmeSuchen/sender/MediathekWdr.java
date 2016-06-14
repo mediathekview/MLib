@@ -269,9 +269,12 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 sendungsSeite1 = getUrl.getUri_Utf(SENDERNAME, strUrl, sendungsSeite1, "");
                 sendungsSeite1.extractList("<ul class=\"pageCounterNavi\">", "</ul>", "<a href=\"/mediathek/video/sendungen/", "\"", "http://www1.wdr.de/mediathek/video/sendungen/", liste_1);
             }
-            liste_1.stream().forEach((u) -> {
+            for (String u : liste_1) {
+                if (MSConfig.getStop()) {
+                    break;
+                }
                 sendungsSeitenSuchen2(u);
-            });
+            }
         }
 
         private void sendungsSeitenSuchen2(String strUrl) {
@@ -350,6 +353,10 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             liste_2.clear();
             seite.extractList("Letzte Sendungen", "Neuer Abschnitt", "<a href=\"", "\"", "http://www1.wdr.de", liste_2);
             for (String ur : liste_2) {
+                if (MSConfig.getStop()) {
+                    break;
+                }
+
                 seite = getUrl.getUri_Utf(SENDERNAME, ur, seite, "");
                 if (seite.length() == 0) {
                     continue;

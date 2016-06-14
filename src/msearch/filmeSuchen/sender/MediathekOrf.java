@@ -180,6 +180,9 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             String thema;
             seite1.extractList("", "", URL, "\"", "", alSendung);
             for (String s : alSendung) {
+                if (MSConfig.getStop()) {
+                    break;
+                }
                 thema = "";
                 if (s.contains("/")) {
                     thema = s.substring(0, s.indexOf("/"));
@@ -199,6 +202,9 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             int count = 0, max = 3;
             seite1.extractList("", "", URL, "\"", "", alSendung);
             for (String s : alSendung) {
+                if (MSConfig.getStop()) {
+                    break;
+                }
                 if (!MSConfig.loadLongMax()) {
                     if (count > max) {
                         continue;
