@@ -22,24 +22,21 @@ package msearch.filmlisten;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.zip.ZipInputStream;
-import javax.swing.event.EventListenerList;
 import msearch.daten.DatenFilm;
 import msearch.daten.ListeFilme;
 import msearch.filmeSuchen.MSListenerFilmeLaden;
 import msearch.filmeSuchen.MSListenerFilmeLadenEvent;
-import msearch.tool.MSConfig;
-import msearch.tool.MSConst;
-import msearch.tool.MSLog;
+import msearch.tool.*;
 import org.tukaani.xz.XZInputStream;
+
+import javax.swing.event.EventListenerList;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.zip.ZipInputStream;
 
 public class MSFilmlisteLesen {
 
@@ -69,7 +66,7 @@ public class MSFilmlisteLesen {
         workMode = mode;
     }
 
-    private InputStream getInputStreamForLocation(String source) throws Exception {
+    private InputStream getInputStreamForLocation(String source) throws IOException,URISyntaxException {
         InputStream in;
         long size = 0;
         final URI uri;
@@ -83,7 +80,18 @@ public class MSFilmlisteLesen {
             if (conn.getResponseCode() < 400) {
                 size = conn.getContentLengthLong();
             }
-            in = new SizeInputStream(conn.getInputStream(), size, uri.toASCIIString());
+            in = new MVProgressMonitorInputStream(conn.getInputStream(), size, new MVInputStreamProgressMonitor() {
+                private int oldProgress = 0;
+
+                @Override
+                public void progress(long bytesRead, long size) {
+                    final int iProgress = (int) (bytesRead * 100 / size);
+                    if (iProgress != oldProgress) {
+                        oldProgress = iProgress;
+                        notifyProgress(uri.toASCIIString(), "Download", iProgress);
+                    }
+                }
+            });
         } else {
             //local file
             notifyProgress(source, "Download", PROGRESS_MAX);
@@ -263,71 +271,4 @@ public class MSFilmlisteLesen {
             l.fertig(new MSListenerFilmeLadenEvent(url, "", max, progress, 0, false));
         }
     }
-
-    @SuppressWarnings("NullableProblems")
-    private class SizeInputStream extends InputStream {
-
-        // The number of bytes that can be read from the InputStream
-        private final long size;
-        // The number of bytes that have been read from the InputStream
-        private long bytesRead = 0;
-
-        private InputStream in = null;
-        private long progress, oldProgress;
-        private final String from;
-
-        public SizeInputStream(InputStream in, long size, String from) {
-            this.in = in;
-            this.size = size;
-            this.from = from;
-        }
-
-        @Override
-        public void close() throws IOException {
-            in.close();
-        }
-
-        @Override
-        public int available() throws IOException {
-            return in.available();
-        }
-
-        @Override
-        public int read() throws IOException {
-            int b = in.read();
-            if (b != -1) {
-                bytesRead++;
-                progress();
-            }
-            return b;
-        }
-
-        @Override
-        public int read(byte[] b) throws IOException {
-            int read = in.read(b);
-            bytesRead += read;
-            progress();
-            return read;
-        }
-
-        @Override
-        public int read(byte[] b, int off, int len) throws IOException {
-            int read = in.read(b, off, len);
-            bytesRead += read;
-            progress();
-            return read;
-        }
-
-        private void progress() {
-            if (size > 0) {
-                // macht nur dann Sinn
-                progress = bytesRead * 100 / size;
-                if (progress != oldProgress) {
-                    oldProgress = progress;
-                    notifyProgress(from, "Download", (int) progress);
-                }
-            }
-        }
-    }
-
 }
