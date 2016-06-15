@@ -437,15 +437,15 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    public synchronized String getDateiGroesse(String url, String sender) {
-        // sucht in der Liste nach der URL und gibt die Dateigröße zurück
-        // oder versucht sie übers Web zu ermitteln
+    public synchronized String getFileSizeUrl(String url, String sender) {
+        // ist deutlich schneller als
+        // this.stream().filter(f -> f.arr[DatenFilm.FILM_URL_NR].equals(url)).filter(f -> !f.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()).findAny().get().arr[DatenFilm.FILM_GROESSE_NR];
         for (DatenFilm film : this) {
             if (film.arr[DatenFilm.FILM_URL_NR].equals(url)) {
                 if (!film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
                     return film.arr[DatenFilm.FILM_GROESSE_NR];
                 } else {
-                    return MSFileSize.laengeString(url, sender);
+                    break;
                 }
             }
         }

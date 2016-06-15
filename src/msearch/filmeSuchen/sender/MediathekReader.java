@@ -131,7 +131,7 @@ public class MediathekReader implements Runnable {
 
     void addFilm(DatenFilm film) {
         if (film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
-            film.arr[DatenFilm.FILM_GROESSE_NR] = mSearchFilmeSuchen.listeFilmeAlt.getDateiGroesse(film.arr[DatenFilm.FILM_URL_NR], film.arr[DatenFilm.FILM_SENDER_NR]);
+            film.arr[DatenFilm.FILM_GROESSE_NR] = mSearchFilmeSuchen.listeFilmeAlt.getFileSizeUrl(film.arr[DatenFilm.FILM_URL_NR], film.arr[DatenFilm.FILM_SENDER_NR]);
         }
         film.setUrlHistory();
         film.setGeo();

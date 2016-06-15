@@ -24,11 +24,6 @@ import java.util.ArrayList;
 public class MSStringBuilder {
 
     private final StringBuilder cont;
-    private int pos1 = 0;
-    private int pos2 = 0;
-    private int stopPos = 0;
-    private int count = 0;
-    private String str = "";
 
     public MSStringBuilder() {
         cont = new StringBuilder();
@@ -99,24 +94,8 @@ public class MSStringBuilder {
         return extract(musterStart1, musterStart2, musterEnde, 0, 0, addUrl);
     }
 
-//    public String extract(String musterStart, String musterEnde, int abPos, String addUrl) {
-//        return extract(musterStart, "", musterEnde, abPos, 0, addUrl);
-//    }
-//    public String extract(String musterStart1, String musterStart2, String musterEnde, int abPos) {
-//        return extract(musterStart1, musterStart2, musterEnde, abPos, 0, "");
-//    }
-//    public String extract(String musterStart1, String musterStart2, String musterStart3, String musterEnde, String addUrl) {
-//        int p = indexOf(musterStart1);
-//        if (p <= 0) {
-//            p = 0;
-//        }
-//        return extract(musterStart2, musterStart3, musterEnde, p, 0, addUrl);
-//    }
-//    public String extract(String musterStart1, String musterStart2, String musterEnde, int abPos, String bisMuster, String addUrl) {
-//        int bisPos = cont.indexOf(bisMuster, abPos);
-//        return extract(musterStart1, musterStart2, musterEnde, abPos, bisPos, addUrl);
-//    }
     public String extract(String musterStart1, String musterStart2, String musterEnde, int abPos, int bisPos, String addUrl) {
+        int pos1, pos2;
         if ((pos1 = cont.indexOf(musterStart1, abPos)) == -1) {
             return "";
         }
@@ -141,81 +120,19 @@ public class MSStringBuilder {
 
     public void extractList(String musterStart, String musterEnde, ArrayList<String> result) {
         extractList("", "", musterStart, "", musterEnde, "", result);
-//        try {
-//            pos1 = 0;
-//            while ((pos1 = cont.indexOf(musterStart, pos1)) != -1) {
-//                pos1 += musterStart.length();
-//                if ((pos2 = cont.indexOf(musterEnde, pos1)) != -1) {
-//                    result.add(cont.substring(pos1, pos2));
-//                    if (result.size() > 1000) {
-//                        System.out.println("Achtung");
-//                    }
-//                }
-//            }
-//        } catch (Exception ex) {
-//            MSLog.fehlerMeldung(741203025, ex);
-//        }
     }
 
     public void extractList(String musterStart1, String musterStart2, String musterEnde, ArrayList<String> result) {
         extractList("", "", musterStart1, musterStart2, musterEnde, "", result);
-//        try {
-//            pos1 = 0;
-//            while ((pos1 = cont.indexOf(musterStart1, pos1)) != -1) {
-//                pos1 += musterStart1.length();
-//                if ((pos2 = cont.indexOf(musterStart2, pos1)) != -1) {
-//                    pos2 += musterStart2.length();
-//                    int pos3;
-//                    if ((pos3 = cont.indexOf(musterEnde, pos2)) != -1) {
-//                        result.add(cont.substring(pos2, pos3));
-//                        if (result.size() > 1000) {
-//                            System.out.println("Achtung");
-//                        }
-//                    }
-//                }
-//            }
-//        } catch (Exception ex) {
-//            MSLog.fehlerMeldung(462310871, ex);
-//        }
     }
-    //    public void extractList(String musterStart, String musterEnde, int abPos, String addUrl, ArrayList<String> result) {
-    //        pos1 = abPos;
-    //        while ((pos1 = cont.indexOf(musterStart, pos1)) != -1) {
-    //            pos1 += musterStart.length();
-    //            if ((pos2 = cont.indexOf(musterEnde, pos1)) != -1) {
-    //                String s = addUrl + cont.substring(pos1, pos2);
-    //                if (!result.contains(s)) {
-    //                    result.add(s);
-    //                }
-    //            }
-    //        }
-    //    }
 
     public void extractList(String abMuster, String bisMuster, String musterStart, String musterEnde, String addUrl, ArrayList<String> result) {
         extractList(abMuster, bisMuster, musterStart, "", musterEnde, addUrl, result);
-//        if ((pos1 = cont.indexOf(abMuster)) != -1) {
-//            int stopPos = cont.indexOf(bisMuster); // bei "" -> 0
-//            while ((pos1 = cont.indexOf(musterStart, pos1)) != -1) {
-//                pos1 += musterStart.length();
-//                if ((pos2 = cont.indexOf(musterEnde, pos1)) != -1) {
-//                    if (stopPos <= 0 || pos2 < stopPos) {
-//                        String s = cont.substring(pos1, pos2);
-//                        if (!s.isEmpty()) {
-//                            s = addUrl + s;
-//                            if (!result.contains(s)) {
-//                                result.add(s);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
 
     public void extractList(String abMuster, String bisMuster, String musterStart1, String musterStart2, String musterEnde, String addUrl, ArrayList<String> result) {
-//        int pos1 = 0, pos2 = 0, stopPos = 0;
-//        String str = "";
-        count = 0;
+        int pos1, pos2, stopPos, count = 0;
+        String str;
         pos1 = abMuster.isEmpty() ? 0 : cont.indexOf(abMuster);
         if (pos1 == -1) {
             return;
@@ -245,10 +162,10 @@ public class MSStringBuilder {
                 continue;
             }
 
-            str = cont.substring(pos1, pos2);
-            if (str.isEmpty()) {
+            if ((str = cont.substring(pos1, pos2)).isEmpty()) {
                 continue;
             }
+
             str = addUrl + str;
             if (!result.contains(str)) {
                 result.add(str);
@@ -256,6 +173,7 @@ public class MSStringBuilder {
                     DebugMsg.print("Achtung");
                 }
             }
+
         }
     }
 
