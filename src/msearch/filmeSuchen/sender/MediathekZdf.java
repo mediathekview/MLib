@@ -287,7 +287,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         // manuell die Auflösung hochsetzen
         if (film.arr[DatenFilm.FILM_URL_NR].endsWith("1456k_p13v11.mp4")) {
             String url_ = film.arr[DatenFilm.FILM_URL_NR].substring(0, film.arr[DatenFilm.FILM_URL_NR].lastIndexOf("1456k_p13v11.mp4")) + "2256k_p14v11.mp4";
-            String l = mSFilmeSuchen.listeFilmeAlt.getDateiGroesse(url_, film.arr[DatenFilm.FILM_SENDER_NR]);
+            String l = mSFilmeSuchen.listeFilmeAlt.getFileSizeUrl(url_, film.arr[DatenFilm.FILM_SENDER_NR]);
             // zum Testen immer machen!!
             film.arr[DatenFilm.FILM_GROESSE_NR] = l;
             film.arr[DatenFilm.FILM_URL_NR] = url_;
@@ -296,7 +296,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         // manuell die Auflösung hochsetzen
         if (film.arr[DatenFilm.FILM_URL_NR].endsWith("1456k_p13v12.mp4")) {
             String url_ = film.arr[DatenFilm.FILM_URL_NR].substring(0, film.arr[DatenFilm.FILM_URL_NR].lastIndexOf("1456k_p13v12.mp4")) + "2256k_p14v12.mp4";
-            String l = mSFilmeSuchen.listeFilmeAlt.getDateiGroesse(url_, film.arr[DatenFilm.FILM_SENDER_NR]);
+            String l = mSFilmeSuchen.listeFilmeAlt.getFileSizeUrl(url_, film.arr[DatenFilm.FILM_SENDER_NR]);
             // zum Testen immer machen!!
             film.arr[DatenFilm.FILM_GROESSE_NR] = l;
             film.arr[DatenFilm.FILM_URL_NR] = url_;

@@ -225,8 +225,8 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         private MSStringBuilder sendungsSeite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder sendungsSeite4 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         MSStringBuilder m3u8Page = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private ArrayList<String> liste_1 = new ArrayList<>();
-        private ArrayList<String> liste_2 = new ArrayList<>();
+        private final ArrayList<String> liste_1 = new ArrayList<>();
+        private final ArrayList<String> liste_2 = new ArrayList<>();
 
         @Override
         public void run() {
@@ -234,16 +234,22 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 meldungAddThread();
                 String[] link;
                 while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
-                    if (ROCKPALAST_URL.equals(link[0])) {
-                        themenSeiteRockpalast();
-                    } else if (ROCKPALAST_FESTIVAL.equals(link[0])) {
-                        themenSeiteFestival();
-                    } else if (MAUS.equals(link[0])) {
-                        addFilmeMaus();
-                    } else if (ELEFANT.equals(link[0])) {
-                        addFilmeElefant();
-                    } else {
-                        sendungsSeitenSuchen1(link[0] /* url */);
+                    if (null != link[0]) switch (link[0]) {
+                        case ROCKPALAST_URL:
+                            themenSeiteRockpalast();
+                            break;
+                        case ROCKPALAST_FESTIVAL:
+                            themenSeiteFestival();
+                            break;
+                        case MAUS:
+                            addFilmeMaus();
+                            break;
+                        case ELEFANT:
+                            addFilmeElefant();
+                            break;
+                        default:
+                            sendungsSeitenSuchen1(link[0] /* url */);
+                            break;
                     }
                     meldungProgress(link[0]);
                 }
