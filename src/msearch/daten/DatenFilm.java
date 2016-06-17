@@ -42,9 +42,9 @@ import msearch.tool.MSLong;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 
-    private static GermanStringSorter sorter = GermanStringSorter.getInstance();
-    private static SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyyHH:mm:ss");
-    private static SimpleDateFormat sdf_datum = new SimpleDateFormat("dd.MM.yyyy");
+    private static final GermanStringSorter sorter = GermanStringSorter.getInstance();
+    private static final SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyyHH:mm:ss");
+    private static final SimpleDateFormat sdf_datum = new SimpleDateFormat("dd.MM.yyyy");
     public static final String AUFLOESUNG_NORMAL = "normal";
     public static final String AUFLOESUNG_HD = "hd";
     public static final String AUFLOESUNG_KLEIN = "klein";
@@ -115,7 +115,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String FILM_REF = "Ref"; // Referenz auf this
     public static final int FILM_REF_NR = 25;
     public static final int MAX_ELEM = 26;
-    public String[] arr = new String[]{
+    public final String[] arr = new String[]{
         "", "", "", "", "", "", "", "", "", "",
         "", "", "", "", "", "", "", "", "", "",
         "", "", "", "", "", ""}; //ist einen Tick schneller, hoffentlich :)

@@ -177,7 +177,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         int size = listeEinsortieren.size();
 
         HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
-        Iterator<DatenFilm> it;
+        //Iterator<DatenFilm> it;
 
         // ==============================================
         // nach "Thema-Titel" suchen

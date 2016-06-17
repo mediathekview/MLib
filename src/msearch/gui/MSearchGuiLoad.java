@@ -42,18 +42,14 @@ public class MSearchGuiLoad {
             @Override
             public synchronized void start(MSListenerFilmeLadenEvent event) {
                 for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-                    Platform.runLater(() -> {
-                        l.start(event);
-                    });
+                    Platform.runLater(() -> l.start(event));
                 }
             }
 
             @Override
             public synchronized void progress(MSListenerFilmeLadenEvent event) {
                 for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-                    Platform.runLater(() -> {
-                        l.progress(event);
-                    });
+                    Platform.runLater(() -> l.progress(event));
                 }
             }
 
@@ -63,9 +59,7 @@ public class MSearchGuiLoad {
                 Data.listeFilme = msFilmeSuchen.listeFilmeNeu;
                 istAmLaufen = false;
                 for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-                    Platform.runLater(() -> {
-                        l.fertig(event);
-                    });
+                    Platform.runLater(() -> l.fertig(event));
                 }
                 System.gc();
             }
