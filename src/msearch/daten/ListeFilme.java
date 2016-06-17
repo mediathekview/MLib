@@ -272,7 +272,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
     private synchronized boolean addOld(DatenFilm film) {
         ++treffer;
-//        film.arr[DatenFilm.FILM_THEMA_NR] = "ALT__" + film.arr[DatenFilm.FILM_THEMA_NR];
         film.init();
         return add(film);
     }
@@ -439,7 +438,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
     public synchronized String getFileSizeUrl(String url, String sender) {
         // ist deutlich schneller als
-        // this.stream().filter(f -> f.arr[DatenFilm.FILM_URL_NR].equals(url)).filter(f -> !f.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()).findAny().get().arr[DatenFilm.FILM_GROESSE_NR];
+        // return this.parallelStream().filter(f -> f.arr[DatenFilm.FILM_URL_NR].equals(url)).filter(f -> !f.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()).findAny().get().arr[DatenFilm.FILM_GROESSE_NR];
         for (DatenFilm film : this) {
             if (film.arr[DatenFilm.FILM_URL_NR].equals(url)) {
                 if (!film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
