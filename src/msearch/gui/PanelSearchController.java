@@ -123,9 +123,7 @@ public class PanelSearchController implements Initializable {
             mSearchGuiLoad.filmeBeimSenderSuchen(true);
         }).start());
 
-        btnLog.setOnAction(e -> {
-            writeLog();
-        });
+        btnLog.setOnAction(e -> writeLog());
 
         senderArray = MSearchGuiLoad.getSenderNamen();
         buttonSender = new Button[senderArray.length];
