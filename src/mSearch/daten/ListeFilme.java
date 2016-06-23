@@ -1,0 +1,835 @@
+/*
+ * MediathekView
+ * Copyright (C) 2008 W. Xaver
+ * W.Xaver[at]googlemail.com
+ * http://zdfmediathk.sourceforge.net/
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+package mSearch.daten;
+
+import mSearch.tool.MSConfig;
+import mSearch.tool.MSFunktionen;
+import mSearch.tool.MSConst;
+import mSearch.tool.MSLog;
+import mSearch.tool.MSFileSize;
+import mSearch.filmeSuchen.sender.MediathekZdf;
+import mSearch.filmeSuchen.sender.MediathekSr;
+import mSearch.filmeSuchen.sender.MediathekHr;
+import mSearch.filmeSuchen.sender.MediathekWdr;
+import mSearch.filmeSuchen.sender.MediathekRbb;
+import mSearch.filmeSuchen.sender.MediathekBr;
+import mSearch.filmeSuchen.sender.MediathekMdr;
+import mSearch.filmeSuchen.sender.MediathekSwr;
+import mSearch.filmeSuchen.sender.MediathekNdr;
+import mSearch.filmeSuchen.sender.MediathekOrf;
+import mSearch.filmeSuchen.sender.MediathekKika;
+import mSearch.filmeSuchen.sender.MediathekArte_de;
+import mSearch.filmeSuchen.sender.MediathekArd;
+import mSearch.filmeSuchen.sender.Mediathek3Sat;
+import java.security.MessageDigest;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class ListeFilme extends ArrayList<DatenFilm> {
+
+    public static final String THEMA_LIVE = "Livestream";
+    //Tags Infos Filmliste, erste Zeile der .filme-Datei
+    public static final String FILMLISTE = "Filmliste";
+    public static final String FILMLISTE_DATUM = "Filmliste-Datum";
+    public static final int FILMLISTE_DATUM_NR = 0;
+    public static final String FILMLISTE_DATUM_GMT = "Filmliste-Datum-GMT";
+    public static final int FILMLISTE_DATUM_GMT_NR = 1;
+    public static final String FILMLISTE_VERSION = "Filmliste-Version";
+    public static final int FILMLISTE_VERSION_NR = 2;
+    public static final String FILMLISTE_PROGRAMM = "Filmliste-Programm";
+    public static final int FILMLISTE_PRGRAMM_NR = 3;
+    public static final String FILMLISTE_ID = "Filmliste-Id";
+    public static final int FILMLISTE_ID_NR = 4;
+    public static final int MAX_ELEM = 5;
+    public static final String[] COLUMN_NAMES = {FILMLISTE_DATUM, FILMLISTE_DATUM_GMT, FILMLISTE_VERSION, FILMLISTE_PROGRAMM, FILMLISTE_ID};
+    public int nr = 1;
+    public String[] metaDaten = new String[]{"", "", "", "", ""};
+    private final static String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
+    private final static String DATUM_ZEIT_FORMAT_REV = "yyyy.MM.dd__HH:mm";
+    SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+    public String[] sender = {""};
+    public String[][] themenPerSender = {{""}};
+    public boolean neueFilme = false;
+
+    public synchronized boolean importFilmliste(DatenFilm film) {
+        // hier nur beim Laden aus einer fertigen Filmliste mit der GUI
+        // die Filme sind schon sortiert, nur die Nummer muss noch ergänzt werden
+        film.nr = nr++;
+        return addInit(film);
+    }
+
+    public synchronized boolean addFilmVomSender(DatenFilm film) {
+        // Filme die beim Sender gesucht wurden (und nur die) hier eintragen, nur für die MediathekReader!!
+        // ist: "Sender-Thema-URL" schon vorhanden, wird sie verworfen
+
+        MSFunktionen.unescape(film);
+
+        // erst mal schauen obs das schon gibt
+        final String idx = film.getIndex();
+        for (DatenFilm datenFilm : this) {
+            if (datenFilm.getIndex().equals(idx)) {
+                return false;
+            }
+        }
+        return addInit(film);
+    }
+
+    public synchronized void updateListe(ListeFilme listeEinsortieren, boolean index /* Vergleich über Index, sonst nur URL */, boolean ersetzen) {
+        // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
+        // es werden nur Filme die noch nicht vorhanden sind, einsortiert
+        // "ersetzen": true: dann werden gleiche (index/URL) in der Liste durch neue ersetzt
+        final HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
+
+        if (ersetzen) {
+            // ==========================================
+            for (DatenFilm f : listeEinsortieren) {
+                if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
+                    // beim KIKA ändern sich die URLs laufend
+                    hash.add(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR]);
+                } else if (index) {
+                    hash.add(f.getIndex());
+                } else {
+                    hash.add(DatenFilm.getUrl(f));
+                }
+            }
+
+            Iterator<DatenFilm> it = this.iterator();
+            while (it.hasNext()) {
+                DatenFilm f = it.next();
+                if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
+                    // beim KIKA ändern sich die URLs laufend
+                    if (hash.contains(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR])) {
+                        it.remove();
+                    }
+                } else if (index) {
+                    if (hash.contains(f.getIndex())) {
+                        it.remove();
+                    }
+                } else {
+                    if (hash.contains(DatenFilm.getUrl(f))) {
+                        it.remove();
+                    }
+                }
+            }
+
+            listeEinsortieren.forEach(this::addInit);
+        } else {
+            // ==============================================
+            for (DatenFilm f : this) {
+                if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
+                    // beim KIKA ändern sich die URLs laufend
+                    hash.add(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR]);
+                } else if (index) {
+                    hash.add(f.getIndex());
+                } else {
+                    hash.add(DatenFilm.getUrl(f));
+                }
+            }
+
+            for (DatenFilm f : listeEinsortieren) {
+                if (f.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekKika.SENDERNAME)) {
+                    if (!hash.contains(f.arr[DatenFilm.FILM_THEMA_NR] + f.arr[DatenFilm.FILM_TITEL_NR])) {
+                        addInit(f);
+                    }
+                } else if (index) {
+                    if (!hash.contains(f.getIndex())) {
+                        addInit(f);
+                    }
+                } else {
+                    if (!hash.contains(DatenFilm.getUrl(f))) {
+                        addInit(f);
+                    }
+                }
+            }
+        }
+        hash.clear();
+    }
+
+    public synchronized void addLive(ListeFilme listeEinsortieren) {
+        // live-streams einfügen, es werde die vorhandenen ersetzt!
+
+        if (listeEinsortieren.size() <= 0) {
+            //dann wars wohl nix
+            return;
+        }
+
+        Iterator<DatenFilm> it = this.iterator();
+        while (it.hasNext()) {
+            DatenFilm f = it.next();
+            if (f.arr[DatenFilm.FILM_THEMA_NR].equals(ListeFilme.THEMA_LIVE)) {
+                it.remove();
+            }
+        }
+        listeEinsortieren.forEach(this::add);
+    }
+
+    final int COUNTER_MAX = 20;
+    int counter = 0;
+    int treffer = 0;
+
+    public synchronized int updateListeOld(ListeFilme listeEinsortieren) {
+        // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
+        // es werden nur Filme die noch nicht vorhanden sind, einsortiert
+        counter = 0;
+        treffer = 0;
+        int size = listeEinsortieren.size();
+
+        HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
+        //Iterator<DatenFilm> it;
+
+        // ==============================================
+        // nach "Thema-Titel" suchen
+        this.stream().forEach((f) -> hash.add(f.getIndexAddOld()));
+        listeEinsortieren.removeIf((f) -> hash.contains(f.getIndexAddOld()));
+        hash.clear();
+
+//        it = listeEinsortieren.iterator();
+//        while (it.hasNext()) {
+//            if (hash.contains(it.next().getIndexAddOld())) {
+//                it.remove();
+//            }
+//        }
+//        hash.clear();
+        MSLog.systemMeldung("===== Liste einsortieren Hash =====");
+        MSLog.systemMeldung("Liste einsortieren, Anzahl: " + size);
+        MSLog.systemMeldung("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
+        MSLog.systemMeldung("Liste einsortieren, noch einsortieren: " + listeEinsortieren.size());
+        MSLog.systemMeldung("");
+        size = listeEinsortieren.size();
+
+        // ==============================================
+        // nach "URL" suchen
+        this.stream().forEach((f) -> hash.add(DatenFilm.getUrl(f)));
+        listeEinsortieren.removeIf((f) -> hash.contains(DatenFilm.getUrl(f)));
+        hash.clear();
+
+//        it = listeEinsortieren.iterator();
+//        while (it.hasNext()) {
+//            DatenFilm f = it.next();
+//            if (hash.contains(DatenFilm.getUrl(f))) {
+//                it.remove();
+//            }
+//        }
+//        hash.clear();
+        MSLog.systemMeldung("===== Liste einsortieren URL =====");
+        MSLog.systemMeldung("Liste einsortieren, Anzahl: " + size);
+        MSLog.systemMeldung("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
+        MSLog.systemMeldung("Liste einsortieren, noch einsortieren: " + listeEinsortieren.size());
+        MSLog.systemMeldung("");
+        size = listeEinsortieren.size();
+
+        // Rest nehmen wir wenn noch online
+        for (int i = 0; i < COUNTER_MAX; ++i) {
+            new Thread(new AddOld(listeEinsortieren)).start();
+        }
+        int count = 0;
+        while (!MSConfig.getStop() && counter > 0) {
+            try {
+                System.out.println("s: " + 2 * (count++) + "  Liste: " + listeEinsortieren.size() + "  Treffer: " + treffer + "   Threads: " + counter);
+                wait(2000);
+            } catch (InterruptedException ignored) {
+            }
+        }
+        MSLog.systemMeldung("===== Liste einsortieren: Noch online =====");
+        MSLog.systemMeldung("Liste einsortieren, Anzahl: " + size);
+        MSLog.systemMeldung("Liste einsortieren, entfernt: " + (size - treffer));
+        MSLog.systemMeldung("");
+        MSLog.systemMeldung("In Liste einsortiert: " + treffer);
+        MSLog.systemMeldung("");
+        return treffer;
+    }
+
+    private class AddOld implements Runnable {
+
+        private DatenFilm film;
+        private final ListeFilme listeOld;
+
+        public AddOld(ListeFilme listeOld) {
+            this.listeOld = listeOld;
+            ++counter;
+        }
+
+        @Override
+        public void run() {
+            while ((film = popOld(listeOld)) != null) {
+                String size = MSFileSize.laengeString(film.arr[DatenFilm.FILM_URL_NR]);
+                if (!size.isEmpty()) {
+                    addOld(film);
+                }
+            }
+            --counter;
+        }
+    }
+
+    private synchronized DatenFilm popOld(ListeFilme listeOld) {
+        if (listeOld.size() > 0) {
+            return listeOld.remove(0);
+        }
+        return null;
+    }
+
+    private synchronized boolean addOld(DatenFilm film) {
+        ++treffer;
+        film.init();
+        return add(film);
+    }
+
+    private boolean addInit(DatenFilm film) {
+        film.init();
+        return add(film);
+    }
+
+    @Override
+    public synchronized void clear() {
+        nr = 1;
+        neueFilme = false;
+        super.clear();
+    }
+
+    public void cleanList() {
+        // für den BR: alle Filme mit Thema "BR" die es auch in einem anderen Thema gibt löschen
+        // wird vorerst nicht verwendet: findet nur ~200 Filme von über 3000
+        int count = 0;
+        final SimpleDateFormat sdfClean = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+        MSLog.systemMeldung("cleanList start: " + sdfClean.format(System.currentTimeMillis()));
+        ListeFilme tmp = this.stream().filter(datenFilm -> datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekBr.SENDERNAME))
+                .filter(datenFilm -> datenFilm.arr[DatenFilm.FILM_THEMA_NR].equals(MediathekBr.SENDERNAME))
+                .collect(Collectors.toCollection(ListeFilme::new));
+
+        for (DatenFilm tFilm : tmp) {
+            for (DatenFilm datenFilm : this) {
+                if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekBr.SENDERNAME)) {
+                    if (!datenFilm.arr[DatenFilm.FILM_THEMA_NR].equals(MediathekBr.SENDERNAME)) {
+                        if (datenFilm.arr[DatenFilm.FILM_URL_NR].equals(tFilm.arr[DatenFilm.FILM_URL_NR])) {
+                            this.remove(tFilm);
+                            ++count;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        tmp.clear();
+
+        MSLog.systemMeldung("cleanList stop: " + sdfClean.format(System.currentTimeMillis()));
+        MSLog.systemMeldung("cleanList count: " + count);
+    }
+
+    public synchronized void check() {
+        // zum Debuggen
+        for (DatenFilm film : this) {
+            film.arr[DatenFilm.FILM_THEMA_NR] = MSFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
+            film.arr[DatenFilm.FILM_TITEL_NR] = MSFunktionen.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
+            String s = film.arr[DatenFilm.FILM_BESCHREIBUNG_NR];
+            film.arr[DatenFilm.FILM_BESCHREIBUNG_NR] = MSFunktionen.removeHtml(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR]);
+            if (!s.equals(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR])) {
+                System.out.println("---------------------");
+                System.out.println(s);
+                System.out.println(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR]);
+            }
+            s = film.arr[DatenFilm.FILM_THEMA_NR];
+            film.arr[DatenFilm.FILM_THEMA_NR] = MSFunktionen.removeHtml(film.arr[DatenFilm.FILM_THEMA_NR]);
+            if (!s.equals(film.arr[DatenFilm.FILM_THEMA_NR])) {
+                System.out.println("---------------------");
+                System.out.println(s);
+                System.out.println(film.arr[DatenFilm.FILM_THEMA_NR]);
+            }
+            s = film.arr[DatenFilm.FILM_TITEL_NR];
+            film.arr[DatenFilm.FILM_TITEL_NR] = MSFunktionen.removeHtml(film.arr[DatenFilm.FILM_TITEL_NR]);
+            if (!s.equals(film.arr[DatenFilm.FILM_TITEL_NR])) {
+                System.out.println("---------------------");
+                System.out.println(s);
+                System.out.println(film.arr[DatenFilm.FILM_TITEL_NR]);
+            }
+            if (film.arr[DatenFilm.FILM_URL_NR].contains(" ")) {
+                System.out.println(film.arr[DatenFilm.FILM_URL_NR]);
+            }
+        }
+    }
+
+    public synchronized void nurDoppelteAnzeigen(boolean index) {
+        // zum Debuggen: URLs die doppelt sind, in die History eintragen
+        // damit sie markiert werden
+        DatenFilm film;
+        HashSet<String> hashDoppelt = new HashSet<>();
+        HashSet<String> hash = new HashSet<>();
+        Iterator<DatenFilm> it = this.iterator();
+        while (it.hasNext()) {
+            film = it.next();
+            if (index) {
+                if (!hash.contains(film.getIndex())) {
+                    hash.add(film.getIndex());
+                } else {
+                    // dann ist er mind. doppelt in der Liste
+                    hashDoppelt.add(film.arr[DatenFilm.FILM_URL_NR]);
+                }
+            } else {
+                if (!hash.contains(film.arr[DatenFilm.FILM_URL_NR])) {
+                    hash.add(film.arr[DatenFilm.FILM_URL_NR]);
+                } else {
+                    // dann ist er mind. doppelt in der Liste
+                    hashDoppelt.add(film.arr[DatenFilm.FILM_URL_NR]);
+                }
+            }
+        }
+        it = this.iterator();
+        while (it.hasNext()) {
+            if (!hashDoppelt.contains(it.next().arr[DatenFilm.FILM_URL_NR])) {
+                it.remove();
+            }
+        }
+        hash.clear();
+        hashDoppelt.clear();
+    }
+
+    public synchronized void sort() {
+        Collections.sort(this);
+        // und jetzt noch die Nummerierung in Ordnung bringen
+        int i = 1;
+        for (DatenFilm film : this) {
+            film.nr = i++;
+        }
+    }
+
+    public synchronized void setMeta(ListeFilme listeFilme) {
+        System.arraycopy(listeFilme.metaDaten, 0, metaDaten, 0, MAX_ELEM);
+    }
+
+    public synchronized DatenFilm istInFilmListe(String sender, String thema, String titel) {
+        // prüfen ob es den Film schon gibt
+        // und sich evtl. nur die URL geändert hat
+        for (DatenFilm film : this) {
+            if (film.arr[DatenFilm.FILM_SENDER_NR].equals(sender)
+                    && film.arr[DatenFilm.FILM_THEMA_NR].equalsIgnoreCase(thema)
+                    && film.arr[DatenFilm.FILM_TITEL_NR].equalsIgnoreCase(titel)) {
+                return film;
+            }
+        }
+        return null;
+    }
+
+    public synchronized ListeFilme neueFilme(ListeFilme orgListe) {
+        // Funktion liefert eine Liste mit Filmen
+        // die im Vergleich zur Liste "orgListe"
+        // neu sind, also ein Diff mit nur den neuen Filmen in DIESER Liste
+        ListeFilme ret = new ListeFilme();
+        final HashSet<String> hashSet = new HashSet<>(orgListe.size() + 1, 1);
+
+        for (DatenFilm film : orgListe) {
+            final String s = film.arr[DatenFilm.FILM_SENDER_NR] + film.arr[DatenFilm.FILM_THEMA_NR] + film.arr[DatenFilm.FILM_TITEL_NR] + film.arr[DatenFilm.FILM_URL_NR];
+            hashSet.add(s);
+        }
+
+        for (DatenFilm film : this) {
+            final String s = film.arr[DatenFilm.FILM_SENDER_NR] + film.arr[DatenFilm.FILM_THEMA_NR] + film.arr[DatenFilm.FILM_TITEL_NR] + film.arr[DatenFilm.FILM_URL_NR];
+            if (!hashSet.contains(s)) {
+                ret.add(film);
+            }
+        }
+
+        hashSet.clear();
+
+        ret.metaDaten = metaDaten;
+        return ret;
+    }
+
+    public synchronized String getFileSizeUrl(String url, String sender) {
+        // ist deutlich schneller als
+        // return this.parallelStream().filter(f -> f.arr[DatenFilm.FILM_URL_NR].equals(url)).filter(f -> !f.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()).findAny().get().arr[DatenFilm.FILM_GROESSE_NR];
+        for (DatenFilm film : this) {
+            if (film.arr[DatenFilm.FILM_URL_NR].equals(url)) {
+                if (!film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
+                    return film.arr[DatenFilm.FILM_GROESSE_NR];
+                } else {
+                    break;
+                }
+            }
+        }
+        // dann ist der Film nicht in der Liste
+        return MSFileSize.laengeString(url, sender);
+    }
+
+    /**
+     * Count the number of films belonging to a sender.
+     *
+     * @param sender The sender name.
+     * @return Number of films.
+     */
+    public synchronized int countSender(final String sender) {
+        int ret = 0;
+        for (DatenFilm film : this) {
+            if (film.arr[DatenFilm.FILM_SENDER_NR].equalsIgnoreCase(sender)) {
+                ret++;
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Delete all films from specified sender.
+     *
+     * @param sender Sender which films are to be deleted.
+     */
+    public synchronized void deleteAllFilms(String sender) {
+        DatenFilm film;
+        ListIterator<DatenFilm> it = this.listIterator(0);
+        while (it.hasNext()) {
+            film = it.next();
+            if (film.arr[DatenFilm.FILM_SENDER_NR].equalsIgnoreCase(sender)) {
+                it.remove();
+            }
+        }
+    }
+
+    public synchronized void liveStreamEintragen() {
+        // ARD
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, "", "http://daserste_live-lh.akamaihd.net/i/daserste_de@91204/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, " Alpha", "http://livestreams.br.de/i/bralpha_germany@119899/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, " Tagesschau", "http://tagesschau-lh.akamaihd.net/i/tagesschau_1@119231/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+
+        // BR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekBr.SENDERNAME, "", "http://livestreams.br.de/i/bfsnord_germany@119898/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // ARTE
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArte_de.SENDERNAME, "", "http://delive.artestras.cshls.lldns.net/artestras/contrib/delive.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // HR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekHr.SENDERNAME, "", "http://live1_hr-lh.akamaihd.net/i/hr_fernsehen@75910/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // KiKa
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekKika.SENDERNAME, "", "http://kika_geo-lh.akamaihd.net/i/livetvkika_de@75114/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // MDR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekMdr.SENDERNAME, "", "http://mdr_th_hls-lh.akamaihd.net/i/livetvmdrthueringen_de@106903/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // NDR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekNdr.SENDERNAME, "", "http://ndr_fs-lh.akamaihd.net/i/ndrfs_nds@119224/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // RBB
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekRbb.SENDERNAME, "", "http://rbb_live-lh.akamaihd.net/i/rbb_brandenburg@107638/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // SR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekSr.SENDERNAME, "", "http://live2_sr-lh.akamaihd.net/i/sr_universal02@107595/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // SWR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekSwr.SENDERNAME, "", "http://swrbw-lh.akamaihd.net/i/swrbw_live@196738/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // WDR
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekWdr.SENDERNAME, "", "http://wdr_fs_geo-lh.akamaihd.net/i/wdrfs_geogeblockt@112044/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+        // 3sat
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Mediathek3Sat.SENDERNAME, "", "http://zdf0910-lh.akamaihd.net/i/dach10_v1@392872/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+
+        // ZDF
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, "", "http://zdf1314-lh.akamaihd.net/i/de14_v1@392878/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".info", "http://zdf1112-lh.akamaihd.net/i/de12_v1@392882/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".neo", "http://zdf1314-lh.akamaihd.net/i/de13_v1@392877/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".kultur", "http://zdf1112-lh.akamaihd.net/i/de11_v1@392881/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".heute", "http://zdf0102-lh.akamaihd.net/i/none01_v1@392849/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+
+        // ORF
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-1", "http://apasfiisl.apa.at/ipad/orf1_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-2", "http://apasfiisl.apa.at/ipad/orf2_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-3", "http://apasfiisl.apa.at/ipad/orf3_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
+
+        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-Sport", "http://apasfiisl.apa.at/ipad/orfs_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
+
+    }
+
+    public synchronized DatenFilm getFilmByUrl(final String url) {
+        for (DatenFilm film : this) {
+            if (film.arr[DatenFilm.FILM_URL_NR].equalsIgnoreCase(url)) {
+                return film;
+            }
+        }
+        return null;
+    }
+
+    public synchronized void checkThema(String sender, LinkedList<String> liste, String thema) {
+        this.stream().filter(film -> film.arr[DatenFilm.FILM_SENDER_NR].equals(sender))
+                .filter(film -> !film.arr[DatenFilm.FILM_THEMA_NR].equals(ListeFilme.THEMA_LIVE)
+                        && !liste.contains(film.arr[DatenFilm.FILM_THEMA_NR]))
+                .forEach(film -> film.arr[DatenFilm.FILM_THEMA_NR] = thema);
+    }
+
+    public synchronized void getThema(String sender, LinkedList<String> liste) {
+        this.stream().filter(film -> film.arr[DatenFilm.FILM_SENDER_NR].equals(sender))
+                .filter(film -> !liste.contains(film.arr[DatenFilm.FILM_THEMA_NR]))
+                .forEach(film -> liste.add(film.arr[DatenFilm.FILM_THEMA_NR]));
+    }
+
+    public synchronized DatenFilm getFilmByUrl_klein_hoch_hd(String url) {
+        // Problem wegen gleicher URLs
+        // wird versucht, einen Film mit einer kleinen/Hoher/HD-URL zu finden
+        DatenFilm ret = null;
+        for (DatenFilm f : this) {
+            if (f.arr[DatenFilm.FILM_URL_NR].equals(url)) {
+                ret = f;
+                break;
+            } else if (f.getUrlFuerAufloesung(DatenFilm.AUFLOESUNG_HD).equals(url)) {
+                ret = f;
+                break;
+            } else if (f.getUrlFuerAufloesung(DatenFilm.AUFLOESUNG_KLEIN).equals(url)) {
+                ret = f;
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+    public synchronized String genDate() {
+        // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
+        // in der Form "dd.MM.yyyy, HH:mm"
+        String ret;
+        SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+        String date;
+        if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
+            // noch eine alte Filmliste
+            ret = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
+        } else {
+            date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
+            sdf_.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+            Date filmDate = null;
+            try {
+                filmDate = sdf_.parse(date);
+            } catch (ParseException ignored) {
+            }
+            if (filmDate == null) {
+                ret = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
+            } else {
+                SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+                ret = formatter.format(filmDate);
+            }
+        }
+        return ret;
+    }
+
+    public synchronized String getId() {
+        // liefert die ID einer Filmliste
+        return metaDaten[ListeFilme.FILMLISTE_ID_NR];
+    }
+
+    public synchronized String genDateRev() {
+        // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
+        // in der Form "yyyy.MM.dd__HH:mm"
+        String ret;
+        SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+        String date;
+        if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
+            // noch eine alte Filmliste
+            ret = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
+        } else {
+            date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
+            sdf_.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+            Date filmDate = null;
+            try {
+                filmDate = sdf_.parse(date);
+            } catch (ParseException ignored) {
+            }
+            if (filmDate == null) {
+                ret = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
+            } else {
+                SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT_REV);
+                ret = formatter.format(filmDate);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Get the age of the film list.
+     *
+     * @return Age in seconds.
+     */
+    public synchronized int getAge() {
+        int ret = 0;
+        Date now = new Date(System.currentTimeMillis());
+        Date filmDate = getAgeAsDate();
+        if (filmDate != null) {
+            ret = Math.round((now.getTime() - filmDate.getTime()) / (1000));
+            if (ret < 0) {
+                ret = 0;
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Get the age of the film list.
+     *
+     * @return Age as a {@link java.util.Date} object.
+     */
+    public synchronized Date getAgeAsDate() {
+        String date;
+        if (!metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].isEmpty()) {
+            date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
+            sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+        } else {
+            date = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
+        }
+        Date filmDate = null;
+        try {
+            filmDate = sdf.parse(date);
+        } catch (ParseException ignored) {
+        }
+
+        return filmDate;
+    }
+
+    /**
+     * Check if available Filmlist is older than a specified value.
+     *
+     * @return true if too old or if the list is empty.
+     */
+    public synchronized boolean isTooOld() {
+        return (isEmpty()) || (isOlderThan(MSConst.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE));
+    }
+
+    /**
+     * Check if Filmlist is too old for using a diff list.
+     *
+     * @return true if empty or too old.
+     */
+    public synchronized boolean isTooOldForDiff() {
+        if (isEmpty()) {
+            return true;
+        }
+        try {
+            final String dateMaxDiff_str = new SimpleDateFormat("yyyy.MM.dd__").format(new Date()) + MSConst.TIME_MAX_AGE_FOR_DIFF + ":00:00";
+            final Date dateMaxDiff = new SimpleDateFormat("yyyy.MM.dd__HH:mm:ss").parse(dateMaxDiff_str);
+            final Date dateFilmliste = getAgeAsDate();
+            if (dateFilmliste != null) {
+                return dateFilmliste.getTime() < dateMaxDiff.getTime();
+            }
+        } catch (Exception ignored) {
+        }
+        return true;
+    }
+
+    /**
+     * Check if list is older than specified parameter.
+     *
+     * @param sekunden The age in seconds.
+     * @return true if older.
+     */
+    public synchronized boolean isOlderThan(int sekunden) {
+        int ret = getAge();
+        if (ret != 0) {
+            MSLog.systemMeldung("Die Filmliste ist " + ret / 60 + " Minuten alt");
+        }
+        return ret > sekunden;
+    }
+
+    public synchronized void writeMetaData() {
+        for (int i = 0; i < metaDaten.length; ++i) {
+            metaDaten[i] = "";
+        }
+        metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = getJetzt_ddMMyyyy_HHmm();
+        metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = getJetzt_ddMMyyyy_HHmm_gmt();
+        metaDaten[ListeFilme.FILMLISTE_ID_NR] = createChecksum(metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR]);
+        metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSConst.VERSION_FILMLISTE;
+        metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = MSConst.PROGRAMMNAME + MSFunktionen.getProgVersionString() + " - Compiled: " + MSFunktionen.getCompileDate();
+    }
+
+    /**
+     * Create a checksum string as a unique identifier.
+     *
+     * @param input The base string for the checksum.
+     * @return MD5-hashed checksum string.
+     */
+    private String createChecksum(String input) {
+        StringBuilder sb = new StringBuilder();
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(input.getBytes());
+            byte[] digest = md.digest();
+            for (byte b : digest) {
+                sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
+            }
+        } catch (Exception ignored) {
+        }
+        return sb.toString();
+    }
+
+    private String getJetzt_ddMMyyyy_HHmm() {
+        SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+        return formatter.format(new Date());
+    }
+
+    private String getJetzt_ddMMyyyy_HHmm_gmt() {
+        SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+        formatter.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+        return formatter.format(new Date());
+    }
+
+    public long countNewFilms() {
+        return this.stream().filter(DatenFilm::isNew).count();
+    }
+
+    /**
+     * Erstellt ein StringArray der Themen eines Senders oder wenn "sender" leer, aller Sender.
+     * Ist für die Filterfelder in GuiFilme.
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized void themenLaden() {
+        TreeSet<String> senderSet = new TreeSet<>();
+        // der erste Sender ist ""
+        senderSet.add("");
+        // Sendernamen gibts nur in einer Schreibweise
+        // doppelte Einträge nicht hinzufügen.
+        for (DatenFilm film : this) {
+            final String str = film.arr[DatenFilm.FILM_SENDER_NR];
+            if (!senderSet.contains(str)) {
+                senderSet.add(str);
+            }
+        }
+        sender = senderSet.toArray(new String[senderSet.size()]);
+        senderSet.clear();
+
+        //für den Sender "" sind alle Themen im themenPerSender[0]
+        themenPerSender = new String[sender.length][];
+        TreeSet<String>[] tree = new TreeSet[sender.length];
+        HashSet<String>[] hashSet = new HashSet[sender.length];
+        for (int i = 0; i < tree.length; ++i) {
+            tree[i] = new TreeSet<>(mSearch.tool.GermanStringSorter.getInstance());
+            tree[i].add("");
+            hashSet[i] = new HashSet<>();
+        }
+
+        //alle Themen
+        String filmThema, filmSender;
+        for (DatenFilm film : this) {
+            filmSender = film.arr[DatenFilm.FILM_SENDER_NR];
+            filmThema = film.arr[DatenFilm.FILM_THEMA_NR];
+            //hinzufügen
+            if (!hashSet[0].contains(filmThema)) {
+                hashSet[0].add(filmThema);
+                tree[0].add(filmThema);
+            }
+            for (int i = 1; i < sender.length; ++i) {
+                if (filmSender.equals(sender[i])) {
+                    if (!hashSet[i].contains(filmThema)) {
+                        hashSet[i].add(filmThema);
+                        tree[i].add(filmThema);
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < themenPerSender.length; ++i) {
+            themenPerSender[i] = tree[i].toArray(new String[tree[i].size()]);
+            tree[i].clear();
+            hashSet[i].clear();
+        }
+    }
+}
