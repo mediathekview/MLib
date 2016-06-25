@@ -31,7 +31,7 @@ public class Main {
     public static void main(final String args[]) {
 
         java.awt.EventQueue.invokeLater(() -> {
-            MSLog.versionsMeldungen();
+            MSLog.startMeldungen();
             if (args != null) {
                 for (String s : args) {
                     if (s.equalsIgnoreCase("-gui")) {

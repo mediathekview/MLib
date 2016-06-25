@@ -67,10 +67,8 @@ public class MSLog {
 
     }
 
-    public static synchronized void versionsMeldungen() {
+    public static synchronized void versionsMeldungen(String progName) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        systemMeldung("");
-        systemMeldung("");
         systemMeldung("");
         systemMeldung("");
         systemMeldung("");
@@ -86,39 +84,42 @@ public class MSLog {
         systemMeldung("");
         systemMeldung("");
         systemMeldung("##################################################################################");
-        systemMeldung("##################################################################################");
         systemMeldung("Programmstart: " + sdf.format(startZeit));
         systemMeldung("##################################################################################");
-        systemMeldung("##################################################################################");
+        systemMeldung("");
         long totalMem = Runtime.getRuntime().totalMemory();
         systemMeldung("totalMemory: " + totalMem / (1000L * 1000L) + " MB");
         long maxMem = Runtime.getRuntime().maxMemory();
         systemMeldung("maxMemory: " + maxMem / (1000L * 1000L) + " MB");
         long freeMem = Runtime.getRuntime().freeMemory();
         systemMeldung("freeMemory: " + freeMem / (1000L * 1000L) + " MB");
+        systemMeldung("");
         systemMeldung("##################################################################################");
+        systemMeldung("");
         //Version
-        systemMeldung(MSConst.PROGRAMMNAME + MSFunktionen.getProgVersionString());
+        systemMeldung(progName + MSFunktionen.getProgVersionString());
         systemMeldung("Compiled: " + MSFunktionen.getCompileDate());
+        systemMeldung("");
         systemMeldung("##################################################################################");
+        systemMeldung("");
         systemMeldung("Java");
         String[] java = MSFunktionen.getJavaVersion();
         for (String ja : java) {
             MSLog.systemMeldung(ja);
         }
         systemMeldung("");
-        systemMeldung("");
     }
 
     public static synchronized void startMeldungen() {
         startZeit.setTime(System.currentTimeMillis());
-        versionsMeldungen();
+        versionsMeldungen(MSConst.PROGRAMMNAME);
         systemMeldung("##################################################################################");
+        systemMeldung("");
         systemMeldung("Programmpfad: " + MSFunktionen.getPathJar());
         systemMeldung("Filmliste: " + MSConfig.getPathFilmlist_json_akt(true /*aktDate*/));
         systemMeldung("Useragent: " + MSConfig.getUserAgent());
-        systemMeldung("##################################################################################");
         systemMeldung("");
+        systemMeldung("##################################################################################");
         systemMeldung("");
         if (MSConfig.loadLongMax()) {
             systemMeldung("Laden:  alles");
@@ -136,6 +137,7 @@ public class MSLog {
         if (MSConfig.nurSenderLaden != null) {
             systemMeldung("Nur Sender laden:  " + StringUtils.join(MSConfig.nurSenderLaden, ','));
         }
+        systemMeldung("");
         systemMeldung("##################################################################################");
     }
 

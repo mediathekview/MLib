@@ -22,22 +22,22 @@ package mSearch.tool;
 import java.io.File;
 import java.security.CodeSource;
 import java.util.ResourceBundle;
-import mSearch.Main;
+import mSearch.MSearch;
 import mSearch.daten.DatenFilm;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MSFunktionen {
 
-    public static final int OS_UNKNOWN = 0;
-    public static final int OS_WIN_32BIT = 1;
-    public static final int OS_WIN_64BIT = 2;
-    public static final int OS_LINUX = 3;
-    public static final int OS_MAC = 4;
-    public static final String OS_UNKNOWN_STRING = "";
-    public static final String OS_WIN_32BIT_STRING = "Windows";
-    public static final String OS_WIN_64BIT_STRING = "Windows";
-    public static final String OS_LINUX_STRING = "Linux";
-    public static final String OS_MAC_STRING = "Mac";
+//    public static final int OS_UNKNOWN = 0;
+//    public static final int OS_WIN_32BIT = 1;
+//    public static final int OS_WIN_64BIT = 2;
+//    public static final int OS_LINUX = 3;
+//    public static final int OS_MAC = 4;
+//    public static final String OS_UNKNOWN_STRING = "";
+//    public static final String OS_WIN_32BIT_STRING = "Windows";
+//    public static final String OS_WIN_64BIT_STRING = "Windows";
+//    public static final String OS_LINUX_STRING = "Linux";
+//    public static final String OS_MAC_STRING = "Mac";
 
     public static String getPathJar() {
         // liefert den Pfad der Programmdatei mit File.separator am Schluss
@@ -45,7 +45,7 @@ public class MSFunktionen {
         File propFile = new File(pFilePath);
         if (!propFile.exists()) {
             try {
-                CodeSource cS = Main.class.getProtectionDomain().getCodeSource();
+                CodeSource cS = MSearch.class.getProtectionDomain().getCodeSource();
                 File jarFile = new File(cS.getLocation().toURI().getPath());
                 String jarDir = jarFile.getParentFile().getPath();
                 propFile = new File(jarDir + File.separator + pFilePath);
@@ -115,35 +115,35 @@ public class MSFunktionen {
         film.arr[DatenFilm.FILM_TITEL_NR] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_TITEL_NR].trim());
     }
 
-    public static String utf8(String ret) {
-        ret = ret.replace("\\u0026", "&");
-        ret = ret.replace("\\u003C", "<");
-        ret = ret.replace("\\u003c", "<");
-        ret = ret.replace("\\u003E", ">");
-        ret = ret.replace("\\u003e", ">");
-        ret = ret.replace("\\u00E4", "ä");
-        ret = ret.replace("\\u00e4", "ä");
-        ret = ret.replace("\\u00C4", "Ä");
-        ret = ret.replace("\\u00c4", "Ä");
-        ret = ret.replace("\\u00F6", "ö");
-        ret = ret.replace("\\u00f6", "ö");
-        ret = ret.replace("\\u00D6", "Ö");
-        ret = ret.replace("\\u00d6", "Ö");
-        ret = ret.replace("\\u00FC", "ü");
-        ret = ret.replace("\\u00fc", "ü");
-        ret = ret.replace("\\u00DC", "Ü");
-        ret = ret.replace("\\u00dc", "Ü");
-        ret = ret.replace("\\u00DF", "ß");
-        ret = ret.replace("\\u00df", "ß");
-        ret = ret.replace("\\u20AC", "€");
-        ret = ret.replace("\\u20ac", "€");
-        ret = ret.replace("\\u0024", "$");
-        ret = ret.replace("\\u00A3", "£");
-        ret = ret.replace("\\u00a3", "£");
-        ret = ret.replace("\\u00F3", "\u00f3");
-        ret = ret.replace("\\u00f3", "\u00f3");
-        return ret;
-    }
+//    public static String utf8(String ret) {
+//        ret = ret.replace("\\u0026", "&");
+//        ret = ret.replace("\\u003C", "<");
+//        ret = ret.replace("\\u003c", "<");
+//        ret = ret.replace("\\u003E", ">");
+//        ret = ret.replace("\\u003e", ">");
+//        ret = ret.replace("\\u00E4", "ä");
+//        ret = ret.replace("\\u00e4", "ä");
+//        ret = ret.replace("\\u00C4", "Ä");
+//        ret = ret.replace("\\u00c4", "Ä");
+//        ret = ret.replace("\\u00F6", "ö");
+//        ret = ret.replace("\\u00f6", "ö");
+//        ret = ret.replace("\\u00D6", "Ö");
+//        ret = ret.replace("\\u00d6", "Ö");
+//        ret = ret.replace("\\u00FC", "ü");
+//        ret = ret.replace("\\u00fc", "ü");
+//        ret = ret.replace("\\u00DC", "Ü");
+//        ret = ret.replace("\\u00dc", "Ü");
+//        ret = ret.replace("\\u00DF", "ß");
+//        ret = ret.replace("\\u00df", "ß");
+//        ret = ret.replace("\\u20AC", "€");
+//        ret = ret.replace("\\u20ac", "€");
+//        ret = ret.replace("\\u0024", "$");
+//        ret = ret.replace("\\u00A3", "£");
+//        ret = ret.replace("\\u00a3", "£");
+//        ret = ret.replace("\\u00F3", "\u00f3");
+//        ret = ret.replace("\\u00f3", "\u00f3");
+//        return ret;
+//    }
 
     public static String cleanUnicode(String ret, String sonst) {
         String r = "";

@@ -60,12 +60,12 @@ public class MSearchGuiController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         Data.mSearchGuiController = this;
-        System.out.println(fxPanelSearch);
-        System.out.println(fxPanelSearchController);
-        System.out.println(fxPanelDel);
-        System.out.println(fxPanelDelController);
-        System.out.println(fxPanelTool);
-        System.out.println(fxPanelToolController);
+//        System.out.println(fxPanelSearch);
+//        System.out.println(fxPanelSearchController);
+//        System.out.println(fxPanelDel);
+//        System.out.println(fxPanelDelController);
+//        System.out.println(fxPanelTool);
+//        System.out.println(fxPanelToolController);
 
         initPanelGui();
     }
