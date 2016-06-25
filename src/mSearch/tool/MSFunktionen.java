@@ -19,6 +19,7 @@
  */
 package mSearch.tool;
 
+import com.jidesoft.utils.SystemInfo;
 import java.io.File;
 import java.security.CodeSource;
 import java.util.ResourceBundle;
@@ -28,17 +29,56 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MSFunktionen {
 
-//    public static final int OS_UNKNOWN = 0;
-//    public static final int OS_WIN_32BIT = 1;
-//    public static final int OS_WIN_64BIT = 2;
-//    public static final int OS_LINUX = 3;
-//    public static final int OS_MAC = 4;
-//    public static final String OS_UNKNOWN_STRING = "";
-//    public static final String OS_WIN_32BIT_STRING = "Windows";
-//    public static final String OS_WIN_64BIT_STRING = "Windows";
-//    public static final String OS_LINUX_STRING = "Linux";
-//    public static final String OS_MAC_STRING = "Mac";
 
+   public enum OperatingSystemType {
+
+        UNKNOWN(""), WIN32("Windows"), WIN64("Windows"), LINUX("Linux"), MAC("Mac");
+        private final String name;
+
+        OperatingSystemType(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    /**
+     * Detect and return the currently used operating system.
+     *
+     * @return The enum for supported Operating Systems.
+     */
+    public static OperatingSystemType getOs() {
+        OperatingSystemType os = OperatingSystemType.UNKNOWN;
+
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            if (System.getenv("ProgramFiles(x86)") != null) {
+                // win 64Bit
+                os = OperatingSystemType.WIN64;
+            } else if (System.getenv("ProgramFiles") != null) {
+                // win 32Bit
+                os = OperatingSystemType.WIN32;
+            }
+
+        } else if (SystemInfo.isLinux()) {
+            os = OperatingSystemType.LINUX;
+        } else if (System.getProperty("os.name").toLowerCase().contains("freebsd")) {
+            os = OperatingSystemType.LINUX;
+
+        } else if (SystemInfo.isMacOSX()) {
+            os = OperatingSystemType.MAC;
+        }
+        return os;
+    }
+
+    public static String getOsString() {
+        return getOs().toString();
+    }    
+    
+    
+    
     public static String getPathJar() {
         // liefert den Pfad der Programmdatei mit File.separator am Schluss
         String pFilePath = "pFile";
