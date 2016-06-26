@@ -42,7 +42,7 @@ import mSearch.filmeSuchen.MSListenerFilmeLaden;
 import mSearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 
 public class PanelSearchController implements Initializable {
 
@@ -180,14 +180,14 @@ public class PanelSearchController implements Initializable {
         String datei = "/tmp/testfile"; //////////////
         Date aktTime = new Date(System.currentTimeMillis());
         String aktTimeStr = sdf.format(aktTime);
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("Log schreiben: " + datei);
-        MSLog.systemMeldung("--> " + aktTimeStr);
+        Log.systemMeldung("");
+        Log.systemMeldung("Log schreiben: " + datei);
+        Log.systemMeldung("--> " + aktTimeStr);
         File file = new File(datei);
         File dir = new File(file.getParent());
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
-                MSLog.fehlerMeldung(632012165, "Kann den Pfad nicht anlegen: " + dir.toString());
+                Log.fehlerMeldung(632012165, "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
 
@@ -204,7 +204,7 @@ public class PanelSearchController implements Initializable {
                 out.write(s);
                 out.write("\n");
             }
-            ret = MSLog.fehlerMeldungen();
+            ret = Log.fehlerMeldungen();
             for (String s : ret) {
                 out.write(s);
                 out.write("\n");
@@ -221,9 +221,9 @@ public class PanelSearchController implements Initializable {
             out.write("\n");
             out.close();
 
-            MSLog.systemMeldung("--> geschrieben!");
+            Log.systemMeldung("--> geschrieben!");
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(846930145, ex, "nach: " + datei);
+            Log.fehlerMeldung(846930145, ex, "nach: " + datei);
         }
     }
 

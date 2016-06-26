@@ -28,7 +28,7 @@ import mSearch.filmeSuchen.MSFilmeSuchen;
 import mSearch.filmeSuchen.MSGetUrl;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekKika extends MediathekReader implements Runnable {
@@ -91,7 +91,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 listeThemen.add(new String[]{ss});
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(302025469, ex);
+            Log.fehlerMeldung(302025469, ex);
         }
     }
 
@@ -112,7 +112,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 listeAllVideos.add(new String[]{s2});
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(732120256, ex);
+            Log.fehlerMeldung(732120256, ex);
         }
     }
 
@@ -142,7 +142,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     ladenSerien_1(link[0] /* url */);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(915236791, ex);
+                Log.fehlerMeldung(915236791, ex);
             }
             meldungThreadUndFertig();
         }
@@ -176,7 +176,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"", p, 0, "");
                 }
                 if (url.isEmpty()) {
-                    MSLog.fehlerMeldung(721356987, "keine URL: " + filmWebsite);
+                    Log.fehlerMeldung(721356987, "keine URL: " + filmWebsite);
                     return;
                 } else {
                     if (!url.startsWith("http://www.kika.de")) {
@@ -191,7 +191,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                         seite1.extractList("", "<!--The bottom navigation -->", "<div class=\"shortInfos\">", "<a href=\"", "\"", "http://www.kika.de", liste1);
                     }
                     if (liste1.isEmpty()) {
-                        MSLog.fehlerMeldung(794512630, "keine Filme: " + filmWebsite);
+                        Log.fehlerMeldung(794512630, "keine Filme: " + filmWebsite);
                         return;
                     }
                     int count = 0;
@@ -223,7 +223,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(915263147, ex);
+                Log.fehlerMeldung(915263147, ex);
             }
         }
 
@@ -242,7 +242,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     ladenXml(xml, thema, false /*alle*/);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(801202145, ex);
+                Log.fehlerMeldung(801202145, ex);
             }
             return ret;
         }
@@ -287,7 +287,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     loadAllVideo_2(seite2);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(825412369, ex);
+                Log.fehlerMeldung(825412369, ex);
             }
         }
 
@@ -308,7 +308,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     ladenXml(s /* url */, thema, true /*nur neue URLs*/);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(201036987, ex);
+                Log.fehlerMeldung(201036987, ex);
             }
         }
 
@@ -360,7 +360,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                         }
                     }
                 } catch (NumberFormatException ex) {
-                    MSLog.fehlerMeldung(201036547, ex, xmlWebsite);
+                    Log.fehlerMeldung(201036547, ex, xmlWebsite);
                 }
                 // Film-URLs suchen
                 final String MUSTER_URL_MP4 = "<progressiveDownloadUrl>";
@@ -377,7 +377,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 }
 
                 if (thema.isEmpty() || urlSendung.isEmpty() || titel.isEmpty() || urlMp4.isEmpty() || date.isEmpty() || zeit.isEmpty() || duration == 0 /*|| beschreibung.isEmpty()*/) {
-                    MSLog.fehlerMeldung(735216987, "leer: " + xmlWebsite);
+                    Log.fehlerMeldung(735216987, "leer: " + xmlWebsite);
                 }
 
                 if (!urlMp4.equals("")) {
@@ -387,10 +387,10 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     film.addUrlHd(urlHD, "");
                     addFilm(film, urlPruefen);
                 } else {
-                    MSLog.fehlerMeldung(963215478, " xml: " + xmlWebsite);
+                    Log.fehlerMeldung(963215478, " xml: " + xmlWebsite);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(784512365, ex);
+                Log.fehlerMeldung(784512365, ex);
             }
         }
 
@@ -401,7 +401,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(datum);
                 datum = sdfOutDay.format(filmDate);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(731025789, ex, "Datum: " + datum);
+                Log.fehlerMeldung(731025789, ex, "Datum: " + datum);
             }
             return datum;
         }
@@ -413,7 +413,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(zeit);
                 zeit = sdfOutTime.format(filmDate);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(915423687, ex, "Time: " + zeit);
+                Log.fehlerMeldung(915423687, ex, "Time: " + zeit);
             }
             return zeit;
         }

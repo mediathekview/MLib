@@ -27,7 +27,7 @@ import mSearch.filmeSuchen.MSFilmeSuchen;
 import mSearch.filmeSuchen.MSGetUrl;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekRbb extends MediathekReader implements Runnable {
@@ -61,7 +61,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 listeThemen.addUrl(new String[]{s});
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(398214058, ex);
+            Log.fehlerMeldung(398214058, ex);
         }
         if (MSConfig.getStop()) {
             meldungThreadUndFertig();
@@ -108,7 +108,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(794625882, ex);
+                Log.fehlerMeldung(794625882, ex);
             }
             meldungThreadUndFertig();
         }
@@ -131,7 +131,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         urlSeite = "http://mediathek.rbb-online.de/tv/" + urlSeite;
                         addFilme(urlSeite);
                     } else {
-                        MSLog.fehlerMeldung(751203697, "keine URL für: " + urlSeite);
+                        Log.fehlerMeldung(751203697, "keine URL für: " + urlSeite);
                     }
                 }
                 
@@ -152,7 +152,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         urlSeite = "http://mediathek.rbb-online.de/tv/" + urlSeite;
                         addFilme(urlSeite);
                     } else {
-                        MSLog.fehlerMeldung(751203697, "keine URL für: " + url);
+                        Log.fehlerMeldung(751203697, "keine URL für: " + url);
                     }
                 }
 
@@ -166,7 +166,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(541236987, ex);
+                Log.fehlerMeldung(541236987, ex);
             }
         }
         
@@ -182,7 +182,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     try {
                         duration = Long.parseLong(durationInSeconds);
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(200145787, ex);
+                        Log.fehlerMeldung(200145787, ex);
                         duration = 0;
                     }
                 }
@@ -238,7 +238,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     }
                 }
                 if (datum.isEmpty() || zeit.isEmpty() || thema.isEmpty() || title.isEmpty() || description.isEmpty() || durationInSeconds.isEmpty()) {
-                    MSLog.fehlerMeldung(912012036, "empty für: " + urlSeite);
+                    Log.fehlerMeldung(912012036, "empty für: " + urlSeite);
                 }
                 if (!urlNormal.isEmpty()) {
                     urlNormal = "http://" + urlNormal;
@@ -253,10 +253,10 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         film.addUrlSubtitle(subtitle);
                     }
                 } else {
-                    MSLog.fehlerMeldung(302014569, "keine URL für: " + urlSeite);
+                    Log.fehlerMeldung(302014569, "keine URL für: " + urlSeite);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(541236987, ex);
+                Log.fehlerMeldung(541236987, ex);
             }
         }
         

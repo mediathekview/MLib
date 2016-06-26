@@ -25,7 +25,7 @@ import mSearch.filmeSuchen.MSFilmeSuchen;
 import mSearch.filmeSuchen.MSGetUrl;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekArd extends MediathekReader implements Runnable {
@@ -71,11 +71,11 @@ public class MediathekArd extends MediathekReader implements Runnable {
         meldungStart();
         seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
         if (seite.length() == 0) {
-            MSLog.systemMeldung("ARD: Versuch 2");
+            Log.systemMeldung("ARD: Versuch 2");
             warten(2 * 60 /*Sekunden*/);
             seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
             if (seite.length() == 0) {
-                MSLog.fehlerMeldung(104689736, "wieder nichts gefunden");
+                Log.fehlerMeldung(104689736, "wieder nichts gefunden");
             }
         }
         int pos = 0;
@@ -96,7 +96,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 url = "http://www.ardmediathek.de/tv/sendungen-a-z?buchstabe=" + url;
                 feedSuchen1(url);
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(698732167, ex, "kein Thema");
+                Log.fehlerMeldung(698732167, ex, "kein Thema");
             }
         }
     }
@@ -105,7 +105,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
         final String MUSTER = "<div class=\"media mediaA\">";
         seiteFeed = getUrlIo.getUri(SENDERNAME, strUrlFeed, MSConst.KODIERUNG_UTF, 2/*max Versuche*/, seiteFeed, "");
         if (seiteFeed.length() == 0) {
-            MSLog.fehlerMeldung(207956317, "Leere Seite: " + strUrlFeed);
+            Log.fehlerMeldung(207956317, "Leere Seite: " + strUrlFeed);
             return;
         }
         int pos;
@@ -125,12 +125,12 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     thema = seiteFeed.extract("title=\"", "\"", pos);
                 }
                 if (thema.isEmpty()) {
-                    MSLog.fehlerMeldung(132326564, "Thema: " + strUrlFeed);
+                    Log.fehlerMeldung(132326564, "Thema: " + strUrlFeed);
                 }
                 String[] add = new String[]{url, thema};
                 listeThemen.addUrl(add);
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(732154698, ex, "Weitere Seiten suchen");
+                Log.fehlerMeldung(732154698, ex, "Weitere Seiten suchen");
             }
         }
     }
@@ -143,7 +143,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             long warten = i * 1000;
             this.wait(warten);
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(369502367, ex, "2. Versuch");
+            Log.fehlerMeldung(369502367, ex, "2. Versuch");
         }
     }
 
@@ -169,7 +169,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(487326921, ex);
+                Log.fehlerMeldung(487326921, ex);
             }
             meldungThreadUndFertig();
         }
@@ -184,7 +184,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 final String MUSTER = "<span class=\"date\">";
                 seite1 = getUrl.getUri_Utf(SENDERNAME, urlTage, seite1, "");
                 if (seite1.length() == 0) {
-                    MSLog.fehlerMeldung(765323214, "Leere Seite: " + urlTage);
+                    Log.fehlerMeldung(765323214, "Leere Seite: " + urlTage);
                     return;
                 }
                 int pos = 0;
@@ -217,7 +217,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     } catch (Exception ex) {
                     }
                     if (d == 0) {
-                        MSLog.fehlerMeldung(915263621, "Dauer==0: " + urlTage);
+                        Log.fehlerMeldung(915263621, "Dauer==0: " + urlTage);
                     }
                     urlSendung = seite1.extract("<a href=\"/tv/", "\"", pos);
                     if (!urlSendung.isEmpty()) {
@@ -236,7 +236,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
             final String MUSTER_START = "Beiträge der Sendung";
             seite1 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite1, "");
             if (seite1.length() == 0) {
-                MSLog.fehlerMeldung(765323214, "Leere Seite: " + strUrlFeed);
+                Log.fehlerMeldung(765323214, "Leere Seite: " + strUrlFeed);
                 return;
             }
             int pos = 0;
@@ -280,7 +280,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 } catch (Exception ex) {
                 }
                 if (d == 0) {
-                    MSLog.fehlerMeldung(915263621, "Dauer==0: " + strUrlFeed);
+                    Log.fehlerMeldung(915263621, "Dauer==0: " + strUrlFeed);
                 }
                 urlSendung = seite1.extract("<a href=\"/tv/", "\"", pos);
                 if (!urlSendung.isEmpty()) {
@@ -325,7 +325,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 meldung(urlFilm);
                 seite2 = getUrl.getUri_Utf(SENDERNAME, urlFilm, seite2, "");
                 if (seite2.length() == 0) {
-                    MSLog.fehlerMeldung(915263621, "Leere Seite: " + urlFilm);
+                    Log.fehlerMeldung(915263621, "Leere Seite: " + urlFilm);
                     return;
                 }
                 String url = "", urlMid = "", urlKl = "", urlHD = "";
@@ -438,7 +438,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
 //                    MSLog.fehlerMeldung(784512369, "keine URL: " + urlFilm);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(762139874, ex);
+                Log.fehlerMeldung(762139874, ex);
             }
         }
 
@@ -480,7 +480,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
                 meldung(urlSendung);
                 seite2 = getUrl.getUri_Utf(SENDERNAME, urlSendung, seite2, "");
                 if (seite2.length() == 0) {
-                    MSLog.fehlerMeldung(612031478, "Leere Seite: " + urlSendung);
+                    Log.fehlerMeldung(612031478, "Leere Seite: " + urlSendung);
                     return;
                 }
                 String url = seite2.extract("</li><li data-ctrl-", "http://", ".m3u8");
@@ -493,17 +493,17 @@ public class MediathekArd extends MediathekReader implements Runnable {
                     DatenFilm f = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, ""/*urlRtmp*/, datum, zeit, dauer, beschreibung);
                     addFilm(f);
                 } else {
-                    MSLog.fehlerMeldung(974125698, "keine URL: " + urlSendung);
+                    Log.fehlerMeldung(974125698, "keine URL: " + urlSendung);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(102054784, ex);
+                Log.fehlerMeldung(102054784, ex);
             }
         }
 
         private String beschreibung(String strUrlFeed) {
             seite3 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite3, "");
             if (seite3.length() == 0) {
-                MSLog.fehlerMeldung(784512036, "Leere Seite: " + strUrlFeed);
+                Log.fehlerMeldung(784512036, "Leere Seite: " + strUrlFeed);
                 return "";
             }
             return seite3.extract("<p class=\"subtitle\">", "<p class=\"teasertext\" itemprop=\"description\">", "<");

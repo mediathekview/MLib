@@ -102,30 +102,30 @@ public class MSConfig {
      }*/
     public static String getPathFilmlist_json_akt(boolean aktDate) {
         if (aktDate) {
-            return MSFunktionen.addsPfad(dirFilme, new SimpleDateFormat("yyyy.MM.dd__HH.mm.ss").format(new Date()) + "__" + nameAktFilmlist);
+            return Functions.addsPfad(dirFilme, new SimpleDateFormat("yyyy.MM.dd__HH.mm.ss").format(new Date()) + "__" + nameAktFilmlist);
         } else {
-            return MSFunktionen.addsPfad(dirFilme, nameAktFilmlist);
+            return Functions.addsPfad(dirFilme, nameAktFilmlist);
         }
     }
 
     public static String getPathFilmlist_json_akt_xz() {
-        return MSFunktionen.addsPfad(dirFilme, nameAktFilmlist_xz);
+        return Functions.addsPfad(dirFilme, nameAktFilmlist_xz);
     }
 
     public static String getPathFilmlist_json_org() {
-        return MSFunktionen.addsPfad(dirFilme, nameOrgFilmlist);
+        return Functions.addsPfad(dirFilme, nameOrgFilmlist);
     }
 
     public static String getPathFilmlist_json_org_xz() {
-        return MSFunktionen.addsPfad(dirFilme, nameOrgFilmlist_xz);
+        return Functions.addsPfad(dirFilme, nameOrgFilmlist_xz);
     }
 
     public static String getPathFilmlist_json_diff() {
-        return MSFunktionen.addsPfad(dirFilme, nameDiffFilmlist);
+        return Functions.addsPfad(dirFilme, nameDiffFilmlist);
     }
 
     public static String getPathFilmlist_json_diff_xz() {
-        return MSFunktionen.addsPfad(dirFilme, nameDiffFilmlist_xz);
+        return Functions.addsPfad(dirFilme, nameDiffFilmlist_xz);
     }
 
     /**

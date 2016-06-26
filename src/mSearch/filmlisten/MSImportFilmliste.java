@@ -25,7 +25,7 @@ import mSearch.daten.ListeFilme;
 import mSearch.filmeSuchen.MSListenerFilmeLaden;
 import mSearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import mSearch.tool.MSConfig;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 
 public class MSImportFilmliste {
 
@@ -103,7 +103,7 @@ public class MSImportFilmliste {
                 }
             }
             if (!ret /* listeFilme ist schon wieder null -> "FilmeLaden" */) {
-                MSLog.fehlerMeldung(951235497, "Es konnten keine Filme geladen werden!");
+                Log.fehlerMeldung(951235497, "Es konnten keine Filme geladen werden!");
             }
             fertigMelden(ret);
         }
@@ -140,7 +140,7 @@ public class MSImportFilmliste {
 
                 if (ret && i < 1 && liste.isOlderThan(5 * 60 * 60 /*sekunden*/)) {
                     // Laden hat geklappt ABER: Liste zu alt, dann gibts einen 2. Versuch
-                    MSLog.systemMeldung("Filmliste zu alt, neuer Versuch");
+                    Log.systemMeldung("Filmliste zu alt, neuer Versuch");
                     ret = false;
                 }
 
@@ -209,14 +209,14 @@ public class MSImportFilmliste {
         boolean ret = false;
         try {
             if (!dateiUrl.equals("")) {
-                MSLog.systemMeldung("Filmliste laden von: " + dateiUrl);
+                Log.systemMeldung("Filmliste laden von: " + dateiUrl);
                 msFilmlisteLesen.readFilmListe(dateiUrl, listeFilme, days);
                 if (!listeFilme.isEmpty()) {
                     ret = true;
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(965412378, ex);
+            Log.fehlerMeldung(965412378, ex);
         }
         return ret;
 

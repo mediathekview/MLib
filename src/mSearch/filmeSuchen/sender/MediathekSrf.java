@@ -29,7 +29,7 @@ import mSearch.filmeSuchen.MSFilmeSuchen;
 import mSearch.filmeSuchen.MSGetUrl;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -110,7 +110,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     addFilme(link[0]/*url*/, link[1]/*thema*/);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(832002877, ex);
+                Log.fehlerMeldung(832002877, ex);
             }
             meldungThreadUndFertig();
         }
@@ -134,7 +134,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(195926364, ex);
+                Log.fehlerMeldung(195926364, ex);
             }
         }
 
@@ -239,7 +239,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 }
 
                 if (url_normal.isEmpty()) {
-                    MSLog.fehlerMeldung(962101451, "Keine URL: " + jsonMovieUrl);
+                    Log.fehlerMeldung(962101451, "Keine URL: " + jsonMovieUrl);
                 } else {
                     DatenFilm film = new DatenFilm(SENDERNAME, theme, urlThema, title, url_normal, ""/*rtmpURL*/, date_str, time, duration, description);
 
@@ -255,7 +255,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     addFilm(film);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(556320087, ex);
+                Log.fehlerMeldung(556320087, ex);
             }
         }
 
@@ -299,7 +299,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     duration = duration / 1000; //ms
                 }
             } catch (NumberFormatException ex) {
-                MSLog.fehlerMeldung(646490237, ex);
+                Log.fehlerMeldung(646490237, ex);
             }
             return duration;
         }
@@ -315,7 +315,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             try {
                 date = formatter.parse(date_str);
             } catch (ParseException ex) {
-                MSLog.fehlerMeldung(784512304, ex, "Date_STR " + date_str);
+                Log.fehlerMeldung(784512304, ex, "Date_STR " + date_str);
             }
 
             return date;

@@ -23,14 +23,13 @@ import com.jidesoft.utils.SystemInfo;
 import java.io.File;
 import java.security.CodeSource;
 import java.util.ResourceBundle;
-import mSearch.MSearch;
+import mSearch.Main;
 import mSearch.daten.DatenFilm;
 import org.apache.commons.lang3.StringEscapeUtils;
 
-public class MSFunktionen {
+public class Functions {
 
-
-   public enum OperatingSystemType {
+    public enum OperatingSystemType {
 
         UNKNOWN(""), WIN32("Windows"), WIN64("Windows"), LINUX("Linux"), MAC("Mac");
         private final String name;
@@ -75,22 +74,22 @@ public class MSFunktionen {
 
     public static String getOsString() {
         return getOs().toString();
-    }    
-    
-    
-    
+    }
+
     public static String getPathJar() {
         // liefert den Pfad der Programmdatei mit File.separator am Schluss
-        String pFilePath = "pFile";
+        String pFilePath = "version.properties";
         File propFile = new File(pFilePath);
         if (!propFile.exists()) {
             try {
-                CodeSource cS = MSearch.class.getProtectionDomain().getCodeSource();
+                CodeSource cS = Main.class.getProtectionDomain().getCodeSource();
                 File jarFile = new File(cS.getLocation().toURI().getPath());
                 String jarDir = jarFile.getParentFile().getPath();
                 propFile = new File(jarDir + File.separator + pFilePath);
             } catch (Exception ignored) {
             }
+        }else{
+            DebugMsg.print("getPath");
         }
         String s = propFile.getAbsolutePath().replace(pFilePath, "");
         if (!s.endsWith(File.separator)) {
@@ -122,7 +121,7 @@ public class MSFunktionen {
             rb = ResourceBundle.getBundle("version");
             msg = rb.getString(propToken);
         } catch (Exception e) {
-            MSLog.fehlerMeldung(807293847,   e);
+            Log.fehlerMeldung(807293847, e);
         }
         return msg;
     }
@@ -136,7 +135,7 @@ public class MSFunktionen {
             rb = ResourceBundle.getBundle("version");
             msg = rb.getString(propToken);
         } catch (Exception e) {
-            MSLog.fehlerMeldung(134679898,  e);
+            Log.fehlerMeldung(134679898, e);
         }
         return msg;
     }
@@ -184,7 +183,6 @@ public class MSFunktionen {
 //        ret = ret.replace("\\u00f3", "\u00f3");
 //        return ret;
 //    }
-
     public static String cleanUnicode(String ret, String sonst) {
         String r = "";
         char c;
@@ -194,79 +192,85 @@ public class MSFunktionen {
             if (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.BASIC_LATIN) {
                 r += c;
             } else // Umlaute, 
-            if (c == 'Ä' || c == 'Ö' || c == 'Ü'
-                    || c == 'ä' || c == 'ö' || c == 'ü') {
-                r += c;
-            } else if (c == 'ß') {
-                r += "ß";
-            } else // Buchstaben
-            if (c == 'Â' || c == 'À' || c == 'Å' || c == 'Á') {
-                r += "A";
-            } else if (c == 'å' || c == 'á' || c == 'à' || c == 'â') {
-                r += "a";
-            } else if (c == 'Č' || c == 'Č') {
-                r += "C";
-            } else if (c == 'ć' || c == 'č' || c == 'ç') {
-                r += "c";
-            } else if (c == 'Đ') {
-                r += "D";
-            } else if (c == 'É' || c == 'È') {
-                r += "E";
-            } else if (c == 'é' || c == 'è' || c == 'ê' || c == 'ě' || c == 'ë') {
-                r += "e";
-            } else if (c == 'í') {
-                r += "i";
-            } else if (c == 'ñ') {
-                r += "n";
-            } else if (c == 'ó' || c == 'ô' || c == 'ø') {
-                r += "o";
-            } else if (c == 'Š') {
-                r += "S";
-            } else if (c == 'ś' || c == 'š' || c == 'ş') {
-                r += "s";
-            } else if (c == 'ł' || c == 'Ł') {
-                r += "t";
-            } else if (c == 'û' || c == 'ù') {
-                r += "u";
-            } else if (c == 'ý') {
-                r += "y";
-            } else if (c == 'Ž' || c == 'Ź') {
-                r += "Z";
-            } else if (c == 'ž' || c == 'ź') {
-                r += "z";
-            } else if (c == 'æ') {
-                r += "ae";
-            } else // Rest
-            if (c == '\n') {
-            } else if (c == '–') {
-                r += "-";
-            } else if (c == '„') {
-                r += "\"";
-            } else if (c == '„' || c == '”' || c == '“' || c == '«' || c == '»') {
-                r += "\"";
-            } else if (c == '?') {
-                r += "?";
-            } else if (c == '°' || c == '™') {
-                r += "";
-            } else if (c == '…') {
-                r += "...";
-            } else if (c == '€') {
-                r += "€";
-            } else if (c == '´' || c == '’' || c == '‘' || c == '¿') {
-                r += "'";
-            } else if (c == '\u003F') {
-                r += "?";
-            } else if (c == '\u0096') {
-                r += "-";
-            } else if (c == '\u0085') {
-            } else if (c == '\u0080') {
-            } else if (c == '\u0084') {
-            } else if (c == '\u0092') {
-            } else if (c == '\u0093') {
-            } else if (c == '\u0091') {
-                r += "-";
-            } else {
-                r += sonst;
+            {
+                if (c == 'Ä' || c == 'Ö' || c == 'Ü'
+                        || c == 'ä' || c == 'ö' || c == 'ü') {
+                    r += c;
+                } else if (c == 'ß') {
+                    r += "ß";
+                } else // Buchstaben
+                {
+                    if (c == 'Â' || c == 'À' || c == 'Å' || c == 'Á') {
+                        r += "A";
+                    } else if (c == 'å' || c == 'á' || c == 'à' || c == 'â') {
+                        r += "a";
+                    } else if (c == 'Č' || c == 'Č') {
+                        r += "C";
+                    } else if (c == 'ć' || c == 'č' || c == 'ç') {
+                        r += "c";
+                    } else if (c == 'Đ') {
+                        r += "D";
+                    } else if (c == 'É' || c == 'È') {
+                        r += "E";
+                    } else if (c == 'é' || c == 'è' || c == 'ê' || c == 'ě' || c == 'ë') {
+                        r += "e";
+                    } else if (c == 'í') {
+                        r += "i";
+                    } else if (c == 'ñ') {
+                        r += "n";
+                    } else if (c == 'ó' || c == 'ô' || c == 'ø') {
+                        r += "o";
+                    } else if (c == 'Š') {
+                        r += "S";
+                    } else if (c == 'ś' || c == 'š' || c == 'ş') {
+                        r += "s";
+                    } else if (c == 'ł' || c == 'Ł') {
+                        r += "t";
+                    } else if (c == 'û' || c == 'ù') {
+                        r += "u";
+                    } else if (c == 'ý') {
+                        r += "y";
+                    } else if (c == 'Ž' || c == 'Ź') {
+                        r += "Z";
+                    } else if (c == 'ž' || c == 'ź') {
+                        r += "z";
+                    } else if (c == 'æ') {
+                        r += "ae";
+                    } else // Rest
+                    {
+                        if (c == '\n') {
+                        } else if (c == '–') {
+                            r += "-";
+                        } else if (c == '„') {
+                            r += "\"";
+                        } else if (c == '„' || c == '”' || c == '“' || c == '«' || c == '»') {
+                            r += "\"";
+                        } else if (c == '?') {
+                            r += "?";
+                        } else if (c == '°' || c == '™') {
+                            r += "";
+                        } else if (c == '…') {
+                            r += "...";
+                        } else if (c == '€') {
+                            r += "€";
+                        } else if (c == '´' || c == '’' || c == '‘' || c == '¿') {
+                            r += "'";
+                        } else if (c == '\u003F') {
+                            r += "?";
+                        } else if (c == '\u0096') {
+                            r += "-";
+                        } else if (c == '\u0085') {
+                        } else if (c == '\u0080') {
+                        } else if (c == '\u0084') {
+                        } else if (c == '\u0092') {
+                        } else if (c == '\u0093') {
+                        } else if (c == '\u0091') {
+                            r += "-";
+                        } else {
+                            r += sonst;
+                        }
+                    }
+                }
             }
         }
         return r;
@@ -293,7 +297,7 @@ public class MSFunktionen {
             }
         }
         if (ret.equals("")) {
-            MSLog.fehlerMeldung(283946015,  pfad1 + " - " + pfad2);
+            Log.fehlerMeldung(283946015, pfad1 + " - " + pfad2);
         }
         return ret;
     }
@@ -326,7 +330,7 @@ public class MSFunktionen {
             ret = ret.substring(0, ret.indexOf("&"));
         }
         if (ret.equals("")) {
-            MSLog.fehlerMeldung(395019631,  pfad);
+            Log.fehlerMeldung(395019631, pfad);
         }
         return ret;
     }

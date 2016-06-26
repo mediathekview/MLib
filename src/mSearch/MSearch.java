@@ -26,7 +26,7 @@ import mSearch.filmeSuchen.MSListenerFilmeLadenEvent;
 import mSearch.filmlisten.MSFilmlisteLesen;
 import mSearch.filmlisten.WriteFilmlistJson;
 import mSearch.tool.MSConfig;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 
 public class MSearch implements Runnable {
 
@@ -44,13 +44,13 @@ public class MSearch implements Runnable {
         serverLaufen = true;
         MSConfig.setStop(false);//damits vom letzten mal stoppen nicht mehr gesetzt ist, falls es einen harten Abbruch gab
         if (MSConfig.dirFilme.isEmpty()) {
-            MSLog.systemMeldung("Kein Pfad der Filmlisten angegeben");
+            Log.systemMeldung("Kein Pfad der Filmlisten angegeben");
             System.exit(-1);
         }
         // Infos schreiben
-        MSLog.startMeldungen();
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("");
+        Log.startMeldungen();
+        Log.systemMeldung("");
+        Log.systemMeldung("");
         msFilmeSuchen.addAdListener(new MSListenerFilmeLaden() {
             @Override
             public void fertig(MSListenerFilmeLadenEvent event) {
@@ -70,7 +70,7 @@ public class MSearch implements Runnable {
                 this.wait(5000);
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(496378742, "run()");
+            Log.fehlerMeldung(496378742, "run()");
         }
         undTschuess();
     }
@@ -89,12 +89,12 @@ public class MSearch implements Runnable {
     private void importLive(ListeFilme tmpListe, String importUrl) {
         //================================================
         // noch anere Listen importieren
-        MSLog.systemMeldung("Live-Streams importieren von: " + importUrl);
+        Log.systemMeldung("Live-Streams importieren von: " + importUrl);
         tmpListe.clear();
         new MSFilmlisteLesen().readFilmListe(importUrl, tmpListe, 0 /*all days*/);
-        MSLog.systemMeldung("--> von  Anz. Filme: " + listeFilme.size());
+        Log.systemMeldung("--> von  Anz. Filme: " + listeFilme.size());
         listeFilme.addLive(tmpListe);
-        MSLog.systemMeldung("--> nach Anz. Filme: " + listeFilme.size());
+        Log.systemMeldung("--> nach Anz. Filme: " + listeFilme.size());
         tmpListe.clear();
         System.gc();
         listeFilme.sort();
@@ -103,12 +103,12 @@ public class MSearch implements Runnable {
     private void importUrl(ListeFilme tmpListe, String importUrl) {
         //================================================
         // noch anere Listen importieren
-        MSLog.systemMeldung("Filmliste importieren von: " + importUrl);
+        Log.systemMeldung("Filmliste importieren von: " + importUrl);
         tmpListe.clear();
         new MSFilmlisteLesen().readFilmListe(importUrl, tmpListe, 0 /*all days*/);
-        MSLog.systemMeldung("--> von  Anz. Filme: " + listeFilme.size());
+        Log.systemMeldung("--> von  Anz. Filme: " + listeFilme.size());
         listeFilme.updateListe(tmpListe, false /* nur URL vergleichen */, false /*ersetzen*/);
-        MSLog.systemMeldung("--> nach Anz. Filme: " + listeFilme.size());
+        Log.systemMeldung("--> nach Anz. Filme: " + listeFilme.size());
         tmpListe.clear();
         System.gc();
         listeFilme.sort();
@@ -117,13 +117,13 @@ public class MSearch implements Runnable {
     private void importOld(ListeFilme tmpListe, String importUrl) {
         //================================================
         // noch anere Listen importieren
-        MSLog.systemMeldung("Alte Filmliste importieren von: " + importUrl);
+        Log.systemMeldung("Alte Filmliste importieren von: " + importUrl);
         tmpListe.clear();
         new MSFilmlisteLesen().readFilmListe(importUrl, tmpListe, 0 /*all days*/);
-        MSLog.systemMeldung("--> von  Anz. Filme: " + listeFilme.size());
+        Log.systemMeldung("--> von  Anz. Filme: " + listeFilme.size());
         int anz = listeFilme.updateListeOld(tmpListe);
-        MSLog.systemMeldung("    gefunden: " + anz);
-        MSLog.systemMeldung("--> nach Anz. Filme: " + listeFilme.size());
+        Log.systemMeldung("    gefunden: " + anz);
+        Log.systemMeldung("--> nach Anz. Filme: " + listeFilme.size());
         tmpListe.clear();
         System.gc();
         listeFilme.sort();
@@ -136,62 +136,62 @@ public class MSearch implements Runnable {
 
         //================================================
         // noch anere Listen importieren
-        MSLog.systemMeldung("");
+        Log.systemMeldung("");
         if (!MSConfig.importLive.isEmpty()) {
             // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
-            MSLog.systemMeldung("");
-            MSLog.systemMeldung("============================================================================");
-            MSLog.systemMeldung("Live-Streams importieren");
+            Log.systemMeldung("");
+            Log.systemMeldung("============================================================================");
+            Log.systemMeldung("Live-Streams importieren");
             importLive(tmpListe, MSConfig.importLive);
-            MSLog.systemMeldung("");
+            Log.systemMeldung("");
         }
         if (!MSConfig.importUrl_1__anhaengen.isEmpty()) {
             // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
-            MSLog.systemMeldung("");
-            MSLog.systemMeldung("============================================================================");
-            MSLog.systemMeldung("Filmliste Import 1");
+            Log.systemMeldung("");
+            Log.systemMeldung("============================================================================");
+            Log.systemMeldung("Filmliste Import 1");
             importUrl(tmpListe, MSConfig.importUrl_1__anhaengen);
-            MSLog.systemMeldung("");
+            Log.systemMeldung("");
         }
         if (!MSConfig.importUrl_2__anhaengen.isEmpty()) {
             // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
-            MSLog.systemMeldung("");
-            MSLog.systemMeldung("============================================================================");
-            MSLog.systemMeldung("Filmliste Import 2");
+            Log.systemMeldung("");
+            Log.systemMeldung("============================================================================");
+            Log.systemMeldung("Filmliste Import 2");
             importUrl(tmpListe, MSConfig.importUrl_2__anhaengen);
-            MSLog.systemMeldung("");
+            Log.systemMeldung("");
         }
         if (!MSConfig.importOld.isEmpty() && MSConfig.loadLongMax()) {
             // wenn angeben, dann Filme die noch "gehen" aus einer alten Liste anhängen
-            MSLog.systemMeldung("");
-            MSLog.systemMeldung("============================================================================");
-            MSLog.systemMeldung("Filmliste OLD importieren");
+            Log.systemMeldung("");
+            Log.systemMeldung("============================================================================");
+            Log.systemMeldung("Filmliste OLD importieren");
             importOld(tmpListe, MSConfig.importOld);
-            MSLog.systemMeldung("");
+            Log.systemMeldung("");
         }
 
         //================================================
         // Filmliste schreiben, normal, xz komprimiert
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("============================================================================");
-        MSLog.systemMeldung("============================================================================");
-        MSLog.systemMeldung("Filmeliste fertig: " + listeFilme.size() + " Filme");
-        MSLog.systemMeldung("============================================================================");
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("   --> und schreiben:");
+        Log.systemMeldung("");
+        Log.systemMeldung("");
+        Log.systemMeldung("============================================================================");
+        Log.systemMeldung("============================================================================");
+        Log.systemMeldung("Filmeliste fertig: " + listeFilme.size() + " Filme");
+        Log.systemMeldung("============================================================================");
+        Log.systemMeldung("");
+        Log.systemMeldung("   --> und schreiben:");
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt(false /*aktDate*/), listeFilme);
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt(true /*aktDate*/), listeFilme);
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_akt_xz(), listeFilme);
 
         //================================================
         // Org
-        MSLog.systemMeldung("");
+        Log.systemMeldung("");
         if (MSConfig.orgFilmlisteErstellen) {
             // org-Liste anlegen, typ. erste Liste am Tag
-            MSLog.systemMeldung("");
-            MSLog.systemMeldung("============================================================================");
-            MSLog.systemMeldung("Org-Lilste schreiben: " + MSConfig.getPathFilmlist_json_org());
+            Log.systemMeldung("");
+            Log.systemMeldung("============================================================================");
+            Log.systemMeldung("Org-Lilste schreiben: " + MSConfig.getPathFilmlist_json_org());
             new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_org(), listeFilme);
             new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_org_xz(), listeFilme);
         }
@@ -199,32 +199,32 @@ public class MSearch implements Runnable {
         //====================================================
         // noch das diff erzeugen
         String org = MSConfig.orgFilmliste.isEmpty() ? MSConfig.getPathFilmlist_json_org() : MSConfig.orgFilmliste;
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("============================================================================");
-        MSLog.systemMeldung("Diff erzeugen, von: " + org + " nach: " + MSConfig.getPathFilmlist_json_diff());
+        Log.systemMeldung("");
+        Log.systemMeldung("============================================================================");
+        Log.systemMeldung("Diff erzeugen, von: " + org + " nach: " + MSConfig.getPathFilmlist_json_diff());
         tmpListe.clear();
         ListeFilme diff;
         new MSFilmlisteLesen().readFilmListe(org, tmpListe, 0 /*all days*/);
         if (tmpListe.isEmpty()) {
             // dann ist die komplette Liste das diff
-            MSLog.systemMeldung("   --> Lesefehler der Orgliste: Diff bleibt leer!");
+            Log.systemMeldung("   --> Lesefehler der Orgliste: Diff bleibt leer!");
             diff = new ListeFilme();
         } else if (tmpListe.isOlderThan(24 * 60 * 60)) {
             // älter als ein Tag, dann stimmt was nicht!
-            MSLog.systemMeldung("   --> Orgliste zu alt: Diff bleibt leer!");
+            Log.systemMeldung("   --> Orgliste zu alt: Diff bleibt leer!");
             diff = new ListeFilme();
         } else {
             // nur dann macht die Arbeit sinn
             diff = listeFilme.neueFilme(tmpListe);
         }
-        MSLog.systemMeldung("   --> und schreiben:");
+        Log.systemMeldung("   --> und schreiben:");
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff(), diff);
         new WriteFilmlistJson().filmlisteSchreibenJson(MSConfig.getPathFilmlist_json_diff_xz(), diff);
-        MSLog.systemMeldung("   --> Anz. Filme Diff: " + diff.size());
+        Log.systemMeldung("   --> Anz. Filme Diff: " + diff.size());
 
         //================================================
         // fertig
-        MSLog.endeMeldung();
+        Log.endeMeldung();
     }
 
 }

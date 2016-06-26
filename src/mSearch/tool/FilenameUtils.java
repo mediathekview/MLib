@@ -9,7 +9,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import static mSearch.daten.Data.mVReplaceList;
-import static mSearch.tool.MSFunktionen.OperatingSystemType.*;
+import static mSearch.tool.Functions.OperatingSystemType.*;
 
 /**
  * User: crystalpalace1977
@@ -282,7 +282,7 @@ public class FilenameUtils {
     public static String removeIllegalCharacters(final String input, boolean isPath) {
         String ret = input;
 
-        switch (MSFunktionen.getOs()) {
+        switch (Functions.getOs()) {
             case MAC:
             case LINUX:
                 //On OSX the VFS take care of writing correct filenames to FAT filesystems...

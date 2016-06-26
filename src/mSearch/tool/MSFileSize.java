@@ -72,16 +72,16 @@ public class MSFileSize {
                         }
                     } catch (Exception ex) {
                         ret = -1;
-                        MSLog.fehlerMeldung(963215478, ex);
+                        Log.fehlerMeldung(963215478, ex);
                     }
                 }
             }
         } catch (Exception ex) {
             ret = -1;
             if (ex.getMessage().equals("Read timed out")) {
-                MSLog.fehlerMeldung(825141452, "Read timed out: " + ssender + " url: " + url);
+                Log.fehlerMeldung(825141452, "Read timed out: " + ssender + " url: " + url);
             } else {
-                MSLog.fehlerMeldung(643298301, ex, "url: " + url);
+                Log.fehlerMeldung(643298301, ex, "url: " + url);
             }
         }
         if (ret < 1000 * 1000) {

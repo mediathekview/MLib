@@ -23,7 +23,7 @@ import mSearch.tool.MVProgressMonitorInputStream;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MVInputStreamProgressMonitor;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -117,7 +117,7 @@ public class MSFilmlisteLesen {
     }
 
     public void readFilmListe(String source, final ListeFilme listeFilme, int days) {
-        MSLog.systemMeldung("Liste Filme lesen von: " + source);
+        Log.systemMeldung("Liste Filme lesen von: " + source);
         JsonToken jsonToken;
         String sender = "", thema = "";
         JsonParser jp = null;
@@ -215,10 +215,10 @@ public class MSFilmlisteLesen {
             }
             jp.close();
         } catch (FileNotFoundException ex) {
-            MSLog.fehlerMeldung(894512369, ex, "FilmListe: " + source);
+            Log.fehlerMeldung(894512369, ex, "FilmListe: " + source);
             listeFilme.clear();
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(945123641, ex, "FilmListe: " + source);
+            Log.fehlerMeldung(945123641, ex, "FilmListe: " + source);
             listeFilme.clear();
         } finally {
             try {
@@ -229,7 +229,7 @@ public class MSFilmlisteLesen {
             }
         }
         if (MSConfig.getStop()) {
-            MSLog.systemMeldung("--> Abbruch");
+            Log.systemMeldung("--> Abbruch");
             listeFilme.clear();
         }
         notifyFertig(source, listeFilme);
@@ -244,7 +244,7 @@ public class MSFilmlisteLesen {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(495623014, ex);
+            Log.fehlerMeldung(495623014, ex);
         }
         return true;
     }
@@ -268,9 +268,9 @@ public class MSFilmlisteLesen {
     }
 
     private void notifyFertig(String url, ListeFilme liste) {
-        MSLog.systemMeldung("Liste Filme gelesen am: " + new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(new Date()));
-        MSLog.systemMeldung("  erstellt am: " + liste.genDate());
-        MSLog.systemMeldung("  Anzahl Filme: " + liste.size());
+        Log.systemMeldung("Liste Filme gelesen am: " + new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(new Date()));
+        Log.systemMeldung("  erstellt am: " + liste.genDate());
+        Log.systemMeldung("  Anzahl Filme: " + liste.size());
         for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
             l.fertig(new MSListenerFilmeLadenEvent(url, "", max, progress, 0, false));
         }

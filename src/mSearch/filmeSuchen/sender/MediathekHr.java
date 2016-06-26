@@ -27,8 +27,8 @@ import mSearch.filmeSuchen.MSFilmeSuchen;
 import mSearch.filmeSuchen.MSGetUrl;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSFunktionen;
-import mSearch.tool.MSLog;
+import mSearch.tool.Functions;
+import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekHr extends MediathekReader implements Runnable {
@@ -125,7 +125,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                 listeThemen.add(add);
             }
         } else {
-            MSLog.fehlerMeldung(653210697, "keine URL");
+            Log.fehlerMeldung(653210697, "keine URL");
         }
     }
 
@@ -146,7 +146,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                     addFilme(link[0]/*url*/, link[1]/*thema*/, link[2]/*filmsite*/);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(894330854, ex);
+                Log.fehlerMeldung(894330854, ex);
             }
             meldungThreadUndFertig();
         }
@@ -187,7 +187,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                             }
                         }
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(708096931, "d: " + d);
+                        Log.fehlerMeldung(708096931, "d: " + d);
                     }
                     description = seite1.extract(MUSTER_DESCRIPTION, END, posItem1);
                     datum = seite1.extract(MUSTER_DATUM, END, posItem1);
@@ -224,21 +224,21 @@ public class MediathekHr extends MediathekReader implements Runnable {
                         }
                         addFilm(film);
                     } else {
-                        MSLog.fehlerMeldung(649882036, "keine URL");
+                        Log.fehlerMeldung(649882036, "keine URL");
                     }
                 }
                 if (url.isEmpty()) {
-                    MSLog.fehlerMeldung(761236458, "keine URL für: " + xmlWebsite);
+                    Log.fehlerMeldung(761236458, "keine URL für: " + xmlWebsite);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(487774126, ex);
+                Log.fehlerMeldung(487774126, ex);
             }
         }
 
         private String getDate(String url) {
             String ret = "";
             try {
-                String tmp = MSFunktionen.getDateiName(url);
+                String tmp = Functions.getDateiName(url);
                 if (tmp.length() > 8) {
                     tmp = tmp.substring(0, 8);
                     SimpleDateFormat sdfIn = new SimpleDateFormat("yyyyMMdd");
@@ -249,7 +249,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                 }
             } catch (Exception ex) {
                 ret = "";
-                MSLog.fehlerMeldung(356408790, "kein Datum");
+                Log.fehlerMeldung(356408790, "kein Datum");
             }
             return ret;
         }

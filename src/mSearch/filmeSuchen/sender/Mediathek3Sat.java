@@ -26,7 +26,7 @@ import mSearch.filmeSuchen.MSFilmeSuchen;
 import mSearch.filmeSuchen.MSGetUrl;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class Mediathek3Sat extends MediathekReader implements Runnable {
@@ -100,7 +100,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                 String[] add = new String[]{"http://www.3sat.de/mediathek/?red=" + url + "&type=1", thema};
                 listeThemen.addUrl(add);
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(915237874,  ex);
+                Log.fehlerMeldung(915237874,  ex);
             }
         }
 
@@ -122,7 +122,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                     laden(link[0] /* url */, link[1] /* Thema */, true);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(987452384,  ex);
+                Log.fehlerMeldung(987452384,  ex);
             }
             meldungThreadUndFertig();
         }
@@ -180,7 +180,7 @@ public class Mediathek3Sat extends MediathekReader implements Runnable {
                     }
                     if (!ok) {
                         // dann mit der herkömmlichen Methode versuchen
-                        MSLog.fehlerMeldung(462313269,  "Thema: " + url);
+                        Log.fehlerMeldung(462313269,  "Thema: " + url);
                     }
                 }
             }

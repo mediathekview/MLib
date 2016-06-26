@@ -32,8 +32,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSFunktionen;
-import mSearch.tool.MSLog;
+import mSearch.tool.Functions;
+import mSearch.tool.Log;
 
 public class MSFilmlistenSuchen {
 
@@ -139,7 +139,7 @@ public class MSFilmlistenSuchen {
             listeFilmlistenUrls_diff.sort();
         }
         if (tmp.isEmpty()) {
-            MSLog.fehlerMeldung(491203216, new String[]{"Es ist ein Fehler aufgetreten!",
+            Log.fehlerMeldung(491203216, new String[]{"Es ist ein Fehler aufgetreten!",
                 "Es konnten keine Updateserver zum aktualisieren der Filme",
                 "gefunden werden."});
         }
@@ -153,7 +153,7 @@ public class MSFilmlistenSuchen {
             inFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
             XMLStreamReader parser;
             InputStreamReader inReader;
-            if (MSFunktionen.istUrl(dateiUrl)) {
+            if (Functions.istUrl(dateiUrl)) {
                 // eine URL verarbeiten
                 int timeout = 20000; //ms
                 URLConnection conn;
@@ -182,7 +182,7 @@ public class MSFilmlistenSuchen {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(821069874, ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
+            Log.fehlerMeldung(821069874, ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
         }
     }
 

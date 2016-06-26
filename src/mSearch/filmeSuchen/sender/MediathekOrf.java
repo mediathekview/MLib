@@ -29,7 +29,7 @@ import mSearch.filmeSuchen.MSGetUrl;
 import static mSearch.filmeSuchen.sender.MediathekReader.listeSort;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -112,7 +112,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(826341789, ex);
+            Log.fehlerMeldung(826341789, ex);
         }
     }
 
@@ -131,7 +131,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(826341789, ex);
+            Log.fehlerMeldung(826341789, ex);
         }
     }
 
@@ -164,11 +164,11 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                                 break;
                         }
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(795633581, ex);
+                        Log.fehlerMeldung(795633581, ex);
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(554012398, ex);
+                Log.fehlerMeldung(554012398, ex);
             }
             meldungThreadUndFertig();
         }
@@ -255,7 +255,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
             if ((posStart = seite2.indexOf("\"is_one_segment_episode\":false")) == -1) {
                 if ((posStart = seite2.indexOf("\"is_one_segment_episode\":true")) == -1) {
-                    MSLog.fehlerMeldung(989532147, "keine Url: " + strUrlFeed);
+                    Log.fehlerMeldung(989532147, "keine Url: " + strUrlFeed);
                     return;
                 }
             }
@@ -400,7 +400,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                         }
                         addFilm(film, nurUrlPruefen);
                     } else {
-                        MSLog.fehlerMeldung(989532147, "keine Url: " + strUrlFeed);
+                        Log.fehlerMeldung(989532147, "keine Url: " + strUrlFeed);
                     }
                 }
             }

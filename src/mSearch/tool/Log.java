@@ -19,18 +19,14 @@
  */
 package mSearch.tool;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import org.apache.commons.lang3.StringUtils;
 
-public class MSLog {
+public class Log {
 
     private final static String FEHLER = "Fehler(" + MSConst.PROGRAMMNAME + "): ";
 
@@ -61,7 +57,7 @@ public class MSLog {
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
                 logFile = null;
-                MSLog.fehlerMeldung(632012165, "Kann den Pfad nicht anlegen: " + dir.toString());
+                Log.fehlerMeldung(632012165, "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
 
@@ -97,15 +93,15 @@ public class MSLog {
         systemMeldung("##################################################################################");
         systemMeldung("");
         //Version
-        systemMeldung(progName + MSFunktionen.getProgVersionString());
-        systemMeldung("Compiled: " + MSFunktionen.getCompileDate());
+        systemMeldung(progName + Functions.getProgVersionString());
+        systemMeldung("Compiled: " + Functions.getCompileDate());
         systemMeldung("");
         systemMeldung("##################################################################################");
         systemMeldung("");
         systemMeldung("Java");
-        String[] java = MSFunktionen.getJavaVersion();
+        String[] java = Functions.getJavaVersion();
         for (String ja : java) {
-            MSLog.systemMeldung(ja);
+            Log.systemMeldung(ja);
         }
         systemMeldung("");
     }
@@ -115,7 +111,7 @@ public class MSLog {
         versionsMeldungen(MSConst.PROGRAMMNAME);
         systemMeldung("##################################################################################");
         systemMeldung("");
-        systemMeldung("Programmpfad: " + MSFunktionen.getPathJar());
+        systemMeldung("Programmpfad: " + Functions.getPathJar());
         systemMeldung("Filmliste: " + MSConfig.getPathFilmlist_json_akt(true /*aktDate*/));
         systemMeldung("Useragent: " + MSConfig.getUserAgent());
         systemMeldung("");
@@ -147,7 +143,7 @@ public class MSLog {
         systemMeldung("");
         systemMeldung("");
 
-        fehlerMeldungen().forEach(MSLog::systemMeldung);
+        fehlerMeldungen().forEach(Log::systemMeldung);
 
         // Laufzeit ausgeben
         Date stopZeit = new Date(System.currentTimeMillis());

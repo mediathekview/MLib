@@ -25,7 +25,7 @@ import mSearch.filmeSuchen.MSFilmeSuchen;
 import mSearch.filmeSuchen.MSGetUrl;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekDw extends MediathekReader implements Runnable {
@@ -67,7 +67,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
         String url = "", thema = "";
         pos1 = seite.indexOf(MUSTER_START);
         if (pos1 == -1) {
-            MSLog.fehlerMeldung(915230456, "Nichts gefunden");
+            Log.fehlerMeldung(915230456, "Nichts gefunden");
             return;
         }
         pos1 += MUSTER_START.length();
@@ -100,7 +100,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
                 String[] add = new String[]{url, thema};
                 listeThemen.addUrl(add);
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(731245970, ex);
+                Log.fehlerMeldung(731245970, ex);
             }
         }
 
@@ -123,7 +123,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
                     laden(link[0] /* url */, link[1] /* Thema */);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(915423640, ex);
+                Log.fehlerMeldung(915423640, ex);
             }
             meldungThreadUndFertig();
         }
@@ -188,7 +188,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(912034567, "duration: " + dur);
+                Log.fehlerMeldung(912034567, "duration: " + dur);
             }
 
             if (url.isEmpty() && !urlLow.isEmpty()) {
@@ -200,7 +200,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
                 urlHd = "";
             }
             if (url.isEmpty()) {
-                MSLog.fehlerMeldung(643230120, "empty URL: " + urlSendung);
+                Log.fehlerMeldung(643230120, "empty URL: " + urlSendung);
             } else {
                 DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, "", datum, ""/*Zeit*/, duration, description);
                 if (!urlLow.isEmpty()) {

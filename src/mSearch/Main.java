@@ -21,7 +21,7 @@ package mSearch;
 
 import javafx.application.Application;
 import mSearch.gui.MSG;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 
 public class Main {
 
@@ -31,7 +31,7 @@ public class Main {
     public static void main(final String args[]) {
 
         java.awt.EventQueue.invokeLater(() -> {
-            MSLog.startMeldungen();
+            Log.startMeldungen();
             if (args != null) {
                 for (String s : args) {
                     if (s.equalsIgnoreCase("-gui")) {

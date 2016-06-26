@@ -26,7 +26,7 @@ import mSearch.filmeSuchen.MSFilmeSuchen;
 import mSearch.filmeSuchen.MSGetUrl;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekArte_de extends MediathekReader implements Runnable {
@@ -119,7 +119,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                 meldungAddThread();
                 addConcert(start, anz);
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(787452309, ex, "");
+                Log.fehlerMeldung(787452309, ex, "");
             }
             meldungThreadUndFertig();
         }
@@ -162,7 +162,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                             }
                         }
                         if (url.equals("")) {
-                            MSLog.fehlerMeldung(825241452, "keine URL");
+                            Log.fehlerMeldung(825241452, "keine URL");
                         } else {
                             urlWeb = "http://concert.arte.tv" + url;
                             meldung(urlWeb);
@@ -174,7 +174,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                             }
                             url = seite2.extract("arte_vp_url=\"", "\"");
                             if (url.isEmpty()) {
-                                MSLog.fehlerMeldung(784512698, "keine URL");
+                                Log.fehlerMeldung(784512698, "keine URL");
                             } else {
                                 seite2 = getUrlIo.getUri_Utf(sendername, url, seite2, "");
                                 int p1 = 0;
@@ -222,10 +222,10 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                                 if (urlNormal.isEmpty()) {
                                     urlNormal = urlLow;
                                     urlLow = "";
-                                    MSLog.fehlerMeldung(951236487, "keine URL");
+                                    Log.fehlerMeldung(951236487, "keine URL");
                                 }
                                 if (urlNormal.isEmpty()) {
-                                    MSLog.fehlerMeldung(989562301, "keine URL");
+                                    Log.fehlerMeldung(989562301, "keine URL");
                                 } else {
                                     DatenFilm film = new DatenFilm(sendername, THEMA, urlWeb, titel, urlNormal, "" /*urlRtmp*/,
                                             datum, "" /*zeit*/, duration, beschreibung);
@@ -240,7 +240,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                             }
                         }
                     } catch (Exception ex) {
-                        MSLog.fehlerMeldung(465623121, ex);
+                        Log.fehlerMeldung(465623121, ex);
                     }
                 }
             }
@@ -263,7 +263,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                     addTheman(seite1, seite2, link[0]);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(894330854, ex, "");
+                Log.fehlerMeldung(894330854, ex, "");
             }
             meldungThreadUndFertig();
         }
@@ -464,7 +464,7 @@ public class MediathekArte_de extends MediathekReader implements Runnable {
                     datum, zeit, dauer, beschreibung);
             addFilm(film);
         } else {
-            MSLog.fehlerMeldung(963025874, "Keine URL: " + arr[0]);
+            Log.fehlerMeldung(963025874, "Keine URL: " + arr[0]);
         }
     }
 

@@ -72,7 +72,7 @@ public class MSInputStream extends InputStream {
                 wait(warten_ms);
                 gesamtVerpennt += warten_ms;
             } catch (InterruptedException ex) {
-                MSLog.fehlerMeldung(591237096,   ex);
+                Log.fehlerMeldung(591237096,   ex);
             }
         }
     }

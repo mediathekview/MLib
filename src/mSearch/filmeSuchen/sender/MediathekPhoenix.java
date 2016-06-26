@@ -25,7 +25,7 @@ import mSearch.filmeSuchen.MSFilmeSuchen;
 import mSearch.filmeSuchen.MSGetUrl;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekPhoenix extends MediathekReader implements Runnable {
@@ -63,7 +63,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
         seite = getUrl.getUri(SENDERNAME, "http://www.phoenix.de/content/78905", MSConst.KODIERUNG_ISO15, 6 /* versuche */, seite, "" /* Meldung */);
         if (seite.length() == 0) {
-            MSLog.fehlerMeldung(487512369, "Leere Seite für URL: ");
+            Log.fehlerMeldung(487512369, "Leere Seite für URL: ");
         }
 
         int pos = 0;
@@ -103,7 +103,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
                     meldungProgress(link[0]);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(825263641, ex);
+                Log.fehlerMeldung(825263641, ex);
             }
             meldungThreadUndFertig();
         }
@@ -121,7 +121,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
                     addFilme2(thema, urlThema);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(741258410, ex, url);
+                Log.fehlerMeldung(741258410, ex, url);
             }
         }
 
@@ -135,7 +135,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
             if (!urlId.isEmpty()) {
                 filmHolenId(thema, filmWebsite, urlId, title);
             } else {
-                MSLog.fehlerMeldung(912546987, filmWebsite);
+                Log.fehlerMeldung(912546987, filmWebsite);
             }
         }
 
@@ -146,7 +146,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
             meldung(urlId);
             getUrl.getUri_Utf(SENDERNAME, urlId, seite3, "" /* Meldung */);
             if (seite3.length() == 0) {
-                MSLog.fehlerMeldung(825412874, "url: " + urlId);
+                Log.fehlerMeldung(825412874, "url: " + urlId);
                 return;
             }
 
@@ -237,7 +237,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
             }
 
             if (url.isEmpty()) {
-                MSLog.fehlerMeldung(952102014, "keine URL: " + filmWebsite);
+                Log.fehlerMeldung(952102014, "keine URL: " + filmWebsite);
             } else {
                 if (url.startsWith("http://tvdl.zdf.de")) {
                     url = url.replace("http://tvdl.zdf.de", "http://nrodl.zdf.de");

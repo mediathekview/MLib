@@ -35,7 +35,7 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MSGetUrl {
@@ -84,7 +84,7 @@ public class MSGetUrl {
                     // und nix wie weiter 
                     if (MSConfig.debug && aktVer > 1) {
                         String text = sender + " [" + aktVer + "/" + maxVersuche + "] ~~~> " + addr;
-                        MSLog.systemMeldung(text);
+                        Log.systemMeldung(text);
                     }
                     // nur dann zählen
                     MSFilmeSuchen.listeSenderLaufen.inc(sender, MSRunSender.Count.ANZAHL);
@@ -98,7 +98,7 @@ public class MSGetUrl {
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(698963200, ex, sender);
+                Log.fehlerMeldung(698963200, ex, sender);
             }
         } while (!MSConfig.getStop() && aktVer < maxVersuche);
         return seite;
@@ -131,7 +131,7 @@ public class MSGetUrl {
         try {
             this.wait(wartenBasis);
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(976120379, ex, sender);
+            Log.fehlerMeldung(976120379, ex, sender);
         }
 
         try {
@@ -168,7 +168,7 @@ public class MSGetUrl {
                     }
                 } else {
                     // dann wars das
-                    MSLog.fehlerMeldung(974532107, new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
+                    Log.fehlerMeldung(974532107, new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
                 }
             }
             if (mvIn == null) {
@@ -232,7 +232,7 @@ public class MSGetUrl {
                         inReader.close();
                     }
                 } catch (Exception e) {
-                    MSLog.fehlerMeldung(645105987, e, "");
+                    Log.fehlerMeldung(645105987, e, "");
                 }
             }
             if (lVersuch) {
@@ -248,11 +248,11 @@ public class MSGetUrl {
                 switch (ex.getMessage()) {
                     case "Read timed out":
                         text[0] = "TimeOut: ";
-                        MSLog.fehlerMeldung(502739817, text);
+                        Log.fehlerMeldung(502739817, text);
                         break;
                     case "No buffer space available":
                         text[0] = "No buffer space available";
-                        MSLog.fehlerMeldung(915263697, text);
+                        Log.fehlerMeldung(915263697, text);
                         try {
                             // Pause zum Abbauen von Verbindungen
                             final int WARTEN_NO_BUFFER = 2 * 1000;
@@ -262,19 +262,19 @@ public class MSGetUrl {
                         }
                         break;
                     default:
-                        MSLog.fehlerMeldung(379861049, ex, text);
+                        Log.fehlerMeldung(379861049, ex, text);
                         break;
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(973969801, ex, "");
+            Log.fehlerMeldung(973969801, ex, "");
         } finally {
             try {
                 if (in != null) {
                     in.close();
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(696321478, ex, "");
+                Log.fehlerMeldung(696321478, ex, "");
             }
         }
         return seite;

@@ -39,7 +39,7 @@ public class ListenerMediathekView implements EventListener {
     public static final int EREIGNIS_ART_DOWNLOAD_PROZENT = 13;
     public static final int EREIGNIS_START_EVENT = 14;
     public static final int EREIGNIS_START_EVENT_BUTTON = 15;
-    public static final int EREIGNIS_LOG_FEHLER = 16;
+////    public static final int EREIGNIS_LOG_FEHLER = 16;
     public static final int EREIGNIS_LOG_SYSTEM = 17;
     public static final int EREIGNIS_LOG_PLAYER = 18;
     public static final int EREIGNIS_PROGRAMM_OEFFNEN = 19;
@@ -111,7 +111,7 @@ public class ListenerMediathekView implements EventListener {
                 SwingUtilities.invokeLater(this::ping);
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(698989743, ex);
+            Log.fehlerMeldung(698989743, ex);
         }
     }
 }

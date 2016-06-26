@@ -36,8 +36,8 @@ import mSearch.tool.DatumFilm;
 import mSearch.tool.GermanStringSorter;
 import mSearch.tool.MSConst;
 import mSearch.tool.MSFileSize;
-import mSearch.tool.MSFunktionen;
-import mSearch.tool.MSLog;
+import mSearch.tool.Functions;
+import mSearch.tool.Log;
 import mSearch.tool.MSLong;
 
 public class DatenFilm implements Comparable<DatenFilm> {
@@ -327,21 +327,21 @@ public class DatenFilm implements Comparable<DatenFilm> {
             try {
                 url = uurl.substring(uurl.indexOf("/online/") + "/online/".length());
                 if (!url.contains("/")) {
-                    MSLog.fehlerMeldung(915230478, "Url: " + uurl);
+                    Log.fehlerMeldung(915230478, "Url: " + uurl);
                     return "";
                 }
                 url = url.substring(url.indexOf("/") + 1);
                 if (!url.contains("/")) {
-                    MSLog.fehlerMeldung(915230478, "Url: " + uurl);
+                    Log.fehlerMeldung(915230478, "Url: " + uurl);
                     return "";
                 }
                 url = url.substring(url.indexOf("/") + 1);
                 if (url.isEmpty()) {
-                    MSLog.fehlerMeldung(915230478, "Url: " + uurl);
+                    Log.fehlerMeldung(915230478, "Url: " + uurl);
                     return "";
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(915230478, ex, "Url: " + uurl);
+                Log.fehlerMeldung(915230478, ex, "Url: " + uurl);
             }
             return MediathekOrf.SENDERNAME + "----" + url;
         } else {
@@ -423,7 +423,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 }
             } catch (Exception ex) {
                 dauerL = 0;
-                MSLog.fehlerMeldung(468912049, "Dauer: " + this.arr[DatenFilm.FILM_DAUER_NR]);
+                Log.fehlerMeldung(468912049, "Dauer: " + this.arr[DatenFilm.FILM_DAUER_NR]);
             }
 
             //================================
@@ -443,14 +443,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
                         datumFilm = new DatumFilm(l * 1000 /* sind SEKUNDEN!!*/);
                     }
                 } catch (Exception ex) {
-                    MSLog.fehlerMeldung(915236701, ex, new String[]{"Datum: " + arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + arr[DatenFilm.FILM_ZEIT_NR]});
+                    Log.fehlerMeldung(915236701, ex, new String[]{"Datum: " + arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + arr[DatenFilm.FILM_ZEIT_NR]});
                     datumFilm = new DatumFilm(0);
                     arr[DatenFilm.FILM_DATUM_NR] = "";
                     arr[DatenFilm.FILM_ZEIT_NR] = "";
                 }
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(715263987, ex);
+            Log.fehlerMeldung(715263987, ex);
         }
     }
 
@@ -569,7 +569,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static String cleanDescription(String s, String thema, String titel) {
         // die Beschreibung auf x Zeichen beschränken
 
-        s = MSFunktionen.removeHtml(s); // damit die Beschreibung nicht unnötig kurz wird wenn es erst später gemacht wird
+        s = Functions.removeHtml(s); // damit die Beschreibung nicht unnötig kurz wird wenn es erst später gemacht wird
 
         for (String g : GERMAN_ONLY) {
             if (s.contains(g)) {
@@ -620,15 +620,15 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 Date filmDate = sdfIn.parse(datum);
                 if (filmDate.getTime() < 0) {
                     //Datum vor 1970
-                    MSLog.fehlerMeldung(923012125, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
+                    Log.fehlerMeldung(923012125, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
                 } else if ((new Date().getTime() + MAX) < filmDate.getTime()) {
-                    MSLog.fehlerMeldung(121305469, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
+                    Log.fehlerMeldung(121305469, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
                 } else {
                     arr[FILM_DATUM_NR] = datum;
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(794630593, ex);
-                MSLog.fehlerMeldung(946301596, "[" + datum + "] " + fehlermeldung);
+                Log.fehlerMeldung(794630593, ex);
+                Log.fehlerMeldung(946301596, "[" + datum + "] " + fehlermeldung);
             }
         }
     }
@@ -640,7 +640,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             if (zeit.contains(":") && zeit.length() == 8) {
                 arr[FILM_ZEIT_NR] = zeit;
             } else {
-                MSLog.fehlerMeldung(159623647, "[" + zeit + "] " + fehlermeldung);
+                Log.fehlerMeldung(159623647, "[" + zeit + "] " + fehlermeldung);
             }
         }
     }

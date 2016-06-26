@@ -49,7 +49,7 @@ import mSearch.filmeSuchen.sender.MediathekZdf;
 import mSearch.filmeSuchen.sender.MediathekZdfTivi;
 import mSearch.tool.GermanStringSorter;
 import mSearch.tool.MSConfig;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 
 /**
  * ###########################################################################################################
@@ -205,7 +205,7 @@ public class MSFilmeSuchen {
             zeile += "     -> Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60) + "\n";
             zeile += "     ->       Rest: " + listeSenderLaufen.getSenderRun() + "\n";
             zeile += "-------------------------------------------------------------------------------------" + "\n";
-            MSLog.systemMeldung(zeile);
+            Log.systemMeldung(zeile);
         }
         if (!allStarted || !listeSenderLaufen.listeFertig()) {
             //nur ein Sender fertig oder noch nicht alle gestartet
@@ -213,20 +213,20 @@ public class MSFilmeSuchen {
         } else {
             // alles fertig
             // wird einmal aufgerufen, wenn alle Sender fertig sind
-            MSLog.progress(""); // zum löschen der Progressbar
+            Log.progress(""); // zum löschen der Progressbar
             if (MSConfig.getStop()) {
                 // Abbruch melden
-                MSLog.systemMeldung("                                                                                     ");
-                MSLog.systemMeldung("                                                                                     ");
-                MSLog.systemMeldung("*************************************************************************************");
-                MSLog.systemMeldung("*************************************************************************************");
-                MSLog.systemMeldung("*************************************************************************************");
-                MSLog.systemMeldung("     ----- Abbruch -----                                                             ");
-                MSLog.systemMeldung("*************************************************************************************");
-                MSLog.systemMeldung("*************************************************************************************");
-                MSLog.systemMeldung("*************************************************************************************");
-                MSLog.systemMeldung("                                                                                     ");
-                MSLog.systemMeldung("                                                                                     ");
+                Log.systemMeldung("                                                                                     ");
+                Log.systemMeldung("                                                                                     ");
+                Log.systemMeldung("*************************************************************************************");
+                Log.systemMeldung("*************************************************************************************");
+                Log.systemMeldung("*************************************************************************************");
+                Log.systemMeldung("     ----- Abbruch -----                                                             ");
+                Log.systemMeldung("*************************************************************************************");
+                Log.systemMeldung("*************************************************************************************");
+                Log.systemMeldung("*************************************************************************************");
+                Log.systemMeldung("                                                                                     ");
+                Log.systemMeldung("                                                                                     ");
             }
             mrClear();
             if (MSConfig.updateFilmliste) {
@@ -239,7 +239,7 @@ public class MSFilmeSuchen {
             stopZeit = new Date(System.currentTimeMillis());
             listeFilmeNeu.writeMetaData();
 
-            endeMeldung().forEach(MSLog::systemMeldung);
+            endeMeldung().forEach(Log::systemMeldung);
 
             notifyFertig(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), (int) listeSenderLaufen.get(MSRunSender.Count.FILME), false));
         }
@@ -303,7 +303,7 @@ public class MSFilmeSuchen {
                 this.wait(1000); // warten, Sender nach der Gesamtlaufzeit starten
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(978754213, ex);
+            Log.fehlerMeldung(978754213, ex);
         }
     }
 
@@ -328,23 +328,23 @@ public class MSFilmeSuchen {
         startZeit = new Date(System.currentTimeMillis());
         listeFilmeNeu = new ListeFilme();
         listeFilmeNeu.liveStreamEintragen();
-        MSLog.systemMeldung("");
-        MSLog.systemMeldung("=======================================");
-        MSLog.systemMeldung("Start Filme laden:");
+        Log.systemMeldung("");
+        Log.systemMeldung("=======================================");
+        Log.systemMeldung("Start Filme laden:");
         if (MSConfig.loadMax()) {
-            MSLog.systemMeldung("Filme laden: max");
+            Log.systemMeldung("Filme laden: max");
         } else if (MSConfig.loadLongMax()) {
-            MSLog.systemMeldung("Filme laden: long");
+            Log.systemMeldung("Filme laden: long");
         } else {
-            MSLog.systemMeldung("Filme laden: short");
+            Log.systemMeldung("Filme laden: short");
         }
         if (MSConfig.updateFilmliste) {
-            MSLog.systemMeldung("Filmliste: aktualisieren");
+            Log.systemMeldung("Filmliste: aktualisieren");
         } else {
-            MSLog.systemMeldung("Filmliste: neue erstellen");
+            Log.systemMeldung("Filmliste: neue erstellen");
         }
-        MSLog.systemMeldung("=======================================");
-        MSLog.systemMeldung("");
+        Log.systemMeldung("=======================================");
+        Log.systemMeldung("");
     }
 
     private void progressBar() {
@@ -377,7 +377,7 @@ public class MSFilmeSuchen {
                     + proz + "% von " + max + " Themen / Filme: " + listeSenderLaufen.get(MSRunSender.Count.FILME)
                     + " / Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60)
                     + " / R-Sender: " + listeSenderLaufen.getAnzSenderRun();
-            MSLog.progress(text);
+            Log.progress(text);
         }
     }
 

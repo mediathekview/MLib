@@ -24,7 +24,7 @@ import mSearch.filmeSuchen.MSFilmeSuchen;
 import mSearch.filmeSuchen.MSGetUrl;
 import mSearch.tool.MSConfig;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekZdf extends MediathekReader implements Runnable {
@@ -106,7 +106,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         MSStringBuilder seiteR = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
         seiteR = getUrl.getUri(SENDERNAME, addr, MSConst.KODIERUNG_UTF, 6 /* versuche */, seiteR, "" /* Meldung */);
         if (seiteR.length() == 0) {
-            MSLog.fehlerMeldung(774200364, "Leere Seite für URL: " + addr);
+            Log.fehlerMeldung(774200364, "Leere Seite für URL: " + addr);
         }
         int pos = 0;
         int pos1;
@@ -123,7 +123,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 url = seiteR.substring(pos1, pos2);
             }
             if (url.equals("")) {
-                MSLog.fehlerMeldung(754126900, "keine URL: " + addr);
+                Log.fehlerMeldung(754126900, "keine URL: " + addr);
             } else {
                 url = "http://www.zdf.de/ZDFmediathek/kanaluebersicht/aktuellste/" + url + "?bc=rub";
                 addToList_addr(url, ANZAHL_ZDF_UPDATE); // immer nur eine "kurz"
@@ -137,7 +137,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
         seite = getUrl.getUri(SENDERNAME, addr, MSConst.KODIERUNG_UTF, 6 /* versuche */, seite, "" /* Meldung */);
         if (seite.length() == 0) {
-            MSLog.fehlerMeldung(596004563, "Leere Seite für URL: " + addr);
+            Log.fehlerMeldung(596004563, "Leere Seite für URL: " + addr);
         }
         int pos = 0;
         int pos1;
@@ -168,7 +168,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 thema = seite.substring(pos1 + 2, pos2);
             }
             if (url.equals("")) {
-                MSLog.fehlerMeldung(946325890, "keine URL: " + addr);
+                Log.fehlerMeldung(946325890, "keine URL: " + addr);
             } else {
                 url = "http://www.zdf.de/ZDFmediathek/kanaluebersicht/aktuellste/" + url;
                 urlThema = url;
@@ -200,7 +200,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                     meldungProgress(link[0]);
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(496583200, ex);
+                Log.fehlerMeldung(496583200, ex);
             }
             meldungThreadUndFertig();
         }
@@ -242,7 +242,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                         titel = seite1.substring(pos1 + 2, pos2);
                     }
                     if (urlFilm.isEmpty()) {
-                        MSLog.fehlerMeldung(643269690, "keine URL: " + url);
+                        Log.fehlerMeldung(643269690, "keine URL: " + url);
                     } else {
                         // über die ID versuchen
                         urlFilm = "http://www.zdf.de/ZDFmediathek/beitrag/video/" + urlFilm;
@@ -268,12 +268,12 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                         }
                         if (!ok) {
                             // dann mit der herkömmlichen Methode versuchen
-                            MSLog.fehlerMeldung(398012379, "auf die alte Art: " + urlFilm);
+                            Log.fehlerMeldung(398012379, "auf die alte Art: " + urlFilm);
                         }
                     }
                 }
             } catch (Exception ex) {
-                MSLog.fehlerMeldung(796325800, ex, url);
+                Log.fehlerMeldung(796325800, ex, url);
             }
         }
 
@@ -307,7 +307,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 // dann wars wohl nur ein "403er"
                 film.arr[DatenFilm.FILM_URL_NR] = url_;
             } else {
-                MSLog.fehlerMeldung(945120369, "urlTauschen: " + urlSeite);
+                Log.fehlerMeldung(945120369, "urlTauschen: " + urlSeite);
             }
         }
     }
@@ -328,7 +328,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 
         strBuffer = getUrl.getUri_Utf(sender, urlId, strBuffer, "URL-Filmwebsite: " + filmWebsite);
         if (strBuffer.length() == 0) {
-            MSLog.fehlerMeldung(398745601, "url: " + urlId);
+            Log.fehlerMeldung(398745601, "url: " + urlId);
             return null;
         }
 
@@ -345,7 +345,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             beschreibung = beschreibung.replace("<![CDATA[", "");
             beschreibung = beschreibung.replace("]]>", "");
             if (beschreibung.isEmpty()) {
-                MSLog.fehlerMeldung(945123074, "url: " + urlId);
+                Log.fehlerMeldung(945123074, "url: " + urlId);
             }
         }
         if (thema.isEmpty()) {
@@ -396,7 +396,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 //            MSLog.fehlerMeldung(310254698, "keine URL: " + filmWebsite);
         }
         if (url.isEmpty()) {
-            MSLog.fehlerMeldung(397002891, "keine URL: " + filmWebsite);
+            Log.fehlerMeldung(397002891, "keine URL: " + filmWebsite);
             return null;
         } else {
             DatenFilm film = new DatenFilm(sender, thema, filmWebsite, titel, url, "" /*urlRtmp*/, datum, zeit,

@@ -30,7 +30,7 @@ import java.util.zip.ZipOutputStream;
 import mSearch.daten.DatenFilm;
 import mSearch.daten.ListeFilme;
 import mSearch.tool.MSConst;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
 
@@ -41,15 +41,15 @@ public class WriteFilmlistJson {
         XZOutputStream xZOutputStream = null;
         JsonGenerator jg = null;
         try {
-            MSLog.systemMeldung("Filme schreiben (" + listeFilme.size() + " Filme) :");
+            Log.systemMeldung("Filme schreiben (" + listeFilme.size() + " Filme) :");
             File file = new File(datei);
             File dir = new File(file.getParent());
             if (!dir.exists()) {
                 if (!dir.mkdirs()) {
-                    MSLog.fehlerMeldung(915236478, "Kann den Pfad nicht anlegen: " + dir.toString());
+                    Log.fehlerMeldung(915236478, "Kann den Pfad nicht anlegen: " + dir.toString());
                 }
             }
-            MSLog.systemMeldung("   --> Start Schreiben nach: " + datei);
+            Log.systemMeldung("   --> Start Schreiben nach: " + datei);
             String sender = "", thema = "";
             JsonFactory jsonF = new JsonFactory();
             if (datei.endsWith(MSConst.FORMAT_XZ)) {
@@ -110,9 +110,9 @@ public class WriteFilmlistJson {
                 jg.writeEndArray();
             }
             jg.writeEndObject();
-            MSLog.systemMeldung("   --> geschrieben!");
+            Log.systemMeldung("   --> geschrieben!");
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(846930145, ex, "nach: " + datei);
+            Log.fehlerMeldung(846930145, ex, "nach: " + datei);
         } finally {
             try {
                 if (jg != null) {
@@ -126,7 +126,7 @@ public class WriteFilmlistJson {
                     xZOutputStream.close();
                 }
             } catch (Exception e) {
-                MSLog.fehlerMeldung(732101201, e, "close stream: " + datei);
+                Log.fehlerMeldung(732101201, e, "close stream: " + datei);
             }
         }
     }

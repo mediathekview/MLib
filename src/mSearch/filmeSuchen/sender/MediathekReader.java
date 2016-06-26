@@ -31,7 +31,7 @@ import mSearch.filmeSuchen.MSGetUrl;
 import mSearch.filmeSuchen.MSRunSender;
 import mSearch.tool.GermanStringSorter;
 import mSearch.tool.MSConfig;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 
 public class MediathekReader implements Runnable {
 
@@ -111,7 +111,7 @@ public class MediathekReader implements Runnable {
             threads = 0;
             addToList();
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(397543600, ex, sendername);
+            Log.fehlerMeldung(397543600, ex, sendername);
         }
     }
 
@@ -173,11 +173,11 @@ public class MediathekReader implements Runnable {
     synchronized void meldungStart() {
         max = 0;
         progress = 0;
-        MSLog.systemMeldung("===============================================================");
-        MSLog.systemMeldung("Starten[" + ((MSConfig.loadLongMax()) ? "alles" : "update") + "] " + sendername + ": " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
-        MSLog.systemMeldung("   maxThreadLaufen: " + maxThreadLaufen);
-        MSLog.systemMeldung("   wartenSeiteLaden: " + wartenSeiteLaden);
-        MSLog.systemMeldung("");
+        Log.systemMeldung("===============================================================");
+        Log.systemMeldung("Starten[" + ((MSConfig.loadLongMax()) ? "alles" : "update") + "] " + sendername + ": " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
+        Log.systemMeldung("   maxThreadLaufen: " + maxThreadLaufen);
+        Log.systemMeldung("   wartenSeiteLaden: " + wartenSeiteLaden);
+        Log.systemMeldung("");
         MSRunSender runSender = mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
 //        MSRunSender runSender = listeSenderLaufen.getSender(sendername);
         runSender.maxThreads = maxThreadLaufen; //runSender ist erst jetzt angelegt
@@ -256,7 +256,7 @@ public class MediathekReader implements Runnable {
             }
         }
         if (ret.equals("")) {
-            MSLog.fehlerMeldung(469872800, pfad1 + " " + pfad2);
+            Log.fehlerMeldung(469872800, pfad1 + " " + pfad2);
         }
         return ret;
     }

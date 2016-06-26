@@ -20,7 +20,7 @@
 package mSearch.filmeSuchen;
 
 import java.util.Date;
-import mSearch.tool.MSLog;
+import mSearch.tool.Log;
 
 public class MSRunSender {
 
@@ -79,7 +79,7 @@ public class MSRunSender {
                 ret = min + ":" + sek;
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(976431583, ex, sender);
+            Log.fehlerMeldung(976431583, ex, sender);
         }
         return ret;
     }
@@ -91,7 +91,7 @@ public class MSRunSender {
                 sekunden = Math.round((endZeit.getTime() - startZeit.getTime()) / 1000);
             }
         } catch (Exception ex) {
-            MSLog.fehlerMeldung(976431583, ex, sender);
+            Log.fehlerMeldung(976431583, ex, sender);
         }
         return sekunden;
     }
