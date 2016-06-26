@@ -338,8 +338,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized void check() {
         // zum Debuggen
         for (DatenFilm film : this) {
-            film.arr[DatenFilm.FILM_THEMA_NR] = Functions.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
-            film.arr[DatenFilm.FILM_TITEL_NR] = Functions.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
+//            film.arr[DatenFilm.FILM_THEMA_NR] = FilenameUtils.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
+//            film.arr[DatenFilm.FILM_TITEL_NR] = FilenameUtils.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
             String s = film.arr[DatenFilm.FILM_BESCHREIBUNG_NR];
             film.arr[DatenFilm.FILM_BESCHREIBUNG_NR] = Functions.removeHtml(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR]);
             if (!s.equals(film.arr[DatenFilm.FILM_BESCHREIBUNG_NR])) {

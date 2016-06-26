@@ -22,7 +22,6 @@ package mSearch.tool;
 import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
-import mSearch.tool.ListenerMediathekView;
 
 public final class MVReplaceList {
 

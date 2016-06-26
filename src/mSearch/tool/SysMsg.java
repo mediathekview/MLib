@@ -31,10 +31,6 @@ public class SysMsg {
     private static final int MAX_LAENGE_2 = 30000;
     private static int zeilenNrSystem = 0;
     private static int zeilenNrProgramm = 0;
-//    public static PanelMeldungen panelMeldungenSystem = null;
-//    public static PanelMeldungen panelMeldungenPlayer = null;
-
-   
 
     public static synchronized void systemMeldung(String[] text) {
         systemmeldung(text);
@@ -54,22 +50,22 @@ public class SysMsg {
         final String z = ". ";
         if (texte.length <= 1) {
             System.out.println(z + " " + texte[0]);
-            notifyPanelMeldung(LOG_SYSTEM, texte[0]);
+            notify(LOG_SYSTEM, texte[0]);
         } else {
             String zeile = "---------------------------------------";
             String txt;
             System.out.println(z + zeile);
-            notifyPanelMeldung(LOG_SYSTEM, zeile);
+            notify(LOG_SYSTEM, zeile);
             for (int i = 0; i < texte.length; ++i) {
                 txt = "| " + texte[i];
                 System.out.println(z + txt);
                 if (i == 0) {
-                    notifyPanelMeldung(LOG_SYSTEM, texte[i]);
+                    notify(LOG_SYSTEM, texte[i]);
                 } else {
-                    notifyPanelMeldung(LOG_SYSTEM, "    " + texte[i]);
+                    notify(LOG_SYSTEM, "    " + texte[i]);
                 }
             }
-            notifyPanelMeldung(LOG_SYSTEM, " ");
+            notify(LOG_SYSTEM, " ");
             System.out.println(z + zeile);
         }
     }
@@ -77,10 +73,10 @@ public class SysMsg {
     private static void playermeldung(String[] texte) {
         final String z = "  >>";
         System.out.println(z + " " + texte[0]);
-        notifyPanelMeldung(LOG_PLAYER, texte[0]);
+        notify(LOG_PLAYER, texte[0]);
         for (int i = 1; i < texte.length; ++i) {
             System.out.println(z + " " + texte[i]);
-            notifyPanelMeldung(LOG_PLAYER, texte[i]);
+            notify(LOG_PLAYER, texte[i]);
         }
     }
 
@@ -99,7 +95,7 @@ public class SysMsg {
         }
     }
 
-    private static void notifyPanelMeldung(final int art, String zeile) {
+    private static void notify(final int art, String zeile) {
         switch (art) {
             case LOG_SYSTEM:
                 addText(textSystem, "[" + getNr(zeilenNrSystem++) + "]   " + zeile);
@@ -111,27 +107,6 @@ public class SysMsg {
                 break;
         }
         ListenerMediathekView.notify(art, SysMsg.class.getSimpleName());
-//        try {
-//            if (SwingUtilities.isEventDispatchThread()) {
-//                // notify
-//                if (art == LOG_SYSTEM && panelMeldungenSystem != null) {
-//                    panelMeldungenSystem.notifyPanel();
-//                } else if (art == LOG_PLAYER && panelMeldungenPlayer != null) {
-//                    panelMeldungenPlayer.notifyPanel();
-//                }
-//            } else {
-//                SwingUtilities.invokeLater(() -> {
-//                    // notify
-//                    if (art == LOG_SYSTEM && panelMeldungenSystem != null) {
-//                        panelMeldungenSystem.notifyPanel();
-//                    } else if (art == LOG_PLAYER && panelMeldungenPlayer != null) {
-//                        panelMeldungenPlayer.notifyPanel();
-//                    }
-//                });
-//            }
-//        } catch (Exception ex) {
-//            MSLog.fehlerMeldung(698989743, ex);
-//        }
     }
 
     private static String getNr(int nr) {
@@ -151,7 +126,5 @@ public class SysMsg {
         text.append(texte);
         text.append(System.getProperty("line.separator"));
     }
-
-   
 
 }

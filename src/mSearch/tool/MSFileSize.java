@@ -1,10 +1,6 @@
 package mSearch.tool;
 
-import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.SocketAddress;
-import java.net.URL;
+import java.net.*;
 import mSearch.filmeSuchen.MSFilmeSuchen;
 import mSearch.filmeSuchen.MSRunSender;
 

@@ -202,7 +202,8 @@ public class FilenameUtils {
             } else if (c == 'ß') {
                 r += "ß";
             } else // Buchstaben
-             if (c == 'Â' || c == 'À' || c == 'Å' || c == 'Á') {
+            {
+                if (c == 'Â' || c == 'À' || c == 'Å' || c == 'Á') {
                     r += "A";
                 } else if (c == 'å' || c == 'á' || c == 'à' || c == 'â') {
                     r += "a";
@@ -268,6 +269,7 @@ public class FilenameUtils {
                 } else {
                     r += "_";
                 }
+            }
         }
         return r;
     }
