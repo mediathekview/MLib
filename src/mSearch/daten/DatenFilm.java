@@ -34,8 +34,8 @@ import mSearch.filmeSuchen.sender.MediathekZdf;
 import mSearch.filmeSuchen.sender.MediathekZdfTivi;
 import mSearch.tool.DatumFilm;
 import mSearch.tool.GermanStringSorter;
-import mSearch.tool.MSConst;
-import mSearch.tool.MSFileSize;
+import mSearch.Const;
+import mSearch.tool.FileSize;
 import mSearch.tool.Functions;
 import mSearch.tool.Log;
 import mSearch.tool.MSLong;
@@ -230,7 +230,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         if (url.equals(arr[DatenFilm.FILM_URL_NR])) {
             return arr[DatenFilm.FILM_GROESSE_NR];
         } else {
-            return MSFileSize.laengeString(url);
+            return FileSize.laengeString(url);
         }
     }
 
@@ -327,21 +327,21 @@ public class DatenFilm implements Comparable<DatenFilm> {
             try {
                 url = uurl.substring(uurl.indexOf("/online/") + "/online/".length());
                 if (!url.contains("/")) {
-                    Log.fehlerMeldung(915230478, "Url: " + uurl);
+                    Log.errorLog(915230478, "Url: " + uurl);
                     return "";
                 }
                 url = url.substring(url.indexOf("/") + 1);
                 if (!url.contains("/")) {
-                    Log.fehlerMeldung(915230478, "Url: " + uurl);
+                    Log.errorLog(915230478, "Url: " + uurl);
                     return "";
                 }
                 url = url.substring(url.indexOf("/") + 1);
                 if (url.isEmpty()) {
-                    Log.fehlerMeldung(915230478, "Url: " + uurl);
+                    Log.errorLog(915230478, "Url: " + uurl);
                     return "";
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(915230478, ex, "Url: " + uurl);
+                Log.errorLog(915230478, ex, "Url: " + uurl);
             }
             return MediathekOrf.SENDERNAME + "----" + url;
         } else {
@@ -423,7 +423,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 }
             } catch (Exception ex) {
                 dauerL = 0;
-                Log.fehlerMeldung(468912049, "Dauer: " + this.arr[DatenFilm.FILM_DAUER_NR]);
+                Log.errorLog(468912049, "Dauer: " + this.arr[DatenFilm.FILM_DAUER_NR]);
             }
 
             //================================
@@ -443,14 +443,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
                         datumFilm = new DatumFilm(l * 1000 /* sind SEKUNDEN!!*/);
                     }
                 } catch (Exception ex) {
-                    Log.fehlerMeldung(915236701, ex, new String[]{"Datum: " + arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + arr[DatenFilm.FILM_ZEIT_NR]});
+                    Log.errorLog(915236701, ex, new String[]{"Datum: " + arr[DatenFilm.FILM_DATUM_NR], "Zeit: " + arr[DatenFilm.FILM_ZEIT_NR]});
                     datumFilm = new DatumFilm(0);
                     arr[DatenFilm.FILM_DATUM_NR] = "";
                     arr[DatenFilm.FILM_ZEIT_NR] = "";
                 }
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(715263987, ex);
+            Log.errorLog(715263987, ex);
         }
     }
 
@@ -506,8 +506,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         if (!arr[DatenFilm.FILM_URL_RTMP_NR].isEmpty()) {
             ret = arr[DatenFilm.FILM_URL_RTMP_NR];
         } else {
-            if (arr[DatenFilm.FILM_URL_NR].startsWith(MSConst.RTMP_PRTOKOLL)) {
-                ret = MSConst.RTMP_FLVSTREAMER + arr[DatenFilm.FILM_URL_NR];
+            if (arr[DatenFilm.FILM_URL_NR].startsWith(Const.RTMP_PRTOKOLL)) {
+                ret = Const.RTMP_FLVSTREAMER + arr[DatenFilm.FILM_URL_NR];
             } else {
                 ret = arr[DatenFilm.FILM_URL_NR];
             }
@@ -534,8 +534,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
             // dann gibts überhaupt nur die normalen URLs
             ret = getUrlNormalKlein();
             // und jetzt noch "-r" davorsetzten wenn nötig
-            if (ret.startsWith(MSConst.RTMP_PRTOKOLL)) {
-                ret = MSConst.RTMP_FLVSTREAMER + ret;
+            if (ret.startsWith(Const.RTMP_PRTOKOLL)) {
+                ret = Const.RTMP_FLVSTREAMER + ret;
             }
         }
         return ret;
@@ -603,8 +603,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         if (s.contains("\\\"")) { // wegen " in json-Files
             s = s.replace("\\\"", "\"");
         }
-        if (s.length() > MSConst.MAX_BESCHREIBUNG) {
-            return s.substring(0, MSConst.MAX_BESCHREIBUNG) + "\n.....";
+        if (s.length() > Const.MAX_BESCHREIBUNG) {
+            return s.substring(0, Const.MAX_BESCHREIBUNG) + "\n.....";
         } else {
             return s;
         }
@@ -620,15 +620,15 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 Date filmDate = sdfIn.parse(datum);
                 if (filmDate.getTime() < 0) {
                     //Datum vor 1970
-                    Log.fehlerMeldung(923012125, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
+                    Log.errorLog(923012125, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
                 } else if ((new Date().getTime() + MAX) < filmDate.getTime()) {
-                    Log.fehlerMeldung(121305469, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
+                    Log.errorLog(121305469, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
                 } else {
                     arr[FILM_DATUM_NR] = datum;
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(794630593, ex);
-                Log.fehlerMeldung(946301596, "[" + datum + "] " + fehlermeldung);
+                Log.errorLog(794630593, ex);
+                Log.errorLog(946301596, "[" + datum + "] " + fehlermeldung);
             }
         }
     }
@@ -640,7 +640,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             if (zeit.contains(":") && zeit.length() == 8) {
                 arr[FILM_ZEIT_NR] = zeit;
             } else {
-                Log.fehlerMeldung(159623647, "[" + zeit + "] " + fehlermeldung);
+                Log.errorLog(159623647, "[" + zeit + "] " + fehlermeldung);
             }
         }
     }

@@ -29,7 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import mSearch.daten.DatenFilm;
 import mSearch.daten.ListeFilme;
-import mSearch.tool.MSConst;
+import mSearch.Const;
 import mSearch.tool.Log;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
@@ -41,24 +41,24 @@ public class WriteFilmlistJson {
         XZOutputStream xZOutputStream = null;
         JsonGenerator jg = null;
         try {
-            Log.systemMeldung("Filme schreiben (" + listeFilme.size() + " Filme) :");
+            Log.sysLog("Filme schreiben (" + listeFilme.size() + " Filme) :");
             File file = new File(datei);
             File dir = new File(file.getParent());
             if (!dir.exists()) {
                 if (!dir.mkdirs()) {
-                    Log.fehlerMeldung(915236478, "Kann den Pfad nicht anlegen: " + dir.toString());
+                    Log.errorLog(915236478, "Kann den Pfad nicht anlegen: " + dir.toString());
                 }
             }
-            Log.systemMeldung("   --> Start Schreiben nach: " + datei);
+            Log.sysLog("   --> Start Schreiben nach: " + datei);
             String sender = "", thema = "";
             JsonFactory jsonF = new JsonFactory();
-            if (datei.endsWith(MSConst.FORMAT_XZ)) {
+            if (datei.endsWith(Const.FORMAT_XZ)) {
                 LZMA2Options options = new LZMA2Options();
                 xZOutputStream = new XZOutputStream(new FileOutputStream(file), options);
                 jg = jsonF.createGenerator(xZOutputStream);
-            } else if (datei.endsWith(MSConst.FORMAT_ZIP)) {
+            } else if (datei.endsWith(Const.FORMAT_ZIP)) {
                 zipOutputStream = new ZipOutputStream(new FileOutputStream(file));
-                ZipEntry entry = new ZipEntry(MSConst.XML_DATEI_FILME);
+                ZipEntry entry = new ZipEntry(Const.XML_DATEI_FILME);
                 zipOutputStream.putNextEntry(entry);
                 jg = jsonF.createGenerator(zipOutputStream, JsonEncoding.UTF8);
             } else {
@@ -110,9 +110,9 @@ public class WriteFilmlistJson {
                 jg.writeEndArray();
             }
             jg.writeEndObject();
-            Log.systemMeldung("   --> geschrieben!");
+            Log.sysLog("   --> geschrieben!");
         } catch (Exception ex) {
-            Log.fehlerMeldung(846930145, ex, "nach: " + datei);
+            Log.errorLog(846930145, ex, "nach: " + datei);
         } finally {
             try {
                 if (jg != null) {
@@ -126,7 +126,7 @@ public class WriteFilmlistJson {
                     xZOutputStream.close();
                 }
             } catch (Exception e) {
-                Log.fehlerMeldung(732101201, e, "close stream: " + datei);
+                Log.errorLog(732101201, e, "close stream: " + datei);
             }
         }
     }

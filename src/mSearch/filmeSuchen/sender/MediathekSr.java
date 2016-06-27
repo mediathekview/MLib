@@ -21,10 +21,10 @@ package mSearch.filmeSuchen.sender;
 
 import java.util.ArrayList;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
@@ -37,7 +37,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
      * @param ssearch
      * @param startPrio
      */
-    public MediathekSr(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekSr(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME, /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
@@ -51,7 +51,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
         // seite2: http://sr-mediathek.sr-online.de/index.php?seite=2&f=v&s=2&o=d
         // seite3: http://sr-mediathek.sr-online.de/index.php?seite=2&f=v&s=3&o=d
         int maxSeiten = 15;
-        if (MSConfig.loadLongMax()) {
+        if (Config.loadLongMax()) {
             maxSeiten = 120;
         }
         for (int i = 1; i < maxSeiten; ++i) {
@@ -60,7 +60,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
             listeThemen.add(add);
         }
 
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -77,9 +77,9 @@ public class MediathekSr extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         ArrayList<String> erg = new ArrayList<>();
 
         @Override
@@ -87,12 +87,12 @@ public class MediathekSr extends MediathekReader implements Runnable {
             try {
                 meldungAddThread();
                 String link[];
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0] /*url*/);
                     bearbeiteTage(link[0]/*url*/);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(951236547, ex);
+                Log.errorLog(951236547, ex);
             }
             meldungThreadUndFertig();
         }
@@ -101,7 +101,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
             seite1 = getUrlIo.getUri_Utf(SENDERNAME, urlSeite, seite1, "");
             seite1.extractList("<h3 class=\"teaser__text__header\">", "<a href=\"index.php?seite=", "\"", erg);
             for (String url : erg) {
-                if (MSConfig.getStop()) {
+                if (Config.getStop()) {
                     break;
                 }
                 addFilme("http://www.sr-mediathek.de/index.php?seite=" + url);
@@ -131,7 +131,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
                         }
                     }
                 } catch (Exception ex) {
-                    Log.fehlerMeldung(732012546, "d: " + d);
+                    Log.errorLog(732012546, "d: " + d);
                 }
                 description = seite2.extract("<meta property=\"og:description\" content=\"", "\"");
                 datum = seite2.extract("Video | ", "|").trim();
@@ -159,7 +159,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
                 String subtitle = seite2.extract("http_get.utPath", "= '", "'"); //http_get.utPath             = 'ut/AB_20150228.xml';
                 url = seite2.extract("var mediaURLs = ['", "'");
                 if (url.isEmpty()) {
-                    Log.fehlerMeldung(301245789, "keine URL für: " + urlSeite);
+                    Log.errorLog(301245789, "keine URL für: " + urlSeite);
                 } else {
                     // DatenFilm(String ssender, String tthema, String urlThema, String ttitel, String uurl, String uurlorg, String uurlRtmp, String datum, String zeit) {
                     //DatenFilm film = new DatenFilm(nameSenderMReader, thema, strUrlFeed, titel, url, furl, datum, "");
@@ -171,7 +171,7 @@ public class MediathekSr extends MediathekReader implements Runnable {
                     addFilm(film);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(402583366, ex);
+                Log.errorLog(402583366, ex);
             }
         }
 

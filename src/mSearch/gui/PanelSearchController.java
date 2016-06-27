@@ -37,12 +37,12 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.filmeSuchen.MSListenerFilmeLaden;
-import mSearch.filmeSuchen.MSListenerFilmeLadenEvent;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.filmeSuchen.ListenerFilmeLaden;
+import mSearch.filmeSuchen.ListenerFilmeLadenEvent;
 import mSearch.tool.Log;
+import mSearch.Config;
+import mSearch.Const;
 
 public class PanelSearchController implements Initializable {
 
@@ -100,23 +100,23 @@ public class PanelSearchController implements Initializable {
             tr.setCycleCount(2);
             tr.play();
 
-            MSConfig.setStop(true);
+            Config.setStop(true);
         });
         mSearchGuiLoad = new MSearchGuiLoad();
 
         rbShort.setSelected(true);
-        MSConfig.senderLoadHow = MSConfig.LOAD_SHORT;
-        rbShort.setOnAction(e -> MSConfig.senderLoadHow = MSConfig.LOAD_SHORT);
-        rbLong.setOnAction(e -> MSConfig.senderLoadHow = MSConfig.LOAD_LONG);
-        rbMax.setOnAction(e -> MSConfig.senderLoadHow = MSConfig.LOAD_MAX);
+        Config.senderLoadHow = Config.LOAD_SHORT;
+        rbShort.setOnAction(e -> Config.senderLoadHow = Config.LOAD_SHORT);
+        rbLong.setOnAction(e -> Config.senderLoadHow = Config.LOAD_LONG);
+        rbMax.setOnAction(e -> Config.senderLoadHow = Config.LOAD_MAX);
 
-        MSGetUrl.showLoadTime = cbLoadTime.isSelected();
-        cbLoadTime.setOnAction(e -> MSGetUrl.showLoadTime = cbLoadTime.isSelected());
+        GetUrl.showLoadTime = cbLoadTime.isSelected();
+        cbLoadTime.setOnAction(e -> GetUrl.showLoadTime = cbLoadTime.isSelected());
 
-        MSConfig.debug = cbDebug.isSelected();
-        cbDebug.setOnAction(e -> MSConfig.debug = cbDebug.isSelected());
+        Config.debug = cbDebug.isSelected();
+        cbDebug.setOnAction(e -> Config.debug = cbDebug.isSelected());
 
-        cbUpdate.setOnAction(e -> MSConfig.updateFilmliste = cbUpdate.isSelected());
+        cbUpdate.setOnAction(e -> Config.updateFilmliste = cbUpdate.isSelected());
 
         btnAllSender.setOnAction(e -> new Thread(() -> {
             disableButton(true);
@@ -133,9 +133,9 @@ public class PanelSearchController implements Initializable {
         }
         addSender();
 
-        mSearchGuiLoad.addAdListener(new MSListenerFilmeLaden() {
+        mSearchGuiLoad.addAdListener(new ListenerFilmeLaden() {
             @Override
-            public void progress(MSListenerFilmeLadenEvent event) {
+            public void progress(ListenerFilmeLadenEvent event) {
                 Platform.runLater(() -> {
                     if (event.max == 0) {
                         pBar.setProgress(0);
@@ -162,7 +162,7 @@ public class PanelSearchController implements Initializable {
             }
 
             @Override
-            public void fertig(MSListenerFilmeLadenEvent event) {
+            public void fertig(ListenerFilmeLadenEvent event) {
                 Platform.runLater(() -> {
                     pBar.setProgress(0);
                     lblPercent.setText("");
@@ -180,19 +180,19 @@ public class PanelSearchController implements Initializable {
         String datei = "/tmp/testfile"; //////////////
         Date aktTime = new Date(System.currentTimeMillis());
         String aktTimeStr = sdf.format(aktTime);
-        Log.systemMeldung("");
-        Log.systemMeldung("Log schreiben: " + datei);
-        Log.systemMeldung("--> " + aktTimeStr);
+        Log.sysLog("");
+        Log.sysLog("Log schreiben: " + datei);
+        Log.sysLog("--> " + aktTimeStr);
         File file = new File(datei);
         File dir = new File(file.getParent());
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
-                Log.fehlerMeldung(632012165, "Kann den Pfad nicht anlegen: " + dir.toString());
+                Log.errorLog(632012165, "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
 
         try {
-            OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, true), MSConst.KODIERUNG_UTF);
+            OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(file, true), Const.KODIERUNG_UTF);
             out.write("===============================================================");
             out.write("===============================================================");
             out.write("\n");
@@ -204,7 +204,7 @@ public class PanelSearchController implements Initializable {
                 out.write(s);
                 out.write("\n");
             }
-            ret = Log.fehlerMeldungen();
+            ret = Log.printErrorMsg();
             for (String s : ret) {
                 out.write(s);
                 out.write("\n");
@@ -221,9 +221,9 @@ public class PanelSearchController implements Initializable {
             out.write("\n");
             out.close();
 
-            Log.systemMeldung("--> geschrieben!");
+            Log.sysLog("--> geschrieben!");
         } catch (Exception ex) {
-            Log.fehlerMeldung(846930145, ex, "nach: " + datei);
+            Log.errorLog(846930145, ex, "nach: " + datei);
         }
     }
 

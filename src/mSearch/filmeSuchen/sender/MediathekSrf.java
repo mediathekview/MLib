@@ -25,10 +25,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -39,7 +39,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
     private final static int MAX_SEITEN_THEMA = 5;
     private final static int MAX_FILME_KURZ = 6;
 
-    public MediathekSrf(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekSrf(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME,/* threads */ 3, /* urlWarten */ 400, startPrio);
     }
 
@@ -48,7 +48,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
         // data-teaser-title="1 gegen 100"
         // data-teaser-url="/sendungen/1gegen100"
         final String MUSTER = "{\"id\":\"";
-        MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         listeThemen.clear();
         meldungStart();
         seite = getUrlIo.getUri_Utf(SENDERNAME, "http://www.srf.ch/play/tv/atozshows/list?layout=json", seite, "");
@@ -72,7 +72,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             }
         }
 
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -88,12 +88,12 @@ public class MediathekSrf extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
 
-        private final MSStringBuilder film_website = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        MSStringBuilder overviewPageFilm = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        MSStringBuilder filmPage = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        MSStringBuilder m3u8Page = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder film_website = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder overviewPageFilm = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder filmPage = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder m3u8Page = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         private final static String PATTERN_URL = "\"url\":\"";
         private final static String PATTERN_URL_END = "\"";
         private final ArrayList<String> urlList = new ArrayList<>();
@@ -105,12 +105,12 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 meldungAddThread();
                 String link[];
 
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0] /* url */);
                     addFilme(link[0]/*url*/, link[1]/*thema*/);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(832002877, ex);
+                Log.errorLog(832002877, ex);
             }
             meldungThreadUndFertig();
         }
@@ -121,7 +121,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 String urlFeed = "http://www.srf.ch/play/tv/episodesfromshow?id=" + urlThema + "&pageNumber=1&layout=json";
                 overviewPageFilm = getUrl.getUri_Utf(SENDERNAME, urlFeed, overviewPageFilm, "");
                 addFilmsFromPage(overviewPageFilm, thema, urlFeed);
-                if (MSConfig.loadLongMax()) {
+                if (Config.loadLongMax()) {
                     String url = urlFeed.substring(0, urlFeed.indexOf("&pageNumber=1"));
                     for (int i = 2; i <= MAX_SEITEN_THEMA; ++i) {
                         if (overviewPageFilm.indexOf("pageNumber=" + i) == -1) {
@@ -134,7 +134,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(195926364, ex);
+                Log.errorLog(195926364, ex);
             }
         }
 
@@ -146,11 +146,11 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             page.extractList("{\"id\":\"", "?id=", "\"", filmList);
 
             for (String id : filmList) {
-                if (MSConfig.getStop()) {
+                if (Config.getStop()) {
                     break;
                 }
                 ++count;
-                if (!MSConfig.loadLongMax() && count > MAX_FILME_KURZ) {
+                if (!Config.loadLongMax() && count > MAX_FILME_KURZ) {
                     break;
                 }
                 //http://www.srf.ch/play/tv/episodesfromshow?id=c38cc259-b5cd-4ac1-b901-e3fddd901a3d&pageNumber=1&layout=json
@@ -239,7 +239,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                 }
 
                 if (url_normal.isEmpty()) {
-                    Log.fehlerMeldung(962101451, "Keine URL: " + jsonMovieUrl);
+                    Log.errorLog(962101451, "Keine URL: " + jsonMovieUrl);
                 } else {
                     DatenFilm film = new DatenFilm(SENDERNAME, theme, urlThema, title, url_normal, ""/*rtmpURL*/, date_str, time, duration, description);
 
@@ -255,7 +255,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     addFilm(film);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(556320087, ex);
+                Log.errorLog(556320087, ex);
             }
         }
 
@@ -299,7 +299,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
                     duration = duration / 1000; //ms
                 }
             } catch (NumberFormatException ex) {
-                Log.fehlerMeldung(646490237, ex);
+                Log.errorLog(646490237, ex);
             }
             return duration;
         }
@@ -315,7 +315,7 @@ public class MediathekSrf extends MediathekReader implements Runnable {
             try {
                 date = formatter.parse(date_str);
             } catch (ParseException ex) {
-                Log.fehlerMeldung(784512304, ex, "Date_STR " + date_str);
+                Log.errorLog(784512304, ex, "Date_STR " + date_str);
             }
 
             return date;

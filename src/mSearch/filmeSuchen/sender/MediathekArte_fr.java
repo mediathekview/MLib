@@ -19,7 +19,7 @@
  */
 package mSearch.filmeSuchen.sender;
 
-import mSearch.filmeSuchen.MSFilmeSuchen;
+import mSearch.filmeSuchen.FilmeSuchen;
 
 public class MediathekArte_fr extends MediathekArte_de implements Runnable {
 
@@ -30,7 +30,7 @@ public class MediathekArte_fr extends MediathekArte_de implements Runnable {
      * @param ssearch
      * @param startPrio
      */
-    public MediathekArte_fr(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekArte_fr(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, startPrio, SENDERNAME);
         URL_ARTE = "http://www.arte.tv/papi/tvguide/epg/schedule/F/L3/";
         URL_CONCERT = "http://concert.arte.tv/fr/videos/all";

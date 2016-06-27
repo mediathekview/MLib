@@ -17,13 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package mSearch.tool;
+package mSearch;
 
-public class MSConst {
+import mSearch.tool.Functions;
+
+public class Const {
 
     public static final String VERSION_FILMLISTE = "3";
     public static final String PROGRAMMNAME = "MSearch";
-    public static final String USER_AGENT_DEFAULT = MSConst.PROGRAMMNAME + Functions.getProgVersionString();
+    public static final String USER_AGENT_DEFAULT = Const.PROGRAMMNAME + Functions.getProgVersionString();
     // MediathekView URLs
     public static final String ADRESSE_FILMLISTEN_SERVER_XML = "http://zdfmediathk.sourceforge.net/update.xml";
     public static final String ADRESSE_FILMLISTEN_SERVER_JSON = "http://zdfmediathk.sourceforge.net/update-json.xml";

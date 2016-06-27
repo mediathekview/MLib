@@ -19,11 +19,11 @@
  */
 package mSearch.daten;
 
-import mSearch.tool.MSConfig;
+import mSearch.Config;
 import mSearch.tool.Functions;
-import mSearch.tool.MSConst;
+import mSearch.Const;
 import mSearch.tool.Log;
-import mSearch.tool.MSFileSize;
+import mSearch.tool.FileSize;
 import mSearch.filmeSuchen.sender.MediathekZdf;
 import mSearch.filmeSuchen.sender.MediathekSr;
 import mSearch.filmeSuchen.sender.MediathekHr;
@@ -209,11 +209,11 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 //            }
 //        }
 //        hash.clear();
-        Log.systemMeldung("===== Liste einsortieren Hash =====");
-        Log.systemMeldung("Liste einsortieren, Anzahl: " + size);
-        Log.systemMeldung("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
-        Log.systemMeldung("Liste einsortieren, noch einsortieren: " + listeEinsortieren.size());
-        Log.systemMeldung("");
+        Log.sysLog("===== Liste einsortieren Hash =====");
+        Log.sysLog("Liste einsortieren, Anzahl: " + size);
+        Log.sysLog("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
+        Log.sysLog("Liste einsortieren, noch einsortieren: " + listeEinsortieren.size());
+        Log.sysLog("");
         size = listeEinsortieren.size();
 
         // ==============================================
@@ -230,11 +230,11 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 //            }
 //        }
 //        hash.clear();
-        Log.systemMeldung("===== Liste einsortieren URL =====");
-        Log.systemMeldung("Liste einsortieren, Anzahl: " + size);
-        Log.systemMeldung("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
-        Log.systemMeldung("Liste einsortieren, noch einsortieren: " + listeEinsortieren.size());
-        Log.systemMeldung("");
+        Log.sysLog("===== Liste einsortieren URL =====");
+        Log.sysLog("Liste einsortieren, Anzahl: " + size);
+        Log.sysLog("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
+        Log.sysLog("Liste einsortieren, noch einsortieren: " + listeEinsortieren.size());
+        Log.sysLog("");
         size = listeEinsortieren.size();
 
         // Rest nehmen wir wenn noch online
@@ -242,19 +242,19 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             new Thread(new AddOld(listeEinsortieren)).start();
         }
         int count = 0;
-        while (!MSConfig.getStop() && counter > 0) {
+        while (!Config.getStop() && counter > 0) {
             try {
                 System.out.println("s: " + 2 * (count++) + "  Liste: " + listeEinsortieren.size() + "  Treffer: " + treffer + "   Threads: " + counter);
                 wait(2000);
             } catch (InterruptedException ignored) {
             }
         }
-        Log.systemMeldung("===== Liste einsortieren: Noch online =====");
-        Log.systemMeldung("Liste einsortieren, Anzahl: " + size);
-        Log.systemMeldung("Liste einsortieren, entfernt: " + (size - treffer));
-        Log.systemMeldung("");
-        Log.systemMeldung("In Liste einsortiert: " + treffer);
-        Log.systemMeldung("");
+        Log.sysLog("===== Liste einsortieren: Noch online =====");
+        Log.sysLog("Liste einsortieren, Anzahl: " + size);
+        Log.sysLog("Liste einsortieren, entfernt: " + (size - treffer));
+        Log.sysLog("");
+        Log.sysLog("In Liste einsortiert: " + treffer);
+        Log.sysLog("");
         return treffer;
     }
 
@@ -271,7 +271,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         @Override
         public void run() {
             while ((film = popOld(listeOld)) != null) {
-                String size = MSFileSize.laengeString(film.arr[DatenFilm.FILM_URL_NR]);
+                String size = FileSize.laengeString(film.arr[DatenFilm.FILM_URL_NR]);
                 if (!size.isEmpty()) {
                     addOld(film);
                 }
@@ -310,7 +310,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // wird vorerst nicht verwendet: findet nur ~200 Filme von über 3000
         int count = 0;
         final SimpleDateFormat sdfClean = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
-        Log.systemMeldung("cleanList start: " + sdfClean.format(System.currentTimeMillis()));
+        Log.sysLog("cleanList start: " + sdfClean.format(System.currentTimeMillis()));
         ListeFilme tmp = this.stream().filter(datenFilm -> datenFilm.arr[DatenFilm.FILM_SENDER_NR].equals(MediathekBr.SENDERNAME))
                 .filter(datenFilm -> datenFilm.arr[DatenFilm.FILM_THEMA_NR].equals(MediathekBr.SENDERNAME))
                 .collect(Collectors.toCollection(ListeFilme::new));
@@ -331,8 +331,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
         tmp.clear();
 
-        Log.systemMeldung("cleanList stop: " + sdfClean.format(System.currentTimeMillis()));
-        Log.systemMeldung("cleanList count: " + count);
+        Log.sysLog("cleanList stop: " + sdfClean.format(System.currentTimeMillis()));
+        Log.sysLog("cleanList count: " + count);
     }
 
     public synchronized void check() {
@@ -466,7 +466,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             }
         }
         // dann ist der Film nicht in der Liste
-        return MSFileSize.laengeString(url, sender);
+        return FileSize.laengeString(url, sender);
     }
 
     /**
@@ -693,7 +693,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
      * @return true if too old or if the list is empty.
      */
     public synchronized boolean isTooOld() {
-        return (isEmpty()) || (isOlderThan(MSConst.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE));
+        return (isEmpty()) || (isOlderThan(Const.ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE));
     }
 
     /**
@@ -706,7 +706,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             return true;
         }
         try {
-            final String dateMaxDiff_str = new SimpleDateFormat("yyyy.MM.dd__").format(new Date()) + MSConst.TIME_MAX_AGE_FOR_DIFF + ":00:00";
+            final String dateMaxDiff_str = new SimpleDateFormat("yyyy.MM.dd__").format(new Date()) + Const.TIME_MAX_AGE_FOR_DIFF + ":00:00";
             final Date dateMaxDiff = new SimpleDateFormat("yyyy.MM.dd__HH:mm:ss").parse(dateMaxDiff_str);
             final Date dateFilmliste = getAgeAsDate();
             if (dateFilmliste != null) {
@@ -726,7 +726,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized boolean isOlderThan(int sekunden) {
         int ret = getAge();
         if (ret != 0) {
-            Log.systemMeldung("Die Filmliste ist " + ret / 60 + " Minuten alt");
+            Log.sysLog("Die Filmliste ist " + ret / 60 + " Minuten alt");
         }
         return ret > sekunden;
     }
@@ -738,8 +738,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = getJetzt_ddMMyyyy_HHmm();
         metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = getJetzt_ddMMyyyy_HHmm_gmt();
         metaDaten[ListeFilme.FILMLISTE_ID_NR] = createChecksum(metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR]);
-        metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = MSConst.VERSION_FILMLISTE;
-        metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = MSConst.PROGRAMMNAME + Functions.getProgVersionString() + " - Compiled: " + Functions.getCompileDate();
+        metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = Const.VERSION_FILMLISTE;
+        metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = Const.PROGRAMMNAME + Functions.getProgVersionString() + " - Compiled: " + Functions.getCompileDate();
     }
 
     /**

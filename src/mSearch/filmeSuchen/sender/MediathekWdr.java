@@ -21,18 +21,18 @@
  */
 package mSearch.filmeSuchen.sender;
 
-import mSearch.tool.MSConfig;
+import mSearch.Config;
 import mSearch.tool.MSStringBuilder;
 import mSearch.tool.DebugMsg;
-import mSearch.tool.MSConst;
+import mSearch.Const;
 import mSearch.tool.Log;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
 
 public class MediathekWdr extends MediathekReader implements Runnable {
 
@@ -44,10 +44,10 @@ public class MediathekWdr extends MediathekReader implements Runnable {
     private final ArrayList<String> listeRochpalast = new ArrayList<>();
     private final ArrayList<String> listeMaus = new ArrayList<>();
     private final LinkedList<String> listeTage = new LinkedList<>();
-    private MSStringBuilder seite_1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-    private MSStringBuilder seite_2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+    private MSStringBuilder seite_1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+    private MSStringBuilder seite_2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
-    public MediathekWdr(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekWdr(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME,/* threads */ 3, /* urlWarten */ 500, startPrio);
     }
 
@@ -65,7 +65,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         meldungStart();
         addToList__();
         addTage();
-        if (MSConfig.loadLongMax()) {
+        if (Config.loadLongMax()) {
             maus();
             rockpalast();
             festival();
@@ -78,7 +78,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             listeThemen.addUrl(add);
         }
 
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.isEmpty() && listeTage.isEmpty() && listeFestival.isEmpty() && listeRochpalast.isEmpty() && listeMaus.isEmpty()) {
             meldungThreadUndFertig();
@@ -98,10 +98,10 @@ public class MediathekWdr extends MediathekReader implements Runnable {
     //===================================
     private void rockpalast() {
         try {
-            seite_1 = getUrlIo.getUri(SENDERNAME, ROCKPALAST_URL, MSConst.KODIERUNG_UTF, 3 /* versuche */, seite_1, "");
+            seite_1 = getUrlIo.getUri(SENDERNAME, ROCKPALAST_URL, Const.KODIERUNG_UTF, 3 /* versuche */, seite_1, "");
             seite_1.extractList("", "", "<a href=\"/mediathek/video", "\"", "http://www1.wdr.de/mediathek/video/", listeRochpalast);
         } catch (Exception ex) {
-            Log.fehlerMeldung(915423698, ex);
+            Log.errorLog(915423698, ex);
         }
     }
 
@@ -109,21 +109,21 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         // http://www.wdrmaus.de/lachgeschichten/mausspots/achterbahn.php5
         final String ROOTADR = "http://www.wdrmaus.de/lachgeschichten/";
         final String ITEM_1 = "<li class=\"filmvorschau\"><a href=\"../lachgeschichten/";
-        seite_1 = getUrlIo.getUri(SENDERNAME, MAUS, MSConst.KODIERUNG_UTF, 3 /* versuche */, seite_1, "");
+        seite_1 = getUrlIo.getUri(SENDERNAME, MAUS, Const.KODIERUNG_UTF, 3 /* versuche */, seite_1, "");
         try {
             seite_1.extractList("", "", ITEM_1, "\"", ROOTADR, listeMaus);
         } catch (Exception ex) {
-            Log.fehlerMeldung(975456987, ex);
+            Log.errorLog(975456987, ex);
         }
     }
 
     private void festival() {
         // http://www1.wdr.de/fernsehen/kultur/rockpalast/videos/rockpalastvideos_festivals100.html
-        seite_1 = getUrlIo.getUri(SENDERNAME, ROCKPALAST_FESTIVAL, MSConst.KODIERUNG_UTF, 3 /* versuche */, seite_1, "");
+        seite_1 = getUrlIo.getUri(SENDERNAME, ROCKPALAST_FESTIVAL, Const.KODIERUNG_UTF, 3 /* versuche */, seite_1, "");
         try {
             seite_1.extractList("", "", "<a href=\"/fernsehen/rockpalast/events/", "\"", "http://www1.wdr.de/fernsehen/rockpalast/events/", listeFestival);
         } catch (Exception ex) {
-            Log.fehlerMeldung(432365698, ex);
+            Log.errorLog(432365698, ex);
         }
     }
 
@@ -152,7 +152,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         String url;
         themenSeitenSuchen(URL); // ist die erste Seite: "a"
         pos1 = seite_1.indexOf("<strong>A</strong>");
-        while (!MSConfig.getStop() && (pos1 = seite_1.indexOf(MUSTER_URL, pos1)) != -1) {
+        while (!Config.getStop() && (pos1 = seite_1.indexOf(MUSTER_URL, pos1)) != -1) {
             pos1 += MUSTER_URL.length();
             if ((pos2 = seite_1.indexOf("\"", pos1)) != -1) {
                 url = seite_1.substring(pos1, pos2);
@@ -160,7 +160,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     continue;
                 }
                 if (url.equals("")) {
-                    Log.fehlerMeldung(995122047, "keine URL");
+                    Log.errorLog(995122047, "keine URL");
                 } else {
                     url = "http://www1.wdr.de/mediathek/video/sendungen-a-z/" + url;
                     themenSeitenSuchen(url);
@@ -176,7 +176,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         String url;
         seite_2 = getUrlIo.getUri_Iso(SENDERNAME, strUrlFeed, seite_2, "");
         meldung(strUrlFeed);
-        while (!MSConfig.getStop() && (pos1 = seite_2.indexOf(MUSTER_URL, pos1)) != -1) {
+        while (!Config.getStop() && (pos1 = seite_2.indexOf(MUSTER_URL, pos1)) != -1) {
             pos1 += MUSTER_URL.length();
             if ((pos2 = seite_2.indexOf("\"", pos1)) != -1) {
                 url = seite_2.substring(pos1, pos2).trim();
@@ -188,19 +188,19 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     listeThemen.addUrl(add);
                 }
             } else {
-                Log.fehlerMeldung(375862100, "keine Url" + strUrlFeed);
+                Log.errorLog(375862100, "keine Url" + strUrlFeed);
             }
         }
     }
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private MSStringBuilder sendungsSeite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder sendungsSeite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder sendungsSeite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder sendungsSeite4 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        MSStringBuilder m3u8Page = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private MSStringBuilder sendungsSeite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder sendungsSeite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder sendungsSeite3 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder sendungsSeite4 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder m3u8Page = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         private final ArrayList<String> liste_1 = new ArrayList<>();
         private final ArrayList<String> liste_2 = new ArrayList<>();
 
@@ -209,7 +209,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             try {
                 meldungAddThread();
                 String[] link;
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     if (null != link[0]) {
                         switch (link[0]) {
                             case ROCKPALAST_URL:
@@ -229,13 +229,13 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     meldungProgress(link[0]);
                 }
                 String url;
-                while (!MSConfig.getStop() && (url = getListeTage()) != null) {
+                while (!Config.getStop() && (url = getListeTage()) != null) {
                     meldungProgress(url);
                     sendungsSeitenSuchen2(url);
                 }
 
             } catch (Exception ex) {
-                Log.fehlerMeldung(633250489, ex);
+                Log.errorLog(633250489, ex);
             }
             meldungThreadUndFertig();
         }
@@ -245,13 +245,13 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             // Sendungen auf der Seite
             liste_1.clear();
             liste_1.add(strUrl);
-            if (MSConfig.loadLongMax()) {
+            if (Config.loadLongMax()) {
                 // sonst wars das
                 sendungsSeite1 = getUrl.getUri_Utf(SENDERNAME, strUrl, sendungsSeite1, "");
                 sendungsSeite1.extractList("<ul class=\"pageCounterNavi\">", "</ul>", "<a href=\"/mediathek/video/sendungen/", "\"", "http://www1.wdr.de/mediathek/video/sendungen/", liste_1);
             }
             for (String u : liste_1) {
-                if (MSConfig.getStop()) {
+                if (Config.getStop()) {
                     break;
                 }
                 sendungsSeitenSuchen2(u);
@@ -291,7 +291,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             }
 
             pos = 0;
-            while (!MSConfig.getStop() && (pos = sendungsSeite2.indexOf(MUSTER_URL, pos)) != -1) {
+            while (!Config.getStop() && (pos = sendungsSeite2.indexOf(MUSTER_URL, pos)) != -1) {
                 pos += MUSTER_URL.length();
                 url = sendungsSeite2.extract("<a href=\"/mediathek/video/sendungen/", "\"", pos);
                 if (!url.equals("")) {
@@ -313,13 +313,13 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                             }
                         }
                     } catch (Exception ex) {
-                        Log.fehlerMeldung(306597519, ex, strUrl);
+                        Log.errorLog(306597519, ex, strUrl);
                     }
 
                     //weiter gehts
                     addFilm1(thema, titel, url, duration, datum);
                 } else {
-                    Log.fehlerMeldung(646432970, "keine Url" + strUrl);
+                    Log.errorLog(646432970, "keine Url" + strUrl);
                 }
             }
         }
@@ -334,7 +334,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             liste_2.clear();
             seite.extractList("Letzte Sendungen", "Neuer Abschnitt", "<a href=\"", "\"", "http://www1.wdr.de", liste_2);
             for (String ur : liste_2) {
-                if (MSConfig.getStop()) {
+                if (Config.getStop()) {
                     break;
                 }
 
@@ -364,7 +364,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 return;
             }
             if (sendungsSeite3.length() == 0) {
-                Log.fehlerMeldung(751236547, new String[]{"leere Seite: " + filmWebsite});
+                Log.errorLog(751236547, new String[]{"leere Seite: " + filmWebsite});
             }
             String description = sendungsSeite3.extract("<p class=\"text\">", "<");
             if (thema.isEmpty()) {
@@ -382,7 +382,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             if (!url.equals("")) {
                 addFilm2(filmWebsite, thema, titel, url, dauer, datum, description);
             } else {
-                Log.fehlerMeldung(763299001, new String[]{"keine Url: " + filmWebsite});
+                Log.errorLog(763299001, new String[]{"keine Url: " + filmWebsite});
             }
 
         }
@@ -485,7 +485,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 }
                 addFilm(film);
             } else {
-                Log.fehlerMeldung(978451239, new String[]{"keine Url: " + urlFilmSuchen, "UrlThema: " + filmWebsite});
+                Log.errorLog(978451239, new String[]{"keine Url: " + urlFilmSuchen, "UrlThema: " + filmWebsite});
             }
         }
 
@@ -499,7 +499,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             try {
                 for (String urlRock : listeRochpalast) {
                     meldungProgress(urlRock);
-                    if (MSConfig.getStop()) {
+                    if (Config.getStop()) {
                         break;
                     }
                     // Konzerte suchen
@@ -510,7 +510,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(696963025, ex);
+                Log.errorLog(696963025, ex);
             }
         }
 
@@ -518,7 +518,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             try {
                 for (String urlRock : listeFestival) {
                     meldungProgress(urlRock);
-                    if (MSConfig.getStop()) {
+                    if (Config.getStop()) {
                         break;
                     }
                     // Konzerte suchen
@@ -529,7 +529,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(915263698, ex);
+                Log.errorLog(915263698, ex);
             }
         }
 
@@ -537,7 +537,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             try {
                 for (String filmWebsite : listeMaus) {
                     meldungProgress(filmWebsite);
-                    if (MSConfig.getStop()) {
+                    if (Config.getStop()) {
                         break;
                     }
                     sendungsSeite1 = getUrl.getUri_Utf(SENDERNAME, filmWebsite, sendungsSeite1, "");
@@ -551,7 +551,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                     addFilm2(filmWebsite, "MausSpots", titel, jsUrl, 0, "", "");
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(915263698, ex);
+                Log.errorLog(915263698, ex);
             }
         }
 

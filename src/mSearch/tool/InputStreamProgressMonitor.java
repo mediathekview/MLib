@@ -5,6 +5,6 @@ package mSearch.tool;
  * Date: 15.06.16
  * Time: 14:05
  */
-public interface MVInputStreamProgressMonitor {
+public interface InputStreamProgressMonitor {
     void progress(long bytesRead, long size);
 }

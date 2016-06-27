@@ -44,7 +44,7 @@ public class MSLong implements Comparable<MSLong> {
                 s = film.arr[DatenFilm.FILM_GROESSE_NR];
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(649891025,  ex, "String: " + film.arr[DatenFilm.FILM_GROESSE_NR]);
+            Log.errorLog(649891025,  ex, "String: " + film.arr[DatenFilm.FILM_GROESSE_NR]);
             l = 0L;
             s = "";
         }

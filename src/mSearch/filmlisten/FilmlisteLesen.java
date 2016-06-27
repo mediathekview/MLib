@@ -19,18 +19,17 @@
  */
 package mSearch.filmlisten;
 
-import mSearch.tool.MVProgressMonitorInputStream;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MVInputStreamProgressMonitor;
-import mSearch.tool.MSConst;
+import mSearch.tool.ProgressMonitorInputStream;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Log;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import mSearch.daten.DatenFilm;
 import mSearch.daten.ListeFilme;
-import mSearch.filmeSuchen.MSListenerFilmeLaden;
-import mSearch.filmeSuchen.MSListenerFilmeLadenEvent;
+import mSearch.filmeSuchen.ListenerFilmeLaden;
+import mSearch.filmeSuchen.ListenerFilmeLadenEvent;
 import org.tukaani.xz.XZInputStream;
 
 import javax.swing.event.EventListenerList;
@@ -41,8 +40,9 @@ import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.zip.ZipInputStream;
+import mSearch.tool.InputStreamProgressMonitor;
 
-public class MSFilmlisteLesen {
+public class FilmlisteLesen {
 
     public enum WorkMode {
 
@@ -56,8 +56,8 @@ public class MSFilmlisteLesen {
     private static final int PROGRESS_MAX = 100;
     private long seconds = 0;
 
-    public void addAdListener(MSListenerFilmeLaden listener) {
-        listeners.add(MSListenerFilmeLaden.class, listener);
+    public void addAdListener(ListenerFilmeLaden listener) {
+        listeners.add(ListenerFilmeLaden.class, listener);
     }
 
     /**
@@ -80,11 +80,11 @@ public class MSFilmlisteLesen {
             HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
             conn.setConnectTimeout(TIMEOUT);
             conn.setReadTimeout(TIMEOUT);
-            conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
+            conn.setRequestProperty("User-Agent", Config.getUserAgent());
             if (conn.getResponseCode() < 400) {
                 size = conn.getContentLengthLong();
             }
-            in = new MVProgressMonitorInputStream(conn.getInputStream(), size, new MVInputStreamProgressMonitor() {
+            in = new ProgressMonitorInputStream(conn.getInputStream(), size, new InputStreamProgressMonitor() {
                 private int oldProgress = 0;
 
                 @Override
@@ -106,9 +106,9 @@ public class MSFilmlisteLesen {
     }
 
     private InputStream selectDecompressor(String source, InputStream in) throws Exception {
-        if (source.endsWith(MSConst.FORMAT_XZ)) {
+        if (source.endsWith(Const.FORMAT_XZ)) {
             in = new XZInputStream(in);
-        } else if (source.endsWith(MSConst.FORMAT_ZIP)) {
+        } else if (source.endsWith(Const.FORMAT_ZIP)) {
             ZipInputStream zipInputStream = new ZipInputStream(in);
             zipInputStream.getNextEntry();
             in = zipInputStream;
@@ -117,7 +117,7 @@ public class MSFilmlisteLesen {
     }
 
     public void readFilmListe(String source, final ListeFilme listeFilme, int days) {
-        Log.systemMeldung("Liste Filme lesen von: " + source);
+        Log.sysLog("Liste Filme lesen von: " + source);
         JsonToken jsonToken;
         String sender = "", thema = "";
         JsonParser jp = null;
@@ -159,7 +159,7 @@ public class MSFilmlisteLesen {
                     break;
                 }
             }
-            while (!MSConfig.getStop() && (jsonToken = jp.nextToken()) != null) {
+            while (!Config.getStop() && (jsonToken = jp.nextToken()) != null) {
                 if (jsonToken == JsonToken.END_OBJECT) {
                     break;
                 }
@@ -215,10 +215,10 @@ public class MSFilmlisteLesen {
             }
             jp.close();
         } catch (FileNotFoundException ex) {
-            Log.fehlerMeldung(894512369, ex, "FilmListe: " + source);
+            Log.errorLog(894512369, ex, "FilmListe: " + source);
             listeFilme.clear();
         } catch (Exception ex) {
-            Log.fehlerMeldung(945123641, ex, "FilmListe: " + source);
+            Log.errorLog(945123641, ex, "FilmListe: " + source);
             listeFilme.clear();
         } finally {
             try {
@@ -228,8 +228,8 @@ public class MSFilmlisteLesen {
             } catch (Exception ignored) {
             }
         }
-        if (MSConfig.getStop()) {
-            Log.systemMeldung("--> Abbruch");
+        if (Config.getStop()) {
+            Log.sysLog("--> Abbruch");
             listeFilme.clear();
         }
         notifyFertig(source, listeFilme);
@@ -244,7 +244,7 @@ public class MSFilmlisteLesen {
                 }
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(495623014, ex);
+            Log.errorLog(495623014, ex);
         }
         return true;
     }
@@ -252,8 +252,8 @@ public class MSFilmlisteLesen {
     private void notifyStart(String url, int mmax) {
         max = mmax;
         progress = 0;
-        for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-            l.start(new MSListenerFilmeLadenEvent(url, "", max, 0, 0, false));
+        for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
+            l.start(new ListenerFilmeLadenEvent(url, "", max, 0, 0, false));
         }
     }
 
@@ -262,17 +262,17 @@ public class MSFilmlisteLesen {
         if (progress > max) {
             progress = max;
         }
-        for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-            l.progress(new MSListenerFilmeLadenEvent(url, text, max, progress, 0, false));
+        for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
+            l.progress(new ListenerFilmeLadenEvent(url, text, max, progress, 0, false));
         }
     }
 
     private void notifyFertig(String url, ListeFilme liste) {
-        Log.systemMeldung("Liste Filme gelesen am: " + new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(new Date()));
-        Log.systemMeldung("  erstellt am: " + liste.genDate());
-        Log.systemMeldung("  Anzahl Filme: " + liste.size());
-        for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-            l.fertig(new MSListenerFilmeLadenEvent(url, "", max, progress, 0, false));
+        Log.sysLog("Liste Filme gelesen am: " + new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(new Date()));
+        Log.sysLog("  erstellt am: " + liste.genDate());
+        Log.sysLog("  Anzahl Filme: " + liste.size());
+        for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
+            l.fertig(new ListenerFilmeLadenEvent(url, "", max, progress, 0, false));
         }
     }
 }

@@ -23,14 +23,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 
-public class MSListeRunSender extends LinkedList<MSRunSender> {
+public class ListeRunSender extends LinkedList<RunSender> {
 
     private final static String TRENNER = " | ";
     private static final String SENDER = " Sender ";
 
     public boolean listeFertig() {
         // liefert true wenn alle Sender fertig sind
-        for (MSRunSender run : this) {
+        for (RunSender run : this) {
             if (!run.fertig) {
                 return false;
             }
@@ -38,8 +38,8 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
         return true;
     }
 
-    public MSRunSender getSender(String sender) {
-        for (MSRunSender run : this) {
+    public RunSender getSender(String sender) {
+        for (RunSender run : this) {
             if (run.sender.equals(sender)) {
                 return run;
             }
@@ -47,8 +47,8 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
         return null;
     }
 
-    public MSRunSender senderFertig(String sender) {
-        for (MSRunSender run : this) {
+    public RunSender senderFertig(String sender) {
+        for (RunSender run : this) {
             if (run.sender.equals(sender)) {
                 run.fertig = true;
                 run.endZeit = new Date();
@@ -60,7 +60,7 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
 
     public String getSenderRun() {
         String ret = "";
-        for (MSRunSender run : this) {
+        for (RunSender run : this) {
             if (!run.fertig) {
                 ret += run.sender + " ";
             }
@@ -70,7 +70,7 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
 
     public int getAnzSenderRun() {
         int ret = 0;
-        for (MSRunSender run : this) {
+        for (RunSender run : this) {
             if (!run.fertig) {
                 ++ret;
             }
@@ -80,7 +80,7 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
 
     public int getMax() {
         int ret = 0;
-        for (MSRunSender run : this) {
+        for (RunSender run : this) {
             ret += run.max;
         }
         return ret;
@@ -89,7 +89,7 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
     public int getProgress() {
         int prog = 0;
         int max = 0;
-        for (MSRunSender run : this) {
+        for (RunSender run : this) {
             prog += run.progress;
             max += run.max;
         }
@@ -99,11 +99,11 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
         return prog;
     }
 
-    public void inc(String sender, MSRunSender.Count what) {
+    public void inc(String sender, RunSender.Count what) {
         inc(sender, what.ordinal(), 1);
     }
 
-    public void inc(String sender, MSRunSender.Count what, long i) {
+    public void inc(String sender, RunSender.Count what, long i) {
         inc(sender, what.ordinal(), i);
     }
 
@@ -111,7 +111,7 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
         getCounter(sender).counter[what] += inc;
     }
 
-    public long get(String sender, MSRunSender.Count what) {
+    public long get(String sender, RunSender.Count what) {
         return getCounter(sender).counter[what.ordinal()];
     }
 
@@ -119,24 +119,24 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
         return getCounter(sender).counter[i];
     }
 
-    public long get(MSRunSender.Count what) {
+    public long get(RunSender.Count what) {
         long ret = 0;
-        for (MSRunSender run : this) {
+        for (RunSender run : this) {
             ret += run.counter[what.ordinal()];
         }
         return ret;
     }
 
     public ArrayList<String> getTextCount(ArrayList<String> ret) {
-        getTextCount_(ret, new MSRunSender.Count[]{MSRunSender.Count.ANZAHL, MSRunSender.Count.FILME, MSRunSender.Count.FEHLER,
-            MSRunSender.Count.FEHLVERSUCHE, MSRunSender.Count.WARTEZEIT_FEHLVERSUCHE,
-            MSRunSender.Count.PROXY, MSRunSender.Count.NO_BUFFER});
+        getTextCount_(ret, new RunSender.Count[]{RunSender.Count.ANZAHL, RunSender.Count.FILME, RunSender.Count.FEHLER,
+            RunSender.Count.FEHLVERSUCHE, RunSender.Count.WARTEZEIT_FEHLVERSUCHE,
+            RunSender.Count.PROXY, RunSender.Count.NO_BUFFER});
         ret.add("");
         ret.add("");
 
-        getTextCount_(ret, new MSRunSender.Count[]{MSRunSender.Count.SUM_DATA_BYTE, MSRunSender.Count.SUM_TRAFFIC_BYTE,
-            MSRunSender.Count.SUM_TRAFFIC_LOADART_NIX, MSRunSender.Count.SUM_TRAFFIC_LOADART_DEFLATE, MSRunSender.Count.SUM_TRAFFIC_LOADART_GZIP,
-            MSRunSender.Count.GET_SIZE_SUM, MSRunSender.Count.GET_SIZE_SUM403, MSRunSender.Count.GET_SIZE_PROXY});
+        getTextCount_(ret, new RunSender.Count[]{RunSender.Count.SUM_DATA_BYTE, RunSender.Count.SUM_TRAFFIC_BYTE,
+            RunSender.Count.SUM_TRAFFIC_LOADART_NIX, RunSender.Count.SUM_TRAFFIC_LOADART_DEFLATE, RunSender.Count.SUM_TRAFFIC_LOADART_GZIP,
+            RunSender.Count.GET_SIZE_SUM, RunSender.Count.GET_SIZE_SUM403, RunSender.Count.GET_SIZE_PROXY});
 
         ret.add("");
         ret.add("");
@@ -155,10 +155,10 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
         retArray.add(zeile);
         retArray.add("-------------------------------------------------------");
 
-        for (MSRunSender run : this) {
+        for (RunSender run : this) {
             int dauerSender = run.getLaufzeitSekunden();
-            long groesseByte = this.get(run.sender, MSRunSender.Count.SUM_TRAFFIC_BYTE);
-            long anzahlSeiten = this.get(run.sender, MSRunSender.Count.ANZAHL);
+            long groesseByte = this.get(run.sender, RunSender.Count.SUM_TRAFFIC_BYTE);
+            long anzahlSeiten = this.get(run.sender, RunSender.Count.ANZAHL);
 
             String rate = "";
             if (groesseByte > 0 && dauerSender > 0) {
@@ -185,26 +185,26 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
         retArray.add("");
     }
 
-    private MSRunSender getCounter(String sender) {
-        for (MSRunSender run : this) {
+    private RunSender getCounter(String sender) {
+        for (RunSender run : this) {
             if (run.sender.equals(sender)) {
                 return run;
             }
         }
-        MSRunSender ret = new MSRunSender(sender, 0, 0);
+        RunSender ret = new RunSender(sender, 0, 0);
         add(ret);
         return ret;
     }
 
-    private ArrayList<String> getTextCount_(ArrayList<String> ret, MSRunSender.Count[] spalten) {
+    private ArrayList<String> getTextCount_(ArrayList<String> ret, RunSender.Count[] spalten) {
         String zeile;
-        String[] names = MSRunSender.Count.getNames();
+        String[] names = RunSender.Count.getNames();
 
         // Titelzeile
         zeile = SENDER + TRENNER;
         for (int i = 0; i < names.length; ++i) {
             // alle Spalten checken, ob gebraucht
-            for (MSRunSender.Count sp : spalten) {
+            for (RunSender.Count sp : spalten) {
                 if (i == sp.ordinal()) {
                     zeile += textLaenge(names[i].length(), names[i]) + TRENNER;
                 }
@@ -214,18 +214,18 @@ public class MSListeRunSender extends LinkedList<MSRunSender> {
         ret.add(zeile);
         ret.add("-------------------------------------------------------");
 
-        for (MSRunSender run : this) {
+        for (RunSender run : this) {
             zeile = textLaenge(SENDER.length(), run.sender) + TRENNER;
             for (int i = 0; i < names.length; ++i) {
                 // alle Spalten chekcken, ob gebraucht
-                for (MSRunSender.Count sp : spalten) {
+                for (RunSender.Count sp : spalten) {
                     if (i == sp.ordinal()) {
-                        if (i == MSRunSender.Count.SUM_DATA_BYTE.ordinal() || i == MSRunSender.Count.SUM_TRAFFIC_BYTE.ordinal()
-                                || i == MSRunSender.Count.SUM_TRAFFIC_LOADART_DEFLATE.ordinal()
-                                || i == MSRunSender.Count.SUM_TRAFFIC_LOADART_GZIP.ordinal()
-                                || i == MSRunSender.Count.SUM_TRAFFIC_LOADART_NIX.ordinal()) {
-                            zeile += textLaenge(names[i].length(), String.valueOf(MSRunSender.getStringZaehler(get(run.sender, i)))) + TRENNER;
-                        } else if (i == MSRunSender.Count.WARTEZEIT_FEHLVERSUCHE.ordinal()) {
+                        if (i == RunSender.Count.SUM_DATA_BYTE.ordinal() || i == RunSender.Count.SUM_TRAFFIC_BYTE.ordinal()
+                                || i == RunSender.Count.SUM_TRAFFIC_LOADART_DEFLATE.ordinal()
+                                || i == RunSender.Count.SUM_TRAFFIC_LOADART_GZIP.ordinal()
+                                || i == RunSender.Count.SUM_TRAFFIC_LOADART_NIX.ordinal()) {
+                            zeile += textLaenge(names[i].length(), String.valueOf(RunSender.getStringZaehler(get(run.sender, i)))) + TRENNER;
+                        } else if (i == RunSender.Count.WARTEZEIT_FEHLVERSUCHE.ordinal()) {
                             long l = get(run.sender, i); // dann sinds ms
                             zeile += textLaenge(names[i].length(), String.valueOf(l == 0 ? "0" : (l < 1000 ? "<1" : l / 1000))) + TRENNER;
                         } else {

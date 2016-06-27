@@ -29,7 +29,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
-import mSearch.filmlisten.MSFilmlisteLesen;
+import mSearch.filmlisten.FilmlisteLesen;
 import mSearch.filmlisten.WriteFilmlistJson;
 
 public class MSearchGuiController implements Initializable {
@@ -76,7 +76,7 @@ public class MSearchGuiController implements Initializable {
         } else {
             txtFilmList.setText(Data.pathFilmlist);
         }
-        new MSFilmlisteLesen().readFilmListe(txtFilmList.getText(), Data.listeFilme, 0 /*all days*/);
+        new FilmlisteLesen().readFilmListe(txtFilmList.getText(), Data.listeFilme, 0 /*all days*/);
         lblSum.setText(Data.listeFilme.size() + "");
         btnDelete.setOnAction(e -> {
             Data.listeFilme.clear();

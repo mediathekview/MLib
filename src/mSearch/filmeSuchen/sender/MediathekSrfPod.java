@@ -23,19 +23,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekSrfPod extends MediathekReader implements Runnable {
 
     public final static String SENDERNAME = "SRF.Podcast";
-    private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+    private MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
-    public MediathekSrfPod(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekSrfPod(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME,/* threads */ 2, /* urlWarten */ 1000, startPrio);
     }
 
@@ -54,7 +54,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
         int pos1;
         int pos2;
         String url = "";
-        while (!MSConfig.getStop() && (pos = seite.indexOf(MUSTER_1, pos)) != -1) {
+        while (!Config.getStop() && (pos = seite.indexOf(MUSTER_1, pos)) != -1) {
             pos += MUSTER_1.length();
             pos1 = pos;
             pos2 = seite.indexOf("\"", pos);
@@ -63,14 +63,14 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                 url = "http://feeds.sf.tv/podcast" + url;
             }
             if (url.equals("")) {
-                Log.fehlerMeldung(698875503, "keine URL");
+                Log.errorLog(698875503, "keine URL");
             } else {
                 String[] add = new String[]{url, ""};
                 listeThemen.addUrl(add);
             }
         }
         pos = 0;
-        while (!MSConfig.getStop() && (pos = seite.indexOf(MUSTER_2, pos)) != -1) {
+        while (!Config.getStop() && (pos = seite.indexOf(MUSTER_2, pos)) != -1) {
             pos += MUSTER_2.length();
             pos1 = pos;
             pos2 = seite.indexOf("\"", pos);
@@ -79,13 +79,13 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                 url = "http://pod.drs.ch/" + url;
             }
             if (url.equals("")) {
-                Log.fehlerMeldung(698875503,  "keine URL");
+                Log.errorLog(698875503,  "keine URL");
             } else {
                 String[] add = new String[]{url, ""};
                 listeThemen.addUrl(add);
             }
         }
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -102,20 +102,20 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
         @Override
         public void run() {
             try {
                 meldungAddThread();
                 String link[];
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0] /* url */);
                     addFilme(link[1], link[0] /* url */);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(286931004,   ex);
+                Log.errorLog(286931004,   ex);
             }
             meldungThreadUndFertig();
         }
@@ -192,14 +192,14 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                                         duration = Long.parseLong(d);
                                     }
                                 } catch (Exception ex) {
-                                    Log.fehlerMeldung(915263987,   "d: " + d);
+                                    Log.errorLog(915263987,   "d: " + d);
                                 }
                             }
                         }
                     }
                     if (duration == 0) {
                         if (!d.equals("0")) {
-                            Log.fehlerMeldung(915159637,   "keine Dauer");
+                            Log.errorLog(915159637,   "keine Dauer");
                         }
                     }
                     if ((pos5 = seite.indexOf(MUSTER_DESCRIPTION, pos)) != -1) {
@@ -240,7 +240,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                                 url = "http://" + url;
                             }
                             if (url.equals("")) {
-                                Log.fehlerMeldung(463820049,   "keine URL: " + strUrlFeed);
+                                Log.errorLog(463820049,   "keine URL: " + strUrlFeed);
                             } else {
                                 // public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String datum, String zeit,
                                 //      long duration, String description, String thumbnailUrl, String imageUrl, String[] keywords) {
@@ -251,7 +251,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(496352007,   ex);
+                Log.errorLog(496352007,   ex);
             }
         }
     }
@@ -265,7 +265,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
             sdfOut = new SimpleDateFormat("dd.MM.yyyy");
             datum = sdfOut.format(filmDate);
         } catch (Exception ex) {
-            Log.fehlerMeldung(649600299,  ex);
+            Log.errorLog(649600299,  ex);
         }
         return datum;
     }
@@ -279,7 +279,7 @@ public class MediathekSrfPod extends MediathekReader implements Runnable {
             sdfOut = new SimpleDateFormat("HH:mm:ss");
             zeit = sdfOut.format(filmDate);
         } catch (Exception ex) {
-            Log.fehlerMeldung(663259004,  ex);
+            Log.errorLog(663259004,  ex);
         }
         return zeit;
     }

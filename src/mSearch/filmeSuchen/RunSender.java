@@ -22,7 +22,7 @@ package mSearch.filmeSuchen;
 import java.util.Date;
 import mSearch.tool.Log;
 
-public class MSRunSender {
+public class RunSender {
 
     public String sender = "";
     public int max = 0; // max laden
@@ -59,7 +59,7 @@ public class MSRunSender {
         }
     }
 
-    public MSRunSender(String sender, int max, int progress) {
+    public RunSender(String sender, int max, int progress) {
         this.sender = sender;
         this.max = max;
         this.progress = progress;
@@ -79,7 +79,7 @@ public class MSRunSender {
                 ret = min + ":" + sek;
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(976431583, ex, sender);
+            Log.errorLog(976431583, ex, sender);
         }
         return ret;
     }
@@ -91,7 +91,7 @@ public class MSRunSender {
                 sekunden = Math.round((endZeit.getTime() - startZeit.getTime()) / 1000);
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(976431583, ex, sender);
+            Log.errorLog(976431583, ex, sender);
         }
         return sekunden;
     }

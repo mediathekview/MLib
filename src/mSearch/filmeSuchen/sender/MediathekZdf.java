@@ -20,23 +20,23 @@
 package mSearch.filmeSuchen.sender;
 
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekZdf extends MediathekReader implements Runnable {
 
     public final static String SENDERNAME = "ZDF";
-    private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+    private MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
     private final static int ANZAHL_ZDF_ALLE = 500;
     private final static int ANZAHL_ZDF_MITTEL = 50;
     private final static int ANZAHL_ZDF_UPDATE = 20;
     private final static int ANZAHL_ZDF_KURZ = 10;
 
-    public MediathekZdf(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekZdf(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME, 4 /* threads */, 250 /* urlWarten */, startPrio);
     }
 
@@ -47,14 +47,14 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         // Liste von http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz0 bis sat8 holen
         String addr = "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz";
         for (int i = 0; i <= 8; ++i) {
-            addToList_addr(addr + i, MSConfig.loadLongMax() ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE);
+            addToList_addr(addr + i, Config.loadLongMax() ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE);
         }
         // Spartenkanäle einfügen
-        addToList_addr("http://www.zdf.de/ZDFmediathek/senderstartseite/sst1/1209122", MSConfig.loadLongMax() ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE); // zdf-neo
-        addToList_addr("http://www.zdf.de/ZDFmediathek/senderstartseite/sst1/1209120", MSConfig.loadLongMax() ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE); // zdf-info
-        addToList_addr("http://www.zdf.de/ZDFmediathek/senderstartseite/sst1/1317640", MSConfig.loadLongMax() ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE); // zdf-kultur
+        addToList_addr("http://www.zdf.de/ZDFmediathek/senderstartseite/sst1/1209122", Config.loadLongMax() ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE); // zdf-neo
+        addToList_addr("http://www.zdf.de/ZDFmediathek/senderstartseite/sst1/1209120", Config.loadLongMax() ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE); // zdf-info
+        addToList_addr("http://www.zdf.de/ZDFmediathek/senderstartseite/sst1/1317640", Config.loadLongMax() ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE); // zdf-kultur
         //Rubriken einfügen
-        if (MSConfig.loadLongMax()) {
+        if (Config.loadLongMax()) {
             // da sollte eigentlich nichts Neues sein
             addToList_Rubrik("http://www.zdf.de/ZDFmediathek/hauptnavigation/rubriken");
         }
@@ -68,7 +68,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         addThemenliste("http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day6", "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day6", "");
         addThemenliste("http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day7", "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day7", "");
         // Spartenkanäle Übersicht
-        if (MSConfig.loadLongMax()) {
+        if (Config.loadLongMax()) {
             addThemenliste("http://www.zdf.de/ZDFmediathek/senderstartseite/1209114", "http://www.zdf.de/ZDFmediathek/senderstartseite/1209114", ""); // ZDF
             addThemenliste("http://www.zdf.de/ZDFmediathek/senderstartseite/sst0/1209122?teaserListIndex=" + ANZAHL_ZDF_MITTEL,
                     "http://www.zdf.de/ZDFmediathek/senderstartseite/sst0/1209122?teaserListIndex=" + ANZAHL_ZDF_MITTEL, ""); // ZDF Neo
@@ -82,7 +82,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             addThemenliste("http://www.zdf.de/ZDFmediathek/senderstartseite/1317640", "http://www.zdf.de/ZDFmediathek/senderstartseite/1317640", ""); // ZDF.kultur
             addThemenliste("http://www.zdf.de/ZDFmediathek/senderstartseite/1209120", "http://www.zdf.de/ZDFmediathek/senderstartseite/1209120", ""); // ZDFinfo
         }
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -102,11 +102,11 @@ public class MediathekZdf extends MediathekReader implements Runnable {
     private void addToList_Rubrik(String addr) {
         final String MUSTER_URL = "<p><b><a href=\"/ZDFmediathek/kanaluebersicht/aktuellste/";
         //GetUrl(int ttimeout, long wwartenBasis) {
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        MSStringBuilder seiteR = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        seiteR = getUrl.getUri(SENDERNAME, addr, MSConst.KODIERUNG_UTF, 6 /* versuche */, seiteR, "" /* Meldung */);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        MSStringBuilder seiteR = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        seiteR = getUrl.getUri(SENDERNAME, addr, Const.KODIERUNG_UTF, 6 /* versuche */, seiteR, "" /* Meldung */);
         if (seiteR.length() == 0) {
-            Log.fehlerMeldung(774200364, "Leere Seite für URL: " + addr);
+            Log.errorLog(774200364, "Leere Seite für URL: " + addr);
         }
         int pos = 0;
         int pos1;
@@ -123,7 +123,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 url = seiteR.substring(pos1, pos2);
             }
             if (url.equals("")) {
-                Log.fehlerMeldung(754126900, "keine URL: " + addr);
+                Log.errorLog(754126900, "keine URL: " + addr);
             } else {
                 url = "http://www.zdf.de/ZDFmediathek/kanaluebersicht/aktuellste/" + url + "?bc=rub";
                 addToList_addr(url, ANZAHL_ZDF_UPDATE); // immer nur eine "kurz"
@@ -134,10 +134,10 @@ public class MediathekZdf extends MediathekReader implements Runnable {
     private void addToList_addr(String addr, int anz) {
         final String MUSTER_URL = "<p><b><a href=\"/ZDFmediathek/kanaluebersicht/aktuellste/";
         //GetUrl(int ttimeout, long wwartenBasis) {
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        seite = getUrl.getUri(SENDERNAME, addr, MSConst.KODIERUNG_UTF, 6 /* versuche */, seite, "" /* Meldung */);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        seite = getUrl.getUri(SENDERNAME, addr, Const.KODIERUNG_UTF, 6 /* versuche */, seite, "" /* Meldung */);
         if (seite.length() == 0) {
-            Log.fehlerMeldung(596004563, "Leere Seite für URL: " + addr);
+            Log.errorLog(596004563, "Leere Seite für URL: " + addr);
         }
         int pos = 0;
         int pos1;
@@ -168,7 +168,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 thema = seite.substring(pos1 + 2, pos2);
             }
             if (url.equals("")) {
-                Log.fehlerMeldung(946325890, "keine URL: " + addr);
+                Log.errorLog(946325890, "keine URL: " + addr);
             } else {
                 url = "http://www.zdf.de/ZDFmediathek/kanaluebersicht/aktuellste/" + url;
                 urlThema = url;
@@ -185,22 +185,22 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private final MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
         @Override
         public void run() {
             try {
                 String link[];
                 meldungAddThread();
-                while (!MSConfig.getStop() && (link = getListeThemen()) != null) {
+                while (!Config.getStop() && (link = getListeThemen()) != null) {
                     seite1.setLength(0);
                     addFilme(link[0]/* url */, link[1]/* urlThema */, link[2]/* Thema */);
                     meldungProgress(link[0]);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(496583200, ex);
+                Log.errorLog(496583200, ex);
             }
             meldungThreadUndFertig();
         }
@@ -217,10 +217,10 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             int anz = 0;
             try {
                 seite1 = getUrl.getUri_Utf(SENDERNAME, url, seite1, "Thema: " + thema);
-                while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER_URL_1, pos)) != -1) {
+                while (!Config.getStop() && (pos = seite1.indexOf(MUSTER_URL_1, pos)) != -1) {
                     ok = false;
                     ++anz;
-                    if (!MSConfig.loadLongMax()) {
+                    if (!Config.loadLongMax()) {
                         if (anz > ANZAHL_ZDF_KURZ) {
                             // dann reichts
                             break;
@@ -242,7 +242,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                         titel = seite1.substring(pos1 + 2, pos2);
                     }
                     if (urlFilm.isEmpty()) {
-                        Log.fehlerMeldung(643269690, "keine URL: " + url);
+                        Log.errorLog(643269690, "keine URL: " + url);
                     } else {
                         // über die ID versuchen
                         urlFilm = "http://www.zdf.de/ZDFmediathek/beitrag/video/" + urlFilm;
@@ -268,12 +268,12 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                         }
                         if (!ok) {
                             // dann mit der herkömmlichen Methode versuchen
-                            Log.fehlerMeldung(398012379, "auf die alte Art: " + urlFilm);
+                            Log.errorLog(398012379, "auf die alte Art: " + urlFilm);
                         }
                     }
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(796325800, ex, url);
+                Log.errorLog(796325800, ex, url);
             }
         }
 
@@ -283,7 +283,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 
     }
 
-    public static void urlTauschen(DatenFilm film, String urlSeite, MSFilmeSuchen mSFilmeSuchen) {
+    public static void urlTauschen(DatenFilm film, String urlSeite, FilmeSuchen mSFilmeSuchen) {
         // manuell die Auflösung hochsetzen
         if (film.arr[DatenFilm.FILM_URL_NR].endsWith("1456k_p13v11.mp4")) {
             String url_ = film.arr[DatenFilm.FILM_URL_NR].substring(0, film.arr[DatenFilm.FILM_URL_NR].lastIndexOf("1456k_p13v11.mp4")) + "2256k_p14v11.mp4";
@@ -307,12 +307,12 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 // dann wars wohl nur ein "403er"
                 film.arr[DatenFilm.FILM_URL_NR] = url_;
             } else {
-                Log.fehlerMeldung(945120369, "urlTauschen: " + urlSeite);
+                Log.errorLog(945120369, "urlTauschen: " + urlSeite);
             }
         }
     }
 
-    public static DatenFilm filmHolenId(MSGetUrl getUrl, MSStringBuilder strBuffer, String sender, String thema, String titel, String filmWebsite, String urlId) {
+    public static DatenFilm filmHolenId(GetUrl getUrl, MSStringBuilder strBuffer, String sender, String thema, String titel, String filmWebsite, String urlId) {
         //<teaserimage alt="Harald Lesch im Studio von Abenteuer Forschung" key="298x168">http://www.zdf.de/ZDFmediathek/contentblob/1909108/timg298x168blob/8081564</teaserimage>
         //<detail>Möchten Sie wissen, was Sie in der nächsten Sendung von Abenteuer Forschung erwartet? Harald Lesch informiert Sie.</detail>
         //<length>00:00:34.000</length>
@@ -328,7 +328,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 
         strBuffer = getUrl.getUri_Utf(sender, urlId, strBuffer, "URL-Filmwebsite: " + filmWebsite);
         if (strBuffer.length() == 0) {
-            Log.fehlerMeldung(398745601, "url: " + urlId);
+            Log.errorLog(398745601, "url: " + urlId);
             return null;
         }
 
@@ -345,7 +345,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             beschreibung = beschreibung.replace("<![CDATA[", "");
             beschreibung = beschreibung.replace("]]>", "");
             if (beschreibung.isEmpty()) {
-                Log.fehlerMeldung(945123074, "url: " + urlId);
+                Log.errorLog(945123074, "url: " + urlId);
             }
         }
         if (thema.isEmpty()) {
@@ -396,7 +396,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 //            MSLog.fehlerMeldung(310254698, "keine URL: " + filmWebsite);
         }
         if (url.isEmpty()) {
-            Log.fehlerMeldung(397002891, "keine URL: " + filmWebsite);
+            Log.errorLog(397002891, "keine URL: " + filmWebsite);
             return null;
         } else {
             DatenFilm film = new DatenFilm(sender, thema, filmWebsite, titel, url, "" /*urlRtmp*/, datum, zeit,

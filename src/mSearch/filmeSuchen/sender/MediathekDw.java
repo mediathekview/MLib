@@ -21,10 +21,10 @@ package mSearch.filmeSuchen.sender;
 
 import java.util.ArrayList;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
@@ -32,7 +32,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
 
     public final static String SENDERNAME = "DW";
 
-    public MediathekDw(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekDw(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME, /* threads */ 4, /* urlWarten */ 500, startPrio);
     }
 
@@ -41,7 +41,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
         listeThemen.clear();
         meldungStart();
         sendungenLaden();
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -61,13 +61,13 @@ public class MediathekDw extends MediathekReader implements Runnable {
         final String ADRESSE = "http://www.dw.com/de/media-center/alle-inhalte/s-100814";
         final String MUSTER_URL = "value=\"";
         final String MUSTER_START = "<div class=\"label\">Sendungen</div>";
-        MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         seite = getUrlIo.getUri_Utf(SENDERNAME, ADRESSE, seite, "");
         int pos1, pos2;
         String url = "", thema = "";
         pos1 = seite.indexOf(MUSTER_START);
         if (pos1 == -1) {
-            Log.fehlerMeldung(915230456, "Nichts gefunden");
+            Log.errorLog(915230456, "Nichts gefunden");
             return;
         }
         pos1 += MUSTER_START.length();
@@ -84,7 +84,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
                 if (url.equals("")) {
                     continue;
                 }
-                if (MSConfig.loadLongMax()) {
+                if (Config.loadLongMax()) {
                     //http://www.dw.com/de/media-center/alle-inhalte/s-100814/filter/programs/3204/sort/date/results/16/
                     url = "http://www.dw.com/de/media-center/alle-inhalte/s-100814/filter/programs/" + url + "/sort/date/results/100/";
                 } else {
@@ -100,7 +100,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
                 String[] add = new String[]{url, thema};
                 listeThemen.addUrl(add);
             } catch (Exception ex) {
-                Log.fehlerMeldung(731245970, ex);
+                Log.errorLog(731245970, ex);
             }
         }
 
@@ -108,9 +108,9 @@ public class MediathekDw extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         private ArrayList<String> listUrl = new ArrayList<>();
 
         @Override
@@ -118,12 +118,12 @@ public class MediathekDw extends MediathekReader implements Runnable {
             try {
                 meldungAddThread();
                 String[] link;
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     laden(link[0] /* url */, link[1] /* Thema */);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(915423640, ex);
+                Log.errorLog(915423640, ex);
             }
             meldungThreadUndFertig();
         }
@@ -136,7 +136,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
             seite1 = getUrlIo.getUri_Utf(SENDERNAME, urlThema, seite1, "");
             int pos1 = 0;
             String titel;
-            while (!MSConfig.getStop() && (pos1 = seite1.indexOf(MUSTER_START, pos1)) != -1) {
+            while (!Config.getStop() && (pos1 = seite1.indexOf(MUSTER_START, pos1)) != -1) {
                 pos1 += MUSTER_START.length();
                 urlSendung = seite1.extract("<a href=\"", "\"", pos1);
                 titel = seite1.extract("<h2>", "<", pos1).trim();
@@ -188,7 +188,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(912034567, "duration: " + dur);
+                Log.errorLog(912034567, "duration: " + dur);
             }
 
             if (url.isEmpty() && !urlLow.isEmpty()) {
@@ -200,7 +200,7 @@ public class MediathekDw extends MediathekReader implements Runnable {
                 urlHd = "";
             }
             if (url.isEmpty()) {
-                Log.fehlerMeldung(643230120, "empty URL: " + urlSendung);
+                Log.errorLog(643230120, "empty URL: " + urlSendung);
             } else {
                 DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung, titel, url, "", datum, ""/*Zeit*/, duration, description);
                 if (!urlLow.isEmpty()) {

@@ -204,7 +204,7 @@ public class TimedTextMarkupLanguageParser {
             buildFilmList();
             ret = true;
         } catch (Exception ex) {
-            Log.fehlerMeldung(912036478, ex, "File: " + ttmlFilePath);
+            Log.errorLog(912036478, ex, "File: " + ttmlFilePath);
             ret = false;
         }
         return ret;
@@ -273,7 +273,7 @@ public class TimedTextMarkupLanguageParser {
             buildFilmListFlash();
             ret = true;
         } catch (Exception ex) {
-            Log.fehlerMeldung(912036478, ex, "File: " + ttmlFilePath);
+            Log.errorLog(912036478, ex, "File: " + ttmlFilePath);
             ret = false;
         }
         return ret;
@@ -302,7 +302,7 @@ public class TimedTextMarkupLanguageParser {
                 counter++;
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(201036470, ex, "File: " + srtFile);
+            Log.errorLog(201036470, ex, "File: " + srtFile);
         }
     }
 

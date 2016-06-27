@@ -24,11 +24,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
 import static mSearch.filmeSuchen.sender.MediathekReader.listeSort;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -44,26 +44,26 @@ public class MediathekOrf extends MediathekReader implements Runnable {
      * @param ssearch
      * @param startPrio
      */
-    public MediathekOrf(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekOrf(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME, /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
     @Override
     void addToList() {
-        MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         listeThemen.clear();
         meldungStart();
-        if (MSConfig.loadLongMax()) {
+        if (Config.loadLongMax()) {
             bearbeiteAdresseSendung(seite);
         }
         bearbeiteAdresseThemen(seite);
         listeSort(listeThemen, 1);
-        int maxTage = MSConfig.loadLongMax() ? 9 : 2;
+        int maxTage = Config.loadLongMax() ? 9 : 2;
         for (int i = 0; i < maxTage; ++i) {
             String vorTagen = getGestern(i).toLowerCase();
             bearbeiteAdresseTag("http://tvthek.orf.at/schedule/" + vorTagen, seite);
         }
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -80,7 +80,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
     private void bearbeiteAdresseTag(String adresse, MSStringBuilder seite) {
         // <a href="http://tvthek.orf.at/program/Kultur-heute/3078759/Kultur-Heute/7152535" class="item_inner clearfix">
-        seite = getUrlIo.getUri(SENDERNAME, adresse, MSConst.KODIERUNG_UTF, 2, seite, "");
+        seite = getUrlIo.getUri(SENDERNAME, adresse, Const.KODIERUNG_UTF, 2, seite, "");
         ArrayList<String> al = new ArrayList<>();
         seite.extractList("", "", "<a href=\"http://tvthek.orf.at/program/", "\"", "http://tvthek.orf.at/program/", al);
         for (String s : al) {
@@ -93,7 +93,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
     private void bearbeiteAdresseThemen(MSStringBuilder seite) {
         final String URL = "http://tvthek.orf.at/programs/genre/";
-        seite = getUrlIo.getUri(SENDERNAME, "http://tvthek.orf.at/programs", MSConst.KODIERUNG_UTF, 3, seite, "");
+        seite = getUrlIo.getUri(SENDERNAME, "http://tvthek.orf.at/programs", Const.KODIERUNG_UTF, 3, seite, "");
         ArrayList<String> al = new ArrayList<>();
         String thema;
         try {
@@ -112,13 +112,13 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 }
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(826341789, ex);
+            Log.errorLog(826341789, ex);
         }
     }
 
     private void bearbeiteAdresseSendung(MSStringBuilder seite) {
         final String URL = "http://tvthek.orf.at/programs/letter/";
-        seite = getUrlIo.getUri(SENDERNAME, "http://tvthek.orf.at/programs", MSConst.KODIERUNG_UTF, 3, seite, "");
+        seite = getUrlIo.getUri(SENDERNAME, "http://tvthek.orf.at/programs", Const.KODIERUNG_UTF, 3, seite, "");
         ArrayList<String> al = new ArrayList<>();
         String thema;
         try {
@@ -131,15 +131,15 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                 }
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(826341789, ex);
+            Log.errorLog(826341789, ex);
         }
     }
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         private final ArrayList<String> alSendung = new ArrayList<>();
         private final ArrayList<String> alThemen = new ArrayList<>();
 
@@ -148,7 +148,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             try {
                 meldungAddThread();
                 String[] link;
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     try {
                         meldungProgress(link[0]);
                         switch (link[1]) {
@@ -164,23 +164,23 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                                 break;
                         }
                     } catch (Exception ex) {
-                        Log.fehlerMeldung(795633581, ex);
+                        Log.errorLog(795633581, ex);
                     }
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(554012398, ex);
+                Log.errorLog(554012398, ex);
             }
             meldungThreadUndFertig();
         }
 
         private void sendungen(String url) {
             final String URL = "http://tvthek.orf.at/program/";
-            seite1 = getUrlIo.getUri(SENDERNAME, url, MSConst.KODIERUNG_UTF, 2, seite1, "");
+            seite1 = getUrlIo.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 2, seite1, "");
             alSendung.clear();
             String thema;
             seite1.extractList("", "", URL, "\"", "", alSendung);
             for (String s : alSendung) {
-                if (MSConfig.getStop()) {
+                if (Config.getStop()) {
                     break;
                 }
                 thema = "";
@@ -196,16 +196,16 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
         private void themen(String url) {
             final String URL = "http://tvthek.orf.at/program/";
-            seite1 = getUrlIo.getUri(SENDERNAME, url, MSConst.KODIERUNG_UTF, 2, seite1, "");
+            seite1 = getUrlIo.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 2, seite1, "");
             alSendung.clear();
             String thema, themaAlt = "";
             int count = 0, max = 3;
             seite1.extractList("", "", URL, "\"", "", alSendung);
             for (String s : alSendung) {
-                if (MSConfig.getStop()) {
+                if (Config.getStop()) {
                     break;
                 }
-                if (!MSConfig.loadLongMax()) {
+                if (!Config.loadLongMax()) {
                     if (count > max) {
                         continue;
                     }
@@ -255,7 +255,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
 
             if ((posStart = seite2.indexOf("\"is_one_segment_episode\":false")) == -1) {
                 if ((posStart = seite2.indexOf("\"is_one_segment_episode\":true")) == -1) {
-                    Log.fehlerMeldung(989532147, "keine Url: " + strUrlFeed);
+                    Log.errorLog(989532147, "keine Url: " + strUrlFeed);
                     return;
                 }
             }
@@ -400,7 +400,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                         }
                         addFilm(film, nurUrlPruefen);
                     } else {
-                        Log.fehlerMeldung(989532147, "keine Url: " + strUrlFeed);
+                        Log.errorLog(989532147, "keine Url: " + strUrlFeed);
                     }
                 }
             }

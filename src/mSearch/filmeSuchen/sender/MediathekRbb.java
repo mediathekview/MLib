@@ -23,10 +23,10 @@ package mSearch.filmeSuchen.sender;
 
 import java.util.ArrayList;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
@@ -35,13 +35,13 @@ public class MediathekRbb extends MediathekReader implements Runnable {
     public final static String SENDERNAME = "RBB";
     final static String ROOTADR = "http://mediathek.rbb-online.de";
     
-    public MediathekRbb(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekRbb(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME,/* threads */ 2, /* urlWarten */ 500, startPrio);
     }
     
     @Override
     void addToList() {
-        MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         // <a href="/tv/kurz-vor-5/Sendung?documentId=16272574&amp;bcastId=16272574" class="textLink">
         ArrayList<String> liste = new ArrayList<>();
         final String ADRESSE_1 = "http://mediathek.rbb-online.de/tv/sendungen-a-z?cluster=a-k";
@@ -49,9 +49,9 @@ public class MediathekRbb extends MediathekReader implements Runnable {
         final String URL = "<a href=\"/tv/";
         meldungStart();
         try {
-            seite = getUrlIo.getUri(SENDERNAME, ADRESSE_1, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
+            seite = getUrlIo.getUri(SENDERNAME, ADRESSE_1, Const.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
             seite.extractList("", "", URL, "\"", "", liste);
-            seite = getUrlIo.getUri(SENDERNAME, ADRESSE_2, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
+            seite = getUrlIo.getUri(SENDERNAME, ADRESSE_2, Const.KODIERUNG_UTF, 5 /* versuche */, seite, "" /* Meldung */);
             seite.extractList("", "", URL, "\"", "", liste);
             for (String s : liste) {
                 if (s.isEmpty() || !s.contains("documentId=")) {
@@ -61,9 +61,9 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 listeThemen.addUrl(new String[]{s});
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(398214058, ex);
+            Log.errorLog(398214058, ex);
         }
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -85,10 +85,10 @@ public class MediathekRbb extends MediathekReader implements Runnable {
     private class ThemaLaden implements Runnable {
         
         boolean addTage = false;
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite3 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         
         public ThemaLaden(boolean addTage) {
             this.addTage = addTage;
@@ -102,13 +102,13 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 if (addTage) {
                     addTage();
                 } else {
-                    while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                    while (!Config.getStop() && (link = listeThemen.getListeThemen()) != null) {
                         meldungProgress(link[0]);
                         addThema(link[0] /* url */, true);
                     }
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(794625882, ex);
+                Log.errorLog(794625882, ex);
             }
             meldungThreadUndFertig();
         }
@@ -124,14 +124,14 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 meldungProgress(urlTage);
                 seite1 = getUrlIo.getUri_Utf(SENDERNAME, urlTage, seite1, "");
                 int pos1 = seite1.indexOf(MUSTER_START);
-                while (!MSConfig.getStop() && (pos1 = seite1.indexOf(MUSTER_URL, pos1)) != -1) {
+                while (!Config.getStop() && (pos1 = seite1.indexOf(MUSTER_URL, pos1)) != -1) {
                     pos1 += MUSTER_URL.length();
                     String urlSeite = seite1.extract(URL, "\"", pos1);
                     if (!urlSeite.isEmpty()) {
                         urlSeite = "http://mediathek.rbb-online.de/tv/" + urlSeite;
                         addFilme(urlSeite);
                     } else {
-                        Log.fehlerMeldung(751203697, "keine URL für: " + urlSeite);
+                        Log.errorLog(751203697, "keine URL für: " + urlSeite);
                     }
                 }
                 
@@ -145,19 +145,19 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 seite1 = getUrlIo.getUri_Utf(SENDERNAME, url, seite1, "");
                 int startPos = seite1.indexOf("<div class=\"entry\">");
                 int pos1 = startPos;
-                while (!MSConfig.getStop() && (pos1 = seite1.indexOf(MUSTER_URL, pos1)) != -1) {
+                while (!Config.getStop() && (pos1 = seite1.indexOf(MUSTER_URL, pos1)) != -1) {
                     pos1 += MUSTER_URL.length();
                     String urlSeite = seite1.extract(URL, "\"", pos1);
                     if (!urlSeite.isEmpty()) {
                         urlSeite = "http://mediathek.rbb-online.de/tv/" + urlSeite;
                         addFilme(urlSeite);
                     } else {
-                        Log.fehlerMeldung(751203697, "keine URL für: " + url);
+                        Log.errorLog(751203697, "keine URL für: " + url);
                     }
                 }
 
                 // noch nach weiteren Seiten suchen
-                if (weiter && MSConfig.loadLongMax()) {
+                if (weiter && Config.loadLongMax()) {
                     for (int i = 2; i < 10; ++i) {
                         if (seite1.indexOf("mcontents=page." + i) != -1) {
                             // dann gibts weiter Seiten
@@ -166,7 +166,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(541236987, ex);
+                Log.errorLog(541236987, ex);
             }
         }
         
@@ -182,7 +182,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     try {
                         duration = Long.parseLong(durationInSeconds);
                     } catch (Exception ex) {
-                        Log.fehlerMeldung(200145787, ex);
+                        Log.errorLog(200145787, ex);
                         duration = 0;
                     }
                 }
@@ -238,7 +238,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                     }
                 }
                 if (datum.isEmpty() || zeit.isEmpty() || thema.isEmpty() || title.isEmpty() || description.isEmpty() || durationInSeconds.isEmpty()) {
-                    Log.fehlerMeldung(912012036, "empty für: " + urlSeite);
+                    Log.errorLog(912012036, "empty für: " + urlSeite);
                 }
                 if (!urlNormal.isEmpty()) {
                     urlNormal = "http://" + urlNormal;
@@ -253,10 +253,10 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         film.addUrlSubtitle(subtitle);
                     }
                 } else {
-                    Log.fehlerMeldung(302014569, "keine URL für: " + urlSeite);
+                    Log.errorLog(302014569, "keine URL für: " + urlSeite);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(541236987, ex);
+                Log.errorLog(541236987, ex);
             }
         }
         

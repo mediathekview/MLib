@@ -26,10 +26,10 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -51,7 +51,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
     LinkedList<String> listeAlleThemenCount = new LinkedList<>();
     LinkedList<String> listeAlleThemenCount_ = new LinkedList<>();
 
-    public MediathekBr(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekBr(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME,/* threads */ 4, /* urlWarten */ 1000, startPrio);
     }
 
@@ -61,14 +61,14 @@ public class MediathekBr extends MediathekReader implements Runnable {
         meldungStart();
         getTheman(); // Themen suchen
         getTage(); // Programm der letzten Tage absuchen
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.isEmpty() && listeTage.isEmpty()) {
             meldungThreadUndFertig();
         } else {
             meldungAddMax(listeThemen.size() + listeTage.size());
             // erst hier starten (Archiv, Klassik), sonst beendet er sich/und sucht doch!
-            if (MSConfig.loadLongMax()) {
+            if (Config.loadLongMax()) {
                 // Archiv durchsuchen
                 Thread thArchiv;
                 thArchiv = new Thread(new ArchivLaden(1, 50));
@@ -84,7 +84,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 thArchiv.setName(SENDERNAME);
                 thArchiv.start();
             }
-            if (MSConfig.loadMax()) {
+            if (Config.loadMax()) {
                 // Archiv durchsuchen
                 Thread thArchiv;
                 thArchiv = new Thread(new ArchivLaden(201, 250));
@@ -115,15 +115,15 @@ public class MediathekBr extends MediathekReader implements Runnable {
         final String MUSTER_URL_1 = "sendungen/";
         final String MUSTER_URL_2 = "video/";
         listeThemen.clear();
-        MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         //seite = getUrlIo.getUri_Utf(SENDERNAME, ADRESSE, seite, "");
-        seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite, "");
+        seite = getUrlIo.getUri(SENDERNAME, ADRESSE, Const.KODIERUNG_UTF, 5 /* versuche */, seite, "");
         int pos1 = 0;
         int pos2;
         String url = "";
         if ((pos1 = seite.indexOf("<ul class=\"clearFix\">")) != -1) {
             while ((pos1 = seite.indexOf(MUSTER_URL, pos1)) != -1) {
-                if (MSConfig.getStop()) {
+                if (Config.getStop()) {
                     break;
                 }
 
@@ -154,7 +154,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                     String[] add = new String[]{"http://www.br.de/mediathek/video/" + url, thema};
                     listeThemen.addUrl(add);
                 } catch (Exception ex) {
-                    Log.fehlerMeldung(821213698, ex);
+                    Log.errorLog(821213698, ex);
                 }
             }
         }
@@ -167,21 +167,21 @@ public class MediathekBr extends MediathekReader implements Runnable {
         final String ADRESSE = "http://www.br.de/mediathek/video/programm/index.html";
         final String MUSTER = "http://www.br.de/mediathek/video/programm/mediathek-programm-100~_date-";
         listeTage.clear();
-        MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         ArrayList<String> al = new ArrayList<>();
         try {
             //seite1 = getUrlIo.getUri_Utf(SENDERNAME, ADRESSE, seite1, "");
-            seite1 = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 5 /* versuche */, seite1, "");
+            seite1 = getUrlIo.getUri(SENDERNAME, ADRESSE, Const.KODIERUNG_UTF, 5 /* versuche */, seite1, "");
             String url;
             int max_;
-            if (MSConfig.loadLongMax()) {
+            if (Config.loadLongMax()) {
                 max_ = 21;
             } else {
                 max_ = 7;
             }
             for (int i = 0; i < max_; ++i) {
-                if ((MSConfig.getStop())) {
+                if ((Config.getStop())) {
                     break;
                 }
                 date = new SimpleDateFormat("yyyy-MM-dd").format(new Date().getTime() - i * (1000 * 60 * 60 * 24));
@@ -202,7 +202,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 }
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(821213698, ex);
+            Log.errorLog(821213698, ex);
         }
     }
 
@@ -217,27 +217,27 @@ public class MediathekBr extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private final MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private final MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seiteXml = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private final MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite3 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seiteXml = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
         @Override
         public synchronized void run() {
             try {
                 meldungAddThread();
                 String[] link;
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     laden(link[0] /* url */, link[1]/*thema*/, seite1, true);
                 }
-                while (!MSConfig.getStop() && (link = listeTage.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeTage.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     laden(link[0] /* url */, link[1]/*thema*/, seite1, false);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(989632147, ex);
+                Log.errorLog(989632147, ex);
             }
             meldungThreadUndFertig();
         }
@@ -278,7 +278,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             }
             String urlSeite = seite.extract("id=\"fieldLink\" value=\"", "\"");
             if (urlSeite.isEmpty()) {
-                Log.fehlerMeldung(912030145, "urlSeite leer: " + urlThema);
+                Log.errorLog(912030145, "urlSeite leer: " + urlThema);
                 urlSeite = urlThema;
             }
             //<meta property="og:description" content="Aktuelle Berichte aus Bayern, Hintergründe zu brisanten Themen, Geschichten, die unter die Haut gehen - das ist die Abendschau. Sie sehen uns montags bis freitags von 18.00 bis 18.45 Uhr im Bayerischen Fernsehen."/>
@@ -289,7 +289,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             //<a href="#" onclick="return BRavFramework.register(BRavFramework('avPlayer_3f097ee3-7959-421b-b3f0-c2a249ad7c91').setup({dataURL:'/mediathek/video/sendungen/abendschau/der-grosse-max-spionageabwehr-100~meta_xsl-avtransform100_-daa09e70fbea65acdb1929dadbd4fc6cdb955b63.xml'}));" id="avPlayer_3f097ee3-7959-421b-b3f0-c2a249ad7c91">
             urlXml = seite.extract("{dataURL:'", "'");
             if (urlXml.isEmpty()) {
-                Log.fehlerMeldung(915263478, "keine URL: " + urlThema);
+                Log.errorLog(915263478, "keine URL: " + urlThema);
             } else {
                 urlXml = "http://www.br.de" + urlXml;
                 loadXml(seiteXml, urlXml, urlSeite, thema, titel, description, datum, zeit);
@@ -301,7 +301,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             // <h3>Mehr von <strong>Abendschau</strong></h3>
             // <a href="/mediathek/video/sendungen/abendschau/der-grosse-max-spionageabwehr-100.html" class="teaser link_video contenttype_podcast der-grosse-max-spionageabwehr-100" title="zur Detailseite">
             int pos1, count = 0;
-            int max = (MSConfig.loadLongMax() ? 20 : 0);
+            int max = (Config.loadLongMax() ? 20 : 0);
             final String STOP = "<h3>Besucher, die dieses Video angesehen haben, sahen auch</h3>";
             int stop = seite.indexOf(STOP);
             if (max > 0) {
@@ -323,7 +323,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             }
             final String MUSTER_URL = "<a href=\"/mediathek/video/";
             if ((pos1 = seite.indexOf("<h3>Mehr von <strong>")) != -1) {
-                while (!MSConfig.getStop() && (pos1 = seite.indexOf(MUSTER_URL, pos1)) != -1) {
+                while (!Config.getStop() && (pos1 = seite.indexOf(MUSTER_URL, pos1)) != -1) {
                     if (stop > 0 && pos1 > stop) {
                         break;
                     }
@@ -351,7 +351,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(datum);
                 datum = sdfOutDay.format(filmDate);
             } catch (ParseException ex) {
-                Log.fehlerMeldung(915364789, ex, "Datum: " + datum);
+                Log.errorLog(915364789, ex, "Datum: " + datum);
             }
             return datum;
         }
@@ -362,7 +362,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(zeit);
                 zeit = sdfOutTime.format(filmDate);
             } catch (ParseException ex) {
-                Log.fehlerMeldung(312154879, ex, "Time: " + zeit);
+                Log.errorLog(312154879, ex, "Time: " + zeit);
             }
             return zeit;
         }
@@ -370,11 +370,11 @@ public class MediathekBr extends MediathekReader implements Runnable {
 
     private class KlassikLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private final MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private final MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private final MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private final MSStringBuilder seiteXml = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private final MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder seite3 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder seiteXml = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
         @Override
         public synchronized void run() {
@@ -382,7 +382,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 meldungAddThread();
                 laden();
             } catch (Exception ex) {
-                Log.fehlerMeldung(954123458, ex);
+                Log.errorLog(954123458, ex);
             }
             meldungThreadUndFertig();
         }
@@ -417,10 +417,10 @@ public class MediathekBr extends MediathekReader implements Runnable {
             meldungAddMax(result.size());
             int count = 0;
             for (String url : result) {
-                if (MSConfig.getStop()) {
+                if (Config.getStop()) {
                     break;
                 }
-                if (!MSConfig.loadLongMax()) {
+                if (!Config.loadLongMax()) {
                     ++count;
                     if (count > 20) {
                         break;
@@ -444,7 +444,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
 
                 urlXml = seite3.extract("{dataURL:'", "'");
                 if (urlXml.isEmpty()) {
-                    Log.fehlerMeldung(815263987, "keine URL: " + url);
+                    Log.errorLog(815263987, "keine URL: " + url);
                 } else {
                     urlXml = "http://www.br.de" + urlXml;
                     loadXml(seiteXml, urlXml, url, thema, titel, description1 + description2, datum, zeit);
@@ -459,7 +459,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(datum);
                 datum = sdfOutDay.format(filmDate);
             } catch (ParseException ex) {
-                Log.fehlerMeldung(915364789, ex, "Datum: " + datum);
+                Log.errorLog(915364789, ex, "Datum: " + datum);
             }
             return datum;
         }
@@ -470,7 +470,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(zeit);
                 zeit = sdfOutTime.format(filmDate);
             } catch (ParseException ex) {
-                Log.fehlerMeldung(312154879, ex, "Time: " + zeit);
+                Log.errorLog(312154879, ex, "Time: " + zeit);
             }
             return zeit;
         }
@@ -481,7 +481,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
         long duration = 0;
         seite = getUrlIo.getUri_Utf(SENDERNAME, urlXml, seite, "");
         if (seite.length() == 0) {
-            Log.fehlerMeldung(820139701, urlXml);
+            Log.errorLog(820139701, urlXml);
             return;
         }
 
@@ -498,7 +498,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 }
             }
         } catch (NumberFormatException ex) {
-            Log.fehlerMeldung(735216703, ex, urlThema);
+            Log.errorLog(735216703, ex, urlThema);
         }
         if (description.isEmpty()) {
             description = seite.extract("<desc>", "</desc>");
@@ -557,7 +557,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             addFilm(film);
             meldung(film.arr[DatenFilm.FILM_URL_NR]);
         } else {
-            Log.fehlerMeldung(612136978, "keine URL: " + urlXml);
+            Log.errorLog(612136978, "keine URL: " + urlXml);
         }
     }
 
@@ -591,7 +591,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
     private class ArchivLaden implements Runnable {
 
         int anfang, ende;
-        private MSStringBuilder seiteXml = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seiteXml = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
         public ArchivLaden(int aanfang, int eende) {
             anfang = aanfang;
@@ -605,7 +605,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
             try {
                 archivSuchen(anfang, ende);
             } catch (Exception ex) {
-                Log.fehlerMeldung(203069877, ex);
+                Log.errorLog(203069877, ex);
             }
             meldungThreadUndFertig();
         }
@@ -615,22 +615,22 @@ public class MediathekBr extends MediathekReader implements Runnable {
             final String MUSTER_ADRESSE_1 = "http://www.br.de/service/suche/archiv102.html?documentTypes=video&page=";
             final String MUSTER_ADRESSE_2 = "&sort=date";
             final String MUSTER_START = "<div class=\"teaser search_result\">";
-            MSStringBuilder seiteArchiv1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-            MSStringBuilder seiteArchiv2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-            MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
+            MSStringBuilder seiteArchiv1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+            MSStringBuilder seiteArchiv2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+            GetUrl getUrl = new GetUrl(wartenSeiteLaden);
             for (int i = start; i <= ende; ++i) {
-                if (MSConfig.getStop()) {
+                if (Config.getStop()) {
                     break;
                 }
                 String adresse = MUSTER_ADRESSE_1 + i + MUSTER_ADRESSE_2;
                 meldungProgress(adresse);
-                seiteArchiv1 = getUrl.getUri(SENDERNAME, adresse, MSConst.KODIERUNG_UTF, 2 /* versuche */, seiteArchiv1, "" /* Meldung */);
+                seiteArchiv1 = getUrl.getUri(SENDERNAME, adresse, Const.KODIERUNG_UTF, 2 /* versuche */, seiteArchiv1, "" /* Meldung */);
                 if (seiteArchiv1.length() == 0) {
 //                MSearchLog.fehlerMeldung(-912036478, MSearchLog.FEHLER_ART_MREADER, MediathekBr.class.getName() + ".addToList_addr", "Leere Seite für URL: " + adresse);
                 }
                 int pos = 0, stop;
                 String url, titel, thema, datum, beschreibung;
-                while (!MSConfig.getStop() && (pos = seiteArchiv1.indexOf(MUSTER_START, pos)) != -1) {
+                while (!Config.getStop() && (pos = seiteArchiv1.indexOf(MUSTER_START, pos)) != -1) {
                     pos += MUSTER_START.length();
                     stop = seiteArchiv1.indexOf(MUSTER_START, pos);
                     url = seiteArchiv1.extract("<a href=\"", "\"", pos, stop);
@@ -656,10 +656,10 @@ public class MediathekBr extends MediathekReader implements Runnable {
             }
         }
 
-        private void archivAdd1(MSGetUrl getUrl, MSStringBuilder seiteArchiv2, String urlThema, String thema, String titel, String datum, String beschreibung) {
+        private void archivAdd1(GetUrl getUrl, MSStringBuilder seiteArchiv2, String urlThema, String thema, String titel, String datum, String beschreibung) {
             // http://www.br.de/service/suche/archiv102.html?documentTypes=video&page=1&sort=date
             meldung(urlThema);
-            seiteArchiv2 = getUrl.getUri(SENDERNAME, urlThema, MSConst.KODIERUNG_UTF, 1 /* versuche */, seiteArchiv2, "" /* Meldung */);
+            seiteArchiv2 = getUrl.getUri(SENDERNAME, urlThema, Const.KODIERUNG_UTF, 1 /* versuche */, seiteArchiv2, "" /* Meldung */);
             if (seiteArchiv2.length() == 0) {
 //            MSearchLog.fehlerMeldung(-912036478, MSearchLog.FEHLER_ART_MREADER, MediathekBr.class.getName() + ".addToList_addr", "Leere Seite für URL: " + urlThema);
             }

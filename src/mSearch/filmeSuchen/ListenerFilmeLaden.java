@@ -21,16 +21,16 @@ package mSearch.filmeSuchen;
 
 import java.util.EventListener;
 
-public class MSListenerFilmeLaden implements EventListener {
+public class ListenerFilmeLaden implements EventListener {
 
-    MSListenerFilmeLadenEvent event;
+    ListenerFilmeLadenEvent event;
 
-    public void start(MSListenerFilmeLadenEvent e) {
+    public void start(ListenerFilmeLadenEvent e) {
     }
 
-    public void progress(MSListenerFilmeLadenEvent e) {
+    public void progress(ListenerFilmeLadenEvent e) {
     }
 
-    public void fertig(MSListenerFilmeLadenEvent e) {
+    public void fertig(ListenerFilmeLadenEvent e) {
     }
 }

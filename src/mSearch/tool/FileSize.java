@@ -1,10 +1,11 @@
 package mSearch.tool;
 
+import mSearch.Config;
 import java.net.*;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSRunSender;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.RunSender;
 
-public class MSFileSize {
+public class FileSize {
 
     final static int TIMEOUT = 3000; // ms //ToDo evtl. wieder kürzen!!
 
@@ -37,10 +38,10 @@ public class MSFileSize {
         if (!url.toLowerCase().startsWith("http")) {
             return ret;
         }
-        MSFilmeSuchen.listeSenderLaufen.inc(ssender, MSRunSender.Count.GET_SIZE_SUM);
+        FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_SUM);
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
+            conn.setRequestProperty("User-Agent", Config.getUserAgent());
             conn.setReadTimeout(TIMEOUT);
             conn.setConnectTimeout(TIMEOUT);
             retCode = conn.getResponseCode();
@@ -51,33 +52,33 @@ public class MSFileSize {
 
             // dann über eine Proxy
             if (retCode == 403) {
-                MSFilmeSuchen.listeSenderLaufen.inc(ssender, MSRunSender.Count.GET_SIZE_SUM403);
-                if (!MSConfig.proxyUrl.isEmpty() && MSConfig.proxyPort > 0) {
+                FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_SUM403);
+                if (!Config.proxyUrl.isEmpty() && Config.proxyPort > 0) {
                     // nur dann verwenden, wenn ein Proxy angegeben
                     try {
-                        SocketAddress saddr = new InetSocketAddress(MSConfig.proxyUrl, MSConfig.proxyPort);
+                        SocketAddress saddr = new InetSocketAddress(Config.proxyUrl, Config.proxyPort);
                         Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
                         conn = (HttpURLConnection) new URL(url).openConnection(proxy);
-                        conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
+                        conn.setRequestProperty("User-Agent", Config.getUserAgent());
                         conn.setReadTimeout(TIMEOUT);
                         conn.setConnectTimeout(TIMEOUT);
                         ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
                         conn.disconnect();
                         if (ret > 0) {
-                            MSFilmeSuchen.listeSenderLaufen.inc(ssender, MSRunSender.Count.GET_SIZE_PROXY);
+                            FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_PROXY);
                         }
                     } catch (Exception ex) {
                         ret = -1;
-                        Log.fehlerMeldung(963215478, ex);
+                        Log.errorLog(963215478, ex);
                     }
                 }
             }
         } catch (Exception ex) {
             ret = -1;
             if (ex.getMessage().equals("Read timed out")) {
-                Log.fehlerMeldung(825141452, "Read timed out: " + ssender + " url: " + url);
+                Log.errorLog(825141452, "Read timed out: " + ssender + " url: " + url);
             } else {
-                Log.fehlerMeldung(643298301, ex, "url: " + url);
+                Log.errorLog(643298301, ex, "url: " + url);
             }
         }
         if (ret < 1000 * 1000) {

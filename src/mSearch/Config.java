@@ -17,12 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package mSearch.tool;
+package mSearch;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import mSearch.tool.Functions;
 
-public class MSConfig {
+public class Config {
 
     //alle Programmeinstellungen
     public static String proxyUrl = "";
@@ -69,7 +70,7 @@ public class MSConfig {
 
     public static String getUserAgent() {
         if (userAgent == null) {
-            return MSConst.USER_AGENT_DEFAULT;
+            return Const.USER_AGENT_DEFAULT;
         } else {
             return userAgent;
         }
@@ -132,7 +133,7 @@ public class MSConfig {
      * Damit kann das Suchen abgebrochen werden
      */
     public static synchronized void setStop() {
-        MSConfig.stop = true;
+        Config.stop = true;
     }
 
     /**
@@ -141,7 +142,7 @@ public class MSConfig {
      * @param set
      */
     public static synchronized void setStop(boolean set) {
-        MSConfig.stop = set;
+        Config.stop = set;
     }
 
     /**
@@ -150,6 +151,6 @@ public class MSConfig {
      * @return true/false
      */
     public static synchronized boolean getStop() {
-        return MSConfig.stop;
+        return Config.stop;
     }
 }

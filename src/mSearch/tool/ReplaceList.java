@@ -23,7 +23,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public final class MVReplaceList {
+public final class ReplaceList {
 
     public final static String REPLACELIST = "Ersetzungstabelle";
     public final static String VON = "von";
@@ -48,7 +48,7 @@ public final class MVReplaceList {
             // hat der Nutzer als Suchbegriff "leer" eingegeben, dann weg damit
             if (strReplace[0].isEmpty()) {
                 it.remove();
-                ListenerMediathekView.notify(ListenerMediathekView.EREIGNIS_REPLACELIST_CHANGED, MVReplaceList.class.getSimpleName());
+                Listener.notify(Listener.EREIGNIS_REPLACELIST_CHANGED, ReplaceList.class.getSimpleName());
                 continue;
             }
 

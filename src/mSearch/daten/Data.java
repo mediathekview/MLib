@@ -19,10 +19,10 @@
  */
 package mSearch.daten;
 
-import mSearch.tool.MVReplaceList;
+import mSearch.tool.ReplaceList;
 
 public class Data {
-    public static MVReplaceList mVReplaceList = new MVReplaceList(); // Ersetzungsliste für die Namen der Downloads
+    public static ReplaceList mVReplaceList = new ReplaceList(); // Ersetzungsliste für die Namen der Downloads
 
 
 

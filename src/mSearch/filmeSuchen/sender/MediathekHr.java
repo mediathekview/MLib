@@ -23,10 +23,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Functions;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
@@ -34,15 +34,15 @@ import mSearch.tool.MSStringBuilder;
 public class MediathekHr extends MediathekReader implements Runnable {
 
     public final static String SENDERNAME = "HR";
-    private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-    private MSStringBuilder rubrikSeite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+    private MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+    private MSStringBuilder rubrikSeite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
     /**
      *
      * @param ssearch
      * @param startPrio
      */
-    public MediathekHr(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekHr(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME, /* threads */ 2, /* urlWarten */ 500, startPrio);
     }
 
@@ -58,7 +58,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
         bearbeiteRubrik(seite);
         bearbeiteTage(seite);
 
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -96,7 +96,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
         ArrayList<String> erg = new ArrayList<>();
         seite.extractList("", "", RUBRIK_MUSTER, "\"", RUBRIK_PREFIX, erg);
         for (String s : erg) {
-            if (MSConfig.getStop()) {
+            if (Config.getStop()) {
                 break;
             }
             rubrik(s);
@@ -125,14 +125,14 @@ public class MediathekHr extends MediathekReader implements Runnable {
                 listeThemen.add(add);
             }
         } else {
-            Log.fehlerMeldung(653210697, "keine URL");
+            Log.errorLog(653210697, "keine URL");
         }
     }
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         //private MVStringBuilder seite2 = new MVStringBuilder();
 
         @Override
@@ -140,13 +140,13 @@ public class MediathekHr extends MediathekReader implements Runnable {
             try {
                 meldungAddThread();
                 String link[];
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0] /*url*/);
                     seite.setLength(0);
                     addFilme(link[0]/*url*/, link[1]/*thema*/, link[2]/*filmsite*/);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(894330854, ex);
+                Log.errorLog(894330854, ex);
             }
             meldungThreadUndFertig();
         }
@@ -172,7 +172,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                 String titel, thema;
                 long duration = 0;
                 String description;
-                while (!MSConfig.getStop() && (posItem1 = seite1.indexOf(MUSTER_ITEM_1, posItem1)) != -1) {
+                while (!Config.getStop() && (posItem1 = seite1.indexOf(MUSTER_ITEM_1, posItem1)) != -1) {
                     posItem1 += MUSTER_ITEM_1.length();
 
                     String d = seite1.extract(MUSTER_DURATION, END, posItem1);
@@ -187,7 +187,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                             }
                         }
                     } catch (Exception ex) {
-                        Log.fehlerMeldung(708096931, "d: " + d);
+                        Log.errorLog(708096931, "d: " + d);
                     }
                     description = seite1.extract(MUSTER_DESCRIPTION, END, posItem1);
                     datum = seite1.extract(MUSTER_DATUM, END, posItem1);
@@ -224,14 +224,14 @@ public class MediathekHr extends MediathekReader implements Runnable {
                         }
                         addFilm(film);
                     } else {
-                        Log.fehlerMeldung(649882036, "keine URL");
+                        Log.errorLog(649882036, "keine URL");
                     }
                 }
                 if (url.isEmpty()) {
-                    Log.fehlerMeldung(761236458, "keine URL für: " + xmlWebsite);
+                    Log.errorLog(761236458, "keine URL für: " + xmlWebsite);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(487774126, ex);
+                Log.errorLog(487774126, ex);
             }
         }
 
@@ -249,7 +249,7 @@ public class MediathekHr extends MediathekReader implements Runnable {
                 }
             } catch (Exception ex) {
                 ret = "";
-                Log.fehlerMeldung(356408790, "kein Datum");
+                Log.errorLog(356408790, "kein Datum");
             }
             return ret;
         }

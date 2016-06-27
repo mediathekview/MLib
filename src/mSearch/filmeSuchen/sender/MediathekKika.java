@@ -24,20 +24,20 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekKika extends MediathekReader implements Runnable {
 
     public final static String SENDERNAME = "KiKA";
-    private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+    private MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
     LinkedListUrl listeAllVideos = new LinkedListUrl();
 
-    public MediathekKika(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekKika(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME, /* threads */ 5, /* urlWarten */ 200, startPrio);
     }
 
@@ -45,14 +45,14 @@ public class MediathekKika extends MediathekReader implements Runnable {
     void addToList() {
 
         meldungStart();
-        if (MSConfig.loadLongMax()) {
+        if (Config.loadLongMax()) {
             addToListNormal();
         }
         addToListAllVideo();
 
 ////        new ThemaLaden().ladenSerien_1("http://www.kika.de/die-schule-der-kleinen-vampire/sendungen/sendung37314.html");
 ////        meldungThreadUndFertig();
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0 && listeAllVideos.size() == 0) {
             meldungThreadUndFertig();
@@ -77,7 +77,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
 
         listeThemen.clear();
         try {
-            seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 3, seite, "KiKA: Startseite");
+            seite = getUrlIo.getUri(SENDERNAME, ADRESSE, Const.KODIERUNG_UTF, 3, seite, "KiKA: Startseite");
             seite.extractList("", "", MUSTER_URL, "\"", "http://www.kika.de/sendungen/sendungenabisz100_", liste1);
 
             for (String s : liste1) {
@@ -91,7 +91,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 listeThemen.add(new String[]{ss});
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(302025469, ex);
+            Log.errorLog(302025469, ex);
         }
     }
 
@@ -102,7 +102,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
         ArrayList<String> liste2 = new ArrayList<>();
 
         try {
-            seite = getUrlIo.getUri(SENDERNAME, ADRESSE, MSConst.KODIERUNG_UTF, 3, seite, "KiKA: Startseite alle Videos");
+            seite = getUrlIo.getUri(SENDERNAME, ADRESSE, Const.KODIERUNG_UTF, 3, seite, "KiKA: Startseite alle Videos");
             seite.extractList("", "", MUSTER_URL, "\"", "http://www.kika.de/videos/allevideos/allevideos-buendelgruppen100_page-", liste1);
             for (String s1 : liste1) {
                 seite = getUrlIo.getUri_Utf(sendername, s1, seite, "KiKa-Sendungen");
@@ -112,16 +112,16 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 listeAllVideos.add(new String[]{s2});
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(732120256, ex);
+            Log.errorLog(732120256, ex);
         }
     }
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite3 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");//2014-12-12T09:45:00.000+0100
         private final SimpleDateFormat sdfOutTime = new SimpleDateFormat("HH:mm:ss");
         private final SimpleDateFormat sdfOutDay = new SimpleDateFormat("dd.MM.yyyy");
@@ -133,16 +133,16 @@ public class MediathekKika extends MediathekReader implements Runnable {
             try {
                 meldungAddThread();
                 String[] link;
-                while (!MSConfig.getStop() && (link = listeAllVideos.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeAllVideos.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     loadAllVideo_1(link[0] /* url */);
                 }
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     ladenSerien_1(link[0] /* url */);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(915236791, ex);
+                Log.errorLog(915236791, ex);
             }
             meldungThreadUndFertig();
         }
@@ -151,7 +151,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             try {
                 liste1.clear();
                 liste2.clear();
-                seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
+                seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, Const.KODIERUNG_UTF, 1, seite1, "Themenseite");
                 String thema = seite1.extract("<title>", "<");
                 thema = thema.replace("KiKA -", "").trim();
 //                String url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"", 0, "Das könnte dir auch gefallen", "");
@@ -176,22 +176,22 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     url = seite1.extract("<span class=\"moreBtn\">", "<a href=\"", "\"", p, 0, "");
                 }
                 if (url.isEmpty()) {
-                    Log.fehlerMeldung(721356987, "keine URL: " + filmWebsite);
+                    Log.errorLog(721356987, "keine URL: " + filmWebsite);
                     return;
                 } else {
                     if (!url.startsWith("http://www.kika.de")) {
                         url = "http://www.kika.de" + url;
                     }
-                    seite1 = getUrlIo.getUri(SENDERNAME, url, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
+                    seite1 = getUrlIo.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 1, seite1, "Themenseite");
                     seite1.extractList("", "<!--The bottom navigation -->", "<div class=\"shortInfos\">", "<a href=\"", "\"", "http://www.kika.de", liste1);
 
                     seite1.extractList("", "", "<div class=\"bundleNaviItem \">", "<a href=\"", "\"", "http://www.kika.de", liste2);
                     for (String s : liste2) {
-                        seite1 = getUrlIo.getUri(SENDERNAME, s, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
+                        seite1 = getUrlIo.getUri(SENDERNAME, s, Const.KODIERUNG_UTF, 1, seite1, "Themenseite");
                         seite1.extractList("", "<!--The bottom navigation -->", "<div class=\"shortInfos\">", "<a href=\"", "\"", "http://www.kika.de", liste1);
                     }
                     if (liste1.isEmpty()) {
-                        Log.fehlerMeldung(794512630, "keine Filme: " + filmWebsite);
+                        Log.errorLog(794512630, "keine Filme: " + filmWebsite);
                         return;
                     }
                     int count = 0;
@@ -200,15 +200,15 @@ public class MediathekKika extends MediathekReader implements Runnable {
                         // die jüngsten Beiträge sind am Ende
                         String s = liste1.get(i);
                         ++count;
-                        if (!MSConfig.loadLongMax() && count > 4) {
+                        if (!Config.loadLongMax() && count > 4) {
                             return;
                         }
-                        if (MSConfig.getStop()) {
+                        if (Config.getStop()) {
                             return;
                         }
                         if (!ladenSerien_2(s, thema)) {
                             //dann gibts evtl. nix mehr
-                            if (!MSConfig.loadLongMax()) {
+                            if (!Config.loadLongMax()) {
                                 // nur beim kurzen Suchen
                                 ++err;
                                 if (err > 2) {
@@ -223,7 +223,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     }
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(915263147, ex);
+                Log.errorLog(915263147, ex);
             }
         }
 
@@ -231,7 +231,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
             boolean ret = false;
             try {
                 meldung(filmWebsite);
-                seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, MSConst.KODIERUNG_UTF, 1, seite1, "Themenseite");
+                seite1 = getUrlIo.getUri(SENDERNAME, filmWebsite, Const.KODIERUNG_UTF, 1, seite1, "Themenseite");
 
                 String xml = seite1.extract("<div class=\"av-playerContainer\"", "setup({dataURL:'", "'");
                 if (xml.isEmpty()) {
@@ -242,7 +242,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     ladenXml(xml, thema, false /*alle*/);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(801202145, ex);
+                Log.errorLog(801202145, ex);
             }
             return ret;
         }
@@ -275,19 +275,19 @@ public class MediathekKika extends MediathekReader implements Runnable {
             try {
                 seite2 = getUrlIo.getUri_Utf(sendername, url, seite2, "KiKa-Sendungen");
                 loadAllVideo_2(seite2);
-                if (MSConfig.loadLongMax()) {
+                if (Config.loadLongMax()) {
                     seite2.extractList("", "", "<div class=\"bundleNaviItem active\">\n<a href=\"/videos/allevideos/", "\"", "http://www.kika.de/videos/allevideos/", liste);
                     seite2.extractList("", "", "<div class=\"bundleNaviItem \">\n<a href=\"/videos/allevideos/", "\"", "http://www.kika.de/videos/allevideos/", liste);
                 }
                 for (String u : liste) {
-                    if (MSConfig.getStop()) {
+                    if (Config.getStop()) {
                         break;
                     }
                     seite2 = getUrlIo.getUri_Utf(sendername, u, seite2, "KiKa-Sendungen");
                     loadAllVideo_2(seite2);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(825412369, ex);
+                Log.errorLog(825412369, ex);
             }
         }
 
@@ -302,13 +302,13 @@ public class MediathekKika extends MediathekReader implements Runnable {
 
                 sStringBuilder.extractList(".setup({dataURL:'", "'", liste);
                 for (String s : liste) {
-                    if (MSConfig.getStop()) {
+                    if (Config.getStop()) {
                         break;
                     }
                     ladenXml(s /* url */, thema, true /*nur neue URLs*/);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(201036987, ex);
+                Log.errorLog(201036987, ex);
             }
         }
 
@@ -360,7 +360,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                         }
                     }
                 } catch (NumberFormatException ex) {
-                    Log.fehlerMeldung(201036547, ex, xmlWebsite);
+                    Log.errorLog(201036547, ex, xmlWebsite);
                 }
                 // Film-URLs suchen
                 final String MUSTER_URL_MP4 = "<progressiveDownloadUrl>";
@@ -377,7 +377,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 }
 
                 if (thema.isEmpty() || urlSendung.isEmpty() || titel.isEmpty() || urlMp4.isEmpty() || date.isEmpty() || zeit.isEmpty() || duration == 0 /*|| beschreibung.isEmpty()*/) {
-                    Log.fehlerMeldung(735216987, "leer: " + xmlWebsite);
+                    Log.errorLog(735216987, "leer: " + xmlWebsite);
                 }
 
                 if (!urlMp4.equals("")) {
@@ -387,10 +387,10 @@ public class MediathekKika extends MediathekReader implements Runnable {
                     film.addUrlHd(urlHD, "");
                     addFilm(film, urlPruefen);
                 } else {
-                    Log.fehlerMeldung(963215478, " xml: " + xmlWebsite);
+                    Log.errorLog(963215478, " xml: " + xmlWebsite);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(784512365, ex);
+                Log.errorLog(784512365, ex);
             }
         }
 
@@ -401,7 +401,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(datum);
                 datum = sdfOutDay.format(filmDate);
             } catch (ParseException ex) {
-                Log.fehlerMeldung(731025789, ex, "Datum: " + datum);
+                Log.errorLog(731025789, ex, "Datum: " + datum);
             }
             return datum;
         }
@@ -413,7 +413,7 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 Date filmDate = sdf.parse(zeit);
                 zeit = sdfOutTime.format(filmDate);
             } catch (ParseException ex) {
-                Log.fehlerMeldung(915423687, ex, "Time: " + zeit);
+                Log.errorLog(915423687, ex, "Time: " + zeit);
             }
             return zeit;
         }

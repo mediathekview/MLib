@@ -9,7 +9,7 @@ import java.io.InputStream;
  * Date: 15.06.16
  * Time: 14:03
  */
-public class MVProgressMonitorInputStream extends FilterInputStream {
+public class ProgressMonitorInputStream extends FilterInputStream {
     /**
      * Creates a <code>FilterInputStream</code>
      * by assigning the  argument <code>in</code>
@@ -19,7 +19,7 @@ public class MVProgressMonitorInputStream extends FilterInputStream {
      * @param in the underlying input stream, or <code>null</code> if
      *           this instance is to be created without an underlying stream.
      */
-    public MVProgressMonitorInputStream(InputStream in, long maxSize, MVInputStreamProgressMonitor mon) throws IOException {
+    public ProgressMonitorInputStream(InputStream in, long maxSize, InputStreamProgressMonitor mon) throws IOException {
         super(in);
         monitor = mon;
         this.size = maxSize;
@@ -61,7 +61,7 @@ public class MVProgressMonitorInputStream extends FilterInputStream {
         return read;
     }
 
-    private MVInputStreamProgressMonitor monitor = null;
+    private InputStreamProgressMonitor monitor = null;
     /**
      * The number of bytes that can be read from the InputStream.
      */

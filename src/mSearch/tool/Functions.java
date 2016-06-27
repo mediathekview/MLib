@@ -121,7 +121,7 @@ public class Functions {
             rb = ResourceBundle.getBundle("version");
             msg = rb.getString(propToken);
         } catch (Exception e) {
-            Log.fehlerMeldung(807293847, e);
+            Log.errorLog(807293847, e);
         }
         return msg;
     }
@@ -135,7 +135,7 @@ public class Functions {
             rb = ResourceBundle.getBundle("version");
             msg = rb.getString(propToken);
         } catch (Exception e) {
-            Log.fehlerMeldung(134679898, e);
+            Log.errorLog(134679898, e);
         }
         return msg;
     }
@@ -205,7 +205,7 @@ public class Functions {
             }
         }
         if (ret.equals("")) {
-            Log.fehlerMeldung(283946015, pfad1 + " - " + pfad2);
+            Log.errorLog(283946015, pfad1 + " - " + pfad2);
         }
         return ret;
     }
@@ -238,7 +238,7 @@ public class Functions {
             ret = ret.substring(0, ret.indexOf("&"));
         }
         if (ret.equals("")) {
-            Log.fehlerMeldung(395019631, pfad);
+            Log.errorLog(395019631, pfad);
         }
         return ret;
     }

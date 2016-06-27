@@ -25,6 +25,7 @@ package mSearch.tool;
 
 import java.io.IOException;
 import java.io.InputStream;
+import mSearch.Config;
 
 public class MSInputStream extends InputStream {
 
@@ -37,7 +38,7 @@ public class MSInputStream extends InputStream {
 
     public MSInputStream(InputStream in) {
         iStream = in;
-        maxBytePerSec = MSConfig.bandbreite;
+        maxBytePerSec = Config.bandbreite;
         if (maxBytePerSec < 0) {
             maxBytePerSec = 0;
         }
@@ -72,7 +73,7 @@ public class MSInputStream extends InputStream {
                 wait(warten_ms);
                 gesamtVerpennt += warten_ms;
             } catch (InterruptedException ex) {
-                Log.fehlerMeldung(591237096,   ex);
+                Log.errorLog(591237096,   ex);
             }
         }
     }

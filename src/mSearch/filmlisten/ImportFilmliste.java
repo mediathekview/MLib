@@ -22,39 +22,39 @@ package mSearch.filmlisten;
 import java.util.ArrayList;
 import javax.swing.event.EventListenerList;
 import mSearch.daten.ListeFilme;
-import mSearch.filmeSuchen.MSListenerFilmeLaden;
-import mSearch.filmeSuchen.MSListenerFilmeLadenEvent;
-import mSearch.tool.MSConfig;
+import mSearch.filmeSuchen.ListenerFilmeLaden;
+import mSearch.filmeSuchen.ListenerFilmeLadenEvent;
+import mSearch.Config;
 import mSearch.tool.Log;
 
-public class MSImportFilmliste {
+public class ImportFilmliste {
 
     private EventListenerList listeners;
-    private final MSFilmlisteLesen msFilmlisteLesen;
-    public MSFilmlistenSuchen msFilmlistenSuchen;
+    private final FilmlisteLesen msFilmlisteLesen;
+    public FilmlistenSuchen msFilmlistenSuchen;
 
-    public MSImportFilmliste() {
+    public ImportFilmliste() {
         listeners = new EventListenerList();
-        msFilmlisteLesen = new MSFilmlisteLesen();
-        msFilmlistenSuchen = new MSFilmlistenSuchen();
-        msFilmlisteLesen.addAdListener(new MSListenerFilmeLaden() {
+        msFilmlisteLesen = new FilmlisteLesen();
+        msFilmlistenSuchen = new FilmlistenSuchen();
+        msFilmlisteLesen.addAdListener(new ListenerFilmeLaden() {
             @Override
-            public synchronized void start(MSListenerFilmeLadenEvent event) {
-                for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
+            public synchronized void start(ListenerFilmeLadenEvent event) {
+                for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
                     l.start(event);
                 }
             }
 
             @Override
-            public synchronized void progress(MSListenerFilmeLadenEvent event) {
-                for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
+            public synchronized void progress(ListenerFilmeLadenEvent event) {
+                for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
                     l.progress(event);
 
                 }
             }
 
             @Override
-            public synchronized void fertig(MSListenerFilmeLadenEvent event) {
+            public synchronized void fertig(ListenerFilmeLadenEvent event) {
             }
         });
     }
@@ -63,7 +63,7 @@ public class MSImportFilmliste {
     // Filmeliste importieren, URL automatisch wählen
     // #########################################################
     public void filmeImportierenAuto(ListeFilme listeFilme, ListeFilme listeFilmeDiff, int days) {
-        MSConfig.setStop(false);
+        Config.setStop(false);
         new Thread(new FilmeImportierenAutoThread(listeFilme, listeFilmeDiff, days)).start();
     }
 
@@ -103,7 +103,7 @@ public class MSImportFilmliste {
                 }
             }
             if (!ret /* listeFilme ist schon wieder null -> "FilmeLaden" */) {
-                Log.fehlerMeldung(951235497, "Es konnten keine Filme geladen werden!");
+                Log.errorLog(951235497, "Es konnten keine Filme geladen werden!");
             }
             fertigMelden(ret);
         }
@@ -140,7 +140,7 @@ public class MSImportFilmliste {
 
                 if (ret && i < 1 && liste.isOlderThan(5 * 60 * 60 /*sekunden*/)) {
                     // Laden hat geklappt ABER: Liste zu alt, dann gibts einen 2. Versuch
-                    Log.systemMeldung("Filmliste zu alt, neuer Versuch");
+                    Log.sysLog("Filmliste zu alt, neuer Versuch");
                     ret = false;
                 }
 
@@ -159,7 +159,7 @@ public class MSImportFilmliste {
                 }
                 versuchteUrls.add(updateUrl);
                 // nur wenn nicht abgebrochen, weitermachen
-                if (MSConfig.getStop()) {
+                if (Config.getStop()) {
                     break;
                 }
 
@@ -172,7 +172,7 @@ public class MSImportFilmliste {
     // Filmeliste importieren, mit fester URL/Pfad
     // #######################################
     public void filmeImportierenDatei(String pfad, ListeFilme listeFilme, int days) {
-        MSConfig.setStop(false);
+        Config.setStop(false);
         new Thread(new FilmeImportierenDateiThread(pfad, listeFilme, days)).start();
 
     }
@@ -197,8 +197,8 @@ public class MSImportFilmliste {
 
     // #######################################
     // #######################################
-    public void addAdListener(MSListenerFilmeLaden listener) {
-        listeners.add(MSListenerFilmeLaden.class, listener);
+    public void addAdListener(ListenerFilmeLaden listener) {
+        listeners.add(ListenerFilmeLaden.class, listener);
     }
 
     public void updateDownloadUrlsFilmlisten(boolean akt) {
@@ -209,22 +209,22 @@ public class MSImportFilmliste {
         boolean ret = false;
         try {
             if (!dateiUrl.equals("")) {
-                Log.systemMeldung("Filmliste laden von: " + dateiUrl);
+                Log.sysLog("Filmliste laden von: " + dateiUrl);
                 msFilmlisteLesen.readFilmListe(dateiUrl, listeFilme, days);
                 if (!listeFilme.isEmpty()) {
                     ret = true;
                 }
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(965412378, ex);
+            Log.errorLog(965412378, ex);
         }
         return ret;
 
     }
 
     private synchronized void fertigMelden(boolean ok) {
-        for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
-            l.fertig(new MSListenerFilmeLadenEvent("", "", 0, 0, 0, !ok));
+        for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
+            l.fertig(new ListenerFilmeLadenEvent("", "", 0, 0, 0, !ok));
         }
     }
 }

@@ -26,11 +26,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.filmeSuchen.MSRunSender;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.filmeSuchen.RunSender;
 import mSearch.tool.GermanStringSorter;
-import mSearch.tool.MSConfig;
+import mSearch.Config;
 import mSearch.tool.Log;
 
 public class MediathekReader implements Runnable {
@@ -44,13 +44,13 @@ public class MediathekReader implements Runnable {
     int progress = 0;
     int startPrio = 1; // es gibt die Werte: 0->startet sofort, 1->später und 2->zuletzt
     LinkedListUrl listeThemen = new LinkedListUrl();
-    MSGetUrl getUrlIo;
-    MSFilmeSuchen mSearchFilmeSuchen;
+    GetUrl getUrlIo;
+    FilmeSuchen mSearchFilmeSuchen;
 
-    public MediathekReader(MSFilmeSuchen mmSearchFilmeSuchen, String name, int ssenderMaxThread, int ssenderWartenSeiteLaden, int sstartPrio) {
+    public MediathekReader(FilmeSuchen mmSearchFilmeSuchen, String name, int ssenderMaxThread, int ssenderWartenSeiteLaden, int sstartPrio) {
         mSearchFilmeSuchen = mmSearchFilmeSuchen;
         wartenSeiteLaden = ssenderWartenSeiteLaden;
-        getUrlIo = new MSGetUrl(ssenderWartenSeiteLaden);
+        getUrlIo = new GetUrl(ssenderWartenSeiteLaden);
         sendername = name;
         maxThreadLaufen = ssenderMaxThread;
         startPrio = sstartPrio;
@@ -111,7 +111,7 @@ public class MediathekReader implements Runnable {
             threads = 0;
             addToList();
         } catch (Exception ex) {
-            Log.fehlerMeldung(397543600, ex, sendername);
+            Log.errorLog(397543600, ex, sendername);
         }
     }
 
@@ -137,7 +137,7 @@ public class MediathekReader implements Runnable {
         film.setGeo();
         if (mSearchFilmeSuchen.listeFilmeNeu.addFilmVomSender(film)) {
             // dann ist er neu
-            MSFilmeSuchen.listeSenderLaufen.inc(film.arr[DatenFilm.FILM_SENDER_NR], MSRunSender.Count.FILME);
+            FilmeSuchen.listeSenderLaufen.inc(film.arr[DatenFilm.FILM_SENDER_NR], RunSender.Count.FILME);
         }
     }
 
@@ -173,12 +173,12 @@ public class MediathekReader implements Runnable {
     synchronized void meldungStart() {
         max = 0;
         progress = 0;
-        Log.systemMeldung("===============================================================");
-        Log.systemMeldung("Starten[" + ((MSConfig.loadLongMax()) ? "alles" : "update") + "] " + sendername + ": " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
-        Log.systemMeldung("   maxThreadLaufen: " + maxThreadLaufen);
-        Log.systemMeldung("   wartenSeiteLaden: " + wartenSeiteLaden);
-        Log.systemMeldung("");
-        MSRunSender runSender = mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
+        Log.sysLog("===============================================================");
+        Log.sysLog("Starten[" + ((Config.loadLongMax()) ? "alles" : "update") + "] " + sendername + ": " + new SimpleDateFormat("HH:mm:ss").format(new Date()));
+        Log.sysLog("   maxThreadLaufen: " + maxThreadLaufen);
+        Log.sysLog("   wartenSeiteLaden: " + wartenSeiteLaden);
+        Log.sysLog("");
+        RunSender runSender = mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
 //        MSRunSender runSender = listeSenderLaufen.getSender(sendername);
         runSender.maxThreads = maxThreadLaufen; //runSender ist erst jetzt angelegt
         runSender.waitOnLoad = wartenSeiteLaden;
@@ -224,7 +224,7 @@ public class MediathekReader implements Runnable {
         }
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setRequestProperty("User-Agent", MSConfig.getUserAgent());
+            conn.setRequestProperty("User-Agent", Config.getUserAgent());
             conn.setReadTimeout(TIMEOUT);
             conn.setConnectTimeout(TIMEOUT);
             if ((retCode = conn.getResponseCode()) < 400) {
@@ -256,7 +256,7 @@ public class MediathekReader implements Runnable {
             }
         }
         if (ret.equals("")) {
-            Log.fehlerMeldung(469872800, pfad1 + " " + pfad2);
+            Log.errorLog(469872800, pfad1 + " " + pfad2);
         }
         return ret;
     }

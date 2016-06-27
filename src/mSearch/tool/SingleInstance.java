@@ -26,7 +26,7 @@ import java.nio.channels.FileLock;
 /**
  * Prevents startup of multiple instances
  */
-final public class MVSingleInstance {
+final public class SingleInstance {
 
     private FileChannel channel;
     private FileLock lock;

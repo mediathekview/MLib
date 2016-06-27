@@ -48,7 +48,7 @@ import mSearch.filmeSuchen.sender.MediathekWdr;
 import mSearch.filmeSuchen.sender.MediathekZdf;
 import mSearch.filmeSuchen.sender.MediathekZdfTivi;
 import mSearch.tool.GermanStringSorter;
-import mSearch.tool.MSConfig;
+import mSearch.Config;
 import mSearch.tool.Log;
 
 /**
@@ -60,21 +60,21 @@ import mSearch.tool.Log;
  * "listeFilme" ist dann die neue komplette Liste mit Filmen
  * ##########################################################################################################
  */
-public class MSFilmeSuchen {
+public class FilmeSuchen {
 
     public ListeFilme listeFilmeNeu; // neu angelegte Liste und da kommen die neu gesuchten Filme rein
     public ListeFilme listeFilmeAlt; // ist die "alte" Liste, wird beim Aufruf übergeben und enthält am Ende das Ergebnis
     // private
     private final LinkedList<MediathekReader> mediathekListe = new LinkedList<>();
     private final EventListenerList listeners = new EventListenerList();
-    public static final MSListeRunSender listeSenderLaufen = new MSListeRunSender();
+    public static final ListeRunSender listeSenderLaufen = new ListeRunSender();
     private Date startZeit = new Date();
     private Date stopZeit = new Date();
     private final static String TRENNER = " | ";
     private boolean allStarted = false;
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
-    public MSFilmeSuchen() {
+    public FilmeSuchen() {
         //Reader laden Spaltenweises Laden
         mediathekListe.add(new MediathekArd(this, 0));
         mediathekListe.add(new MediathekZdf(this, 0));
@@ -129,8 +129,8 @@ public class MSFilmeSuchen {
         return liste.toArray(new String[liste.size()]);
     }
 
-    public void addAdListener(MSListenerFilmeLaden listener) {
-        listeners.add(MSListenerFilmeLaden.class, listener);
+    public void addAdListener(ListenerFilmeLaden listener) {
+        listeners.add(ListenerFilmeLaden.class, listener);
     }
 
     /**
@@ -142,7 +142,7 @@ public class MSFilmeSuchen {
         initStart(listeFilme);
         // die mReader nach Prio starten
         mrStarten(0);
-        if (!MSConfig.getStop()) {
+        if (!Config.getStop()) {
             mrWarten();
             mrStarten(1);
             allStarted = true;
@@ -174,21 +174,21 @@ public class MSFilmeSuchen {
         }
     }
 
-    public synchronized MSRunSender melden(String sender, int max, int progress, String text) {
-        MSRunSender runSender = listeSenderLaufen.getSender(sender);
+    public synchronized RunSender melden(String sender, int max, int progress, String text) {
+        RunSender runSender = listeSenderLaufen.getSender(sender);
         if (runSender != null) {
             runSender.max = max;
             runSender.progress = progress;
         } else {
             // Sender startet
-            runSender = new MSRunSender(sender, max, progress);
+            runSender = new RunSender(sender, max, progress);
             listeSenderLaufen.add(runSender);
             //wird beim Start des Senders aufgerufen, 1x
             if (listeSenderLaufen.size() <= 1 /* erster Aufruf */) {
-                notifyStart(new MSListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
+                notifyStart(new ListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
             }
         }
-        notifyProgress(new MSListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
+        notifyProgress(new ListenerFilmeLadenEvent(sender, text, listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
         progressBar();
         return runSender;
     }
@@ -196,40 +196,40 @@ public class MSFilmeSuchen {
     public synchronized void meldenFertig(String sender) {
         //wird ausgeführt wenn Sender beendet ist
         String zeile;
-        MSRunSender run = listeSenderLaufen.senderFertig(sender);
+        RunSender run = listeSenderLaufen.senderFertig(sender);
         if (run != null) {
             zeile = "" + "\n";
             zeile += "-------------------------------------------------------------------------------------" + "\n";
-            zeile += "Fertig " + sender + ": " + new SimpleDateFormat("HH:mm:ss").format(new Date()) + " Uhr, Filme: " + listeSenderLaufen.get(sender, MSRunSender.Count.FILME) + "\n";
+            zeile += "Fertig " + sender + ": " + new SimpleDateFormat("HH:mm:ss").format(new Date()) + " Uhr, Filme: " + listeSenderLaufen.get(sender, RunSender.Count.FILME) + "\n";
             int sekunden = run.getLaufzeitSekunden();
             zeile += "     -> Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60) + "\n";
             zeile += "     ->       Rest: " + listeSenderLaufen.getSenderRun() + "\n";
             zeile += "-------------------------------------------------------------------------------------" + "\n";
-            Log.systemMeldung(zeile);
+            Log.sysLog(zeile);
         }
         if (!allStarted || !listeSenderLaufen.listeFertig()) {
             //nur ein Sender fertig oder noch nicht alle gestartet
-            notifyProgress(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
+            notifyProgress(new ListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), listeFilmeNeu.size(), false));
         } else {
             // alles fertig
             // wird einmal aufgerufen, wenn alle Sender fertig sind
             Log.progress(""); // zum löschen der Progressbar
-            if (MSConfig.getStop()) {
+            if (Config.getStop()) {
                 // Abbruch melden
-                Log.systemMeldung("                                                                                     ");
-                Log.systemMeldung("                                                                                     ");
-                Log.systemMeldung("*************************************************************************************");
-                Log.systemMeldung("*************************************************************************************");
-                Log.systemMeldung("*************************************************************************************");
-                Log.systemMeldung("     ----- Abbruch -----                                                             ");
-                Log.systemMeldung("*************************************************************************************");
-                Log.systemMeldung("*************************************************************************************");
-                Log.systemMeldung("*************************************************************************************");
-                Log.systemMeldung("                                                                                     ");
-                Log.systemMeldung("                                                                                     ");
+                Log.sysLog("                                                                                     ");
+                Log.sysLog("                                                                                     ");
+                Log.sysLog("*************************************************************************************");
+                Log.sysLog("*************************************************************************************");
+                Log.sysLog("*************************************************************************************");
+                Log.sysLog("     ----- Abbruch -----                                                             ");
+                Log.sysLog("*************************************************************************************");
+                Log.sysLog("*************************************************************************************");
+                Log.sysLog("*************************************************************************************");
+                Log.sysLog("                                                                                     ");
+                Log.sysLog("                                                                                     ");
             }
             mrClear();
-            if (MSConfig.updateFilmliste) {
+            if (Config.updateFilmliste) {
                 // alte Filme eintragen wenn angefordert oder nur ein update gesucht wurde
                 //////toDo
                 listeFilmeNeu.updateListe(listeFilmeAlt, true /* über den Index vergleichen */, false /*ersetzen*/);
@@ -239,9 +239,9 @@ public class MSFilmeSuchen {
             stopZeit = new Date(System.currentTimeMillis());
             listeFilmeNeu.writeMetaData();
 
-            endeMeldung().forEach(Log::systemMeldung);
+            endeMeldung().forEach(Log::sysLog);
 
-            notifyFertig(new MSListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), (int) listeSenderLaufen.get(MSRunSender.Count.FILME), false));
+            notifyFertig(new ListenerFilmeLadenEvent(sender, "", listeSenderLaufen.getMax(), listeSenderLaufen.getProgress(), (int) listeSenderLaufen.get(RunSender.Count.FILME), false));
         }
     }
 
@@ -265,14 +265,14 @@ public class MSFilmeSuchen {
         retArray.add("=================================================================================");
         retArray.add("=================================================================================");
         retArray.add("");
-        retArray.add("       Filme geladen: " + listeSenderLaufen.get(MSRunSender.Count.FILME));
-        retArray.add("      Seiten geladen: " + listeSenderLaufen.get(MSRunSender.Count.ANZAHL));
+        retArray.add("       Filme geladen: " + listeSenderLaufen.get(RunSender.Count.FILME));
+        retArray.add("      Seiten geladen: " + listeSenderLaufen.get(RunSender.Count.ANZAHL));
 
-        retArray.add("   Summe geladen[MB]: " + MSRunSender.getStringZaehler(listeSenderLaufen.get(MSRunSender.Count.SUM_DATA_BYTE)));
-        retArray.add("        Traffic [MB]: " + MSRunSender.getStringZaehler(listeSenderLaufen.get(MSRunSender.Count.SUM_TRAFFIC_BYTE)));
+        retArray.add("   Summe geladen[MB]: " + RunSender.getStringZaehler(listeSenderLaufen.get(RunSender.Count.SUM_DATA_BYTE)));
+        retArray.add("        Traffic [MB]: " + RunSender.getStringZaehler(listeSenderLaufen.get(RunSender.Count.SUM_TRAFFIC_BYTE)));
 
         // Durchschnittswerte ausgeben
-        double doub = (1.0 * listeSenderLaufen.get(MSRunSender.Count.SUM_TRAFFIC_BYTE)) / (sekunden == 0 ? 1 : sekunden) / 1000;
+        double doub = (1.0 * listeSenderLaufen.get(RunSender.Count.SUM_TRAFFIC_BYTE)) / (sekunden == 0 ? 1 : sekunden) / 1000;
         String rate = doub < 1 ? "<1" : String.format("%.1f", (doub));
         retArray.add("    ->    Rate[kB/s]: " + rate);
         retArray.add("    ->    Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60));
@@ -297,13 +297,13 @@ public class MSFilmeSuchen {
         // 4 Minuten warten, alle 10 Sekunden auf STOP prüfen
         try {
             for (int i = 0; i < 4 * 60; ++i) {
-                if (MSConfig.getStop()) {
+                if (Config.getStop()) {
                     break;
                 }
                 this.wait(1000); // warten, Sender nach der Gesamtlaufzeit starten
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(978754213, ex);
+            Log.errorLog(978754213, ex);
         }
     }
 
@@ -324,27 +324,27 @@ public class MSFilmeSuchen {
         listeSenderLaufen.clear();
         allStarted = false;
         listeFilmeAlt = listeFilme;
-        MSConfig.setStop(false);
+        Config.setStop(false);
         startZeit = new Date(System.currentTimeMillis());
         listeFilmeNeu = new ListeFilme();
         listeFilmeNeu.liveStreamEintragen();
-        Log.systemMeldung("");
-        Log.systemMeldung("=======================================");
-        Log.systemMeldung("Start Filme laden:");
-        if (MSConfig.loadMax()) {
-            Log.systemMeldung("Filme laden: max");
-        } else if (MSConfig.loadLongMax()) {
-            Log.systemMeldung("Filme laden: long");
+        Log.sysLog("");
+        Log.sysLog("=======================================");
+        Log.sysLog("Start Filme laden:");
+        if (Config.loadMax()) {
+            Log.sysLog("Filme laden: max");
+        } else if (Config.loadLongMax()) {
+            Log.sysLog("Filme laden: long");
         } else {
-            Log.systemMeldung("Filme laden: short");
+            Log.sysLog("Filme laden: short");
         }
-        if (MSConfig.updateFilmliste) {
-            Log.systemMeldung("Filmliste: aktualisieren");
+        if (Config.updateFilmliste) {
+            Log.sysLog("Filmliste: aktualisieren");
         } else {
-            Log.systemMeldung("Filmliste: neue erstellen");
+            Log.sysLog("Filmliste: neue erstellen");
         }
-        Log.systemMeldung("=======================================");
-        Log.systemMeldung("");
+        Log.sysLog("=======================================");
+        Log.sysLog("");
     }
 
     private void progressBar() {
@@ -373,34 +373,34 @@ public class MSFilmeSuchen {
             for (int i = 0; i < (10 - a); ++i) {
                 text += "-";
             }
-            text += " ]  " + listeSenderLaufen.get(MSRunSender.Count.ANZAHL) + " Seiten / "
-                    + proz + "% von " + max + " Themen / Filme: " + listeSenderLaufen.get(MSRunSender.Count.FILME)
+            text += " ]  " + listeSenderLaufen.get(RunSender.Count.ANZAHL) + " Seiten / "
+                    + proz + "% von " + max + " Themen / Filme: " + listeSenderLaufen.get(RunSender.Count.FILME)
                     + " / Dauer[Min]: " + (sekunden / 60 == 0 ? "<1" : sekunden / 60)
                     + " / R-Sender: " + listeSenderLaufen.getAnzSenderRun();
             Log.progress(text);
         }
     }
 
-    private void notifyStart(MSListenerFilmeLadenEvent event) {
+    private void notifyStart(ListenerFilmeLadenEvent event) {
         for (Object l : listeners.getListenerList()) {
-            if (l instanceof MSListenerFilmeLaden) {
-                ((MSListenerFilmeLaden) l).start(event);
+            if (l instanceof ListenerFilmeLaden) {
+                ((ListenerFilmeLaden) l).start(event);
             }
         }
     }
 
-    private void notifyProgress(MSListenerFilmeLadenEvent event) {
+    private void notifyProgress(ListenerFilmeLadenEvent event) {
         for (Object l : listeners.getListenerList()) {
-            if (l instanceof MSListenerFilmeLaden) {
-                ((MSListenerFilmeLaden) l).progress(event);
+            if (l instanceof ListenerFilmeLaden) {
+                ((ListenerFilmeLaden) l).progress(event);
             }
         }
     }
 
-    private void notifyFertig(MSListenerFilmeLadenEvent event) {
+    private void notifyFertig(ListenerFilmeLadenEvent event) {
         for (Object l : listeners.getListenerList()) {
-            if (l instanceof MSListenerFilmeLaden) {
-                ((MSListenerFilmeLaden) l).fertig(event);
+            if (l instanceof ListenerFilmeLaden) {
+                ((ListenerFilmeLaden) l).fertig(event);
             }
         }
     }

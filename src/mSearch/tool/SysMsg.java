@@ -24,23 +24,23 @@ public class SysMsg {
     public static StringBuffer textSystem = new StringBuffer(10000);
     public static StringBuffer textProgramm = new StringBuffer(10000);
     public static boolean playerMeldungenAus = false;
-    public static final int LOG_SYSTEM = ListenerMediathekView.EREIGNIS_LOG_SYSTEM;
-    public static final int LOG_PLAYER = ListenerMediathekView.EREIGNIS_LOG_PLAYER;
+    public static final int LOG_SYSTEM = Listener.EREIGNIS_LOG_SYSTEM;
+    public static final int LOG_PLAYER = Listener.EREIGNIS_LOG_PLAYER;
 
     private static final int MAX_LAENGE_1 = 50000;
     private static final int MAX_LAENGE_2 = 30000;
     private static int zeilenNrSystem = 0;
     private static int zeilenNrProgramm = 0;
 
-    public static synchronized void systemMeldung(String[] text) {
+    public static synchronized void sysMsg(String[] text) {
         systemmeldung(text);
     }
 
-    public static synchronized void systemMeldung(String text) {
+    public static synchronized void sysMsg(String text) {
         systemmeldung(new String[]{text});
     }
 
-    public static synchronized void playerMeldung(String text) {
+    public static synchronized void playerMsg(String text) {
         if (!playerMeldungenAus) {
             playermeldung(new String[]{text});
         }
@@ -106,7 +106,7 @@ public class SysMsg {
             default:
                 break;
         }
-        ListenerMediathekView.notify(art, SysMsg.class.getSimpleName());
+        Listener.notify(art, SysMsg.class.getSimpleName());
     }
 
     private static String getNr(int nr) {

@@ -21,19 +21,19 @@ package mSearch.filmeSuchen.sender;
 
 import java.util.ArrayList;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekPhoenix extends MediathekReader implements Runnable {
 
     public final static String SENDERNAME = "PHOENIX";
-    private MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+    private MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
-    public MediathekPhoenix(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekPhoenix(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME, 4 /* threads */, 250 /* urlWarten */, startPrio);
     }
 
@@ -42,7 +42,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
         listeThemen.clear();
         meldungStart();
         addToList_();
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0) {
             meldungThreadUndFertig();
@@ -60,10 +60,10 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
 
     private void addToList_() {
         final String MUSTER = "<li><strong><a href=\"/content/";
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        seite = getUrl.getUri(SENDERNAME, "http://www.phoenix.de/content/78905", MSConst.KODIERUNG_ISO15, 6 /* versuche */, seite, "" /* Meldung */);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        seite = getUrl.getUri(SENDERNAME, "http://www.phoenix.de/content/78905", Const.KODIERUNG_ISO15, 6 /* versuche */, seite, "" /* Meldung */);
         if (seite.length() == 0) {
-            Log.fehlerMeldung(487512369, "Leere Seite für URL: ");
+            Log.errorLog(487512369, "Leere Seite für URL: ");
         }
 
         int pos = 0;
@@ -88,22 +88,22 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private final MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private final MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private final MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private final MSStringBuilder seite3 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
         @Override
         public void run() {
             try {
                 String link[];
                 meldungAddThread();
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     seite1.setLength(0);
                     addFilme1(link[0]/* url */, link[1]/* Thema */);
                     meldungProgress(link[0]);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(825263641, ex);
+                Log.errorLog(825263641, ex);
             }
             meldungThreadUndFertig();
         }
@@ -114,14 +114,14 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
                 ArrayList<String> liste = new ArrayList<>();
                 seite1.extractList("<div class=\"linkliste2\">", "", "<li><a href=\"/content/", "\"", "http://www.phoenix.de/content/", liste);
                 for (String urlThema : liste) {
-                    if (MSConfig.getStop()) {
+                    if (Config.getStop()) {
                         break;
                     }
                     meldung(urlThema);
                     addFilme2(thema, urlThema);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(741258410, ex, url);
+                Log.errorLog(741258410, ex, url);
             }
         }
 
@@ -135,18 +135,18 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
             if (!urlId.isEmpty()) {
                 filmHolenId(thema, filmWebsite, urlId, title);
             } else {
-                Log.fehlerMeldung(912546987, filmWebsite);
+                Log.errorLog(912546987, filmWebsite);
             }
         }
 
         public void filmHolenId(String thema, String filmWebsite, String urlId, String title_) {
-            if (MSConfig.getStop()) {
+            if (Config.getStop()) {
                 return;
             }
             meldung(urlId);
             getUrl.getUri_Utf(SENDERNAME, urlId, seite3, "" /* Meldung */);
             if (seite3.length() == 0) {
-                Log.fehlerMeldung(825412874, "url: " + urlId);
+                Log.errorLog(825412874, "url: " + urlId);
                 return;
             }
 
@@ -237,7 +237,7 @@ public class MediathekPhoenix extends MediathekReader implements Runnable {
             }
 
             if (url.isEmpty()) {
-                Log.fehlerMeldung(952102014, "keine URL: " + filmWebsite);
+                Log.errorLog(952102014, "keine URL: " + filmWebsite);
             } else {
                 if (url.startsWith("http://tvdl.zdf.de")) {
                     url = url.replace("http://tvdl.zdf.de", "http://nrodl.zdf.de");

@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import mSearch.daten.DatenFilm;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSGetUrl;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.GetUrl;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
@@ -42,7 +42,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
      * @param ssearch
      * @param startPrio
      */
-    public MediathekMdr(MSFilmeSuchen ssearch, int startPrio) {
+    public MediathekMdr(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME, /* threads */ 3, /* urlWarten */ 500, startPrio);
     }
 
@@ -61,7 +61,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
         final String MUSTER_TAGE = "<a href=\"/mediathek/fernsehen/sendung-verpasst--100_date-";
         final String MUSTER_ADD_TAGE = "http://www.mdr.de/mediathek/fernsehen/sendung-verpasst--100_date-";
 
-        MSStringBuilder seite = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         listeThemen.clear();
         listeTage.clear();
         listeGesucht.clear();
@@ -79,7 +79,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                 url = seite.substring(pos1, pos2);
             }
             if (url.equals("")) {
-                Log.fehlerMeldung(889216307, "keine URL");
+                Log.errorLog(889216307, "keine URL");
             } else {
                 url = MUSTER_ADD + url;
                 if (url.contains("#")) {
@@ -99,7 +99,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                 url = seite.substring(pos1, pos2);
             }
             if (url.equals("")) {
-                Log.fehlerMeldung(461225808, "keine URL");
+                Log.errorLog(461225808, "keine URL");
             } else {
                 url = MUSTER_ADD_TAGE + url;
                 if (!istInListe(listeTage, url)) {
@@ -107,7 +107,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                 }
             }
         }
-        if (MSConfig.getStop()) {
+        if (Config.getStop()) {
             meldungThreadUndFertig();
         } else if (listeThemen.size() == 0 && listeTage.size() == 0) {
             meldungThreadUndFertig();
@@ -132,29 +132,29 @@ public class MediathekMdr extends MediathekReader implements Runnable {
 
     private class ThemaLaden implements Runnable {
 
-        MSGetUrl getUrl = new MSGetUrl(wartenSeiteLaden);
-        private MSStringBuilder seite1 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seiteTage = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite2 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite3 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
-        private MSStringBuilder seite4 = new MSStringBuilder(MSConst.STRING_BUFFER_START_BUFFER);
+        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seiteTage = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite3 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite4 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
         @Override
         public void run() {
             try {
                 meldungAddThread();
                 String[] link;
-                while (!MSConfig.getStop() && (link = listeThemen.getListeThemen()) != null) {
+                while (!Config.getStop() && (link = listeThemen.getListeThemen()) != null) {
                     meldungProgress(link[0]);
                     addThema(link[0]);
                 }
                 String url;
-                while (!MSConfig.getStop() && (url = getListeTage()) != null) {
+                while (!Config.getStop() && (url = getListeTage()) != null) {
                     meldungProgress(url);
                     addTage(url);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(115896304, ex);
+                Log.errorLog(115896304, ex);
             }
             meldungThreadUndFertig();
         }
@@ -165,13 +165,13 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             int pos = 0;
             String thema, url = "";
             try {
-                seite1 = getUrl.getUri(SENDERNAME, strUrlFeed, MSConst.KODIERUNG_UTF, 2 /* versuche */, seite1, "");
-                while (!MSConfig.getStop() && (pos = seite1.indexOf(MUSTER, pos)) != -1) {
+                seite1 = getUrl.getUri(SENDERNAME, strUrlFeed, Const.KODIERUNG_UTF, 2 /* versuche */, seite1, "");
+                while (!Config.getStop() && (pos = seite1.indexOf(MUSTER, pos)) != -1) {
                     pos += MUSTER.length();
                     url = seite1.extract("<a href=\"/mediathek/fernsehen/", "\"", pos);
                     thema = seite1.extract(" class=\"headline\" title=\"\">", "<", pos);
                     if (url.equals("")) {
-                        Log.fehlerMeldung(952136547, "keine URL: " + strUrlFeed);
+                        Log.errorLog(952136547, "keine URL: " + strUrlFeed);
                     } else {
                         meldung(url);
                         url = "http://www.mdr.de/mediathek/fernsehen/" + url;
@@ -179,10 +179,10 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                     }
                 }
                 if (url.equals("")) {
-                    Log.fehlerMeldung(766250249, "keine URL: " + strUrlFeed);
+                    Log.errorLog(766250249, "keine URL: " + strUrlFeed);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(316874602, ex);
+                Log.errorLog(316874602, ex);
             }
         }
 
@@ -192,13 +192,13 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             int pos = 0;
             String thema, url = "";
             try {
-                seiteTage = getUrl.getUri(SENDERNAME, urlSeite, MSConst.KODIERUNG_UTF, 2 /* versuche */, seiteTage, "");
-                while (!MSConfig.getStop() && (pos = seiteTage.indexOf(MUSTER, pos)) != -1) {
+                seiteTage = getUrl.getUri(SENDERNAME, urlSeite, Const.KODIERUNG_UTF, 2 /* versuche */, seiteTage, "");
+                while (!Config.getStop() && (pos = seiteTage.indexOf(MUSTER, pos)) != -1) {
                     pos += MUSTER.length();
                     url = seiteTage.extract("<a href=\"/mediathek/", "\"", pos);
                     thema = seiteTage.extract(" class=\"headline\" title=\"\">", "<", pos);
                     if (url.equals("")) {
-                        Log.fehlerMeldung(975401478, "keine URL: " + urlSeite);
+                        Log.errorLog(975401478, "keine URL: " + urlSeite);
                     } else {
                         meldung(url);
                         url = "http://www.mdr.de/mediathek/" + url;
@@ -206,15 +206,15 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                     }
                 }
                 if (url.equals("")) {
-                    Log.fehlerMeldung(930215470, "keine URL: " + urlSeite);
+                    Log.errorLog(930215470, "keine URL: " + urlSeite);
                 }
             } catch (Exception ex) {
-                Log.fehlerMeldung(102540897, ex);
+                Log.errorLog(102540897, ex);
             }
         }
 
         private void addSendugen(String strUrlFeed, String thema, String urlThema) {
-            seite2 = getUrl.getUri(SENDERNAME, urlThema, MSConst.KODIERUNG_UTF, 2 /* versuche */, seite2, "Thema: " + thema);
+            seite2 = getUrl.getUri(SENDERNAME, urlThema, Const.KODIERUNG_UTF, 2 /* versuche */, seite2, "Thema: " + thema);
             final String muster;
             if (seite2.indexOf("div class=\"media mediaA \">") != -1) {
                 muster = "div class=\"media mediaA \">";
@@ -225,7 +225,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             String url = "";
             while ((pos = seite2.indexOf(muster, pos)) != -1) {
                 ++count;
-                if (!MSConfig.loadLongMax()) {
+                if (!Config.loadLongMax()) {
                     if (count > 5) {
                         return;
                     }
@@ -233,7 +233,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                 pos += muster.length();
                 url = seite2.extract("<a href=\"/mediathek/fernsehen/a-z", "\"", pos);
                 if (url.equals("")) {
-                    Log.fehlerMeldung(915263421, new String[]{"keine URL: " + urlThema, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
+                    Log.errorLog(915263421, new String[]{"keine URL: " + urlThema, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
                 } else {
                     url = "http://www.mdr.de/mediathek/fernsehen/a-z" + url;
                     addSendug(strUrlFeed, thema, url);
@@ -241,7 +241,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             }
 
             if (url.equals("")) {
-                Log.fehlerMeldung(765213014, new String[]{"keine URL: " + urlThema, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
+                Log.errorLog(765213014, new String[]{"keine URL: " + urlThema, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
             }
         }
 
@@ -264,7 +264,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                     url = seite3.substring(pos1, pos2);
                 }
                 if (url.equals("")) {
-                    Log.fehlerMeldung(256987304, new String[]{"keine URL: " + urlSendung, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
+                    Log.errorLog(256987304, new String[]{"keine URL: " + urlSendung, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
                 } else {
                     url = url.replace("\\", "");
                     url = MUSTER_ADD + url;
@@ -272,7 +272,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                 }
             }
             if (url.equals("")) {
-                Log.fehlerMeldung(256987304, new String[]{"keine URL: " + urlSendung, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
+                Log.errorLog(256987304, new String[]{"keine URL: " + urlSendung, "Thema: " + thema, "UrlFeed: " + strUrlFeed});
             }
         }
 
@@ -284,7 +284,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             try {
                 seite4 = getUrl.getUri_Utf(SENDERNAME, xmlSite, seite4, "Thema: " + thema);
                 if (seite4.length() == 0) {
-                    Log.fehlerMeldung(903656532, xmlSite);
+                    Log.errorLog(903656532, xmlSite);
                     return;
                 }
 
@@ -301,7 +301,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                         }
                     }
                 } catch (Exception ex) {
-                    Log.fehlerMeldung(313698749, ex, xmlSite);
+                    Log.errorLog(313698749, ex, xmlSite);
                 }
 
                 titel = seite4.extract("<title>", "<");
@@ -335,7 +335,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                 }
 
                 if (urlMp4.equals("")) {
-                    Log.fehlerMeldung(326541230, new String[]{"keine URL: " + xmlSite, "Thema: " + thema, " UrlFeed: " + strUrlFeed});
+                    Log.errorLog(326541230, new String[]{"keine URL: " + xmlSite, "Thema: " + thema, " UrlFeed: " + strUrlFeed});
                 } else {
                     if (!existiertSchon(thema, titel, datum, zeit)) {
                         meldung(urlMp4);
@@ -349,7 +349,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
                 }
 
             } catch (Exception ex) {
-                Log.fehlerMeldung(446286970, ex);
+                Log.errorLog(446286970, ex);
             }
         }
     }
@@ -363,7 +363,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             sdfOut = new SimpleDateFormat("dd.MM.yyyy");
             datum = sdfOut.format(filmDate);
         } catch (Exception ex) {
-            Log.fehlerMeldung(435209987, ex);
+            Log.errorLog(435209987, ex);
         }
         return datum;
     }
@@ -377,7 +377,7 @@ public class MediathekMdr extends MediathekReader implements Runnable {
             sdfOut = new SimpleDateFormat("HH:mm:ss");
             datum = sdfOut.format(filmDate);
         } catch (Exception ex) {
-            Log.fehlerMeldung(102658736, ex);
+            Log.errorLog(102658736, ex);
         }
         return datum;
     }

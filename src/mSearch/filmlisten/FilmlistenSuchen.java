@@ -30,12 +30,12 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import mSearch.tool.MSConfig;
-import mSearch.tool.MSConst;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.tool.Functions;
 import mSearch.tool.Log;
 
-public class MSFilmlistenSuchen {
+public class FilmlistenSuchen {
 
     // damit werden die DownloadURLs zum Laden einer Filmliste gesucht
     // Liste mit den URLs zum Download der Filmliste
@@ -92,9 +92,9 @@ public class MSFilmlistenSuchen {
     public void updateURLsFilmlisten(boolean akt /*sonst diff*/) {
         ListeFilmlistenUrls tmp = new ListeFilmlistenUrls();
         if (akt) {
-            getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_AKT, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
+            getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_AKT, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
             if (tmp.isEmpty()) {
-                getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_AKT_RES, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
+                getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_AKT_RES, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
             }
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_akt = tmp;
@@ -115,9 +115,9 @@ public class MSFilmlistenSuchen {
             }
             listeFilmlistenUrls_akt.sort();
         } else {
-            getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
+            getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
             if (tmp.isEmpty()) {
-                getDownloadUrlsFilmlisten(MSConst.ADRESSE_FILMLISTEN_SERVER_DIFF_RES, tmp, MSConfig.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
+                getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_DIFF_RES, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
             }
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_diff = tmp;
@@ -139,7 +139,7 @@ public class MSFilmlistenSuchen {
             listeFilmlistenUrls_diff.sort();
         }
         if (tmp.isEmpty()) {
-            Log.fehlerMeldung(491203216, new String[]{"Es ist ein Fehler aufgetreten!",
+            Log.errorLog(491203216, new String[]{"Es ist ein Fehler aufgetreten!",
                 "Es konnten keine Updateserver zum aktualisieren der Filme",
                 "gefunden werden."});
         }
@@ -161,14 +161,14 @@ public class MSFilmlistenSuchen {
                 conn.setRequestProperty("User-Agent", userAgent);
                 conn.setReadTimeout(timeout);
                 conn.setConnectTimeout(timeout);
-                inReader = new InputStreamReader(conn.getInputStream(), MSConst.KODIERUNG_UTF);
+                inReader = new InputStreamReader(conn.getInputStream(), Const.KODIERUNG_UTF);
             } else {
                 // eine Datei verarbeiten
                 File f = new File(dateiUrl);
                 if (!f.exists()) {
                     return;
                 }
-                inReader = new InputStreamReader(new FileInputStream(f), MSConst.KODIERUNG_UTF);
+                inReader = new InputStreamReader(new FileInputStream(f), Const.KODIERUNG_UTF);
             }
             parser = inFactory.createXMLStreamReader(inReader);
             while (parser.hasNext()) {
@@ -182,7 +182,7 @@ public class MSFilmlistenSuchen {
                 }
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(821069874, ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
+            Log.errorLog(821069874, ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
         }
     }
 

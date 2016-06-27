@@ -19,6 +19,8 @@
  */
 package mSearch.tool;
 
+import mSearch.Config;
+
 public class DebugMsg {
 
     public static synchronized void print(String text) {
@@ -55,7 +57,7 @@ public class DebugMsg {
             kl = klasse;
         }
 
-        if (MSConfig.debug) {
+        if (Config.debug) {
             final String z = "||";
             System.out.println(z + " " + kl);
             for (String text : texte) {
@@ -66,7 +68,7 @@ public class DebugMsg {
     }
 
     private static void print_(String[] texte) {
-        if (MSConfig.debug) {
+        if (Config.debug) {
             final String z = "||";
             for (String text : texte) {
                 System.out.println(z + "  " + text);

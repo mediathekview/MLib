@@ -21,10 +21,10 @@ package mSearch.gui;
 
 import javafx.application.Platform;
 import javax.swing.event.EventListenerList;
-import mSearch.filmeSuchen.MSFilmeSuchen;
-import mSearch.filmeSuchen.MSListenerFilmeLaden;
-import mSearch.filmeSuchen.MSListenerFilmeLadenEvent;
-import mSearch.tool.MSConfig;
+import mSearch.filmeSuchen.FilmeSuchen;
+import mSearch.filmeSuchen.ListenerFilmeLaden;
+import mSearch.filmeSuchen.ListenerFilmeLadenEvent;
+import mSearch.Config;
 
 public class MSearchGuiLoad {
 
@@ -32,33 +32,33 @@ public class MSearchGuiLoad {
 
         START, PROGRESS, FINISHED
     }
-    public MSFilmeSuchen msFilmeSuchen;
+    public FilmeSuchen msFilmeSuchen;
     private final EventListenerList listeners = new EventListenerList();
     private boolean istAmLaufen = false;
 
     public MSearchGuiLoad() {
-        msFilmeSuchen = new MSFilmeSuchen();
-        msFilmeSuchen.addAdListener(new MSListenerFilmeLaden() {
+        msFilmeSuchen = new FilmeSuchen();
+        msFilmeSuchen.addAdListener(new ListenerFilmeLaden() {
             @Override
-            public synchronized void start(MSListenerFilmeLadenEvent event) {
-                for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
+            public synchronized void start(ListenerFilmeLadenEvent event) {
+                for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
                     Platform.runLater(() -> l.start(event));
                 }
             }
 
             @Override
-            public synchronized void progress(MSListenerFilmeLadenEvent event) {
-                for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
+            public synchronized void progress(ListenerFilmeLadenEvent event) {
+                for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
                     Platform.runLater(() -> l.progress(event));
                 }
             }
 
             @Override
-            public synchronized void fertig(MSListenerFilmeLadenEvent event) {
+            public synchronized void fertig(ListenerFilmeLadenEvent event) {
                 // Ergebnisliste listeFilme eintragen -> Feierabend!
                 Data.listeFilme = msFilmeSuchen.listeFilmeNeu;
                 istAmLaufen = false;
-                for (MSListenerFilmeLaden l : listeners.getListeners(MSListenerFilmeLaden.class)) {
+                for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
                     Platform.runLater(() -> l.fertig(event));
                 }
                 System.gc();
@@ -74,7 +74,7 @@ public class MSearchGuiLoad {
         if (!istAmLaufen) {
             // nicht doppelt starten
             istAmLaufen = true;
-            MSConfig.updateFilmliste = filmlisteUpdate;
+            Config.updateFilmliste = filmlisteUpdate;
             msFilmeSuchen.filmeBeimSenderLaden(Data.listeFilme);
         }
     }
@@ -91,7 +91,7 @@ public class MSearchGuiLoad {
     // #######################################
     // #######################################
     public static String[] getSenderNamen() {
-        return MSFilmeSuchen.getNamenSender();
+        return FilmeSuchen.getNamenSender();
     }
 
 //    private void undEnde(MSListenerFilmeLadenEvent event) {
@@ -106,8 +106,8 @@ public class MSearchGuiLoad {
     // ###########################
     // Listener
     // ###########################
-    public void addAdListener(MSListenerFilmeLaden listener) {
-        listeners.add(MSListenerFilmeLaden.class, listener);
+    public void addAdListener(ListenerFilmeLaden listener) {
+        listeners.add(ListenerFilmeLaden.class, listener);
     }
 
 //    private void notifyStart(MSListenerFilmeLadenEvent event) {

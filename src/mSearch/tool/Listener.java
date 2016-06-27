@@ -23,7 +23,7 @@ import java.util.EventListener;
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
-public class ListenerMediathekView implements EventListener {
+public class Listener implements EventListener {
 
     //public static final int EREIGNIS_BLACKLIST_GEAENDERT = 1;
     public static final int EREIGNIS_LISTE_HISTORY_GEAENDERT = 2;
@@ -69,12 +69,12 @@ public class ListenerMediathekView implements EventListener {
     public String klasse = "";
     private static EventListenerList listeners = new EventListenerList();
 
-    public ListenerMediathekView(int eereignis, String kklasse) {
+    public Listener(int eereignis, String kklasse) {
         mvEreignis = new int[]{eereignis};
         klasse = kklasse;
     }
 
-    public ListenerMediathekView(int[] eereignis, String kklasse) {
+    public Listener(int[] eereignis, String kklasse) {
         mvEreignis = eereignis;
         klasse = kklasse;
     }
@@ -82,12 +82,12 @@ public class ListenerMediathekView implements EventListener {
     public void ping() {
     }
 
-    public static synchronized void addListener(ListenerMediathekView listener) {
-        listeners.add(ListenerMediathekView.class, listener);
+    public static synchronized void addListener(Listener listener) {
+        listeners.add(Listener.class, listener);
     }
 
     public static synchronized void notify(int ereignis, String klasse) {
-        for (ListenerMediathekView l : listeners.getListeners(ListenerMediathekView.class)) {
+        for (Listener l : listeners.getListeners(Listener.class)) {
             for (int er : l.mvEreignis) {
                 if (er == ereignis) {
                     if (!l.klasse.equals(klasse)) {
@@ -111,7 +111,7 @@ public class ListenerMediathekView implements EventListener {
                 SwingUtilities.invokeLater(this::ping);
             }
         } catch (Exception ex) {
-            Log.fehlerMeldung(698989743, ex);
+            Log.errorLog(698989743, ex);
         }
     }
 }

@@ -19,6 +19,8 @@
  */
 package mSearch.tool;
 
+import mSearch.Const;
+import mSearch.Config;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class Log {
 
-    private final static String FEHLER = "Fehler(" + MSConst.PROGRAMMNAME + "): ";
+    private final static String FEHLER = "Fehler(" + Const.PROGRAMMNAME + "): ";
 
     // private
     private static class Error {
@@ -57,93 +59,93 @@ public class Log {
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
                 logFile = null;
-                Log.fehlerMeldung(632012165, "Kann den Pfad nicht anlegen: " + dir.toString());
+                Log.errorLog(632012165, "Kann den Pfad nicht anlegen: " + dir.toString());
             }
         }
 
     }
 
-    public static synchronized void versionsMeldungen(String progName) {
+    public static synchronized void versionMsg(String progName) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        systemMeldung("");
-        systemMeldung("");
-        systemMeldung("");
-        systemMeldung("");
-        systemMeldung("");
-        systemMeldung(".___  ___.  _______  _______   __       ___   .___________. __    __   _______  __  ___");
-        systemMeldung("|   \\/   | |   ____||       \\ |  |     /   \\  |           ||  |  |  | |   ____||  |/  /");
-        systemMeldung("|  \\  /  | |  |__   |  .--.  ||  |    /  ^  \\ `---|  |----`|  |__|  | |  |__   |  '  /");
-        systemMeldung("|  |\\/|  | |   __|  |  |  |  ||  |   /  /_\\  \\    |  |     |   __   | |   __|  |    <");
-        systemMeldung("|  |  |  | |  |____ |  '--'  ||  |  /  _____  \\   |  |     |  |  |  | |  |____ |  .  \\");
-        systemMeldung("|__|  |__| |_______||_______/ |__| /__/     \\__\\  |__|     |__|  |__| |_______||__|\\__\\");
-        systemMeldung("");
-        systemMeldung("");
-        systemMeldung("");
-        systemMeldung("##################################################################################");
-        systemMeldung("Programmstart: " + sdf.format(startZeit));
-        systemMeldung("##################################################################################");
-        systemMeldung("");
+        sysLog("");
+        sysLog("");
+        sysLog("");
+        sysLog("");
+        sysLog("");
+        sysLog(".___  ___.  _______  _______   __       ___   .___________. __    __   _______  __  ___");
+        sysLog("|   \\/   | |   ____||       \\ |  |     /   \\  |           ||  |  |  | |   ____||  |/  /");
+        sysLog("|  \\  /  | |  |__   |  .--.  ||  |    /  ^  \\ `---|  |----`|  |__|  | |  |__   |  '  /");
+        sysLog("|  |\\/|  | |   __|  |  |  |  ||  |   /  /_\\  \\    |  |     |   __   | |   __|  |    <");
+        sysLog("|  |  |  | |  |____ |  '--'  ||  |  /  _____  \\   |  |     |  |  |  | |  |____ |  .  \\");
+        sysLog("|__|  |__| |_______||_______/ |__| /__/     \\__\\  |__|     |__|  |__| |_______||__|\\__\\");
+        sysLog("");
+        sysLog("");
+        sysLog("");
+        sysLog("##################################################################################");
+        sysLog("Programmstart: " + sdf.format(startZeit));
+        sysLog("##################################################################################");
+        sysLog("");
         long totalMem = Runtime.getRuntime().totalMemory();
-        systemMeldung("totalMemory: " + totalMem / (1000L * 1000L) + " MB");
+        sysLog("totalMemory: " + totalMem / (1000L * 1000L) + " MB");
         long maxMem = Runtime.getRuntime().maxMemory();
-        systemMeldung("maxMemory: " + maxMem / (1000L * 1000L) + " MB");
+        sysLog("maxMemory: " + maxMem / (1000L * 1000L) + " MB");
         long freeMem = Runtime.getRuntime().freeMemory();
-        systemMeldung("freeMemory: " + freeMem / (1000L * 1000L) + " MB");
-        systemMeldung("");
-        systemMeldung("##################################################################################");
-        systemMeldung("");
+        sysLog("freeMemory: " + freeMem / (1000L * 1000L) + " MB");
+        sysLog("");
+        sysLog("##################################################################################");
+        sysLog("");
         //Version
-        systemMeldung(progName + Functions.getProgVersionString());
-        systemMeldung("Compiled: " + Functions.getCompileDate());
-        systemMeldung("");
-        systemMeldung("##################################################################################");
-        systemMeldung("");
-        systemMeldung("Java");
+        sysLog(progName + Functions.getProgVersionString());
+        sysLog("Compiled: " + Functions.getCompileDate());
+        sysLog("");
+        sysLog("##################################################################################");
+        sysLog("");
+        sysLog("Java");
         String[] java = Functions.getJavaVersion();
         for (String ja : java) {
-            Log.systemMeldung(ja);
+            Log.sysLog(ja);
         }
-        systemMeldung("");
+        sysLog("");
     }
 
-    public static synchronized void startMeldungen() {
+    public static synchronized void startMsg() {
         startZeit.setTime(System.currentTimeMillis());
-        versionsMeldungen(MSConst.PROGRAMMNAME);
-        systemMeldung("##################################################################################");
-        systemMeldung("");
-        systemMeldung("Programmpfad: " + Functions.getPathJar());
-        systemMeldung("Filmliste: " + MSConfig.getPathFilmlist_json_akt(true /*aktDate*/));
-        systemMeldung("Useragent: " + MSConfig.getUserAgent());
-        systemMeldung("");
-        systemMeldung("##################################################################################");
-        systemMeldung("");
-        if (MSConfig.loadLongMax()) {
-            systemMeldung("Laden:  alles");
+        versionMsg(Const.PROGRAMMNAME);
+        sysLog("##################################################################################");
+        sysLog("");
+        sysLog("Programmpfad: " + Functions.getPathJar());
+        sysLog("Filmliste: " + Config.getPathFilmlist_json_akt(true /*aktDate*/));
+        sysLog("Useragent: " + Config.getUserAgent());
+        sysLog("");
+        sysLog("##################################################################################");
+        sysLog("");
+        if (Config.loadLongMax()) {
+            sysLog("Laden:  alles");
         } else {
-            systemMeldung("Laden:  nur update");
+            sysLog("Laden:  nur update");
         }
-        if (MSConfig.updateFilmliste) {
-            systemMeldung("Filmliste:  nur updaten");
+        if (Config.updateFilmliste) {
+            sysLog("Filmliste:  nur updaten");
         } else {
-            systemMeldung("Filmliste:  neu erstellen");
+            sysLog("Filmliste:  neu erstellen");
         }
-        systemMeldung("ImportURL 1:  " + MSConfig.importUrl_1__anhaengen);
-        systemMeldung("ImportURL 2:  " + MSConfig.importUrl_2__anhaengen);
-        systemMeldung("ImportOLD:  " + MSConfig.importOld);
-        if (MSConfig.nurSenderLaden != null) {
-            systemMeldung("Nur Sender laden:  " + StringUtils.join(MSConfig.nurSenderLaden, ','));
+        sysLog("ImportURL 1:  " + Config.importUrl_1__anhaengen);
+        sysLog("ImportURL 2:  " + Config.importUrl_2__anhaengen);
+        sysLog("ImportOLD:  " + Config.importOld);
+        if (Config.nurSenderLaden != null) {
+            sysLog("Nur Sender laden:  " + StringUtils.join(Config.nurSenderLaden, ','));
         }
-        systemMeldung("");
-        systemMeldung("##################################################################################");
+        sysLog("");
+        sysLog("##################################################################################");
     }
 
-    public static synchronized void endeMeldung() {
-        systemMeldung("");
-        systemMeldung("");
-        systemMeldung("");
-        systemMeldung("");
+    public static synchronized void endMsg() {
+        sysLog("");
+        sysLog("");
+        sysLog("");
+        sysLog("");
 
-        fehlerMeldungen().forEach(Log::systemMeldung);
+        printErrorMsg().forEach(Log::sysLog);
 
         // Laufzeit ausgeben
         Date stopZeit = new Date(System.currentTimeMillis());
@@ -154,21 +156,21 @@ public class Log {
         } catch (Exception ex) {
             minuten = -1;
         }
-        systemMeldung("");
-        systemMeldung("");
-        systemMeldung("##################################################################################");
-        systemMeldung("   --> Beginn: " + sdf.format(startZeit));
-        systemMeldung("   --> Fertig: " + sdf.format(stopZeit));
-        systemMeldung("   --> Dauer[Min]: " + (minuten == 0 ? "<1" : minuten));
-        systemMeldung("##################################################################################");
-        systemMeldung("");
-        systemMeldung("   und Tschuess");
-        systemMeldung("");
-        systemMeldung("");
-        systemMeldung("##################################################################################");
+        sysLog("");
+        sysLog("");
+        sysLog("##################################################################################");
+        sysLog("   --> Beginn: " + sdf.format(startZeit));
+        sysLog("   --> Fertig: " + sdf.format(stopZeit));
+        sysLog("   --> Dauer[Min]: " + (minuten == 0 ? "<1" : minuten));
+        sysLog("##################################################################################");
+        sysLog("");
+        sysLog("   und Tschuess");
+        sysLog("");
+        sysLog("");
+        sysLog("##################################################################################");
     }
 
-    public static synchronized ArrayList<String> fehlerMeldungen() {
+    public static synchronized ArrayList<String> printErrorMsg() {
         int max = 0;
         ArrayList<String> retList = new ArrayList<>();
         retList.add("");
@@ -217,32 +219,31 @@ public class Log {
     }
 
     // Fehlermeldung mit Exceptions
-    public static synchronized void fehlerMeldung(int fehlerNummer, Exception ex) {
+    public static synchronized void errorLog(int fehlerNummer, Exception ex) {
         fehlermeldung_(fehlerNummer, ex, new String[]{});
     }
 
-    public static synchronized void fehlerMeldung(int fehlerNummer, Exception ex, String text) {
+    public static synchronized void errorLog(int fehlerNummer, Exception ex, String text) {
         fehlermeldung_(fehlerNummer, ex, new String[]{text});
     }
 
-    public static synchronized void fehlerMeldung(int fehlerNummer, Exception ex, String text[]) {
+    public static synchronized void errorLog(int fehlerNummer, Exception ex, String text[]) {
         fehlermeldung_(fehlerNummer, ex, text);
     }
 
     // Fehlermeldungen
-    public static synchronized void fehlerMeldung(int fehlerNummer, String text) {
+    public static synchronized void errorLog(int fehlerNummer, String text) {
         fehlermeldung_(fehlerNummer, null, new String[]{text});
     }
 
-    public static synchronized void fehlerMeldung(int fehlerNummer, String[] text) {
+    public static synchronized void errorLog(int fehlerNummer, String[] text) {
         fehlermeldung_(fehlerNummer, null, text);
     }
 
-    public static synchronized void systemMeldung(String[] text) {
-        systemmeldung_(text);
-    }
-
-    public static synchronized void systemMeldung(String text) {
+//    public static synchronized void systemMeldung(String[] text) {
+//        systemmeldung_(text);
+//    }
+    public static synchronized void sysLog(String text) {
         systemmeldung_(new String[]{text});
     }
 
@@ -290,7 +291,7 @@ public class Log {
             kl = klasse;
         }
         addFehlerNummer(fehlerNummer, kl, ex != null);
-        if (ex != null || MSConfig.debug) {
+        if (ex != null || Config.debug) {
             // Exceptions immer ausgeben
             resetProgress();
             String x, z;
@@ -351,7 +352,7 @@ public class Log {
         logList.forEach(System.out::println);
 
         if (logFile != null) {
-            try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(logFile, true), MSConst.KODIERUNG_UTF)) {
+            try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(logFile, true), Const.KODIERUNG_UTF)) {
                 for (String s : logList) {
                     out.write(s);
                     out.write("\n");
