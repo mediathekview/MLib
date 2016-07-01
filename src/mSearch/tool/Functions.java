@@ -106,12 +106,16 @@ public class Functions {
                 propFile = new File(jarDir + File.separator + pFilePath);
             } catch (Exception ignored) {
             }
-        }else{
+        } else {
             DebugMsg.print("getPath");
         }
         String s = propFile.getAbsolutePath().replace(pFilePath, "");
         if (!s.endsWith(File.separator)) {
             s = s + File.separator;
+        }
+        if (s.endsWith("/lib/")) {
+            // dann sind wir in der msearch-lib
+            s = s.replace("/lib/", "");
         }
         return s;
     }
@@ -201,7 +205,6 @@ public class Functions {
 //        ret = ret.replace("\\u00f3", "\u00f3");
 //        return ret;
 //    }
-
     public static String addsPfad(String pfad1, String pfad2) {
         String ret = "";
         if (pfad1 != null && pfad2 != null) {
