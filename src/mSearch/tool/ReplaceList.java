@@ -33,14 +33,14 @@ public final class ReplaceList {
     public final static String[] COLUMN_NAMES = {VON, NACH};
     public static final int MAX_ELEM = 2;
 
-    public LinkedList<String[]> list = new LinkedList<>();
+    public static LinkedList<String[]> list = new LinkedList<>();
 
-    public void init() {
+    public static void init() {
         list.clear();
         list.add(new String[]{" ", "_"});
     }
 
-    public String replace(String strCheck, boolean pfad) {
+    public static String replace(String strCheck, boolean pfad) {
         Iterator<String[]> it = list.iterator();
         while (it.hasNext()) {
             String[] strReplace = it.next();
@@ -62,7 +62,7 @@ public final class ReplaceList {
         return strCheck;
     }
 
-    public boolean check() {
+    public static boolean check() {
         for (int i = 0; i < list.size(); ++i) {
             String[] is = list.get(i);
             for (int k = i + 1; k < list.size(); ++k) {
@@ -75,17 +75,15 @@ public final class ReplaceList {
         return false;
     }
 
-    public int up(int idx, boolean up) {
+    public static int up(int idx, boolean up) {
         String[] replace = list.remove(idx);
         int neu = idx;
         if (up) {
             if (neu > 0) {
                 --neu;
             }
-        } else {
-            if (neu < list.size()) {
-                ++neu;
-            }
+        } else if (neu < list.size()) {
+            ++neu;
         }
         list.add(neu, replace);
         return neu;

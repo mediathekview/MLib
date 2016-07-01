@@ -8,7 +8,6 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
-import static mSearch.daten.Data.mVReplaceList;
 import static mSearch.tool.Functions.OperatingSystemType.*;
 
 /**
@@ -332,7 +331,7 @@ public class FilenameUtils {
 
         // zuerst die Ersetzungstabelle mit den Wünschen des Users
         if (userReplace) {
-            ret = mVReplaceList.replace(ret, isPath);
+            ret = ReplaceList.replace(ret, isPath);
         }
 
         // und wenn gewünscht: "NUR Ascii-Zeichen"

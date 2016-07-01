@@ -31,7 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 public class Log {
 
     private final static String FEHLER = "Fehler(" + Const.PROGRAMMNAME + "): ";
-
+    public final static String LILNE = "################################################################################";
     // private
     private static class Error {
 
@@ -72,18 +72,17 @@ public class Log {
         sysLog("");
         sysLog("");
         sysLog("");
-        sysLog(".___  ___.  _______  _______   __       ___   .___________. __    __   _______  __  ___");
-        sysLog("|   \\/   | |   ____||       \\ |  |     /   \\  |           ||  |  |  | |   ____||  |/  /");
-        sysLog("|  \\  /  | |  |__   |  .--.  ||  |    /  ^  \\ `---|  |----`|  |__|  | |  |__   |  '  /");
-        sysLog("|  |\\/|  | |   __|  |  |  |  ||  |   /  /_\\  \\    |  |     |   __   | |   __|  |    <");
-        sysLog("|  |  |  | |  |____ |  '--'  ||  |  /  _____  \\   |  |     |  |  |  | |  |____ |  .  \\");
-        sysLog("|__|  |__| |_______||_______/ |__| /__/     \\__\\  |__|     |__|  |__| |_______||__|\\__\\");
+        sysLog("___  ___         _ _       _   _          _    _   _ _               ");
+        sysLog("|  \\/  |        | (_)     | | | |        | |  | | | (_)              ");
+        sysLog("| .  . | ___  __| |_  __ _| |_| |__   ___| | _| | | |_  _____      __");
+        sysLog("| |\\/| |/ _ \\/ _` | |/ _` | __| '_ \\ / _ \\ |/ / | | | |/ _ \\ \\ /\\ / /");
+        sysLog("| |  | |  __/ (_| | | (_| | |_| | | |  __/   <\\ \\_/ / |  __/\\ V  V / ");
+        sysLog("\\_|  |_/\\___|\\__,_|_|\\__,_|\\__|_| |_|\\___|_|\\_\\\\___/|_|\\___| \\_/\\_/  ");
         sysLog("");
         sysLog("");
-        sysLog("");
-        sysLog("##################################################################################");
+        sysLog(LILNE);
         sysLog("Programmstart: " + sdf.format(startZeit));
-        sysLog("##################################################################################");
+        sysLog(LILNE);
         sysLog("");
         long totalMem = Runtime.getRuntime().totalMemory();
         sysLog("totalMemory: " + totalMem / (1000L * 1000L) + " MB");
@@ -92,13 +91,13 @@ public class Log {
         long freeMem = Runtime.getRuntime().freeMemory();
         sysLog("freeMemory: " + freeMem / (1000L * 1000L) + " MB");
         sysLog("");
-        sysLog("##################################################################################");
+        sysLog(LILNE);
         sysLog("");
         //Version
         sysLog(progName + Functions.getProgVersionString());
         sysLog("Compiled: " + Functions.getCompileDate());
         sysLog("");
-        sysLog("##################################################################################");
+        sysLog(LILNE);
         sysLog("");
         sysLog("Java");
         String[] java = Functions.getJavaVersion();
@@ -111,13 +110,13 @@ public class Log {
     public static synchronized void startMsg() {
         startZeit.setTime(System.currentTimeMillis());
         versionMsg(Const.PROGRAMMNAME);
-        sysLog("##################################################################################");
+        sysLog(LILNE);
         sysLog("");
         sysLog("Programmpfad: " + Functions.getPathJar());
         sysLog("Filmliste: " + Config.getPathFilmlist_json_akt(true /*aktDate*/));
         sysLog("Useragent: " + Config.getUserAgent());
         sysLog("");
-        sysLog("##################################################################################");
+        sysLog(LILNE);
         sysLog("");
         if (Config.loadLongMax()) {
             sysLog("Laden:  alles");
@@ -136,7 +135,7 @@ public class Log {
             sysLog("Nur Sender laden:  " + StringUtils.join(Config.nurSenderLaden, ','));
         }
         sysLog("");
-        sysLog("##################################################################################");
+        sysLog(LILNE);
     }
 
     public static synchronized void endMsg() {
@@ -158,23 +157,23 @@ public class Log {
         }
         sysLog("");
         sysLog("");
-        sysLog("##################################################################################");
+        sysLog(LILNE);
         sysLog("   --> Beginn: " + sdf.format(startZeit));
         sysLog("   --> Fertig: " + sdf.format(stopZeit));
         sysLog("   --> Dauer[Min]: " + (minuten == 0 ? "<1" : minuten));
-        sysLog("##################################################################################");
+        sysLog(LILNE);
         sysLog("");
         sysLog("   und Tschuess");
         sysLog("");
         sysLog("");
-        sysLog("##################################################################################");
+        sysLog(LILNE);
     }
 
     public static synchronized ArrayList<String> printErrorMsg() {
         int max = 0;
         ArrayList<String> retList = new ArrayList<>();
         retList.add("");
-        retList.add("##################################################################################");
+        retList.add(LILNE);
         if (fehlerListe.size() == 0) {
             retList.add(" Keine Fehler :)");
         } else {
@@ -214,7 +213,7 @@ public class Log {
                 retList.add(strEx + e.cl + " Fehlernummer: " + e.nr + " Anzahl: " + e.count);
             }
         }
-        retList.add("##################################################################################");
+        retList.add(LILNE);
         return retList;
     }
 

@@ -21,24 +21,9 @@ package mSearch.daten;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import mSearch.filmeSuchen.sender.Mediathek3Sat;
-import mSearch.filmeSuchen.sender.MediathekArd;
-import mSearch.filmeSuchen.sender.MediathekBr;
-import mSearch.filmeSuchen.sender.MediathekKika;
-import mSearch.filmeSuchen.sender.MediathekMdr;
-import mSearch.filmeSuchen.sender.MediathekNdr;
-import mSearch.filmeSuchen.sender.MediathekOrf;
-import mSearch.filmeSuchen.sender.MediathekSrfPod;
-import mSearch.filmeSuchen.sender.MediathekSwr;
-import mSearch.filmeSuchen.sender.MediathekZdf;
-import mSearch.filmeSuchen.sender.MediathekZdfTivi;
-import mSearch.tool.DatumFilm;
-import mSearch.tool.GermanStringSorter;
 import mSearch.Const;
-import mSearch.tool.FileSize;
-import mSearch.tool.Functions;
-import mSearch.tool.Log;
-import mSearch.tool.MSLong;
+import mSearch.filmeSuchen.sender.*;
+import mSearch.tool.*;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 

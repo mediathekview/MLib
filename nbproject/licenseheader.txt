@@ -1,6 +1,6 @@
 /*
  * MediathekView
- * Copyright (C) 2008 W. Xaver
+ * Copyright (C) 2014 W. Xaver
  * W.Xaver[at]googlemail.com
  * http://zdfmediathk.sourceforge.net/
  *
@@ -17,15 +17,3 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package mSearch.daten;
-
-import mSearch.tool.ReplaceList;
-
-public class Data {
-    public static ReplaceList mVReplaceList = new ReplaceList(); // Ersetzungsliste für die Namen der Downloads
-
-
-
-
-
-}
