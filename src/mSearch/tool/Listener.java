@@ -40,8 +40,8 @@ public class Listener implements EventListener {
     public static final int EREIGNIS_START_EVENT = 14;
     public static final int EREIGNIS_START_EVENT_BUTTON = 15;
 ////    public static final int EREIGNIS_LOG_FEHLER = 16;
-    public static final int EREIGNIS_LOG_SYSTEM = 17;
-    public static final int EREIGNIS_LOG_PLAYER = 18;
+//    public static final int EREIGNIS_LOG_SYSTEM = 17;
+//    public static final int EREIGNIS_LOG_PLAYER = 18;
     public static final int EREIGNIS_PROGRAMM_OEFFNEN = 19;
     public static final int EREIGNIS_MEDIATHEKGUI_ORG_TITEL = 20;
     public static final int EREIGNIS_MEDIATHEKGUI_PROGRAMM_AKTUELL = 21;

@@ -63,51 +63,57 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final int FILM_DAUER_NR = 8;
     public static final String FILM_GROESSE = "Größe [MB]";
     public static final int FILM_GROESSE_NR = 9;
+
+    public static final String FILM_HD = "HD";
+    public static final int FILM_HD_NR = 10;
+    public static final String FILM_UT = "UT";
+    public static final int FILM_UT_NR = 11;
+
     public static final String FILM_BESCHREIBUNG = "Beschreibung";
-    public static final int FILM_BESCHREIBUNG_NR = 10;
+    public static final int FILM_BESCHREIBUNG_NR = 12;
     public static final String FILM_GEO = "Geo"; // Geoblocking
-    public static final int FILM_GEO_NR = 11;
+    public static final int FILM_GEO_NR = 13;
     public static final String FILM_URL = "Url";
-    public static final int FILM_URL_NR = 12;
+    public static final int FILM_URL_NR = 14;
     public static final String FILM_WEBSEITE = "Website"; //URL der Website des Films beim Sender
-    public static final int FILM_WEBSEITE_NR = 13;
+    public static final int FILM_WEBSEITE_NR = 15;
     public static final String FILM_ABO_NAME = "Aboname";// wird vor dem Speichern gelöscht!
-    public static final int FILM_ABO_NAME_NR = 14;
+    public static final int FILM_ABO_NAME_NR = 16;
 
     public static final String FILM_URL_SUBTITLE = "Untertitel";
-    public static final int FILM_URL_SUBTITLE_NR = 15;
+    public static final int FILM_URL_SUBTITLE_NR = 17;
 
     public static final String FILM_URL_RTMP = "UrlRTMP";
-    public static final int FILM_URL_RTMP_NR = 16;
+    public static final int FILM_URL_RTMP_NR = 18;
     public static final String FILM_URL_AUTH = "UrlAuth";//frei für andere Sachen
-    public static final int FILM_URL_AUTH_NR = 17;
+    public static final int FILM_URL_AUTH_NR = 19;
     public static final String FILM_URL_KLEIN = "Url_Klein";
-    public static final int FILM_URL_KLEIN_NR = 18;
+    public static final int FILM_URL_KLEIN_NR = 20;
     public static final String FILM_URL_RTMP_KLEIN = "UrlRTMP_Klein";
-    public static final int FILM_URL_RTMP_KLEIN_NR = 19;
+    public static final int FILM_URL_RTMP_KLEIN_NR = 21;
     public static final String FILM_URL_HD = "Url_HD";
-    public static final int FILM_URL_HD_NR = 20;
+    public static final int FILM_URL_HD_NR = 22;
     public static final String FILM_URL_RTMP_HD = "UrlRTMP_HD";
-    public static final int FILM_URL_RTMP_HD_NR = 21;
+    public static final int FILM_URL_RTMP_HD_NR = 23;
     public static final String FILM_URL_HISTORY = "Url_History";
-    public static final int FILM_URL_HISTORY_NR = 22;
+    public static final int FILM_URL_HISTORY_NR = 24;
 
     public static final String FILM_NEU = "neu";
-    public static final int FILM_NEU_NR = 23;
+    public static final int FILM_NEU_NR = 25;
 
     public static final String FILM_DATUM_LONG = "DatumL"; // Datum als Long ABER Sekunden!!
-    public static final int FILM_DATUM_LONG_NR = 24;
+    public static final int FILM_DATUM_LONG_NR = 26;
     public static final String FILM_REF = "Ref"; // Referenz auf this
-    public static final int FILM_REF_NR = 25;
-    public static final int MAX_ELEM = 26;
+    public static final int FILM_REF_NR = 27;
+    public static final int MAX_ELEM = 28;
     public final String[] arr = new String[]{
         "", "", "", "", "", "", "", "", "", "",
-        "", "", "", "", "", "", "", "", "", "",
+        "", "", "", "", "", "", "", "", "", "", "", "",
         "", "", "", "", "", ""}; //ist einen Tick schneller, hoffentlich :)
 
     public static final String[] COLUMN_NAMES = {FILM_NR, FILM_SENDER, FILM_THEMA, FILM_TITEL,
         FILM_ABSPIELEN, FILM_AUFZEICHNEN,
-        FILM_DATUM, FILM_ZEIT, FILM_DAUER, FILM_GROESSE,
+        FILM_DATUM, FILM_ZEIT, FILM_DAUER, FILM_GROESSE, FILM_HD, FILM_UT,
         FILM_BESCHREIBUNG, FILM_GEO,
         FILM_URL, FILM_WEBSEITE, FILM_ABO_NAME,
         FILM_URL_SUBTITLE, FILM_URL_RTMP, FILM_URL_AUTH, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_URL_HISTORY, FILM_NEU,
@@ -189,6 +195,11 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     public String getUrlSubtitle() {
         return arr[FILM_URL_SUBTITLE_NR];
+    }
+
+    public boolean hasUT() {
+        //Film hat Untertitel
+        return !arr[DatenFilm.FILM_URL_SUBTITLE_NR].isEmpty();
     }
 
     public String getUrlFuerAufloesung(String aufloesung) {
@@ -333,6 +344,11 @@ public class DatenFilm implements Comparable<DatenFilm> {
             return uurl;
         }
 
+    }
+
+    public boolean isHD() {
+        //Film gibts in HD
+        return !arr[DatenFilm.FILM_URL_HD_NR].isEmpty() || !arr[DatenFilm.FILM_URL_RTMP_HD_NR].isEmpty();
     }
 
     public DatenFilm getCopy() {
@@ -490,12 +506,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
         String ret;
         if (!arr[DatenFilm.FILM_URL_RTMP_NR].isEmpty()) {
             ret = arr[DatenFilm.FILM_URL_RTMP_NR];
+        } else if (arr[DatenFilm.FILM_URL_NR].startsWith(Const.RTMP_PRTOKOLL)) {
+            ret = Const.RTMP_FLVSTREAMER + arr[DatenFilm.FILM_URL_NR];
         } else {
-            if (arr[DatenFilm.FILM_URL_NR].startsWith(Const.RTMP_PRTOKOLL)) {
-                ret = Const.RTMP_FLVSTREAMER + arr[DatenFilm.FILM_URL_NR];
-            } else {
-                ret = arr[DatenFilm.FILM_URL_NR];
-            }
+            ret = arr[DatenFilm.FILM_URL_NR];
         }
         return ret;
     }

@@ -19,13 +19,17 @@
  */
 package mSearch.tool;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 public class SysMsg {
 
-    public static StringBuffer textSystem = new StringBuffer(10000);
-    public static StringBuffer textProgramm = new StringBuffer(10000);
+    public static ObservableList<String> textSystem = FXCollections.observableArrayList();
+    public static ObservableList<String> textProgramm = FXCollections.observableArrayList();
+
     public static boolean playerMeldungenAus = false;
-    public static final int LOG_SYSTEM = Listener.EREIGNIS_LOG_SYSTEM;
-    public static final int LOG_PLAYER = Listener.EREIGNIS_LOG_PLAYER;
+    public static final int LOG_SYSTEM = 1;
+    public static final int LOG_PLAYER = 2;
 
     private static final int MAX_LAENGE_1 = 50000;
     private static final int MAX_LAENGE_2 = 30000;
@@ -84,11 +88,11 @@ public class SysMsg {
         switch (art) {
             case LOG_SYSTEM:
                 zeilenNrSystem = 0;
-                textSystem.setLength(0);
+                textSystem.clear();
                 break;
             case LOG_PLAYER:
                 zeilenNrProgramm = 0;
-                textProgramm.setLength(0);
+                textProgramm.clear();
                 break;
             default:
                 break;
@@ -106,7 +110,7 @@ public class SysMsg {
             default:
                 break;
         }
-        Listener.notify(art, SysMsg.class.getSimpleName());
+        // Listener.notify(art, SysMsg.class.getSimpleName()); gibt sonst einen deadlock
     }
 
     private static String getNr(int nr) {
@@ -119,12 +123,20 @@ public class SysMsg {
         return str;
     }
 
-    private static void addText(StringBuffer text, String texte) {
-        if (text.length() > MAX_LAENGE_1) {
-            text.delete(0, MAX_LAENGE_2);
+    private synchronized static void addText(ObservableList<String> text, String texte) {
+        if (text.size() > MAX_LAENGE_1) {
+            text.remove(0, MAX_LAENGE_2);
         }
-        text.append(texte);
-        text.append(System.getProperty("line.separator"));
+        text.add(texte + System.getProperty("line.separator"));
+    }
+
+    public synchronized static String getText(int logArt) {
+        // wegen synchronized hier
+        if (logArt == SysMsg.LOG_SYSTEM) {
+            return String.join("", textSystem);
+        } else {
+            return String.join("", textProgramm);
+        }
     }
 
 }
