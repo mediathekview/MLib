@@ -285,27 +285,27 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 
     public static void urlTauschen(DatenFilm film, String urlSeite, FilmeSuchen mSFilmeSuchen) {
         // manuell die Auflösung hochsetzen
-        if (film.arr[DatenFilm.FILM_URL_NR].endsWith("1456k_p13v11.mp4")) {
-            String url_ = film.arr[DatenFilm.FILM_URL_NR].substring(0, film.arr[DatenFilm.FILM_URL_NR].lastIndexOf("1456k_p13v11.mp4")) + "2256k_p14v11.mp4";
-            String l = mSFilmeSuchen.listeFilmeAlt.getFileSizeUrl(url_, film.arr[DatenFilm.FILM_SENDER_NR]);
+        if (film.arr[DatenFilm.FILM_URL].endsWith("1456k_p13v11.mp4")) {
+            String url_ = film.arr[DatenFilm.FILM_URL].substring(0, film.arr[DatenFilm.FILM_URL].lastIndexOf("1456k_p13v11.mp4")) + "2256k_p14v11.mp4";
+            String l = mSFilmeSuchen.listeFilmeAlt.getFileSizeUrl(url_, film.arr[DatenFilm.FILM_SENDER]);
             // zum Testen immer machen!!
-            film.arr[DatenFilm.FILM_GROESSE_NR] = l;
-            film.arr[DatenFilm.FILM_URL_NR] = url_;
+            film.arr[DatenFilm.FILM_GROESSE] = l;
+            film.arr[DatenFilm.FILM_URL] = url_;
         }
 
         // manuell die Auflösung hochsetzen
-        if (film.arr[DatenFilm.FILM_URL_NR].endsWith("1456k_p13v12.mp4")) {
-            String url_ = film.arr[DatenFilm.FILM_URL_NR].substring(0, film.arr[DatenFilm.FILM_URL_NR].lastIndexOf("1456k_p13v12.mp4")) + "2256k_p14v12.mp4";
-            String l = mSFilmeSuchen.listeFilmeAlt.getFileSizeUrl(url_, film.arr[DatenFilm.FILM_SENDER_NR]);
+        if (film.arr[DatenFilm.FILM_URL].endsWith("1456k_p13v12.mp4")) {
+            String url_ = film.arr[DatenFilm.FILM_URL].substring(0, film.arr[DatenFilm.FILM_URL].lastIndexOf("1456k_p13v12.mp4")) + "2256k_p14v12.mp4";
+            String l = mSFilmeSuchen.listeFilmeAlt.getFileSizeUrl(url_, film.arr[DatenFilm.FILM_SENDER]);
             // zum Testen immer machen!!
-            film.arr[DatenFilm.FILM_GROESSE_NR] = l;
-            film.arr[DatenFilm.FILM_URL_NR] = url_;
+            film.arr[DatenFilm.FILM_GROESSE] = l;
+            film.arr[DatenFilm.FILM_URL] = url_;
             if (!l.isEmpty()) {
-                film.arr[DatenFilm.FILM_GROESSE_NR] = l;
-                film.arr[DatenFilm.FILM_URL_NR] = url_;
+                film.arr[DatenFilm.FILM_GROESSE] = l;
+                film.arr[DatenFilm.FILM_URL] = url_;
             } else if (urlExists(url_)) {
                 // dann wars wohl nur ein "403er"
-                film.arr[DatenFilm.FILM_URL_NR] = url_;
+                film.arr[DatenFilm.FILM_URL] = url_;
             } else {
                 Log.errorLog(945120369, "urlTauschen: " + urlSeite);
             }

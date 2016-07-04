@@ -555,7 +555,7 @@ public class MediathekBr extends MediathekReader implements Runnable {
                 film.addUrlSubtitle(subtitle);
             }
             addFilm(film);
-            meldung(film.arr[DatenFilm.FILM_URL_NR]);
+            meldung(film.arr[DatenFilm.FILM_URL]);
         } else {
             Log.errorLog(612136978, "keine URL: " + urlXml);
         }

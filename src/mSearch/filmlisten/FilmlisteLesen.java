@@ -165,42 +165,42 @@ public class FilmlisteLesen {
                 }
                 if (jp.isExpectedStartArrayToken()) {
                     DatenFilm datenFilm = new DatenFilm();
-                    for (int i = 0; i < DatenFilm.COLUMN_NAMES_JSON.length; ++i) {
+                    for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
                         //if we are in FASTAUTO mode, we don´t need film descriptions.
                         //this should speed up loading on low end devices...
                         if (workMode == WorkMode.FASTAUTO) {
-                            if (DatenFilm.COLUMN_NAMES_JSON[i] == DatenFilm.FILM_BESCHREIBUNG_NR
-                                    || DatenFilm.COLUMN_NAMES_JSON[i] == DatenFilm.FILM_WEBSEITE_NR
-                                    || DatenFilm.COLUMN_NAMES_JSON[i] == DatenFilm.FILM_GEO_NR) {
+                            if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_BESCHREIBUNG
+                                    || DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_WEBSEITE
+                                    || DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_GEO) {
                                 jp.nextToken();
                                 continue;
                             }
                         }
 
-                        if (DatenFilm.COLUMN_NAMES_JSON[i] == DatenFilm.FILM_NEU_NR) {
+                        if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_NEU) {
                             final String value = jp.nextTextValue();
                             //This value is unused...
                             //datenFilm.arr[DatenFilm.FILM_NEU_NR] = value;
                             datenFilm.setNew(Boolean.parseBoolean(value));
                         }
                         else {
-                            datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] = jp.nextTextValue();
+                            datenFilm.arr[DatenFilm.JSON_NAMES[i]] = jp.nextTextValue();
                         }
 
                         /// für die Entwicklungszeit
-                        if (datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] == null) {
-                            datenFilm.arr[DatenFilm.COLUMN_NAMES_JSON[i]] = "";
+                        if (datenFilm.arr[DatenFilm.JSON_NAMES[i]] == null) {
+                            datenFilm.arr[DatenFilm.JSON_NAMES[i]] = "";
                         }
                     }
-                    if (datenFilm.arr[DatenFilm.FILM_SENDER_NR].isEmpty()) {
-                        datenFilm.arr[DatenFilm.FILM_SENDER_NR] = sender;
+                    if (datenFilm.arr[DatenFilm.FILM_SENDER].isEmpty()) {
+                        datenFilm.arr[DatenFilm.FILM_SENDER] = sender;
                     } else {
-                        sender = datenFilm.arr[DatenFilm.FILM_SENDER_NR];
+                        sender = datenFilm.arr[DatenFilm.FILM_SENDER];
                     }
-                    if (datenFilm.arr[DatenFilm.FILM_THEMA_NR].isEmpty()) {
-                        datenFilm.arr[DatenFilm.FILM_THEMA_NR] = thema;
+                    if (datenFilm.arr[DatenFilm.FILM_THEMA].isEmpty()) {
+                        datenFilm.arr[DatenFilm.FILM_THEMA] = thema;
                     } else {
-                        thema = datenFilm.arr[DatenFilm.FILM_THEMA_NR];
+                        thema = datenFilm.arr[DatenFilm.FILM_THEMA];
                     }
 
                     listeFilme.importFilmliste(datenFilm);

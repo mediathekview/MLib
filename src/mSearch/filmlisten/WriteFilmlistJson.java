@@ -74,8 +74,8 @@ public class WriteFilmlistJson {
             jg.writeEndArray();
             // Infos der Felder in der Filmliste
             jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
-            for (int i = 0; i < DatenFilm.COLUMN_NAMES_JSON.length; ++i) {
-                jg.writeString(DatenFilm.COLUMN_NAMES[DatenFilm.COLUMN_NAMES_JSON[i]]);
+            for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
+                jg.writeString(DatenFilm.COLUMN_NAMES[DatenFilm.JSON_NAMES[i]]);
             }
             jg.writeEndArray();
             //Filme schreiben
@@ -84,19 +84,19 @@ public class WriteFilmlistJson {
             iterator = listeFilme.listIterator();
             while (iterator.hasNext()) {
                 datenFilm = iterator.next();
-                datenFilm.arr[DatenFilm.FILM_NEU_NR] = Boolean.toString(datenFilm.isNew()); // damit wirs beim nächsten Programmstart noch wissen
+                datenFilm.arr[DatenFilm.FILM_NEU] = Boolean.toString(datenFilm.isNew()); // damit wirs beim nächsten Programmstart noch wissen
 
-                jg.writeArrayFieldStart(DatenFilm.FILME_);
-                for (int i = 0; i < DatenFilm.COLUMN_NAMES_JSON.length; ++i) {
-                    int m = DatenFilm.COLUMN_NAMES_JSON[i];
-                    if (m == DatenFilm.FILM_SENDER_NR) {
+                jg.writeArrayFieldStart(DatenFilm.TAG_JSON_LIST);
+                for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
+                    int m = DatenFilm.JSON_NAMES[i];
+                    if (m == DatenFilm.FILM_SENDER) {
                         if (datenFilm.arr[m].equals(sender)) {
                             jg.writeString("");
                         } else {
                             sender = datenFilm.arr[m];
                             jg.writeString(datenFilm.arr[m]);
                         }
-                    } else if (m == DatenFilm.FILM_THEMA_NR) {
+                    } else if (m == DatenFilm.FILM_THEMA) {
                         if (datenFilm.arr[m].equals(thema)) {
                             jg.writeString("");
                         } else {

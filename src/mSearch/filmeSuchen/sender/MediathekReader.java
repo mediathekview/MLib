@@ -121,7 +121,7 @@ public class MediathekReader implements Runnable {
 
     void addFilm(DatenFilm film, boolean urlPruefen) {
         if (urlPruefen) {
-            if (mSearchFilmeSuchen.listeFilmeNeu.getFilmByUrl(film.arr[DatenFilm.FILM_URL_NR]) == null) {
+            if (mSearchFilmeSuchen.listeFilmeNeu.getFilmByUrl(film.arr[DatenFilm.FILM_URL]) == null) {
                 addFilm(film);
             }
         } else {
@@ -130,14 +130,14 @@ public class MediathekReader implements Runnable {
     }
 
     void addFilm(DatenFilm film) {
-        if (film.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()) {
-            film.arr[DatenFilm.FILM_GROESSE_NR] = mSearchFilmeSuchen.listeFilmeAlt.getFileSizeUrl(film.arr[DatenFilm.FILM_URL_NR], film.arr[DatenFilm.FILM_SENDER_NR]);
+        if (film.arr[DatenFilm.FILM_GROESSE].isEmpty()) {
+            film.arr[DatenFilm.FILM_GROESSE] = mSearchFilmeSuchen.listeFilmeAlt.getFileSizeUrl(film.arr[DatenFilm.FILM_URL], film.arr[DatenFilm.FILM_SENDER]);
         }
         film.setUrlHistory();
         film.setGeo();
         if (mSearchFilmeSuchen.listeFilmeNeu.addFilmVomSender(film)) {
             // dann ist er neu
-            FilmeSuchen.listeSenderLaufen.inc(film.arr[DatenFilm.FILM_SENDER_NR], RunSender.Count.FILME);
+            FilmeSuchen.listeSenderLaufen.inc(film.arr[DatenFilm.FILM_SENDER], RunSender.Count.FILME);
         }
     }
 
