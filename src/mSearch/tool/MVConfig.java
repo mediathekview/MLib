@@ -34,6 +34,7 @@ public class MVConfig {
     // allgemein
     public static final String SYSTEM_BUILD_NR = "BuildNr";
     public static final String SYSTEM_ECHTZEITSUCHE = "Echtzeitsuche";
+    public static final String SYSTEM_TABS_LEFT = "Tabs-links";
     public static final String SYSTEM_USE_TRAY = "Tray-anzeigen";
     public static final String SYSTEM_LOOK = "System-look";
     public static final String SYSTEM_USER_AGENT_AUTO = "User-Agent-Auto";
@@ -79,6 +80,7 @@ public class MVConfig {
     public static final String SYSTEM_ICON_STANDARD = "Icon-Standard";
     public static final String SYSTEM_ICON_PFAD = "Icon-Pfad";
     public static final String SYSTEM_BREITE_MELDUNGEN = "breite-Meldungen";
+
     public static final String SYSTEM_TOOLBAR_ALLES_ANZEIGEN = "Toolbar-Alles-anzeigen";
     public static final String SYSTEM_TOOLBAR_ALLES = "Toolbar-Alles";
     public static final String SYSTEM_TOOLBAR_DOWNLOAD_EXTERN = "Toolbar-Download-Extern";
@@ -87,6 +89,15 @@ public class MVConfig {
     public static final String SYSTEM_ICON_KLEIN_ALLES = "system-icon-groesse-alles";
     public static final String SYSTEM_ICON_KLEIN_DOWNLOADS_EXTERN = "system-icon-groesse-Download-Extern";
     public static final String SYSTEM_ICON_KLEIN_ABOS_EXTERN = "system-icon-groesse-Abos-Extern";
+
+    public static final String SYSTEM_ICON_KLEIN = "system-icon-klein";
+    public static final String SYSTEM_TOOLBAR_FILME = "Toolbar-Filme";
+    public static final String SYSTEM_ICON_KLEIN_FILME = "system-icon-groesse-Filme";
+    public static final String SYSTEM_TOOLBAR_DOWNLOAD = "Toolbar-Download";
+    public static final String SYSTEM_ICON_KLEIN_DOWNLOAD = "system-icon-groesse-Download";
+    public static final String SYSTEM_TOOLBAR_ABO = "Toolbar-Abo";
+    public static final String SYSTEM_ICON_KLEIN_ABO = "system-icon-groesse-Abo";
+
     public static final String SYSTEM_TAB_FILME_ICON_ANZEIGEN = "system-tab-filme-icon-anzeigen";
     public static final String SYSTEM_TAB_DOWNLOAD_ICON_ANZEIGEN = "system-tab-download-icon-anzeigen";
     public static final String SYSTEM_TAB_ABO_ICON_ANZEIGEN = "system-tab-abo-icon-anzeigen";
@@ -95,10 +106,10 @@ public class MVConfig {
     public static final String SYSTEM_TAB_ABO_ICON_KLEIN = "system-tab-abo-icon-klein";
     // Extrafenster
     public static final String SYSTEM_FENSTER_DOWNLOAD = "Fenster-Download";
-    public static final String SYSTEM_VIS_DOWNLOAD = "Vis-Download";
+//    public static final String SYSTEM_VIS_DOWNLOAD = "Vis-Download";
     public static final String SYSTEM_GROESSE_DOWNLOAD = "Groesse-Download";
     public static final String SYSTEM_FENSTER_ABO = "Fenster-Abo";
-    public static final String SYSTEM_VIS_ABO = "Vis-Abo";
+//    public static final String SYSTEM_VIS_ABO = "Vis-Abo";
     public static final String SYSTEM_GROESSE_ABO = "Groesse-Abo";
     public static final String SYSTEM_FENSTER_MELDUNGEN = "Fenster-Meldungen";
     public static final String SYSTEM_VIS_MELDUNGEN = "Vis-Meldungen";
