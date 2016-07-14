@@ -34,7 +34,7 @@ public class MVConfig {
     // allgemein
     public static final String SYSTEM_BUILD_NR = "BuildNr";
     public static final String SYSTEM_ECHTZEITSUCHE = "Echtzeitsuche";
-    public static final String SYSTEM_TABS_LEFT = "Tabs-links";
+    public static final String SYSTEM_TABS_TOP = "Tabs-oben";
     public static final String SYSTEM_USE_TRAY = "Tray-anzeigen";
     public static final String SYSTEM_LOOK = "System-look";
     public static final String SYSTEM_USER_AGENT_AUTO = "User-Agent-Auto";
