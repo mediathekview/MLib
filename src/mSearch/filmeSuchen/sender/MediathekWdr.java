@@ -23,7 +23,7 @@ package mSearch.filmeSuchen.sender;
 
 import mSearch.Config;
 import mSearch.tool.MSStringBuilder;
-import mSearch.tool.DebugMsg;
+import mSearch.tool.DbgMsg;
 import mSearch.Const;
 import mSearch.tool.Log;
 import java.text.SimpleDateFormat;
@@ -451,7 +451,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             if (titel.isEmpty()) {
                 titel = sendungsSeite4.extract("\"trackerClipTitle\":\"", "\",");
                 if (titel.contains("\"")) {
-                    DebugMsg.print("WDR: " + urlFilmSuchen);
+                    DbgMsg.print("WDR: " + urlFilmSuchen);
                 }
                 titel = titel.replace("\\\"", "\"");
             }

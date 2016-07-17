@@ -107,7 +107,7 @@ public class Functions {
             } catch (Exception ignored) {
             }
         } else {
-            DebugMsg.print("getPath");
+            DbgMsg.print("getPath");
         }
         String s = propFile.getAbsolutePath().replace(pFilePath, "");
         if (!s.endsWith(File.separator)) {

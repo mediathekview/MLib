@@ -124,10 +124,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                     if (hash.contains(f.getIndex())) {
                         it.remove();
                     }
-                } else {
-                    if (hash.contains(DatenFilm.getUrl(f))) {
-                        it.remove();
-                    }
+                } else if (hash.contains(DatenFilm.getUrl(f))) {
+                    it.remove();
                 }
             }
 
@@ -154,10 +152,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                     if (!hash.contains(f.getIndex())) {
                         addInit(f);
                     }
-                } else {
-                    if (!hash.contains(DatenFilm.getUrl(f))) {
-                        addInit(f);
-                    }
+                } else if (!hash.contains(DatenFilm.getUrl(f))) {
+                    addInit(f);
                 }
             }
         }
@@ -262,6 +258,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
         private DatenFilm film;
         private final ListeFilme listeOld;
+        private final int MIN_SIZE_ADD_OLD = 5; //REST eh nur Trailer
 
         public AddOld(ListeFilme listeOld) {
             this.listeOld = listeOld;
@@ -271,8 +268,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         @Override
         public void run() {
             while ((film = popOld(listeOld)) != null) {
-                String size = FileSize.laengeString(film.arr[DatenFilm.FILM_URL]);
-                if (!size.isEmpty()) {
+                long size = FileSize.laengeLong(film.arr[DatenFilm.FILM_URL]);
+                if (size > MIN_SIZE_ADD_OLD) {
                     addOld(film);
                 }
             }
@@ -383,13 +380,11 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                     // dann ist er mind. doppelt in der Liste
                     hashDoppelt.add(film.arr[DatenFilm.FILM_URL]);
                 }
+            } else if (!hash.contains(film.arr[DatenFilm.FILM_URL])) {
+                hash.add(film.arr[DatenFilm.FILM_URL]);
             } else {
-                if (!hash.contains(film.arr[DatenFilm.FILM_URL])) {
-                    hash.add(film.arr[DatenFilm.FILM_URL]);
-                } else {
-                    // dann ist er mind. doppelt in der Liste
-                    hashDoppelt.add(film.arr[DatenFilm.FILM_URL]);
-                }
+                // dann ist er mind. doppelt in der Liste
+                hashDoppelt.add(film.arr[DatenFilm.FILM_URL]);
             }
         }
         it = this.iterator();

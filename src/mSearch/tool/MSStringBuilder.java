@@ -143,7 +143,7 @@ public class MSStringBuilder {
         while ((pos1 = cont.indexOf(musterStart1, pos1)) != -1) {
             ++count;
             if (count > 10_000) {
-                DebugMsg.print("Achtung");
+                DbgMsg.print("Achtung");
                 break;
             }
             pos1 += musterStart1.length();
@@ -170,7 +170,7 @@ public class MSStringBuilder {
             if (!result.contains(str)) {
                 result.add(str);
                 if (result.size() > 1000) {
-                    DebugMsg.print("Achtung");
+                    DbgMsg.print("Achtung");
                 }
             }
 

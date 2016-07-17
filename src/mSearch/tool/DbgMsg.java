@@ -21,7 +21,7 @@ package mSearch.tool;
 
 import mSearch.Config;
 
-public class DebugMsg {
+public class DbgMsg {
 
     public static synchronized void print(String text) {
         print_(new String[]{text});

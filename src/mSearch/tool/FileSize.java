@@ -1,7 +1,7 @@
 package mSearch.tool;
 
-import mSearch.Config;
 import java.net.*;
+import mSearch.Config;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.RunSender;
 
@@ -28,6 +28,21 @@ public class FileSize {
             groesseStr = "1";
         }
         return groesseStr;
+    }
+
+    public static long laengeLong(String url) {
+        // liefert die Dateigröße einer URL in MB!!
+        // Anzeige der Größe in MiB und deshalb: Faktor 1000
+        long groesse = 0;
+
+        long l = laenge(url, "");
+        if (l > 1000 * 1000) {
+            // größer als 1MiB sonst kann ich mirs sparen
+            groesse = l / (1000 * 1000);
+        } else if (l > 0) {
+            groesse = 1;
+        }
+        return groesse;
     }
 
     private static long laenge(String url, String ssender) {

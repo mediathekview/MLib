@@ -19,13 +19,13 @@
  */
 package mSearch.tool;
 
-import mSearch.Const;
-import mSearch.Config;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
+import mSearch.Config;
+import mSearch.Const;
 import org.apache.commons.lang3.StringUtils;
 
 public class Log {

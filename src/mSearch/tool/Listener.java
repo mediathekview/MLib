@@ -98,7 +98,7 @@ public class Listener implements EventListener {
                         try {
                             l.pingen();
                         } catch (Exception ex) {
-                            DebugMsg.print("ListenerMediathekView.notifyMediathekListener: " + ex.getMessage());
+                            DbgMsg.print("ListenerMediathekView.notifyMediathekListener: " + ex.getMessage());
                         }
                     }
                 }
