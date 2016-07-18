@@ -238,9 +238,18 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             new Thread(new AddOld(listeEinsortieren)).start();
         }
         int count = 0;
+        final int COUNT_MAX = 300; // 10 Minuten
+        stopOld = false;
         while (!Config.getStop() && counter > 0) {
             try {
                 System.out.println("s: " + 2 * (count++) + "  Liste: " + listeEinsortieren.size() + "  Treffer: " + treffer + "   Threads: " + counter);
+                if (count > COUNT_MAX) {
+                    // dann haben wir mehr als 10 Minuten und: Stop
+                    Log.sysLog("===== Liste einsortieren: ABBRUCH =====");
+                    Log.sysLog("COUNT_MAX erreicht [s]: " + COUNT_MAX * 2);
+                    Log.sysLog("");
+                    stopOld = true;
+                }
                 wait(2000);
             } catch (InterruptedException ignored) {
             }
@@ -253,6 +262,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         Log.sysLog("");
         return treffer;
     }
+    private boolean stopOld = false;
 
     private class AddOld implements Runnable {
 
@@ -267,7 +277,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
         @Override
         public void run() {
-            while ((film = popOld(listeOld)) != null) {
+            while (!stopOld && (film = popOld(listeOld)) != null) {
                 long size = FileSize.laengeLong(film.arr[DatenFilm.FILM_URL]);
                 if (size > MIN_SIZE_ADD_OLD) {
                     addOld(film);
