@@ -19,11 +19,7 @@
  */
 package mSearch.filmlisten;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.ListIterator;
-import java.util.Random;
+import java.util.*;
 
 public class ListeFilmlistenUrls extends LinkedList<DatenFilmlisteUrl> {
     // ist die Liste mit den URLs zum Download einer Filmliste
@@ -52,7 +48,7 @@ public class ListeFilmlistenUrls extends LinkedList<DatenFilmlisteUrl> {
     public String[][] getTableObjectData() {
         DatenFilmlisteUrl filmUpdate;
         String[][] object;
-        ListIterator<DatenFilmlisteUrl> iterator = this.listIterator();
+        Iterator<DatenFilmlisteUrl> iterator = this.iterator();
         object = new String[this.size()][DatenFilmlisteUrl.FILM_UPDATE_SERVER_MAX_ELEM];
         int i = 0;
         while (iterator.hasNext()) {

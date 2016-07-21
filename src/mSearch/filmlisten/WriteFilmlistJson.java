@@ -24,7 +24,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ListIterator;
+import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import mSearch.daten.DatenFilm;
@@ -79,9 +79,8 @@ public class WriteFilmlistJson {
             }
             jg.writeEndArray();
             //Filme schreiben
-            ListIterator<DatenFilm> iterator;
             DatenFilm datenFilm;
-            iterator = listeFilme.listIterator();
+            Iterator<DatenFilm> iterator = listeFilme.iterator();
             while (iterator.hasNext()) {
                 datenFilm = iterator.next();
                 datenFilm.arr[DatenFilm.FILM_NEU] = Boolean.toString(datenFilm.isNew()); // damit wirs beim nächsten Programmstart noch wissen

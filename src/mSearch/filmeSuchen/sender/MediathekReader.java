@@ -147,7 +147,7 @@ public class MediathekReader implements Runnable {
 
     boolean istInListe(LinkedList<String[]> liste, String str, int nr) {
         boolean ret = false;
-        Iterator<String[]> it = liste.listIterator();
+        Iterator<String[]> it = liste.iterator();
         while (it.hasNext()) {
             if (it.next()[nr].equals(str)) {
                 ret = true;
@@ -159,7 +159,7 @@ public class MediathekReader implements Runnable {
 
     boolean istInListe(LinkedList<String> liste, String str) {
         boolean ret = false;
-        Iterator<String> it = liste.listIterator();
+        Iterator<String> it = liste.iterator();
         while (it.hasNext()) {
             if (it.next().equals(str)) {
                 ret = true;

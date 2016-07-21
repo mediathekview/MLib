@@ -19,35 +19,22 @@
  */
 package mSearch.daten;
 
-import mSearch.Config;
-import mSearch.tool.Functions;
-import mSearch.Const;
-import mSearch.tool.Log;
-import mSearch.tool.FileSize;
-import mSearch.filmeSuchen.sender.MediathekZdf;
-import mSearch.filmeSuchen.sender.MediathekSr;
-import mSearch.filmeSuchen.sender.MediathekHr;
-import mSearch.filmeSuchen.sender.MediathekWdr;
-import mSearch.filmeSuchen.sender.MediathekRbb;
-import mSearch.filmeSuchen.sender.MediathekBr;
-import mSearch.filmeSuchen.sender.MediathekMdr;
-import mSearch.filmeSuchen.sender.MediathekSwr;
-import mSearch.filmeSuchen.sender.MediathekNdr;
-import mSearch.filmeSuchen.sender.MediathekOrf;
-import mSearch.filmeSuchen.sender.MediathekKika;
-import mSearch.filmeSuchen.sender.MediathekArte_de;
-import mSearch.filmeSuchen.sender.MediathekArd;
-import mSearch.filmeSuchen.sender.Mediathek3Sat;
 import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.filmeSuchen.sender.*;
+import mSearch.tool.Duration;
+import mSearch.tool.FileSize;
+import mSearch.tool.Functions;
+import mSearch.tool.Log;
 
 public class ListeFilme extends ArrayList<DatenFilm> {
 
     public static final String THEMA_LIVE = "Livestream";
-    //Tags Infos Filmliste, erste Zeile der .filme-Datei
     public static final String FILMLISTE = "Filmliste";
     public static final String FILMLISTE_DATUM = "Filmliste-Datum";
     public static final int FILMLISTE_DATUM_NR = 0;
@@ -69,6 +56,18 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public String[] sender = {""};
     public String[][] themenPerSender = {{""}};
     public boolean neueFilme = false;
+
+    @Override
+    public ListIterator<DatenFilm> listIterator() {
+        Duration.staticPing("getListIterator");
+        return super.listIterator(0);
+    }
+
+    @Override
+    public Iterator<DatenFilm> iterator() {
+        Duration.staticPing("getIterator");
+        return super.iterator();
+    }
 
     public synchronized boolean importFilmliste(DatenFilm film) {
         // hier nur beim Laden aus einer fertigen Filmliste mit der GUI
@@ -497,7 +496,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
      */
     public synchronized void deleteAllFilms(String sender) {
         DatenFilm film;
-        ListIterator<DatenFilm> it = this.listIterator(0);
+        Iterator<DatenFilm> it = this.iterator();
         while (it.hasNext()) {
             film = it.next();
             if (film.arr[DatenFilm.FILM_SENDER].equalsIgnoreCase(sender)) {
