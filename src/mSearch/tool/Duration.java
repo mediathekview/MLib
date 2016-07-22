@@ -22,6 +22,7 @@ package mSearch.tool;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import mSearch.Config;
 
 public class Duration {
 
@@ -38,6 +39,45 @@ public class Duration {
     public Duration(String t) {
         TEXT = t;
         start("");
+    }
+
+    public synchronized static void staticDbgPing(String text) {
+        if (Config.debug) {
+            final Throwable t = new Throwable();
+            final StackTraceElement methodCaller = t.getStackTrace()[2];
+            final String klasse = methodCaller.getClassName() + "." + methodCaller.getMethodName();
+            String kl;
+            try {
+                kl = klasse;
+                while (kl.contains(".")) {
+                    if (Character.isUpperCase(kl.charAt(0))) {
+                        break;
+                    } else {
+                        kl = kl.substring(kl.indexOf(".") + 1);
+                    }
+                }
+            } catch (Exception ignored) {
+                kl = klasse;
+            }
+            long sekunden;
+            try {
+                sekunden = Math.round(new Date(System.currentTimeMillis()).getTime() - stopZeitStatic.getTime());
+            } catch (Exception ex) {
+                sekunden = -1;
+            }
+
+            System.out.println("");
+            System.out.println("========== ========== ========== ========== ==========");
+            System.out.println("DURATION " + sum++ + ":  " + text + "  [" + roundDuration(sekunden) + "]");
+            System.out.println("   Klasse:  " + kl);
+//        System.out.println("   letzter Ping:  " + SDF.format(stopZeitStatic));
+//        System.out.println("   letzter Text:  " + lastTxt);
+            System.out.println("========== ========== ========== ========== ==========");
+            System.out.println("");
+
+            lastTxt = text;
+            stopZeitStatic = new Date(System.currentTimeMillis());
+        }
     }
 
     public synchronized static void staticPing(String text) {

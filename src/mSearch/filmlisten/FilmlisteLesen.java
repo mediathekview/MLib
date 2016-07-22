@@ -19,28 +19,30 @@
  */
 package mSearch.filmlisten;
 
-import mSearch.tool.ProgressMonitorInputStream;
-import mSearch.Config;
-import mSearch.Const;
-import mSearch.tool.Log;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import mSearch.daten.DatenFilm;
-import mSearch.daten.ListeFilme;
-import mSearch.filmeSuchen.ListenerFilmeLaden;
-import mSearch.filmeSuchen.ListenerFilmeLadenEvent;
-import org.tukaani.xz.XZInputStream;
-
-import javax.swing.event.EventListenerList;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.zip.ZipInputStream;
+import javax.swing.event.EventListenerList;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.daten.DatenFilm;
+import mSearch.daten.ListeFilme;
+import mSearch.filmeSuchen.ListenerFilmeLaden;
+import mSearch.filmeSuchen.ListenerFilmeLadenEvent;
 import mSearch.tool.InputStreamProgressMonitor;
+import mSearch.tool.Log;
+import mSearch.tool.ProgressMonitorInputStream;
+import org.tukaani.xz.XZInputStream;
 
 public class FilmlisteLesen {
 

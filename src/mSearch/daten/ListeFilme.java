@@ -27,10 +27,7 @@ import java.util.stream.Collectors;
 import mSearch.Config;
 import mSearch.Const;
 import mSearch.filmeSuchen.sender.*;
-import mSearch.tool.Duration;
-import mSearch.tool.FileSize;
-import mSearch.tool.Functions;
-import mSearch.tool.Log;
+import mSearch.tool.*;
 
 public class ListeFilme extends ArrayList<DatenFilm> {
 
@@ -57,18 +54,23 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public String[][] themenPerSender = {{""}};
     public boolean neueFilme = false;
 
-    @Override
-    public ListIterator<DatenFilm> listIterator() {
-        Duration.staticPing("getListIterator");
-        return super.listIterator(0);
-    }
+//    @Override
+//    public ListIterator<DatenFilm> listIterator() {
+//        Duration.staticDbgPing("getListIterator");
+//        return super.listIterator(0);
+//    }
+//
+//    @Override
+//    public synchronized Iterator<DatenFilm> iterator() {
+//        Duration.staticDbgPing("getIterator");
+//        DbgMsg.print("Filmliste länge: " + size());
+//        return super.iterator();
+//    }
 
-    @Override
-    public Iterator<DatenFilm> iterator() {
-        Duration.staticPing("getIterator");
-        return super.iterator();
-    }
-
+//    @Override
+//    public synchronized int size() {
+//        return super.size();
+//    }
     public synchronized boolean importFilmliste(DatenFilm film) {
         // hier nur beim Laden aus einer fertigen Filmliste mit der GUI
         // die Filme sind schon sortiert, nur die Nummer muss noch ergänzt werden
@@ -777,7 +779,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return formatter.format(new Date());
     }
 
-    public long countNewFilms() {
+    public synchronized long countNewFilms() {
         return this.stream().filter(DatenFilm::isNew).count();
     }
 

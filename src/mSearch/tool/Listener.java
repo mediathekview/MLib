@@ -108,11 +108,11 @@ public class Listener implements EventListener {
 
     private void pingen() {
         try {
-            if (SwingUtilities.isEventDispatchThread()) {
-                ping();
-            } else {
-                SwingUtilities.invokeLater(this::ping);
-            }
+//            if (SwingUtilities.isEventDispatchThread()) {
+//                ping();
+//            } else {
+            SwingUtilities.invokeLater(this::ping);
+//            }
         } catch (Exception ex) {
             Log.errorLog(698989743, ex);
         }
