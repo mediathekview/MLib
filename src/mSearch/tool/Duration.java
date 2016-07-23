@@ -20,18 +20,16 @@
 package mSearch.tool;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import mSearch.Config;
 
 public class Duration {
 
     private static Date stopZeitStatic = new Date(System.currentTimeMillis());
-    private static String lastTxt = "";
+    private static final DecimalFormat DF = new DecimalFormat("###,##0.00");
     private static int sum = 0;
     private Date startZeit = new Date(System.currentTimeMillis());
     private Date stopZeit = new Date(System.currentTimeMillis());
-    private final static SimpleDateFormat SDF = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     private int sekunden;
     private int count = 0;
     private String TEXT = "";
@@ -59,24 +57,7 @@ public class Duration {
             } catch (Exception ignored) {
                 kl = klasse;
             }
-            long sekunden;
-            try {
-                sekunden = Math.round(new Date(System.currentTimeMillis()).getTime() - stopZeitStatic.getTime());
-            } catch (Exception ex) {
-                sekunden = -1;
-            }
-
-            System.out.println("");
-            System.out.println("========== ========== ========== ========== ==========");
-            System.out.println("DURATION " + sum++ + ":  " + text + "  [" + roundDuration(sekunden) + "]");
-            System.out.println("   Klasse:  " + kl);
-//        System.out.println("   letzter Ping:  " + SDF.format(stopZeitStatic));
-//        System.out.println("   letzter Text:  " + lastTxt);
-            System.out.println("========== ========== ========== ========== ==========");
-            System.out.println("");
-
-            lastTxt = text;
-            stopZeitStatic = new Date(System.currentTimeMillis());
+            staticPing(kl, text, null);
         }
     }
 
@@ -97,34 +78,59 @@ public class Duration {
         } catch (Exception ignored) {
             kl = klasse;
         }
-        long sekunden;
+        staticPing(kl, text, null);
+    }
+
+    public synchronized static void staticPing(String text, Date start) {
+        final Throwable t = new Throwable();
+        final StackTraceElement methodCaller = t.getStackTrace()[2];
+        final String klasse = methodCaller.getClassName() + "." + methodCaller.getMethodName();
+        String kl;
         try {
-            sekunden = Math.round(new Date(System.currentTimeMillis()).getTime() - stopZeitStatic.getTime());
+            kl = klasse;
+            while (kl.contains(".")) {
+                if (Character.isUpperCase(kl.charAt(0))) {
+                    break;
+                } else {
+                    kl = kl.substring(kl.indexOf(".") + 1);
+                }
+            }
+        } catch (Exception ignored) {
+            kl = klasse;
+        }
+        staticPing(kl, text, start);
+    }
+
+    private static void staticPing(String klasse, String text, Date start) {
+        Date now = new Date(System.currentTimeMillis());
+        long sekunden, sFromStart = -1;
+        try {
+            sekunden = Math.round(now.getTime() - stopZeitStatic.getTime());
+            if (start != null) {
+                sFromStart = Math.round(now.getTime() - start.getTime());
+            }
+
         } catch (Exception ex) {
             sekunden = -1;
         }
 
         System.out.println("");
         System.out.println("========== ========== ========== ========== ==========");
-        System.out.println("DURATION " + sum++ + ":  " + text + "  [" + roundDuration(sekunden) + "]");
-        System.out.println("   Klasse:  " + kl);
-//        System.out.println("   letzter Ping:  " + SDF.format(stopZeitStatic));
-//        System.out.println("   letzter Text:  " + lastTxt);
+        System.out.println("DURATION " + sum++ + ":  " + text + "  [" + roundDuration(sekunden)
+                + (sFromStart > -1 ? " Σ " + roundDuration(sFromStart) : "") + "]");
+        System.out.println("   Klasse:  " + klasse);
         System.out.println("========== ========== ========== ========== ==========");
         System.out.println("");
 
-        lastTxt = text;
         stopZeitStatic = new Date(System.currentTimeMillis());
     }
-
-    private static DecimalFormat df = new DecimalFormat("###,##0.00");
 
     public static String roundDuration(long s) {
         String ret;
         if (s > 1_000.0) {
-            ret = df.format(s / 1_000.0) + " s";
+            ret = DF.format(s / 1_000.0) + " s";
         } else {
-            ret = df.format(s) + " ms";
+            ret = DF.format(s) + " ms";
         }
 
         return ret;
