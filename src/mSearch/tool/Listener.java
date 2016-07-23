@@ -28,7 +28,7 @@ public class Listener implements EventListener {
     //public static final int EREIGNIS_BLACKLIST_GEAENDERT = 1;
     public static final int EREIGNIS_LISTE_HISTORY_GEAENDERT = 2;
     public static final int EREIGNIS_LISTE_PSET = 3;
-    public static final int EREIGNIS_FILMLISTE_GEAENDERT = 5;
+    //public static final int EREIGNIS_FILMLISTE_GEAENDERT = 5;
     public static final int EREIGNIS_ANZAHL_DOWNLOADS = 6;
     public static final int EREIGNIS_LISTE_URL_FILMLISTEN = 7;
     public static final int EREIGNIS_LISTE_FILMLISTEN_SERVER = 8;
