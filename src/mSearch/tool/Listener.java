@@ -25,10 +25,9 @@ import javax.swing.event.EventListenerList;
 
 public class Listener implements EventListener {
 
-    //public static final int EREIGNIS_BLACKLIST_GEAENDERT = 1;
-    public static final int EREIGNIS_LISTE_HISTORY_GEAENDERT = 2;
-    public static final int EREIGNIS_LISTE_PSET = 3;
-    //public static final int EREIGNIS_FILMLISTE_GEAENDERT = 5;
+    public static final int EREIGNIS_LISTE_HISTORY_GEAENDERT = 1;
+    public static final int EREIGNIS_LISTE_PSET = 2;
+
     public static final int EREIGNIS_ANZAHL_DOWNLOADS = 6;
     public static final int EREIGNIS_LISTE_URL_FILMLISTEN = 7;
     public static final int EREIGNIS_LISTE_FILMLISTEN_SERVER = 8;
@@ -39,15 +38,15 @@ public class Listener implements EventListener {
     public static final int EREIGNIS_ART_DOWNLOAD_PROZENT = 13;
     public static final int EREIGNIS_START_EVENT = 14;
     public static final int EREIGNIS_START_EVENT_BUTTON = 15;
-////    public static final int EREIGNIS_LOG_FEHLER = 16;
-//    public static final int EREIGNIS_LOG_SYSTEM = 17;
-//    public static final int EREIGNIS_LOG_PLAYER = 18;
-    public static final int EREIGNIS_PROGRAMM_OEFFNEN = 19;
-    public static final int EREIGNIS_MEDIATHEKGUI_ORG_TITEL = 20;
-    public static final int EREIGNIS_MEDIATHEKGUI_PROGRAMM_AKTUELL = 21;
-    public static final int EREIGNIS_MEDIATHEKGUI_UPDATE_VERFUEGBAR = 22;
-    public static final int EREIGNIS_PANEL_FILTER_ANZEIGEN = 23;
-    public static final int EREIGNIS_PANEL_BESCHREIBUNG_ANZEIGEN = 25;
+
+    public static final int EREIGNIS_PROGRAMM_OEFFNEN = 16;
+    public static final int EREIGNIS_MEDIATHEKGUI_ORG_TITEL = 17;
+    public static final int EREIGNIS_MEDIATHEKGUI_PROGRAMM_AKTUELL = 18;
+    public static final int EREIGNIS_MEDIATHEKGUI_UPDATE_VERFUEGBAR = 19;
+    public static final int EREIGNIS_PANEL_FILTER_ANZEIGEN = 20;
+    public static final int EREIGNIS_FILM_BESCHREIBUNG_ANZEIGEN = 21;
+    public static final int EREIGNIS_DOWNLOAD_BESCHREIBUNG_ANZEIGEN = 22;
+
     public static final int EREIGNIS_SUCHFELD_FOCUS_SETZEN = 26;
     public static final int EREIGNIS_BLACKLIST_AUCH_FUER_ABOS = 27;
     public static final int EREIGNIS_BANDBREITE = 28;
