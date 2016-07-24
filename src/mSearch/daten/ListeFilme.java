@@ -66,7 +66,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 //        DbgMsg.print("Filmliste länge: " + size());
 //        return super.iterator();
 //    }
-
 //    @Override
 //    public synchronized int size() {
 //        return super.size();
@@ -789,6 +788,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
      */
     @SuppressWarnings("unchecked")
     public synchronized void themenLaden() {
+        Duration.staticDbgPing("Themen in der Liste suchen");
         TreeSet<String> senderSet = new TreeSet<>();
         // der erste Sender ist ""
         senderSet.add("");

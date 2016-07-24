@@ -61,6 +61,28 @@ public class Duration {
         }
     }
 
+    public synchronized static void staticDbgPing(String text, Date start) {
+        if (Config.debug) {
+            final Throwable t = new Throwable();
+            final StackTraceElement methodCaller = t.getStackTrace()[2];
+            final String klasse = methodCaller.getClassName() + "." + methodCaller.getMethodName();
+            String kl;
+            try {
+                kl = klasse;
+                while (kl.contains(".")) {
+                    if (Character.isUpperCase(kl.charAt(0))) {
+                        break;
+                    } else {
+                        kl = kl.substring(kl.indexOf(".") + 1);
+                    }
+                }
+            } catch (Exception ignored) {
+                kl = klasse;
+            }
+            staticPing(kl, text, start);
+        }
+    }
+
     public synchronized static void staticPing(String text) {
         final Throwable t = new Throwable();
         final StackTraceElement methodCaller = t.getStackTrace()[2];
