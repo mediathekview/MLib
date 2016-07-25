@@ -20,67 +20,106 @@
 package mSearch.tool;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import mSearch.Config;
 
 public class Duration {
 
     private static Date stopZeitStatic = new Date(System.currentTimeMillis());
     private static final DecimalFormat DF = new DecimalFormat("###,##0.00");
     private static int sum = 0;
-    private Date startZeit = new Date(System.currentTimeMillis());
-    private Date stopZeit = new Date(System.currentTimeMillis());
-    private int sekunden;
-    private int count = 0;
-    private String TEXT = "";
+    private static final ArrayList<Counter> COUNTER_LIST = new ArrayList<>();
 
-    public Duration(String t) {
-        TEXT = t;
-        start("");
-    }
+    private static class Counter {
 
-    public synchronized static void staticDbgPing(String text) {
-        if (Config.debug) {
-            final Throwable t = new Throwable();
-            final StackTraceElement methodCaller = t.getStackTrace()[2];
-            final String klasse = methodCaller.getClassName() + "." + methodCaller.getMethodName();
-            String kl;
-            try {
-                kl = klasse;
-                while (kl.contains(".")) {
-                    if (Character.isUpperCase(kl.charAt(0))) {
-                        break;
-                    } else {
-                        kl = kl.substring(kl.indexOf(".") + 1);
-                    }
-                }
-            } catch (Exception ignored) {
-                kl = klasse;
-            }
-            staticPing(kl, text, null);
+        String text;
+        int count;
+        long time;
+        Date start;
+
+        public Counter(String nr, int count) {
+            this.text = nr;
+            this.count = count;
+            start = new Date();
         }
     }
 
-    public synchronized static void staticDbgPing(String text, Date start) {
-        if (Config.debug) {
-            final Throwable t = new Throwable();
-            final StackTraceElement methodCaller = t.getStackTrace()[2];
-            final String klasse = methodCaller.getClassName() + "." + methodCaller.getMethodName();
-            String kl;
-            try {
-                kl = klasse;
-                while (kl.contains(".")) {
-                    if (Character.isUpperCase(kl.charAt(0))) {
-                        break;
-                    } else {
-                        kl = kl.substring(kl.indexOf(".") + 1);
-                    }
-                }
-            } catch (Exception ignored) {
-                kl = klasse;
+    public static synchronized void counterStart(String text) {
+        Counter cc = null;
+        for (Counter c : COUNTER_LIST) {
+            if (c.text.equals(text)) {
+                cc = c;
+                break;
             }
-            staticPing(kl, text, start);
         }
+        if (cc == null) {
+            COUNTER_LIST.add(new Counter(text, 0));
+        } else {
+            cc.start = new Date();
+        }
+    }
+
+    public static synchronized void counterStop(String text) {
+        final Throwable t = new Throwable();
+        final StackTraceElement methodCaller = t.getStackTrace()[2];
+        final String klasse = methodCaller.getClassName() + "." + methodCaller.getMethodName();
+        String kl;
+        try {
+            kl = klasse;
+            while (kl.contains(".")) {
+                if (Character.isUpperCase(kl.charAt(0))) {
+                    break;
+                } else {
+                    kl = kl.substring(kl.indexOf(".") + 1);
+                }
+            }
+        } catch (Exception ignored) {
+            kl = klasse;
+        }
+
+        String extra = "";
+        Counter cc = null;
+        for (Counter c : COUNTER_LIST) {
+            if (c.text.equals(text)) {
+                cc = c;
+                break;
+            }
+        }
+        if (cc != null) {
+            cc.count++;
+            try {
+                final long time = Math.round(new Date().getTime() - cc.start.getTime());
+                cc.time += time;
+                extra = cc.text + " Anzahl: " + cc.count + "   Dauer: " + roundDuration(time);
+            } catch (Exception ex) {
+            }
+        }
+
+        staticPing(kl, text, extra);
+    }
+
+    public static synchronized void printCounter() {
+        int max = 0;
+        for (Counter c : COUNTER_LIST) {
+            if (c.text.length() > max) {
+                max = c.text.length();
+            }
+        }
+        max++;
+        for (Counter c : COUNTER_LIST) {
+            while (c.text.length() < max) {
+                c.text = c.text + " ";
+            }
+        }
+
+        System.out.println("");
+        System.out.println("");
+        System.out.println("#################################################################");
+        for (Counter c : COUNTER_LIST) {
+            System.out.println(c.text + " Anzahl: " + c.count + "   Gesamtdauer: " + roundDuration(c.time));
+        }
+        System.out.println("#################################################################");
+        System.out.println("");
     }
 
     public synchronized static void staticPing(String text) {
@@ -100,51 +139,28 @@ public class Duration {
         } catch (Exception ignored) {
             kl = klasse;
         }
-        staticPing(kl, text, null);
+        staticPing(kl, text, "");
     }
 
-    public synchronized static void staticPing(String text, Date start) {
-        final Throwable t = new Throwable();
-        final StackTraceElement methodCaller = t.getStackTrace()[2];
-        final String klasse = methodCaller.getClassName() + "." + methodCaller.getMethodName();
-        String kl;
-        try {
-            kl = klasse;
-            while (kl.contains(".")) {
-                if (Character.isUpperCase(kl.charAt(0))) {
-                    break;
-                } else {
-                    kl = kl.substring(kl.indexOf(".") + 1);
-                }
-            }
-        } catch (Exception ignored) {
-            kl = klasse;
-        }
-        staticPing(kl, text, start);
-    }
-
-    private static void staticPing(String klasse, String text, Date start) {
+    private static void staticPing(String klasse, String text, String extra) {
         Date now = new Date(System.currentTimeMillis());
-        long sekunden, sFromStart = -1;
+        long sekunden;
         try {
             sekunden = Math.round(now.getTime() - stopZeitStatic.getTime());
-            if (start != null) {
-                sFromStart = Math.round(now.getTime() - start.getTime());
-            }
-
         } catch (Exception ex) {
             sekunden = -1;
         }
-
         System.out.println("");
         System.out.println("========== ========== ========== ========== ==========");
-        System.out.println("DURATION " + sum++ + ":  " + text + "  [" + roundDuration(sekunden)
-                + (sFromStart > -1 ? " Σ " + roundDuration(sFromStart) : "") + "]");
+        System.out.println("DURATION " + sum++ + ":  " + text + "  [" + roundDuration(sekunden) + "]");
         System.out.println("   Klasse:  " + klasse);
+        if (!extra.isEmpty()) {
+            System.out.println("   " + extra);
+        }
         System.out.println("========== ========== ========== ========== ==========");
         System.out.println("");
 
-        stopZeitStatic = new Date(System.currentTimeMillis());
+        stopZeitStatic = now;
     }
 
     public static String roundDuration(long s) {
@@ -158,33 +174,4 @@ public class Duration {
         return ret;
     }
 
-    public void ping(String text) {
-        stop(TEXT + " #  " + text + " " + count++);
-        startZeit = new Date(System.currentTimeMillis());
-    }
-
-    public final void start(String text) {
-        startZeit = new Date(System.currentTimeMillis());
-        if (!text.isEmpty()) {
-            System.out.println("");
-            System.out.println("======================================");
-            System.out.println(" Start: " + text);
-            System.out.println("======================================");
-            System.out.println("");
-        }
-    }
-
-    public void stop(String text) {
-        stopZeit = new Date(System.currentTimeMillis());
-        try {
-            sekunden = Math.round(stopZeit.getTime() - startZeit.getTime());
-        } catch (Exception ex) {
-            sekunden = -1;
-        }
-        System.out.println("");
-        System.out.println("======================================");
-        System.out.println(" " + text + " [ms]: " + sekunden);
-        System.out.println("======================================");
-        System.out.println("");
-    }
 }

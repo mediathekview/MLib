@@ -788,7 +788,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
      */
     @SuppressWarnings("unchecked")
     public synchronized void themenLaden() {
-        Duration.staticDbgPing("Themen in der Liste suchen");
+        Duration.counterStart("Themen in Filmliste suchen");
         TreeSet<String> senderSet = new TreeSet<>();
         // der erste Sender ist ""
         senderSet.add("");
@@ -837,5 +837,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             tree[i].clear();
             hashSet[i].clear();
         }
+        Duration.counterStop("Themen in Filmliste suchen");
     }
 }
