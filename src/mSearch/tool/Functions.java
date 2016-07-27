@@ -47,6 +47,13 @@ public class Functions {
         return text;
     }
 
+    public static String minTextLaenge(int max, String text) {
+        while (text.length() < max) {
+            text = text + " ";
+        }
+        return text;
+    }
+
     public enum OperatingSystemType {
 
         UNKNOWN(""), WIN32("Windows"), WIN64("Windows"), LINUX("Linux"), MAC("Mac");
