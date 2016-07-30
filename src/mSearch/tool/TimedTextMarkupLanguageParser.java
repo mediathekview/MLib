@@ -192,7 +192,7 @@ public class TimedTextMarkupLanguageParser {
             final NodeList metaData = doc.getElementsByTagName("ebuttm:documentEbuttVersion");
             if (metaData != null) {
                 final Node versionNode = metaData.item(0);
-                if (!versionNode.getTextContent().equalsIgnoreCase("v1.0")) {
+                if (versionNode == null || !versionNode.getTextContent().equalsIgnoreCase("v1.0")) {
                     throw new Exception("Unknown TTML file version");
                 }
             } else {
@@ -203,7 +203,8 @@ public class TimedTextMarkupLanguageParser {
             buildFilmList();
             ret = true;
         } catch (Exception ex) {
-            Log.errorLog(912036478, ex, "File: " + ttmlFilePath);
+            //Log.errorLog(912036478, ex, new String[]{ex.getLocalizedMessage(), "File: " + ttmlFilePath});
+            Log.errorLog(912036478, new String[]{ex.getLocalizedMessage(), "File: " + ttmlFilePath});
             ret = false;
         }
         return ret;
@@ -272,7 +273,8 @@ public class TimedTextMarkupLanguageParser {
             buildFilmListFlash();
             ret = true;
         } catch (Exception ex) {
-            Log.errorLog(912036478, ex, "File: " + ttmlFilePath);
+            //Log.errorLog(46231470, ex, "File: " + ttmlFilePath);
+            Log.errorLog(46231470, new String[]{ex.getLocalizedMessage(), "File: " + ttmlFilePath});
             ret = false;
         }
         return ret;
