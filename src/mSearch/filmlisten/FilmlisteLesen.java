@@ -72,7 +72,7 @@ public class FilmlisteLesen {
         workMode = mode;
     }
 
-    private InputStream getInputStreamForLocation(String source) throws IOException,URISyntaxException {
+    private InputStream getInputStreamForLocation(String source) throws IOException, URISyntaxException {
         InputStream in;
         long size = 0;
         final URI uri;
@@ -184,8 +184,7 @@ public class FilmlisteLesen {
                             //This value is unused...
                             //datenFilm.arr[DatenFilm.FILM_NEU_NR] = value;
                             datenFilm.setNew(Boolean.parseBoolean(value));
-                        }
-                        else {
+                        } else {
                             datenFilm.arr[DatenFilm.JSON_NAMES[i]] = jp.nextTextValue();
                         }
 
@@ -217,7 +216,7 @@ public class FilmlisteLesen {
             }
             jp.close();
         } catch (FileNotFoundException ex) {
-            Log.errorLog(894512369, ex, "FilmListe: " + source);
+            Log.errorLog(894512369, "FilmListe existiert nicht: " + source);
             listeFilme.clear();
         } catch (Exception ex) {
             Log.errorLog(945123641, ex, "FilmListe: " + source);
