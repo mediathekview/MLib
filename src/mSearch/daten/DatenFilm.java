@@ -85,7 +85,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     public static final String[] COLUMN_NAMES = {"Nr", "Sender", "Thema", "Titel",
         "", "", "Datum", "Zeit", "Dauer", "Größe [MB]", "HD", "UT",
-        "Beschreibung", "Geo", "Url", "Website", "Aboname",
+        "Beschreibung", "Geo", "Url", "Website", "Abo",
         "Url Untertitel", "Url RTMP", "Url Auth", "Url Klein", "Url RTMP Klein", "Url HD", "Url RTMP HD", "Url History", "neu",
         "DatumL", "Ref"};
 
