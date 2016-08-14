@@ -21,18 +21,18 @@
  */
 package mSearch.filmeSuchen.sender;
 
-import mSearch.Config;
-import mSearch.tool.MSStringBuilder;
-import mSearch.tool.DbgMsg;
-import mSearch.Const;
-import mSearch.tool.Log;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
+import mSearch.tool.DbgMsg;
+import mSearch.tool.Log;
+import mSearch.tool.MSStringBuilder;
 
 public class MediathekWdr extends MediathekReader implements Runnable {
 
@@ -64,6 +64,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
         listeMaus.clear();
         meldungStart();
         addToList__();
+
         addTage();
         if (Config.loadLongMax()) {
             maus();
@@ -231,7 +232,7 @@ public class MediathekWdr extends MediathekReader implements Runnable {
                 String url;
                 while (!Config.getStop() && (url = getListeTage()) != null) {
                     meldungProgress(url);
-                    sendungsSeitenSuchen2(url);
+                    sendungsSeitenSuchen2(url, SENDERNAME);
                 }
 
             } catch (Exception ex) {
@@ -248,17 +249,18 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             if (Config.loadLongMax()) {
                 // sonst wars das
                 sendungsSeite1 = getUrl.getUri_Utf(SENDERNAME, strUrl, sendungsSeite1, "");
-                sendungsSeite1.extractList("<ul class=\"pageCounterNavi\">", "</ul>", "<a href=\"/mediathek/video/sendungen/", "\"", "http://www1.wdr.de/mediathek/video/sendungen/", liste_1);
+                sendungsSeite1.extractList("<ul class=\"pageCounterNavi\">", "</ul>", "<a href=\"/mediathek/video/sendungen/", "\"",
+                        "http://www1.wdr.de/mediathek/video/sendungen/", liste_1);
             }
             for (String u : liste_1) {
                 if (Config.getStop()) {
                     break;
                 }
-                sendungsSeitenSuchen2(u);
+                sendungsSeitenSuchen2(u, "");
             }
         }
 
-        private void sendungsSeitenSuchen2(String strUrl) {
+        private void sendungsSeitenSuchen2(String strUrl, String th) {
             final String MUSTER_URL = "<div class=\"teaser hideTeasertext\">";
             int pos;
             String url;
@@ -278,10 +280,14 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             }
             meldung(strUrl);
 
-            thema = sendungsSeite2.extract("<title>", "<");
-            thema = thema.replace("- Sendung - Video - Mediathek - WDR", "").trim();
-            if (thema.startsWith("Unser Sendungsarchiv")) {
-                thema = "";
+            if (!th.isEmpty()) {
+                thema = th;
+            } else {
+                thema = sendungsSeite2.extract("<title>", "<");
+                thema = thema.replace("- Sendung - Video - Mediathek - WDR", "").trim();
+                if (thema.startsWith("Unser Sendungsarchiv")) {
+                    thema = "";
+                }
             }
 
             //Lokalzeit, ..
@@ -474,7 +480,13 @@ public class MediathekWdr extends MediathekReader implements Runnable {
             }
 
             if (!urlNorm.isEmpty()) {
-
+                if (thema.endsWith(SENDERNAME)) {
+                    // dann nur wenn die URL noch nicht enthalten
+                    DatenFilm f = mSearchFilmeSuchen.listeFilmeNeu.getFilmByUrl(urlNorm);
+                    if (f != null) {
+                        return;
+                    }
+                }
                 DatenFilm film = new DatenFilm(SENDERNAME, thema, filmWebsite, titel, urlNorm, ""/*rtmpURL*/, datum, zeit,
                         dauer, beschreibung);
                 if (!subtitle.isEmpty()) {
