@@ -20,11 +20,11 @@
 package mSearch.filmeSuchen.sender;
 
 import java.util.ArrayList;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
@@ -86,9 +86,10 @@ public class MediathekDw extends MediathekReader implements Runnable {
                 }
                 if (Config.loadLongMax()) {
                     //http://www.dw.com/de/media-center/alle-inhalte/s-100814/filter/programs/3204/sort/date/results/16/
-                    url = "http://www.dw.com/de/media-center/alle-inhalte/s-100814/filter/programs/" + url + "/sort/date/results/100/";
+                    //http://www.dw.com/de/media-center/alle-inhalte/s-100814?filter=&programs=17274211&sort=date&results=36
+                    url = "http://www.dw.com/de/media-center/alle-inhalte/s-100814?filter=&programs=" + url + "&sort=date&results=100";
                 } else {
-                    url = "http://www.dw.com/de/media-center/alle-inhalte/s-100814/filter/programs/" + url + "/sort/date/results/16/";
+                    url = "http://www.dw.com/de/media-center/alle-inhalte/s-100814?filter=&programs=" + url + "&sort=date&results=20";
                 }
                 if ((pos1 = seite.indexOf(">", pos1)) != -1) {
                     pos1 += 1;
@@ -159,12 +160,11 @@ public class MediathekDw extends MediathekReader implements Runnable {
                     urlLow = u;
                     urlLow = ADDURL + urlLow;
                 }
-                if (url.isEmpty() && u.endsWith("sor.flv")) {
+                if (url.isEmpty() && u.endsWith("sor.mp4")) {
                     url = u;
-                    url = url.replace("_sor.flv", "_sor.mp4");
                     url = ADDURL + url;
                 }
-                if (urlHd.isEmpty() && u.endsWith(".mp4")) {
+                if (urlHd.isEmpty() && u.endsWith("avc.mp4")) {
                     urlHd = u;
                     urlHd = ADDURL + urlHd;
                 }
