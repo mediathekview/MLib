@@ -56,7 +56,7 @@ public class SysMsg {
             System.out.println(z + " " + texte[0]);
             notify(LOG_SYSTEM, texte[0]);
         } else {
-            String zeile = "---------------------------------------";
+            String zeile = "----------------------------------------                    ";
             String txt;
             System.out.println(z + zeile);
             notify(LOG_SYSTEM, zeile);

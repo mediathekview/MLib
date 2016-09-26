@@ -27,7 +27,10 @@ import java.util.stream.Collectors;
 import mSearch.Config;
 import mSearch.Const;
 import mSearch.filmeSuchen.sender.*;
-import mSearch.tool.*;
+import mSearch.tool.Duration;
+import mSearch.tool.FileSize;
+import mSearch.tool.Functions;
+import mSearch.tool.Log;
 
 public class ListeFilme extends ArrayList<DatenFilm> {
 
@@ -190,7 +193,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         int size = listeEinsortieren.size();
 
         HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
-        //Iterator<DatenFilm> it;
 
         // ==============================================
         // nach "Thema-Titel" suchen
@@ -198,13 +200,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         listeEinsortieren.removeIf((f) -> hash.contains(f.getIndexAddOld()));
         hash.clear();
 
-//        it = listeEinsortieren.iterator();
-//        while (it.hasNext()) {
-//            if (hash.contains(it.next().getIndexAddOld())) {
-//                it.remove();
-//            }
-//        }
-//        hash.clear();
         Log.sysLog("===== Liste einsortieren Hash =====");
         Log.sysLog("Liste einsortieren, Anzahl: " + size);
         Log.sysLog("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
@@ -218,14 +213,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         listeEinsortieren.removeIf((f) -> hash.contains(DatenFilm.getUrl(f)));
         hash.clear();
 
-//        it = listeEinsortieren.iterator();
-//        while (it.hasNext()) {
-//            DatenFilm f = it.next();
-//            if (hash.contains(DatenFilm.getUrl(f))) {
-//                it.remove();
-//            }
-//        }
-//        hash.clear();
         Log.sysLog("===== Liste einsortieren URL =====");
         Log.sysLog("Liste einsortieren, Anzahl: " + size);
         Log.sysLog("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
