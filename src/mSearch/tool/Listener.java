@@ -44,6 +44,7 @@ public class Listener implements EventListener {
     public static final int EREIGNIS_MEDIATHEKGUI_PROGRAMM_AKTUELL = 18;
     public static final int EREIGNIS_MEDIATHEKGUI_UPDATE_VERFUEGBAR = 19;
     public static final int EREIGNIS_PANEL_FILTER_ANZEIGEN = 20;
+    public static final int EREIGNIS_PANEL_DOWNLOAD_FILTER_ANZEIGEN = 20;
     public static final int EREIGNIS_FILM_BESCHREIBUNG_ANZEIGEN = 21;
     public static final int EREIGNIS_DOWNLOAD_BESCHREIBUNG_ANZEIGEN = 22;
 
@@ -68,7 +69,7 @@ public class Listener implements EventListener {
     public static final int EREIGNIS_TOOLBAR_VIS = 44;
     public static final int EREIGNIS_TOOLBAR_BUTTON_KLEIN = 45;
     public static final int EREIGNIS_BANDWIDTH_MONITOR = 46;
-    
+
     public int[] mvEreignis = {-1};
     public String klasse = "";
     private static EventListenerList listeners = new EventListenerList();
