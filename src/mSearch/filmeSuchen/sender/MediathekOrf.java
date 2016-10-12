@@ -23,12 +23,12 @@ package mSearch.filmeSuchen.sender;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
 import static mSearch.filmeSuchen.sender.MediathekReader.listeSort;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -56,7 +56,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         if (Config.loadLongMax()) {
             bearbeiteAdresseSendung(seite);
         }
-        bearbeiteAdresseThemen(seite);
+////        bearbeiteAdresseThemen(seite);
         listeSort(listeThemen, 1);
         int maxTage = Config.loadLongMax() ? 9 : 2;
         for (int i = 0; i < maxTage; ++i) {
@@ -65,7 +65,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         }
         if (Config.getStop()) {
             meldungThreadUndFertig();
-        } else if (listeThemen.size() == 0) {
+        } else if (listeThemen.isEmpty()) {
             meldungThreadUndFertig();
         } else {
             meldungAddMax(listeThemen.size());
@@ -82,7 +82,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         // <a href="http://tvthek.orf.at/program/Kultur-heute/3078759/Kultur-Heute/7152535" class="item_inner clearfix">
         seite = getUrlIo.getUri(SENDERNAME, adresse, Const.KODIERUNG_UTF, 2, seite, "");
         ArrayList<String> al = new ArrayList<>();
-        seite.extractList("", "", "<a href=\"http://tvthek.orf.at/program/", "\"", "http://tvthek.orf.at/program/", al);
+        seite.extractList("", "", "<a href=\"http://tvthek.orf.at/profile/", "\"", "http://tvthek.orf.at/profile/", al);
         for (String s : al) {
             String[] add = new String[]{s, THEMA_TAG}; // werden extra behandelt
             if (!istInListe(listeThemen, add[0], 0)) {
@@ -117,15 +117,15 @@ public class MediathekOrf extends MediathekReader implements Runnable {
     }
 
     private void bearbeiteAdresseSendung(MSStringBuilder seite) {
-        final String URL = "http://tvthek.orf.at/programs/letter/";
-        seite = getUrlIo.getUri(SENDERNAME, "http://tvthek.orf.at/programs", Const.KODIERUNG_UTF, 3, seite, "");
+        final String URL = "http://tvthek.orf.at/profiles";
+        seite = getUrlIo.getUri(SENDERNAME, URL, Const.KODIERUNG_UTF, 3, seite, "");
         ArrayList<String> al = new ArrayList<>();
         String thema;
         try {
-            seite.extractList("", "", URL, "\"", "", al);
+            seite.extractList("", "", "<a href=\"/profiles/letter/", "\"", "http://tvthek.orf.at/profiles/letter/", al);
             for (String s : al) {
                 thema = THEMA_SENDUNGEN;
-                String[] add = new String[]{URL + s, thema};
+                String[] add = new String[]{s, thema};
                 if (!istInListe(listeThemen, add[0], 0)) {
                     listeThemen.add(add);
                 }
@@ -142,6 +142,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         private MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         private final ArrayList<String> alSendung = new ArrayList<>();
         private final ArrayList<String> alThemen = new ArrayList<>();
+        private final ArrayList<String> urlList = new ArrayList<>();
 
         @Override
         public synchronized void run() {
@@ -178,19 +179,25 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             seite1 = getUrlIo.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 2, seite1, "");
             alSendung.clear();
             String thema;
-            seite1.extractList("", "", URL, "\"", "", alSendung);
+            int start = "http://tvthek.orf.at/profile/".length();
+            seite1.extractList("", "", "<a href=\"http://tvthek.orf.at/profile/", "\"", "http://tvthek.orf.at/profile/", alSendung);
             for (String s : alSendung) {
-                if (Config.getStop()) {
-                    break;
-                }
-                thema = "";
-                if (s.contains("/")) {
-                    thema = s.substring(0, s.indexOf("/"));
+                try {
+                    if (Config.getStop()) {
+                        break;
+                    }
+                    if (s.startsWith("http://tvthek.orf.at/profile/Archiv/")) {
+                        break; // vorerst mal weglassen, sind zu viele
+                    }
+                    //http://tvthek.orf.at/profile/ABC-Baer/4611813/ABC-Baer/13812120
+                    thema = s.substring(start, s.indexOf("/", start));
                     if (thema.isEmpty()) {
                         thema = SENDERNAME;
                     }
+                    feedEinerSeiteSuchen(s, thema, !thema.equals(SENDERNAME) /*themaBehalten*/ , false /*nurUrlPruefen*/);
+                } catch (Exception ex) {
+                    Log.errorLog(702095478, ex);
                 }
-                feedEinerSeiteSuchen(URL + s, thema, false /*themaBehalten*/, false /*nurUrlPruefen*/);
             }
         }
 
@@ -239,7 +246,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             String titel;
             String subtitle;
             int tmpPos1, tmpPos2;
-            int posStart, posStopAlles, posStopEpisode, pos = 0;
+            int posStart = 0, posStopAlles = -1, posStopEpisode, pos = 0;
             meldung(strUrlFeed);
             titel = seite2.extract("<title>", "vom"); //<title>ABC Bär vom 17.11.2013 um 07.35 Uhr / ORF TVthek</title>
 
@@ -252,170 +259,134 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             if (zeit.length() == 5) {
                 zeit = zeit.replace(".", ":") + ":00";
             }
-
-            if ((posStart = seite2.indexOf("\"is_one_segment_episode\":false")) == -1) {
-                if ((posStart = seite2.indexOf("\"is_one_segment_episode\":true")) == -1) {
-                    Log.errorLog(989532147, "keine Url: " + strUrlFeed);
-                    return;
-                }
+            if (!themaBehalten) {
+                thema = titel;
             }
-            if ((posStopAlles = seite2.indexOf("</script>", posStart)) != -1) {
-                // =====================================================
-                // mehrer Episoden
-                if (!themaBehalten) {
-                    thema = titel;
-                }
-                final String MUSTER_SUCHEN = "\"clickcounter_corrected\":\"";
-                while ((pos = seite2.indexOf(MUSTER_SUCHEN, pos)) != -1) {
-                    posStopEpisode = seite2.indexOf("\"is_episode_one_segment_episode\":false", pos);
-                    if (posStopEpisode == -1) {
-                        posStopEpisode = seite2.indexOf("\"is_episode_one_segment_episode\":true", pos);
+            boolean onlyOne = false;
+            posStart = seite2.indexOf("<!-- start playlist -->");
+            posStopAlles = seite2.indexOf("<!-- ende: playlist -->", posStart);
+            if (posStart < 0 || posStopAlles < 0) {
+                posStart = seite2.indexOf("<!-- start: player -->");
+                posStopAlles = seite2.indexOf("<div class=\"service_footer\">", posStart);
+                onlyOne = true;
+            }
+
+            final String MUSTER_SUCHEN = "<li class=\"base_list_item segment_";
+            if (!onlyOne && (pos = seite2.indexOf(MUSTER_SUCHEN, pos)) == -1) {
+                System.out.println("Mist");
+            }
+            while (onlyOne || (pos = seite2.indexOf(MUSTER_SUCHEN, pos)) != -1) {
+                if (onlyOne) {
+                    posStopEpisode = posStopAlles;
+                    onlyOne = false;
+                    titel = seite2.extract("<h3 class=\"video_headline\">", "<", pos, posStopEpisode);
+                    if (!titel.equals(StringEscapeUtils.unescapeJava(titel))) {
+                        titel = StringEscapeUtils.unescapeJava(titel).trim();
                     }
+                } else {
+                    posStopEpisode = seite2.indexOf("</footer>", pos);
                     if (posStopEpisode == -1 || posStopEpisode > posStopAlles) {
                         break;
                     }
                     if (pos > posStopAlles) {
                         break;
                     }
-                    pos += MUSTER_SUCHEN.length();
-                    tmp = seite2.extract("\"duration\":\"", "\"", pos, posStopEpisode);
-                    try {
-                        duration = Long.parseLong(tmp) / 1000; // time in milliseconds
-                    } catch (Exception ex) {
-                    }
-                    titel = seite2.extract("\"header\":\"", "\",\"", pos, posStopEpisode);//"header":"Lehrerdienstrecht beschlossen"
+                    titel = seite2.extract("<h4 class=\"base_list_item_headline\">", "<", pos, posStopEpisode);
                     if (!titel.equals(StringEscapeUtils.unescapeJava(titel))) {
                         titel = StringEscapeUtils.unescapeJava(titel).trim();
                     }
+                }
+                pos += MUSTER_SUCHEN.length();
 
-                    subtitle = seite2.extract("\"srt_file_url\":\"", "\"", pos, posStopEpisode);
+                tmp = seite2.extract("&quot;duration&quot;:", ",", pos, posStopEpisode);
+                try {
+                    duration = Long.parseLong(tmp) / 1000; // time in milliseconds
+                } catch (Exception ex) {
+                }
 
-                    description = seite2.extract("\"description\":\"", "\",\"", pos, posStopEpisode);
+                subtitle = seite2.extract("{&quot;src&quot;:&quot;", "&quot", pos, posStopEpisode);
+                if (!subtitle.isEmpty()) {
+                    // "srt_file_url":"http:\/\/tvthek.orf.at\/dynamic\/get_asset.php?a=orf_episodes%2Fsrt_file%2F9346995.srt"
+                    subtitle = subtitle.replace("\\/", "/");
+                    subtitle = subtitle.replace("%2F", "/");
+                }
 
-                    if (!description.equals(StringEscapeUtils.unescapeJava(description))) {
-                        description = StringEscapeUtils.unescapeJava(description).trim();
+                description = seite2.extract("<div class=\"details\">", "</div>", pos, posStopEpisode).trim();
+                if (description.isEmpty()) {
+                    description = seite2.extract("<div class=\"details_description\">", "</div>", pos, posStopEpisode).trim();
+                }
+                if (description.isEmpty()) {
+                    description = seite2.extract("&quot;description&quot;:&quot;", "&quot", pos, posStopEpisode).trim();
+                }
+                if (!description.equals(StringEscapeUtils.unescapeJava(description))) {
+                    description = StringEscapeUtils.unescapeJava(description).trim();
+                }
+                if (description.isEmpty()) {
+                    Log.errorLog(989532147, "keine Beschreibung: " + strUrlFeed);
+                }
+                url = "";
+                urlHD = "";
+                urlKlein = "";
+                final String MUSTER_URL = "{&quot;quality&quot;:&quot;Q6A&quot;,&quot;quality_string&quot;:&quot;hoch&quot;,&quot;src&quot;:&quot;http";
+                final String MUSTER_URL_HD = "quality&quot;:&quot;Q8C&quot;,&quot;quality_string&quot;:&quot;sehr hoch (HD)&quot;,&quot;src&quot;:&quot;http";
+                final String MUSTER_URL_KLEIN = "quality&quot;:&quot;Q4A&quot;,&quot;quality_string&quot;:&quot;mittel&quot;,&quot;src&quot;:&quot;http";
+
+                // =======================================================
+                // url
+                urlList.clear();
+                seite2.extractList(pos, posStopEpisode, MUSTER_URL, "", "&quot;", "http", urlList);
+                for (String u : urlList) {
+                    if (u.endsWith(".mp4")) {
+                        url = u.replace("\\/", "/");
+                        break;
                     }
-                    url = "";
-                    urlHD = "";
-                    urlKlein = "";
-                    // =======================================================
-                    // url
-                    tmpPos1 = pos;
-                    final String MUSTER_URL = "quality\":\"Q6A\",\"quality_string\":\"hoch\",\"src\":\"http";
-                    while ((tmpPos1 = seite2.indexOf(MUSTER_URL, tmpPos1)) != -1) {
-                        tmpPos1 += MUSTER_URL.length();
-                        if (tmpPos1 > posStopEpisode) {
-                            break;
-                        }
-                        if ((tmpPos2 = seite2.indexOf("\"", tmpPos1)) != -1) {
-                            url = seite2.substring(tmpPos1, tmpPos2);
-                            if (url.endsWith(".mp4")) {
-                                break;
-                            }
-                        }
+                }
+                // =======================================================
+                // urlHD
+                urlList.clear();
+                seite2.extractList(pos, posStopEpisode, MUSTER_URL_HD, "", "&quot;", "http", urlList);
+                for (String u : urlList) {
+                    if (u.endsWith(".mp4")) {
+                        urlHD = u.replace("\\/", "/");
+                        break;
                     }
-                    if (!url.isEmpty()) {
-                        url = url.replace("\\/", "/");
-                        url = "http" + url;
-                    } else {
-                        url = seite2.extract("quality\":\"Q6A\",\"quality_string\":\"hoch\",\"src\":\"rtmp", "\"", posStopEpisode);
-                        url = url.replace("\\/", "/");
-                        if (!url.isEmpty()) {
-                            url = "rtmp" + url;
-                            int mpos = url.indexOf("mp4:");
-                            if (mpos != -1) {
-                                urlRtmp = "-r " + url + " -y " + url.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
-                            }
-                        }
+                }
+                // =======================================================
+                // urlKlein
+                urlList.clear();
+                seite2.extractList(pos, posStopEpisode, MUSTER_URL_KLEIN, "", "&quot;", "http", urlList);
+                for (String u : urlList) {
+                    if (u.endsWith(".mp4")) {
+                        urlKlein = u.replace("\\/", "/");
+                        break;
                     }
-                    // =======================================================
-                    // urlHD
-                    tmpPos1 = pos;
-                    final String MUSTER_URL_HD = "quality\":\"Q8C\",\"quality_string\":\"sehr hoch (HD)\",\"src\":\"http";
-                    while ((tmpPos1 = seite2.indexOf(MUSTER_URL_HD, tmpPos1)) != -1) {
-                        tmpPos1 += MUSTER_URL_HD.length();
-                        if (tmpPos1 > posStopEpisode) {
-                            break;
-                        }
-                        if ((tmpPos2 = seite2.indexOf("\"", tmpPos1)) != -1) {
-                            urlHD = seite2.substring(tmpPos1, tmpPos2);
-                            if (urlHD.endsWith(".mp4")) {
-                                break;
-                            }
-                        }
+                }
+
+                if (!url.isEmpty()) {
+                    if (thema.isEmpty()) {
+                        thema = SENDERNAME;
+                    }
+                    if (titel.isEmpty()) {
+                        titel = SENDERNAME;
+                    }
+                    DatenFilm film = new DatenFilm(SENDERNAME, thema, strUrlFeed, titel, url, urlRtmp, datum, zeit, duration, description);
+                    if (!urlKlein.isEmpty()) {
+                        film.addUrlKlein(urlKlein, urlRtmpKlein);
                     }
                     if (!urlHD.isEmpty()) {
-                        urlHD = urlHD.replace("\\/", "/");
-                        urlHD = "http" + urlHD;
+                        film.addUrlHd(urlHD, "");
                     }
-                    // =======================================================
-                    // urlKlein
-                    tmpPos1 = pos;
-                    final String MUSTER_URL_KLEIN = "quality\":\"Q4A\",\"quality_string\":\"mittel\",\"src\":\"http";
-                    while ((tmpPos1 = seite2.indexOf(MUSTER_URL_KLEIN, tmpPos1)) != -1) {
-                        tmpPos1 += MUSTER_URL_KLEIN.length();
-                        if (tmpPos1 > posStopEpisode) {
-                            break;
-                        }
-                        if ((tmpPos2 = seite2.indexOf("\"", tmpPos1)) != -1) {
-                            urlKlein = seite2.substring(tmpPos1, tmpPos2);
-                            if (urlKlein.endsWith(".mp4")) {
-                                break;
-                            }
-                        }
+                    if (!subtitle.isEmpty()) {
+                        film.addUrlSubtitle(subtitle);
                     }
-                    if (!urlKlein.isEmpty()) {
-                        urlKlein = urlKlein.replace("\\/", "/");
-                        urlKlein = "http" + urlKlein;
-                    } else {
-                        urlKlein = seite2.extract("quality\":\"Q4A\",\"quality_string\":\"mittel\",\"src\":\"rtmp", "\"", pos, posStopEpisode);
-                        urlKlein = urlKlein.replace("\\/", "/");
-                        if (!urlKlein.isEmpty()) {
-                            urlKlein = "rtmp" + urlKlein;
-                            int mpos = urlKlein.indexOf("mp4:");
-                            if (mpos != -1) {
-                                urlRtmpKlein = "-r " + urlKlein + " -y " + urlKlein.substring(mpos) + " --flashVer WIN11,4,402,265 --swfUrl http://tvthek.orf.at/flash/player/TVThekPlayer_9_ver18_1.swf";
-                            }
-                        }
-                    }
-                    if (!url.isEmpty()) {
-                        if (thema.isEmpty()) {
-                            thema = SENDERNAME;
-                        }
-                        if (titel.isEmpty()) {
-                            titel = SENDERNAME;
-                        }
-                        DatenFilm film = new DatenFilm(SENDERNAME, thema, strUrlFeed, titel, url, urlRtmp, datum, zeit, duration, description);
-                        if (!urlKlein.isEmpty()) {
-                            film.addUrlKlein(urlKlein, urlRtmpKlein);
-                        }
-                        if (!urlHD.isEmpty()) {
-                            film.addUrlHd(urlHD, "");
-                        }
-                        if (!subtitle.isEmpty()) {
-                            // "srt_file_url":"http:\/\/tvthek.orf.at\/dynamic\/get_asset.php?a=orf_episodes%2Fsrt_file%2F9346995.srt"
-                            subtitle = subtitle.replace("\\/", "/");
-                            subtitle = subtitle.replace("%2F", "/");
-                            film.addUrlSubtitle(subtitle);
-                        }
-                        addFilm(film, nurUrlPruefen);
-                    } else {
-                        Log.errorLog(989532147, "keine Url: " + strUrlFeed);
-                    }
+                    addFilm(film, nurUrlPruefen);
+                } else {
+                    Log.errorLog(989532147, "keine Url: " + strUrlFeed);
                 }
             }
         }
     }
 
-//    void addFilm(DatenFilm film, boolean nurUrlPruefen) {
-//        // http://apasfpd.apa.at/cms-worldwide/online/30e56502951a39b3dcc07cbd42b93dd8/1386353983/2013-12-06_1830_tl_02_heute-konkret_-3--Beschwerden__7210188__o__0000942829__s7210191___en_ORF2HiRes_18322601P_18362214P_Q6A.mp4
-//        // http://apasfpd.apa.at/cms-worldwide/online/3b0619925919951eede27b73836e05f7/1386353969/2013-12-06_1830_tl_02_heute-konkret_-3--Beschwerden__7210188__o__0000942829__s7210191___en_ORF2HiRes_18322601P_18362214P_Q6A.mp4
-//        // die 2 Nummer nach "/online/" werden nicht verglichen
-//        if (mSearchFilmeSuchen.listeFilmeNeu.filmExists_Orf(film)) {
-//            return;
-//        }
-//        super.addFilm(film, nurUrlPruefen);
-//    }
     public static String getGestern(int tage) {
         try {
             //SimpleDateFormat sdfOut = new SimpleDateFormat("EEEE", Locale.US);

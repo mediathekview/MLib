@@ -177,4 +177,50 @@ public class MSStringBuilder {
         }
     }
 
+    public void extractList(int ab, int bis, String musterStart1, String musterStart2, String musterEnde, String addUrl, ArrayList<String> result) {
+        int pos1, pos2, stopPos, count = 0;
+        String str;
+        pos1 = ab;
+        stopPos = bis;
+        if (pos1 == -1) {
+            return;
+        }
+
+        while ((pos1 = cont.indexOf(musterStart1, pos1)) != -1) {
+            ++count;
+            if (count > 10_000) {
+                DbgMsg.print("Achtung");
+                break;
+            }
+            pos1 += musterStart1.length();
+
+            if (!musterStart2.isEmpty()) {
+                if ((pos2 = cont.indexOf(musterStart2, pos1)) == -1) {
+                    continue;
+                }
+                pos1 = pos2 + musterStart2.length();
+            }
+
+            if ((pos2 = cont.indexOf(musterEnde, pos1)) == -1) {
+                continue;
+            }
+            if (stopPos > 0 && pos2 > stopPos) {
+                continue;
+            }
+
+            if ((str = cont.substring(pos1, pos2)).isEmpty()) {
+                continue;
+            }
+
+            str = addUrl + str;
+            if (!result.contains(str)) {
+                result.add(str);
+                if (result.size() > 1000) {
+                    DbgMsg.print("Achtung");
+                }
+            }
+
+        }
+    }
+
 }
