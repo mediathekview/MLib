@@ -56,7 +56,6 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         if (Config.loadLongMax()) {
             bearbeiteAdresseSendung(seite);
         }
-////        bearbeiteAdresseThemen(seite);
         listeSort(listeThemen, 1);
         int maxTage = Config.loadLongMax() ? 9 : 2;
         for (int i = 0; i < maxTage; ++i) {
@@ -91,41 +90,14 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         }
     }
 
-    private void bearbeiteAdresseThemen(MSStringBuilder seite) {
-        final String URL = "http://tvthek.orf.at/programs/genre/";
-        seite = getUrlIo.getUri(SENDERNAME, "http://tvthek.orf.at/programs", Const.KODIERUNG_UTF, 3, seite, "");
-        ArrayList<String> al = new ArrayList<>();
-        String thema;
-        try {
-            seite.extractList("", "", URL, "#", "", al);
-            for (String s : al) {
-                thema = "";
-                if (s.contains("/")) {
-                    thema = s.substring(0, s.indexOf("/"));
-                    if (thema.isEmpty()) {
-                        thema = SENDERNAME;
-                    }
-                }
-                String[] add = new String[]{URL + s, thema};
-                if (!istInListe(listeThemen, add[0], 0)) {
-                    listeThemen.add(add);
-                }
-            }
-        } catch (Exception ex) {
-            Log.errorLog(826341789, ex);
-        }
-    }
-
     private void bearbeiteAdresseSendung(MSStringBuilder seite) {
         final String URL = "http://tvthek.orf.at/profiles";
         seite = getUrlIo.getUri(SENDERNAME, URL, Const.KODIERUNG_UTF, 3, seite, "");
         ArrayList<String> al = new ArrayList<>();
-        String thema;
         try {
             seite.extractList("", "", "<a href=\"/profiles/letter/", "\"", "http://tvthek.orf.at/profiles/letter/", al);
             for (String s : al) {
-                thema = THEMA_SENDUNGEN;
-                String[] add = new String[]{s, thema};
+                String[] add = new String[]{s, THEMA_SENDUNGEN};
                 if (!istInListe(listeThemen, add[0], 0)) {
                     listeThemen.add(add);
                 }
@@ -160,9 +132,9 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                             case THEMA_SENDUNGEN:
                                 sendungen(link[0]);
                                 break;
-                            default:
-                                themen(link[0] /* url */);
-                                break;
+//                            default:
+//                                themen(link[0] /* url */);
+//                                break;
                         }
                     } catch (Exception ex) {
                         Log.errorLog(795633581, ex);
@@ -175,7 +147,6 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         }
 
         private void sendungen(String url) {
-            final String URL = "http://tvthek.orf.at/program/";
             seite1 = getUrlIo.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 2, seite1, "");
             alSendung.clear();
             String thema;
@@ -201,38 +172,38 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             }
         }
 
-        private void themen(String url) {
-            final String URL = "http://tvthek.orf.at/program/";
-            seite1 = getUrlIo.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 2, seite1, "");
-            alSendung.clear();
-            String thema, themaAlt = "";
-            int count = 0, max = 3;
-            seite1.extractList("", "", URL, "\"", "", alSendung);
-            for (String s : alSendung) {
-                if (Config.getStop()) {
-                    break;
-                }
-                if (!Config.loadLongMax()) {
-                    if (count > max) {
-                        continue;
-                    }
-                }
-                thema = "";
-                if (s.contains("/")) {
-                    thema = s.substring(0, s.indexOf("/"));
-                    if (thema.equals(themaAlt)) {
-                        ++count;
-                    } else {
-                        themaAlt = thema;
-                        count = 0;
-                    }
-                    if (thema.isEmpty()) {
-                        thema = SENDERNAME;
-                    }
-                }
-                feedEinerSeiteSuchen(URL + s, thema, false /*themaBehalten*/, false /*nurUrlPruefen*/);
-            }
-        }
+//        private void themen(String url) {
+//            final String URL = "http://tvthek.orf.at/program/";
+//            seite1 = getUrlIo.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 2, seite1, "");
+//            alSendung.clear();
+//            String thema, themaAlt = "";
+//            int count = 0, max = 3;
+//            seite1.extractList("", "", URL, "\"", "", alSendung);
+//            for (String s : alSendung) {
+//                if (Config.getStop()) {
+//                    break;
+//                }
+//                if (!Config.loadLongMax()) {
+//                    if (count > max) {
+//                        continue;
+//                    }
+//                }
+//                thema = "";
+//                if (s.contains("/")) {
+//                    thema = s.substring(0, s.indexOf("/"));
+//                    if (thema.equals(themaAlt)) {
+//                        ++count;
+//                    } else {
+//                        themaAlt = thema;
+//                        count = 0;
+//                    }
+//                    if (thema.isEmpty()) {
+//                        thema = SENDERNAME;
+//                    }
+//                }
+//                feedEinerSeiteSuchen(URL + s, thema, false /*themaBehalten*/, false /*nurUrlPruefen*/);
+//            }
+//        }
 
         private void feedEinerSeiteSuchen(String strUrlFeed, String thema, boolean themaBehalten, boolean nurUrlPruefen) {
             //<title> ORF TVthek: a.viso - 28.11.2010 09:05 Uhr</title>
@@ -245,7 +216,6 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             String urlRtmpKlein = "", urlRtmp = "", url = "", urlKlein = "", urlHD = "";
             String titel;
             String subtitle;
-            int tmpPos1, tmpPos2;
             int posStart = 0, posStopAlles = -1, posStopEpisode, pos = 0;
             meldung(strUrlFeed);
             titel = seite2.extract("<title>", "vom"); //<title>ABC Bär vom 17.11.2013 um 07.35 Uhr / ORF TVthek</title>
@@ -272,9 +242,6 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             }
 
             final String MUSTER_SUCHEN = "<li class=\"base_list_item segment_";
-            if (!onlyOne && (pos = seite2.indexOf(MUSTER_SUCHEN, pos)) == -1) {
-                System.out.println("Mist");
-            }
             while (onlyOne || (pos = seite2.indexOf(MUSTER_SUCHEN, pos)) != -1) {
                 if (onlyOne) {
                     posStopEpisode = posStopAlles;
