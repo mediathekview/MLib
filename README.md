@@ -2,6 +2,8 @@
 # MSearch
 Lib für das Programm **MediathekView**
 
+Diese Bibliothek wird mit [Gradle](https://gradle.org/) kompilliert.
+
 # Sourceforge
 
 - [Website](http://zdfmediathk.sourceforge.net)
