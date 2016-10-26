@@ -1,7 +1,9 @@
 apply plugin: 'java'
+apply plugin: 'application'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+mainClassName = 'mSearch.Main'
 
 sourceSets {
     main {
@@ -23,4 +25,12 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-core:2.7.0'
     compile 'com.jidesoft:jide-oss:3.6.16'
     compile 'org.tukaani:xz:1.5'
+}
+
+distributions {
+    main {
+        contents {
+            from ('res')
+        }
+    }
 }
