@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/mediathekview/MSearch.svg?branch=master)](https://travis-ci.org/mediathekview/MSearch)
 # MSearch
 Lib für das Programm **MediathekView**
 
