@@ -27,6 +27,10 @@ dependencies {
     compile 'org.tukaani:xz:1.5'
 }
 
+compileJava << {
+    './pre_make.sh'.execute()
+}
+
 distributions {
     main {
         contents {
