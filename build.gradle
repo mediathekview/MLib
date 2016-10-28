@@ -5,6 +5,7 @@ apply plugin: 'application'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 mainClassName = 'mSearch.Main'
+version = '0.0.1-SNAPSHOT'
 
 sourceSets {
     main {
@@ -37,7 +38,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'org.apache.commons:commons-lang3:3.5'
     compile 'com.fasterxml.jackson.core:jackson-core:2.7.0'
     compile 'com.jidesoft:jide-oss:3.6.16'
     compile 'org.tukaani:xz:1.5'
