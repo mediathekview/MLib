@@ -33,6 +33,9 @@ public class Config {
     public static String importUrl_1__anhaengen = "";
     public static String importUrl_2__anhaengen = "";
     public static String importOld = ""; // alte Liste importieren
+
+    public static String importAkt = ""; // akteuelle Liste eines anderen Crawler importieren
+    
     public static String importLive = ""; // live-streams
 
     public static final int LOAD_SHORT = 0;

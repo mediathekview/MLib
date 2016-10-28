@@ -56,12 +56,14 @@ public class MSearch implements Runnable {
                 serverLaufen = false;
             }
         });
-        // laden was es schon gibt
+        // alte Filmliste laden
         new FilmlisteLesen().readFilmListe(Config.getPathFilmlist_json_akt(false /*aktDate*/), listeFilme, 0 /*all days*/);
         // das eigentliche Suchen der Filme bei den Sendern starten
         if (Config.nurSenderLaden == null) {
+            // alle Sender laden
             msFilmeSuchen.filmeBeimSenderLaden(listeFilme);
         } else {
+            // dann soll nur ein Sender geladen werden
             msFilmeSuchen.updateSender(Config.nurSenderLaden, listeFilme);
         }
         try {
@@ -158,6 +160,15 @@ public class MSearch implements Runnable {
             Log.sysLog("============================================================================");
             Log.sysLog("Filmliste Import 2");
             importUrl(tmpListe, Config.importUrl_2__anhaengen);
+            Log.sysLog("");
+        }
+        if (!Config.importAkt.isEmpty()) {
+            // wenn eine ImportUrl angegeben, dann die Filme die noch nicht drin sind anfügen
+            // noch prüfen ob Filmliste von heute!
+            Log.sysLog("");
+            Log.sysLog("============================================================================");
+            Log.sysLog("Filmliste Import akt");
+            importUrl(tmpListe, Config.importAkt);
             Log.sysLog("");
         }
         if (!Config.importOld.isEmpty() && Config.loadLongMax()) {

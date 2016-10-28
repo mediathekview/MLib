@@ -22,6 +22,12 @@ package mSearch.filmeSuchen;
 import java.util.Date;
 import mSearch.tool.Log;
 
+/**
+ * für jeden MediathekReader der "Sucht" gibts einen,
+ * es werden Infos über das Suchen gesammelt:
+ * Anzahl abgesuchter Websiten, Dauer, Traffic, ..
+ *
+ */
 public class RunSender {
 
     public String sender = "";

@@ -25,30 +25,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import javax.swing.event.EventListenerList;
-import mSearch.daten.ListeFilme;
-import mSearch.filmeSuchen.sender.Mediathek3Sat;
-import mSearch.filmeSuchen.sender.MediathekArd;
-import mSearch.filmeSuchen.sender.MediathekArte_de;
-import mSearch.filmeSuchen.sender.MediathekArte_fr;
-import mSearch.filmeSuchen.sender.MediathekBr;
-import mSearch.filmeSuchen.sender.MediathekDw;
-import mSearch.filmeSuchen.sender.MediathekHr;
-import mSearch.filmeSuchen.sender.MediathekKika;
-import mSearch.filmeSuchen.sender.MediathekMdr;
-import mSearch.filmeSuchen.sender.MediathekNdr;
-import mSearch.filmeSuchen.sender.MediathekOrf;
-import mSearch.filmeSuchen.sender.MediathekPhoenix;
-import mSearch.filmeSuchen.sender.MediathekRbb;
-import mSearch.filmeSuchen.sender.MediathekReader;
-import mSearch.filmeSuchen.sender.MediathekSr;
-import mSearch.filmeSuchen.sender.MediathekSrf;
-import mSearch.filmeSuchen.sender.MediathekSrfPod;
-import mSearch.filmeSuchen.sender.MediathekSwr;
-import mSearch.filmeSuchen.sender.MediathekWdr;
-import mSearch.filmeSuchen.sender.MediathekZdf;
-import mSearch.filmeSuchen.sender.MediathekZdfTivi;
-import mSearch.tool.GermanStringSorter;
 import mSearch.Config;
+import mSearch.daten.ListeFilme;
+import mSearch.filmeSuchen.sender.*;
+import mSearch.tool.GermanStringSorter;
 import mSearch.tool.Log;
 
 /**
@@ -65,16 +45,17 @@ public class FilmeSuchen {
     public ListeFilme listeFilmeNeu; // neu angelegte Liste und da kommen die neu gesuchten Filme rein
     public ListeFilme listeFilmeAlt; // ist die "alte" Liste, wird beim Aufruf übergeben und enthält am Ende das Ergebnis
     // private
-    private final LinkedList<MediathekReader> mediathekListe = new LinkedList<>();
+    private final LinkedList<MediathekReader> mediathekListe = new LinkedList<>(); // ist die Liste mit allen MediathekReadern (also allen Sender)
     private final EventListenerList listeners = new EventListenerList();
-    public static final ListeRunSender listeSenderLaufen = new ListeRunSender();
+    public static final ListeRunSender listeSenderLaufen = new ListeRunSender(); // Liste mit Infos über jeden laufeneden MedathekReader
     private Date startZeit = new Date();
     private Date stopZeit = new Date();
-    private final static String TRENNER = " | ";
     private boolean allStarted = false;
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     public FilmeSuchen() {
+        // für jeden Sender einen MediathekReader anlegen, mit der Prio ob
+        // sofort gestartet oder erst später
         //Reader laden Spaltenweises Laden
         mediathekListe.add(new MediathekArd(this, 0));
         mediathekListe.add(new MediathekZdf(this, 0));
@@ -143,6 +124,7 @@ public class FilmeSuchen {
         // die mReader nach Prio starten
         mrStarten(0);
         if (!Config.getStop()) {
+            // waren und wenn Suchlauf noch nicht abgebrochen weiter mit dem Rest
             mrWarten();
             mrStarten(1);
             allStarted = true;
@@ -285,6 +267,7 @@ public class FilmeSuchen {
     }
 
     private synchronized void mrStarten(int prio) {
+        // die MediathekReader mit "prio" starten
         mediathekListe.stream().filter(mr -> mr.getStartPrio() == prio).forEach(mr -> new Thread(mr).start());
     }
 
@@ -321,6 +304,7 @@ public class FilmeSuchen {
     }
 
     private void initStart(ListeFilme listeFilme) {
+        // das Absuchen der Sender vorbereiten
         listeSenderLaufen.clear();
         allStarted = false;
         listeFilmeAlt = listeFilme;
