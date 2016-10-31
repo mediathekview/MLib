@@ -32,6 +32,7 @@ public class Log {
 
     private final static String FEHLER = "Fehler(" + Const.PROGRAMMNAME + "): ";
     public final static String LILNE = "################################################################################";
+
     // private
     private static class Error {
 
@@ -131,6 +132,7 @@ public class Log {
         sysLog("ImportURL 1:  " + Config.importUrl_1__anhaengen);
         sysLog("ImportURL 2:  " + Config.importUrl_2__anhaengen);
         sysLog("ImportOLD:  " + Config.importOld);
+        sysLog("ImportAkt:  " + Config.importAkt);
         if (Config.nurSenderLaden != null) {
             sysLog("Nur Sender laden:  " + StringUtils.join(Config.nurSenderLaden, ','));
         }

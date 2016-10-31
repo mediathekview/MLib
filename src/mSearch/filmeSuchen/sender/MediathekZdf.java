@@ -19,22 +19,22 @@
  */
 package mSearch.filmeSuchen.sender;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekZdf extends MediathekReader implements Runnable {
 
     public final static String SENDERNAME = "ZDF";
-    private MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
-    private final static int ANZAHL_ZDF_ALLE = 500;
-    private final static int ANZAHL_ZDF_MITTEL = 50;
-    private final static int ANZAHL_ZDF_UPDATE = 20;
-    private final static int ANZAHL_ZDF_KURZ = 10;
+    private final MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
     public MediathekZdf(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME, 4 /* threads */, 250 /* urlWarten */, startPrio);
@@ -44,52 +44,14 @@ public class MediathekZdf extends MediathekReader implements Runnable {
     public void addToList() {
         listeThemen.clear();
         meldungStart();
-        // Liste von http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz0 bis sat8 holen
-        String addr = "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-a-bis-z/saz";
-        for (int i = 0; i <= 8; ++i) {
-            addToList_addr(addr + i, Config.loadLongMax() ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE);
-        }
-        // Spartenkanäle einfügen
-        addToList_addr("http://www.zdf.de/ZDFmediathek/senderstartseite/sst1/1209122", Config.loadLongMax() ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE); // zdf-neo
-        addToList_addr("http://www.zdf.de/ZDFmediathek/senderstartseite/sst1/1209120", Config.loadLongMax() ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE); // zdf-info
-        addToList_addr("http://www.zdf.de/ZDFmediathek/senderstartseite/sst1/1317640", Config.loadLongMax() ? ANZAHL_ZDF_ALLE : ANZAHL_ZDF_UPDATE); // zdf-kultur
-        //Rubriken einfügen
-        if (Config.loadLongMax()) {
-            // da sollte eigentlich nichts Neues sein
-            addToList_Rubrik("http://www.zdf.de/ZDFmediathek/hauptnavigation/rubriken");
-        }
-        // letzte Woche einfügen
-        addThemenliste("http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day0", "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day0", "");
-        addThemenliste("http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day1", "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day1", "");
-        addThemenliste("http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day2", "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day2", "");
-        addThemenliste("http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day3", "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day3", "");
-        addThemenliste("http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day4", "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day4", "");
-        addThemenliste("http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day5", "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day5", "");
-        addThemenliste("http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day6", "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day6", "");
-        addThemenliste("http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day7", "http://www.zdf.de/ZDFmediathek/hauptnavigation/sendung-verpasst/day7", "");
-        // Spartenkanäle Übersicht
-        if (Config.loadLongMax()) {
-            addThemenliste("http://www.zdf.de/ZDFmediathek/senderstartseite/1209114", "http://www.zdf.de/ZDFmediathek/senderstartseite/1209114", ""); // ZDF
-            addThemenliste("http://www.zdf.de/ZDFmediathek/senderstartseite/sst0/1209122?teaserListIndex=" + ANZAHL_ZDF_MITTEL,
-                    "http://www.zdf.de/ZDFmediathek/senderstartseite/sst0/1209122?teaserListIndex=" + ANZAHL_ZDF_MITTEL, ""); // ZDF Neo
-            addThemenliste("http://www.zdf.de/ZDFmediathek/senderstartseite/sst0/1317640?teaserListIndex=" + ANZAHL_ZDF_MITTEL,
-                    "http://www.zdf.de/ZDFmediathek/senderstartseite/sst0/1317640?teaserListIndex=" + ANZAHL_ZDF_MITTEL, ""); // ZDF.kultur
-            addThemenliste("http://www.zdf.de/ZDFmediathek/senderstartseite/sst0/1209120?teaserListIndex=" + ANZAHL_ZDF_MITTEL,
-                    "http://www.zdf.de/ZDFmediathek/senderstartseite/sst0/1209120?teaserListIndex=" + ANZAHL_ZDF_MITTEL, ""); // ZDFinfo
-        } else {
-            addThemenliste("http://www.zdf.de/ZDFmediathek/senderstartseite/1209114", "http://www.zdf.de/ZDFmediathek/senderstartseite/1209114", ""); // ZDF
-            addThemenliste("http://www.zdf.de/ZDFmediathek/senderstartseite/1209122", "http://www.zdf.de/ZDFmediathek/senderstartseite/1209122", ""); // ZDF Neo
-            addThemenliste("http://www.zdf.de/ZDFmediathek/senderstartseite/1317640", "http://www.zdf.de/ZDFmediathek/senderstartseite/1317640", ""); // ZDF.kultur
-            addThemenliste("http://www.zdf.de/ZDFmediathek/senderstartseite/1209120", "http://www.zdf.de/ZDFmediathek/senderstartseite/1209120", ""); // ZDFinfo
-        }
+        addDay();
         if (Config.getStop()) {
             meldungThreadUndFertig();
-        } else if (listeThemen.size() == 0) {
+        } else if (listeThemen.isEmpty()) {
             meldungThreadUndFertig();
         } else {
             meldungAddMax(listeThemen.size());
             //alles auswerten
-            
             for (int t = 0; t < maxThreadLaufen; ++t) {
                 //new Thread(new ThemaLaden()).start();
                 Thread th = new Thread(new ThemaLaden());
@@ -99,95 +61,35 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         }
     }
 
-    private void addToList_Rubrik(String addr) {
-        final String MUSTER_URL = "<p><b><a href=\"/ZDFmediathek/kanaluebersicht/aktuellste/";
-        //GetUrl(int ttimeout, long wwartenBasis) {
+    private void addDay() {
+        //https://www.zdf.de/sendung-verpasst?airtimeDate=2016-10-26
+        final String MUSTER_URL = "data-plusbar-url=\"";
         GetUrl getUrl = new GetUrl(wartenSeiteLaden);
-        MSStringBuilder seiteR = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
-        seiteR = getUrl.getUri(SENDERNAME, addr, Const.KODIERUNG_UTF, 6 /* versuche */, seiteR, "" /* Meldung */);
-        if (seiteR.length() == 0) {
-            Log.errorLog(774200364, "Leere Seite für URL: " + addr);
-        }
-        int pos = 0;
-        int pos1;
-        int pos2;
-        int pos3;
-        String url = "";
-        while ((pos = seiteR.indexOf(MUSTER_URL, pos)) != -1) {
-            pos += MUSTER_URL.length();
-            pos1 = pos;
-            pos2 = seiteR.indexOf("?", pos);
-            pos3 = seiteR.indexOf("\"", pos);
-            if (pos1 != -1 && pos2 != -1 && pos3 != -1 && pos2 < pos3) {
-                //pos2 > pos3 dann hat der Link kein ?
-                url = seiteR.substring(pos1, pos2);
-            }
-            if (url.equals("")) {
-                Log.errorLog(754126900, "keine URL: " + addr);
-            } else {
-                url = "http://www.zdf.de/ZDFmediathek/kanaluebersicht/aktuellste/" + url + "?bc=rub";
-                addToList_addr(url, ANZAHL_ZDF_UPDATE); // immer nur eine "kurz"
-            }
-        }
-    }
+        ArrayList<String> urls = new ArrayList<>();
 
-    private void addToList_addr(String addr, int anz) {
-        final String MUSTER_URL = "<p><b><a href=\"/ZDFmediathek/kanaluebersicht/aktuellste/";
-        //GetUrl(int ttimeout, long wwartenBasis) {
-        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
-        seite = getUrl.getUri(SENDERNAME, addr, Const.KODIERUNG_UTF, 6 /* versuche */, seite, "" /* Meldung */);
-        if (seite.length() == 0) {
-            Log.errorLog(596004563, "Leere Seite für URL: " + addr);
+        String date;
+        for (int i = 0; i < (Config.loadLongMax() ? 100 : 25); ++i) {
+            date = new SimpleDateFormat("yyyy-MM-dd").format(new Date().getTime() - i * (1000 * 60 * 60 * 24));
+            String url = "https://www.zdf.de/sendung-verpasst?airtimeDate=" + date;
+            MSStringBuilder seiteR = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+            seiteR = getUrl.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 6 /* versuche */, seiteR, "" /* Meldung */);
+            if (seiteR.length() == 0) {
+                Log.errorLog(942031254, "Leere Seite für URL: " + url);
+                continue;
+            }
+            seiteR.extractList(MUSTER_URL, "\"", urls);
         }
-        int pos = 0;
-        int pos1;
-        int pos2;
-        int pos3;
-        String url = "";
-        String urlThema;
-        String thema = "";
-        while ((pos = seite.indexOf(MUSTER_URL, pos)) != -1) {
-            pos += MUSTER_URL.length();
-            pos1 = pos;
-            pos2 = seite.indexOf("?", pos);
-            pos3 = seite.indexOf("\"", pos);
-            if (pos1 != -1 && pos2 != -1 && pos3 != -1 && pos2 < pos3) {
-                //pos2 > pos3 dann hat der Link kein ?
-                url = seite.substring(pos1, pos2);
-            } else {
-                pos2 = seite.indexOf("\"", pos);
-                pos3 = seite.indexOf("<", pos);
-                if (pos1 != -1 && pos2 != -1 && pos3 != -1 && pos2 < pos3) {
-                    //pos2 > pos3 dann hat der Link kein ? zB bei "Rubiken"
-                    url = seite.substring(pos1, pos2);
-                }
-            }
-            pos1 = seite.indexOf("\">", pos);
-            pos2 = seite.indexOf("<", pos);
-            if (pos1 != -1 && pos2 != -1) {
-                thema = seite.substring(pos1 + 2, pos2);
-            }
-            if (url.equals("")) {
-                Log.errorLog(946325890, "keine URL: " + addr);
-            } else {
-                url = "http://www.zdf.de/ZDFmediathek/kanaluebersicht/aktuellste/" + url;
-                urlThema = url;
-                url += "?teaserListIndex=" + anz;
-                addThemenliste(url, urlThema, thema);
-            }
-        }
-    }
-
-    private synchronized void addThemenliste(String url, String urlThema, String thema) {
-        String[] add = new String[]{url, urlThema, thema};
-        listeThemen.addUrl(add);
+        urls.stream().forEach((s) -> {
+            listeThemen.add(new String[]{s, "", ""});
+        });
     }
 
     private class ThemaLaden implements Runnable {
 
-        GetUrl getUrl = new GetUrl(wartenSeiteLaden);
+        private final GetUrl getUrl = new GetUrl(wartenSeiteLaden);
         private MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
-        private final MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
+        private final ArrayList<String> urlList = new ArrayList<>();
 
         @Override
         public void run() {
@@ -196,7 +98,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 meldungAddThread();
                 while (!Config.getStop() && (link = getListeThemen()) != null) {
                     seite1.setLength(0);
-                    addFilme(link[0]/* url */, link[1]/* urlThema */, link[2]/* Thema */);
+                    addFilmePage(link[0]/* url */);
                     meldungProgress(link[0]);
                 }
             } catch (Exception ex) {
@@ -205,76 +107,150 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             meldungThreadUndFertig();
         }
 
-        private void addFilme(String url, String urlThema, String thema) {
-            final String MUSTER_URL_1 = "<p><b><a href=\"/ZDFmediathek/beitrag/video/";
-            String titel = "";
-            String urlFilm;
-            boolean ok;
-            int pos = 0;
-            int pos1;
-            int pos2;
-            int pos3;
-            int anz = 0;
+        private void addFilmePage(String url) {
             try {
-                seite1 = getUrl.getUri_Utf(SENDERNAME, url, seite1, "Thema: " + thema);
-                while (!Config.getStop() && (pos = seite1.indexOf(MUSTER_URL_1, pos)) != -1) {
-                    ok = false;
-                    ++anz;
-                    if (!Config.loadLongMax()) {
-                        if (anz > ANZAHL_ZDF_KURZ) {
-                            // dann reichts
-                            break;
-                        }
-                    }
-                    pos += MUSTER_URL_1.length();
-                    pos1 = pos;
-                    pos2 = seite1.indexOf("?", pos);
-                    pos3 = seite1.indexOf("\"", pos);
-                    if (pos1 != -1 && pos2 != -1 && pos3 != -1 && pos2 < pos3) {
-                        //pos2 > pos3 dann hat der Link kein ?
-                        urlFilm = seite1.substring(pos1, pos2);
-                    } else {
-                        urlFilm = seite1.substring(pos1, pos3);
-                    }
-                    pos1 = seite1.indexOf("\">", pos);
-                    pos2 = seite1.indexOf("<", pos);
-                    if (pos1 != -1 && pos2 != -1) {
-                        titel = seite1.substring(pos1 + 2, pos2);
-                    }
-                    if (urlFilm.isEmpty()) {
-                        Log.errorLog(643269690, "keine URL: " + url);
-                    } else {
-                        // über die ID versuchen
-                        urlFilm = "http://www.zdf.de/ZDFmediathek/beitrag/video/" + urlFilm;
-                        String urlId = "";
-                        if ((pos1 = urlFilm.indexOf("/ZDFmediathek/beitrag/video/")) != -1) {
-                            pos1 += "/ZDFmediathek/beitrag/video/".length();
-                            if ((pos2 = urlFilm.indexOf("/", pos1)) != -1) {
-                                urlId = urlFilm.substring(pos1, pos2);
-                                // System.out.println(id);
-                            }
-                        }
-                        if (!urlId.isEmpty()) {
-                            urlId = "http://www.zdf.de/ZDFmediathek/xmlservice/web/beitragsDetails?ak=web&id=" + urlId;
-                            meldung(urlId);
-                            DatenFilm film = filmHolenId(getUrl, seite2, SENDERNAME, thema, titel, urlFilm, urlId);
-                            if (film != null) {
-                                // dann wars gut
-                                // jetzt noch manuell die Auflösung hochsetzen
-                                urlTauschen(film, url, mSearchFilmeSuchen);
-                                addFilm(film);
-                                ok = true;
-                            }
-                        }
-                        if (!ok) {
-                            // dann mit der herkömmlichen Methode versuchen
-                            Log.errorLog(398012379, "auf die alte Art: " + urlFilm);
-                        }
-                    }
+                seite1 = getUrl.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 1 /* versuche */, seite1, "" /* Meldung */);
+                if (seite1.length() == 0) {
+                    Log.errorLog(945120365, "Leere Seite für URL: " + url);
+                    return;
                 }
+                String apiToken = seite1.extract("\"config\": \"", "\"");
+                String filmUrl = seite1.extract("\"content\": \"", "\"");
+                if (apiToken.isEmpty() || filmUrl.isEmpty()) {
+                    Log.errorLog(461203789, "leeres token: " + url);
+                }
+                //apiToken = getToken("https://www.zdf.de" + apiToken);
+                apiToken = "d2726b6c8c655e42b68b0db26131b15b22bd1a32";
+
+                String thema = seite1.extract("<span class=\"teaser-cat\">", "<").trim();
+                String titel = seite1.extract("<title>", "<"); //<title>Kielings wilde Welt (1/3) - ZDFmediathek</title>
+                titel = titel.replace("- ZDFmediathek", "").trim();
+                if (thema.isEmpty()) {
+                    thema = titel;
+                }
+                if (thema.contains("|")) {
+                    thema = thema.substring(thema.indexOf("|") + 1).trim();
+                    //thema = thema.substring(0, thema.indexOf("|")).trim();
+                } else {
+                    titel = thema;
+                }
+                String dauer = seite1.extract("<dd class=\"video-duration defdesc m-border\">", "<");
+                dauer = dauer.replace("min", "").trim();
+                long duration = 0;
+                try {
+                    if (!dauer.equals("")) {
+                        duration = Long.parseLong(dauer) * 60;
+                    }
+                } catch (NumberFormatException ex) {
+                    Log.errorLog(462310178, ex, url);
+                }
+
+                //<time datetime="2016-10-29T16:15:00.000+02:00">29.10.2016</time>
+                String date = seite1.extract("<time datetime=\"", "\"");
+                String time = convertTime(date);
+                date = convertDate(date);
+
+                String description = seite1.extract("<p class=\"item-description\" >", "<").trim();
+                addFilmeJson(filmUrl, url, apiToken, thema, titel, duration, date, time, description);
             } catch (Exception ex) {
-                Log.errorLog(796325800, ex, url);
+                Log.errorLog(642130547, ex, url);
             }
+        }
+
+//        private String getToken(String url) {
+//            String apiToken = "";
+//            seite = getUrl.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 1 /* versuche */, seite, "" /* Meldung */);
+//            if (seite.length() == 0) {
+//                Log.errorLog(461230147, "kein token für URL: " + url);
+//                return "";
+//            }
+//            apiToken = seite.extract("\"apiToken\": \"", "\"");
+//            if (apiToken.isEmpty()) {
+//                Log.errorLog(915263625, "leeres token: " + url);
+//            }
+//            return apiToken;
+//        }
+        private void addFilmeJson(String url, String urlSendung, String token, String thema, String titel,
+                long duration, String date, String time, String description) {
+            seite2 = getUrl.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 1 /* versuche */, seite2, "" /* Meldung */, token);
+            if (seite2.length() == 0) {
+                Log.errorLog(945120365, "Leere Seite für URL: " + url);
+                return;
+            }
+
+            String s1 = seite2.extract(",\"uurl\":\"", "\"");
+            if (s1.isEmpty()) {
+                Log.errorLog(915263698, "Leere Seite für URL: " + url);
+                return;
+            }
+
+            s1 = "https://api.zdf.de//tmd/2/portal/vod/ptmd/mediathek/" + s1;
+            seite2 = getUrl.getUri(SENDERNAME, s1, Const.KODIERUNG_UTF, 1 /* versuche */, seite2, "" /* Meldung */, token);
+            if (seite2.length() == 0) {
+                Log.errorLog(721548963, "Leere Seite für URL: " + url);
+                return;
+            }
+            // jetzt werden die Film-Urls gesucht
+            urlList.clear();
+            seite2.extractList("\"uri\" : \"", "\"", urlList);
+            String urlNormal = "";
+            String urlHd = "";
+            String urlSlow = "";
+            for (String s : urlList) {
+                // "uri" : "https://rodlzdf-a.akamaihd.net/none/zdf/16/10/161030_grossevoelker2_araber_v2_tex/2/161030_grossevoelker2_araber_v2_tex_1496k_p13v13.mp4" -> 852x
+                // "uri" : "https://nrodlzdf-a.akamaihd.net/none/zdf/16/10/161030_grossevoelker2_araber_v2_tex/2/161030_grossevoelker2_araber_v2_tex_229k_p7v13.mp4" -> 320x
+                // "uri" : "https://nrodlzdf-a.akamaihd.net/none/zdf/16/10/161030_grossevoelker2_araber_v2_tex/2/161030_grossevoelker2_araber_v2_tex_476k_p9v13.mp4" -> 480x
+                if (s.endsWith("1496k_p13v13.mp4")) {
+                    urlNormal = s;
+                }
+                if (s.endsWith("476k_p9v13.mp4")) {
+                    urlSlow = s;
+                }
+                if (s.endsWith("229k_p7v13.mp4") && urlSlow.isEmpty()) {
+                    urlSlow = s;
+                }
+            }
+            if (urlNormal.isEmpty()) {
+                urlNormal = urlSlow;
+            }
+            if (!urlNormal.isEmpty()) {
+                DatenFilm film = new DatenFilm(SENDERNAME, thema, urlSendung /*urlThema*/, titel, urlNormal, "" /*urlRtmp*/,
+                        date, time, duration, description);
+                addFilm(film);
+                if (!urlHd.isEmpty()) {
+                    film.addUrlHd(urlHd, "");
+                }
+                if (!urlSlow.isEmpty()) {
+                    film.addUrlKlein(urlSlow, "");
+                }
+            }
+
+////Außerdem wäre HD-Qualität gut:
+////z.B. _1496k_p13v13.mp4 --> _3328k_p36v13.mp4            
+        }
+
+        private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");//2016-10-29T16:15:00.000+02:00
+        private final SimpleDateFormat sdfOutTime = new SimpleDateFormat("HH:mm:ss");
+        private final SimpleDateFormat sdfOutDay = new SimpleDateFormat("dd.MM.yyyy");
+
+        private String convertDate(String datum) {
+            try {
+                Date filmDate = sdf.parse(datum);
+                datum = sdfOutDay.format(filmDate);
+            } catch (ParseException ex) {
+                Log.errorLog(731025789, ex, "Datum: " + datum);
+            }
+            return datum;
+        }
+
+        private String convertTime(String zeit) {
+            try {
+                Date filmDate = sdf.parse(zeit);
+                zeit = sdfOutTime.format(filmDate);
+            } catch (ParseException ex) {
+                Log.errorLog(915423687, ex, "Time: " + zeit);
+            }
+            return zeit;
         }
 
         private synchronized String[] getListeThemen() {
@@ -471,232 +447,4 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         return ret;
     }
 
-////    public static DatenFilm filmHolenId(MSGetUrl getUrl, MSStringBuilder strBuffer, String sender, String thema, String titel, String filmWebsite, String urlId) {
-////        //<teaserimage alt="Harald Lesch im Studio von Abenteuer Forschung" key="298x168">http://www.zdf.de/ZDFmediathek/contentblob/1909108/timg298x168blob/8081564</teaserimage>
-////        //<detail>Möchten Sie wissen, was Sie in der nächsten Sendung von Abenteuer Forschung erwartet? Harald Lesch informiert Sie.</detail>
-////        //<length>00:00:34.000</length>
-////        //<airtime>02.07.2013 23:00</airtime>
-////        final String BESCHREIBUNG = "<detail>";
-////        final String LAENGE_SEC = "<lengthSec>";
-////        final String LAENGE = "<length>";
-////        final String DATUM = "<airtime>";
-////        final String THEMA = "<originChannelTitle>";
-////        int pos1, pos2;
-////        long laengeL;
-////
-////        String beschreibung, subtitle, laenge, datum;
-////        String zeit = "", url = "", urlKlein = "", urlHd = "", urlF4m = "";
-////
-////        strBuffer = getUrl.getUri_Utf(sender, urlId, strBuffer, "URL-Filmwebsite: " + filmWebsite);
-////        if (strBuffer.length() == 0) {
-////            MSLog.fehlerMeldung(398745601, "url: " + urlId);
-////            return null;
-////        }
-////
-////        subtitle = strBuffer.extract("<caption>", "<url>http://", "<");
-////        beschreibung = strBuffer.extract(BESCHREIBUNG, "<");
-////        if (beschreibung.isEmpty()) {
-////            beschreibung = strBuffer.extract(BESCHREIBUNG, "</");
-////            beschreibung = beschreibung.replace("<![CDATA[", "");
-////            beschreibung = beschreibung.replace("]]>", "");
-////            if (beschreibung.isEmpty()) {
-////                MSLog.fehlerMeldung(945123074, "url: " + urlId);
-////            }
-////        }
-////        if (thema.isEmpty()) {
-////            thema = strBuffer.extract(THEMA, "<");
-////        }
-////
-////        laenge = strBuffer.extract(LAENGE_SEC, "<");
-////        if (!laenge.isEmpty()) {
-////            laengeL = extractDurationSec(laenge);
-////        } else {
-////            laenge = strBuffer.extract(LAENGE, "<");
-////            if (laenge.contains(".")) {
-////                laenge = laenge.substring(0, laenge.indexOf("."));
-////            }
-////            laengeL = extractDuration(laenge);
-////        }
-////
-////        datum = strBuffer.extract(DATUM, "<");
-////        if (datum.contains(" ")) {
-////            zeit = datum.substring(datum.lastIndexOf(" ")).trim() + ":00";
-////            datum = datum.substring(0, datum.lastIndexOf(" ")).trim();
-////        }
-////
-////        //============================================================================
-////        // und jetzt die FilmURLs
-////        // erst mal URL in besserer Auflösung
-////        // <formitaet basetype="h264_aac_f4f_http_f4m_http" isDownload="false">
-////        // <quality>high</quality>
-////        // <url>http://fstreaming.zdf.de/3sat/300/13/07/130714_zkm_bonus_rundgang_museumscheck.f4m</url>
-////        // wenns das gibt --> bessere Auflösung
-////        final String QUALITAET = "<quality>high</quality>";
-////        final String URL_F4M_ANFANG = "<formitaet basetype=\"h264_aac_f4f_http_f4m_http\"";
-////        final String URL_F4M_ENDE = "</formitaet>";
-////        final String URL_F4M = "<url>";
-////        final String URL_ANFANG = "<formitaet basetype=\"h264_aac_mp4_http_na_na\"";
-////        final String URL_ANFANG_HD = "<formitaet basetype=\"wmv3_wma9_asf_mms_asx_http\"";
-////        final String URL_ENDE = "</formitaet>";
-////        final String URL = "<url>";
-////        int posAnfang, posEnde;
-////
-////        posAnfang = 0;
-////        while (true) {
-////            if ((posAnfang = strBuffer.indexOf(URL_F4M_ANFANG, posAnfang)) == -1) {
-////                break;
-////            }
-////            posAnfang += URL_F4M_ANFANG.length();
-////            if ((posEnde = strBuffer.indexOf(URL_F4M_ENDE, posAnfang)) == -1) {
-////                break;
-////            }
-////            if ((pos1 = strBuffer.indexOf(QUALITAET, posAnfang)) != -1) {
-////                if (pos1 < posEnde) {
-////                    if ((pos1 = strBuffer.indexOf(URL_F4M, posAnfang)) != -1) {
-////                        pos1 += URL_F4M.length();
-////                        if ((pos2 = strBuffer.indexOf("<", pos1)) != -1) {
-////                            if (pos2 < posEnde) {
-////                                urlF4m = strBuffer.substring(pos1, pos2);
-////                                break;
-////                            }
-////                        }
-////                    }
-////                }
-////            }
-////        }
-////
-////        posAnfang = 0;
-////        while (true) {
-////            if ((posAnfang = strBuffer.indexOf(URL_ANFANG, posAnfang)) == -1) {
-////                break;
-////            }
-////            posAnfang += URL_ANFANG.length();
-////            if ((posEnde = strBuffer.indexOf(URL_ENDE, posAnfang)) == -1) {
-////                break;
-////            }
-////            if ((pos1 = strBuffer.indexOf(QUALITAET, posAnfang)) != -1) {
-////                if (pos1 < posEnde) {
-////                    if (!urlKlein.isEmpty() && !urlKlein.contains("metafilegenerator")) {
-////                        continue;
-////                    }
-////                    urlKlein = strBuffer.extract(URL, "<", posAnfang, posEnde);
-////                }
-////            }
-////            if ((pos1 = strBuffer.indexOf("<quality>veryhigh</quality>", posAnfang)) != -1) {
-////                if (pos1 < posEnde) {
-////                    if (!url.isEmpty() && !url.contains("metafilegenerator") && !url.contains("podfiles")) {
-////                        continue;
-////                    }
-////                    url = strBuffer.extract(URL, "<", posAnfang, posEnde);
-////                }
-////            }
-////        }
-////
-////        // und jetzt nochmal für HD
-////        posAnfang = 0;
-////        while (true) {
-////            if ((posAnfang = strBuffer.indexOf(URL_ANFANG_HD, posAnfang)) == -1) {
-////                break;
-////            }
-////            posAnfang += URL_ANFANG_HD.length();
-////            if ((posEnde = strBuffer.indexOf(URL_ENDE, posAnfang)) == -1) {
-////                break;
-////            }
-////            if ((pos1 = strBuffer.indexOf("<quality>hd</quality>", posAnfang)) != -1) {
-////                if (pos1 > posEnde) {
-////                    break;
-////                }
-////                urlHd = strBuffer.extract(URL, "<", posAnfang, posEnde);
-////            }
-////        }
-////        if (url.isEmpty() && !urlKlein.isEmpty()) {
-////            url = urlKlein;
-////            urlKlein = "";
-////        }
-////
-////        if (!urlF4m.isEmpty()) {
-////
-////            String u = f4mUrlHolen(getUrl, sender, strBuffer, urlF4m);
-////            if (!u.isEmpty()) {
-////                ++count_f4m;
-////                if (url.contains("/zdf/")) {
-////                    url = url.substring(0, url.indexOf("/zdf/")) + "/" + u;
-////                } else if (url.contains("/3sat/")) {
-////                    url = url.substring(0, url.indexOf("/3sat/")) + "/" + u;
-////                }
-////            }
-////        }
-////
-////        if (urlHd.endsWith("asx")) {
-////            ++count_asx;
-////
-////            if (!url.isEmpty() && url.endsWith("vh.mp4")) {
-////                urlHd = url.replace("vh.mp4", "hd.mp4");
-////                if (urlHd.startsWith("http://nrodl.zdf.de")) {
-////                    urlHd = urlHd.replaceFirst("http://nrodl.zdf.de", "http://rodl.zdf.de");
-////                }
-////            } else if (!url.isEmpty() && url.endsWith("1596k_p15v9.mp4")) {
-////                // Entferne das 1596k_p15v9.mp4 und ersetzte das Ende mit: 3056k_p15v9.mp4
-////                urlHd = url.replace("1596k_p15v9.mp4", "3056k_p15v9.mp4");
-////            } else if (!url.isEmpty() && url.endsWith("1596k_p13v9.mp4")) {
-////                // Entferne das 1596k_p15v9.mp4 und ersetzte das Ende mit: 3056k_p15v9.mp4
-////                urlHd = url.replace("1596k_p13v9.mp4", "3056k_p15v9.mp4");
-////            } else {
-////                MSLog.fehlerMeldung(915230647, "asx: " + filmWebsite);
-////            }
-////        }
-////        //===================================================
-////        if (url.isEmpty()) {
-////            MSLog.fehlerMeldung(397002891, "keine URL: " + filmWebsite);
-////            return null;
-////        } else {
-////            System.out.println("ASX: " + count_asx);
-////            System.out.println("f4m: " + count_f4m);
-////
-////            DatenFilm film = new DatenFilm(sender, thema, filmWebsite, titel, url, "" /*urlRtmp*/, datum, zeit,
-////                    laengeL, beschreibung);
-////            if (!subtitle.isEmpty()) {
-////                subtitle = "http://" + subtitle;
-////                film.addUrlSubtitle(subtitle);
-////            }
-////            film.addUrlKlein(urlKlein, "");
-////            film.addUrlHd(urlHd, "");
-////            return film;
-////        }
-////    }
-////    public static String f4mUrlHolen(MSGetUrl getUrl, String sender, MSStringBuilder strBuffer, String urlf4m) {
-////        //<manifest xmlns="http://ns.adobe.com/f4m/2.0">
-////        //    <baseURL>http://zdf_hdflash_none-f.akamaihd.net/z/</baseURL>
-////        //    <media href="mp4/none/3sat/13/07/130714_zkm_bonus_rundgang_museumscheck_736k_p11v11.mp4/manifest.f4m?hdcore" bitrate="680000"/>
-////        //    <media href="mp4/none/3sat/13/07/130714_zkm_bonus_rundgang_museumscheck_1056k_p12v11.mp4/manifest.f4m?hdcore" bitrate="1000000"/>
-////        //    <media href="mp4/none/3sat/13/07/130714_zkm_bonus_rundgang_museumscheck_2256k_p14v11.mp4/manifest.f4m?hdcore" bitrate="2200000"/>
-////        //</manifest>
-////        final String URL = "<media href=\"";
-////        String url;
-////        int pos1 = 0, pos2;
-////        strBuffer = getUrl.getUri_Utf(sender, urlf4m, strBuffer, "" /* Meldung */);
-////        if (strBuffer.length() == 0) {
-////            // MSLog.fehlerMeldung(610123987, MSLog.FEHLER_ART_MREADER, "MediathekZdf.f4mUrlHolen", "url: " + urlf4m);
-////            return "";
-////        }
-////        while (true) {
-////            if ((pos1 = strBuffer.indexOf(URL, pos1)) == -1) {
-////                break;
-////            } else {
-////                pos1 += URL.length();
-////                if ((pos2 = strBuffer.indexOf("?", pos1)) == -1) {
-////                    break;
-////                } else {
-////                    url = strBuffer.substring(pos1, pos2);
-////                    if (url.contains("2256k") && url.contains("mp4")) {
-////                        // das draus bauen:
-////                        // http://rodl.zdf.de/none/3sat/13/07/130714_zkm_bonus_rundgang_museumscheck_2256k_p14v11.mp4
-////                        url = url.substring(0, url.indexOf("mp4")) + "mp4";
-////                        return url;
-////                    }
-////                }
-////            }
-////        }
-////        return "";
-////    }
 }

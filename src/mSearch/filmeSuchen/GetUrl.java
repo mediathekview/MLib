@@ -34,6 +34,10 @@ import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
+/**
+ * ist die Klasse die die HTML-Seite tatsächllich lädt
+ *
+ */
 public class GetUrl {
 
     public static boolean showLoadTime = false;
@@ -62,6 +66,10 @@ public class GetUrl {
     }
 
     public synchronized MSStringBuilder getUri(String sender, String addr, String kodierung, int maxVersuche, MSStringBuilder seite, String meldung) {
+        return getUri(sender, addr, kodierung, maxVersuche, seite, meldung, "");
+    }
+
+    public synchronized MSStringBuilder getUri(String sender, String addr, String kodierung, int maxVersuche, MSStringBuilder seite, String meldung, String token) {
         final int PAUSE = 1000;
         int aktTimeout = timeout;
         int aktVer = 0;
@@ -75,7 +83,7 @@ public class GetUrl {
                     this.wait(PAUSE);
                 }
                 letzterVersuch = (aktVer >= maxVersuche);
-                seite = getUri(sender, addr, seite, kodierung, aktTimeout, meldung, maxVersuche, letzterVersuch);
+                seite = getUri(sender, addr, seite, kodierung, aktTimeout, meldung, maxVersuche, letzterVersuch, token);
                 if (seite.length() > 0) {
                     // und nix wie weiter 
                     if (Config.debug && aktVer > 1) {
@@ -108,7 +116,9 @@ public class GetUrl {
         return timeout;
     }
 
-    private synchronized MSStringBuilder getUri(String sender, String addr, MSStringBuilder seite, String kodierung, int timeout, String meldung, int versuch, boolean lVersuch) {
+    private synchronized MSStringBuilder getUri(String sender, String addr, MSStringBuilder seite,
+            String kodierung, int timeout, String meldung, int versuch, boolean lVersuch,
+            String token) {
         seite.setLength(0);
         HttpURLConnection conn = null;
         InputStream in = null;
@@ -135,6 +145,10 @@ public class GetUrl {
             conn = (HttpURLConnection) new URL(addr).openConnection();
             conn.setRequestProperty("User-Agent", Config.getUserAgent());
             conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
+
+            if (!token.isEmpty()) {
+                conn.setRequestProperty("Api-Auth", "Bearer " + token);
+            }
             if (timeout > 0) {
                 conn.setReadTimeout(timeout);
                 conn.setConnectTimeout(timeout);
@@ -143,29 +157,27 @@ public class GetUrl {
             encoding = conn.getContentEncoding();
             if ((retCode = conn.getResponseCode()) < 400) {
                 mvIn = new MVInputStream(conn);
-            } else {
-                if (retCode == 403 || retCode == 408) {
-                    if (!Config.proxyUrl.isEmpty() && Config.proxyPort > 0) {
-                        // nur dann verwenden, ein anderer Versuch und wenn möglich, einen Proxy einrichten
-                        SocketAddress saddr = new InetSocketAddress(Config.proxyUrl, Config.proxyPort);
-                        Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
-                        conn = (HttpURLConnection) new URL(addr).openConnection(proxy);
+            } else if (retCode == 403 || retCode == 408) {
+                if (!Config.proxyUrl.isEmpty() && Config.proxyPort > 0) {
+                    // nur dann verwenden, ein anderer Versuch und wenn möglich, einen Proxy einrichten
+                    SocketAddress saddr = new InetSocketAddress(Config.proxyUrl, Config.proxyPort);
+                    Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
+                    conn = (HttpURLConnection) new URL(addr).openConnection(proxy);
 
-                        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0");
-                        conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
+                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0");
+                    conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
 
-                        if (timeout > 0) {
-                            conn.setReadTimeout(timeout);
-                            conn.setConnectTimeout(timeout);
-                        }
-                        encoding = conn.getContentEncoding();
-                        mvIn = new MVInputStream(conn);
-                        FilmeSuchen.listeSenderLaufen.inc(sender, RunSender.Count.PROXY);
+                    if (timeout > 0) {
+                        conn.setReadTimeout(timeout);
+                        conn.setConnectTimeout(timeout);
                     }
-                } else {
-                    // dann wars das
-                    Log.errorLog(974532107, new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
+                    encoding = conn.getContentEncoding();
+                    mvIn = new MVInputStream(conn);
+                    FilmeSuchen.listeSenderLaufen.inc(sender, RunSender.Count.PROXY);
                 }
+            } else {
+                // dann wars das
+                Log.errorLog(974532107, new String[]{"HTTP-Fehlercode: " + retCode, "Sender: " + sender, "URL: " + addr,});
             }
             if (mvIn == null) {
                 return seite;

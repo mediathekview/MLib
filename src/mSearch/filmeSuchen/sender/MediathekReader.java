@@ -25,23 +25,23 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
+import mSearch.Config;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
 import mSearch.filmeSuchen.RunSender;
 import mSearch.tool.GermanStringSorter;
-import mSearch.Config;
 import mSearch.tool.Log;
 
 public class MediathekReader implements Runnable {
 
     public String sendername = ""; // ist der Name, den der Mediathekreader hat, der ist eindeutig
-    int maxThreadLaufen = 4;
-    int wartenSeiteLaden = 500; //ms, Basiswert zu dem dann der Faktor multipliziert wird
-    boolean updateOn = false;
-    int threads = 0;
-    int max = 0;
-    int progress = 0;
+    int maxThreadLaufen = 4; // Anzahl der Thread die parallel Suchen
+    int wartenSeiteLaden = 500; //ms, Basiswert zu dem dann der Faktor multipliziert wird, Wartezeit zwischen 2 Websiten beim Absuchen der Sender
+    boolean updateOn = false; //?? brauchts nicht mehr
+    int threads = 0; // aktuelle Anz. laufender Threads
+    int max = 0; // Anz. zu suchender Themen
+    int progress = 0; // Prograss eben
     int startPrio = 1; // es gibt die Werte: 0->startet sofort, 1->später und 2->zuletzt
     LinkedListUrl listeThemen = new LinkedListUrl();
     GetUrl getUrlIo;
@@ -61,6 +61,7 @@ public class MediathekReader implements Runnable {
     //===================================
     class LinkedListUrl extends LinkedList<String[]> {
 
+        // Hilfsklasse die das einfügen/entnehmen bei mehreren Threads unterstützt
         synchronized boolean addUrl(String[] e) {
             // e[0] ist immer die URL
             if (!istInListe(this, e[0], 0)) {
@@ -120,6 +121,7 @@ public class MediathekReader implements Runnable {
     }
 
     void addFilm(DatenFilm film, boolean urlPruefen) {
+        // es werden die gefundenen Filme in die Liste einsortiert
         if (urlPruefen) {
             if (mSearchFilmeSuchen.listeFilmeNeu.getFilmByUrl(film.arr[DatenFilm.FILM_URL]) == null) {
                 addFilm(film);
@@ -130,6 +132,7 @@ public class MediathekReader implements Runnable {
     }
 
     void addFilm(DatenFilm film) {
+        // es werden die gefundenen Filme in die Liste einsortiert
         if (film.arr[DatenFilm.FILM_GROESSE].isEmpty()) {
             film.arr[DatenFilm.FILM_GROESSE] = mSearchFilmeSuchen.listeFilmeAlt.getFileSizeUrl(film.arr[DatenFilm.FILM_URL], film.arr[DatenFilm.FILM_SENDER]);
         }
@@ -169,8 +172,8 @@ public class MediathekReader implements Runnable {
         return ret;
     }
 
-    // Meldungen
     synchronized void meldungStart() {
+        // meldet den Start eines Suchlaufs
         max = 0;
         progress = 0;
         Log.sysLog("===============================================================");
@@ -179,7 +182,6 @@ public class MediathekReader implements Runnable {
         Log.sysLog("   wartenSeiteLaden: " + wartenSeiteLaden);
         Log.sysLog("");
         RunSender runSender = mSearchFilmeSuchen.melden(sendername, max, progress, "" /* text */);
-//        MSRunSender runSender = listeSenderLaufen.getSender(sendername);
         runSender.maxThreads = maxThreadLaufen; //runSender ist erst jetzt angelegt
         runSender.waitOnLoad = wartenSeiteLaden;
     }
@@ -204,6 +206,8 @@ public class MediathekReader implements Runnable {
     }
 
     synchronized void meldungThreadUndFertig() {
+        // meldet das Ende eines!!! Threads
+        // der MediathekReader ist erst fertig wenn alle gestarteten Threads fertig sind!!
         --threads;
         if (threads <= 0) {
             //wird erst ausgeführt wenn alle Threads beendet sind
@@ -218,6 +222,7 @@ public class MediathekReader implements Runnable {
 
     public static boolean urlExists(String url) {
         // liefert liefert true, wenn es die URL gibt
+        // brauchts, um Filmurls zu prüfen
         int retCode;
         if (!url.toLowerCase().startsWith("http")) {
             return false;
