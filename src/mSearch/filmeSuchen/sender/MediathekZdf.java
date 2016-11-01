@@ -32,15 +32,15 @@ import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekZdf extends MediathekReader implements Runnable {
-    
+
     public final static String SENDERNAME = "ZDF";
     private final MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
     LinkedListUrl listeTage = new LinkedListUrl();
-    
+
     public MediathekZdf(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME, 5 /* threads */, 150 /* urlWarten */, startPrio);
     }
-    
+
     @Override
     public void addToList() {
         listeThemen.clear();
@@ -61,7 +61,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             }
         }
     }
-    
+
     private void addDay() {
         //https://www.zdf.de/sendung-verpasst?airtimeDate=2016-10-26
         String date;
@@ -71,15 +71,15 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             listeTage.addUrl(new String[]{url});
         }
     }
-    
+
     private class ThemaLaden implements Runnable {
-        
+
         private final GetUrl getUrl = new GetUrl(wartenSeiteLaden);
         private MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         MSStringBuilder seiteDay = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         private final ArrayList<String> urlList = new ArrayList<>();
-        
+
         @Override
         public void run() {
             try {
@@ -95,7 +95,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             }
             meldungThreadUndFertig();
         }
-        
+
         private void getUrlsDay(String url) {
             final String MUSTER_URL = "data-plusbar-url=\"";
             ArrayList<String> urls = new ArrayList<>();
@@ -113,7 +113,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 addFilmePage(u);
             }
         }
-        
+
         private void addFilmePage(String url) {
             try {
                 seite1 = getUrl.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 1 /* versuche */, seite1, "" /* Meldung */);
@@ -128,7 +128,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 }
                 //apiToken = getToken("https://www.zdf.de" + apiToken);
                 apiToken = "d2726b6c8c655e42b68b0db26131b15b22bd1a32";
-                
+
                 String thema = seite1.extract("<span class=\"teaser-cat\">", "<").trim();
                 String titel = seite1.extract("<title>", "<"); //<title>Kielings wilde Welt (1/3) - ZDFmediathek</title>
                 titel = titel.replace("- ZDFmediathek", "").trim();
@@ -156,7 +156,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 String date = seite1.extract("<time datetime=\"", "\"");
                 String time = convertTime(date);
                 date = convertDate(date);
-                
+
                 String description = seite1.extract("<p class=\"item-description\" >", "<").trim();
                 addFilmeJson(filmUrl, url, apiToken, thema, titel, duration, date, time, description);
             } catch (Exception ex) {
@@ -184,26 +184,44 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 Log.errorLog(945120365, "Leere Seite für URL: " + url);
                 return;
             }
-            
+
             String s1 = seite2.extract(",\"uurl\":\"", "\"");
             if (s1.isEmpty()) {
                 Log.errorLog(915263698, "Leere Seite für URL: " + url);
                 return;
             }
-            
+
             s1 = "https://api.zdf.de//tmd/2/portal/vod/ptmd/mediathek/" + s1;
+//            String s2 = s1;
+
             seite2 = getUrl.getUri(SENDERNAME, s1, Const.KODIERUNG_UTF, 1 /* versuche */, seite2, "" /* Meldung */, token);
             if (seite2.length() == 0) {
                 Log.errorLog(721548963, "Leere Seite für URL: " + url);
                 return;
             }
+
+            // subtitle suchen
+            String subtitle = "";
+            urlList.clear();
+            seite2.extractList("https://utstreaming.zdf.de/mtt", "\"", urlList);
+            for (String s : urlList) {
+                if (s.endsWith(".xml")) {
+                    subtitle = "https://utstreaming.zdf.de/mtt" + s;
+                } else if (subtitle.isEmpty()) {
+                    subtitle = "https://utstreaming.zdf.de/mtt" + s;
+                }
+            }
+            if (!urlList.isEmpty() && subtitle.isEmpty()) {
+                Log.errorLog(912021459, "kein subtitle für URL: " + url);
+            }
+
             // jetzt werden die Film-Urls gesucht
             urlList.clear();
             seite2.extractList("\"uri\" : \"", "\"", urlList);
             String urlNormal = "";
             String urlHd = "";
             String urlLow = "";
-            
+
             for (String s : urlList) {
                 // mit den Sollwerten
                 // "uri" : "https://rodlzdf-a.akamaihd.net/none/zdf/16/10/161030_grossevoelker2_araber_v2_tex/2/161030_grossevoelker2_araber_v2_tex_1496k_p13v13.mp4" -> 852x
@@ -231,7 +249,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                     urlLow = s;
                 }
             }
-            
+
             if (urlNormal.isEmpty()) {
                 urlNormal = urlLow;
                 urlLow = "";
@@ -249,13 +267,16 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 if (!urlLow.isEmpty()) {
                     film.addUrlKlein(urlLow, "");
                 }
+                if (!subtitle.isEmpty()) {
+                    film.addUrlSubtitle(subtitle);
+                }
             }
         }
-        
+
         private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");//2016-10-29T16:15:00.000+02:00
         private final SimpleDateFormat sdfOutTime = new SimpleDateFormat("HH:mm:ss");
         private final SimpleDateFormat sdfOutDay = new SimpleDateFormat("dd.MM.yyyy");
-        
+
         private String convertDate(String datum) {
             try {
                 Date filmDate = sdf.parse(datum);
@@ -265,7 +286,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             }
             return datum;
         }
-        
+
         private String convertTime(String zeit) {
             try {
                 Date filmDate = sdf.parse(zeit);
@@ -275,34 +296,23 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             }
             return zeit;
         }
-        
+
     }
-    
+
     public static void urlTauschen(DatenFilm film, String urlSeite, FilmeSuchen mSFilmeSuchen) {
         // manuell die Auflösung hochsetzen
-        String CHANGE;
-        String TO;
-        CHANGE = "1456k_p13v11.mp4";
-        TO = "2256k_p14v11.mp4";
-        if (film.arr[DatenFilm.FILM_URL].endsWith(CHANGE)) {
-            String url_ = film.arr[DatenFilm.FILM_URL].substring(0, film.arr[DatenFilm.FILM_URL].lastIndexOf(CHANGE)) + TO;
-            String l = mSFilmeSuchen.listeFilmeAlt.getFileSizeUrl(url_, film.arr[DatenFilm.FILM_SENDER]);
-            if (!l.isEmpty()) {
-                film.arr[DatenFilm.FILM_GROESSE] = l;
-                film.arr[DatenFilm.FILM_URL] = url_;
-            } else if (urlExists(url_)) {
-                // dann wars wohl nur ein "403er"
-                film.arr[DatenFilm.FILM_URL] = url_;
-            } else {
-                Log.errorLog(642130547, "urlTauschen: " + urlSeite);
-            }
-        }
+        changeUrl("1456k_p13v11.mp4", "2256k_p14v11.mp4", film, urlSeite, mSFilmeSuchen);
+        changeUrl("1456k_p13v12.mp4", "2256k_p14v12.mp4", film, urlSeite, mSFilmeSuchen);
 
-        // manuell die Auflösung hochsetzen
-        CHANGE = "1456k_p13v12.mp4";
-        TO = "2256k_p14v12.mp4";
-        if (film.arr[DatenFilm.FILM_URL].endsWith(CHANGE)) {
-            String url_ = film.arr[DatenFilm.FILM_URL].substring(0, film.arr[DatenFilm.FILM_URL].lastIndexOf(CHANGE)) + TO;
+        // manuell die Auflösung für HD setzen
+        updateHd("1496k_p13v13.mp4", "3328k_p36v13.mp4", film, urlSeite);
+        updateHd("2256k_p14v12.mp4", "3256k_p15v12.mp4", film, urlSeite);
+        updateHd("2328k_p35v12.mp4", "3328k_p36v12.mp4", film, urlSeite);
+    }
+
+    private static void changeUrl(String from, String to, DatenFilm film, String urlSeite, FilmeSuchen mSFilmeSuchen) {
+        if (film.arr[DatenFilm.FILM_URL].endsWith(from)) {
+            String url_ = film.arr[DatenFilm.FILM_URL].substring(0, film.arr[DatenFilm.FILM_URL].lastIndexOf(from)) + to;
             String l = mSFilmeSuchen.listeFilmeAlt.getFileSizeUrl(url_, film.arr[DatenFilm.FILM_SENDER]);
             // zum Testen immer machen!!
             if (!l.isEmpty()) {
@@ -315,12 +325,11 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 Log.errorLog(945120369, "urlTauschen: " + urlSeite);
             }
         }
+    }
 
-        // manuell die Auflösung hochsetzen
-        CHANGE = "1496k_p13v13.mp4";
-        TO = "3328k_p36v13.mp4";
-        if (film.arr[DatenFilm.FILM_URL_HD].isEmpty() && film.arr[DatenFilm.FILM_URL].endsWith(CHANGE)) {
-            String url_ = film.arr[DatenFilm.FILM_URL].substring(0, film.arr[DatenFilm.FILM_URL].lastIndexOf(CHANGE)) + TO;
+    private static void updateHd(String from, String to, DatenFilm film, String urlSeite) {
+        if (film.arr[DatenFilm.FILM_URL_HD].isEmpty() && film.arr[DatenFilm.FILM_URL].endsWith(from)) {
+            String url_ = film.arr[DatenFilm.FILM_URL].substring(0, film.arr[DatenFilm.FILM_URL].lastIndexOf(from)) + to;
             // zum Testen immer machen!!
             if (urlExists(url_)) {
                 film.addUrlHd(url_, "");
@@ -328,9 +337,8 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 Log.errorLog(945120147, "urlTauschen: " + urlSeite);
             }
         }
-        // 2328k_p35v12.mp4 und 3328k_p36v12.mp4 ??
     }
-    
+
     public static DatenFilm filmHolenId(GetUrl getUrl, MSStringBuilder strBuffer, String sender, String thema, String titel, String filmWebsite, String urlId) {
         //<teaserimage alt="Harald Lesch im Studio von Abenteuer Forschung" key="298x168">http://www.zdf.de/ZDFmediathek/contentblob/1909108/timg298x168blob/8081564</teaserimage>
         //<detail>Möchten Sie wissen, was Sie in der nächsten Sendung von Abenteuer Forschung erwartet? Harald Lesch informiert Sie.</detail>
@@ -342,15 +350,15 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         final String DATUM = "<airtime>";
         final String THEMA = "<originChannelTitle>";
         long laengeL;
-        
+
         String beschreibung, subtitle, laenge, datum, zeit = "";
-        
+
         strBuffer = getUrl.getUri_Utf(sender, urlId, strBuffer, "URL-Filmwebsite: " + filmWebsite);
         if (strBuffer.length() == 0) {
             Log.errorLog(398745601, "url: " + urlId);
             return null;
         }
-        
+
         subtitle = strBuffer.extract("<caption>", "<url>http://", "<", "http://");
         if (subtitle.isEmpty()) {
             subtitle = strBuffer.extract("<caption>", "<url>https://", "<", "https://");
@@ -370,7 +378,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         if (thema.isEmpty()) {
             thema = strBuffer.extract(THEMA, "<");
         }
-        
+
         laenge = strBuffer.extract(LAENGE_SEC, "<");
         if (!laenge.isEmpty()) {
             laengeL = extractDurationSec(laenge);
@@ -381,7 +389,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             }
             laengeL = extractDuration(laenge);
         }
-        
+
         datum = strBuffer.extract(DATUM, "<");
         if (datum.contains(" ")) {
             zeit = datum.substring(datum.lastIndexOf(" ")).trim() + ":00";
@@ -394,11 +402,11 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         final String[] QU_WIDTH = {"1024", "852", "720", "688", "480", "432", "320"};
         final String[] QU_WIDTH_KL = {"688", "480", "432", "320"};
         String url, urlKlein, urlHd, tmp = "";
-        
+
         urlHd = getUrl(strBuffer, QU_WIDTH_HD, tmp, true);
         url = getUrl(strBuffer, QU_WIDTH, tmp, true);
         urlKlein = getUrl(strBuffer, QU_WIDTH_KL, tmp, false);
-        
+
         if (url.equals(urlKlein)) {
             urlKlein = "";
         }
@@ -428,13 +436,13 @@ public class MediathekZdf extends MediathekReader implements Runnable {
             return film;
         }
     }
-    
+
     private static String getUrl(MSStringBuilder strBuffer, String[] arr, String tmp, boolean hd) {
         final String URL_ANFANG = "<formitaet basetype=\"h264_aac_mp4_http_na_na\"";
         final String URL_ENDE = "</formitaet>";
         final String URL = "<url>";
         final String WIDTH = "<width>";
-        
+
         String ret = "";
         tmp = "";
         int posAnfang, posEnde;
@@ -449,7 +457,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 if ((posEnde = strBuffer.indexOf(URL_ENDE, posAnfang)) == -1) {
                     break;
                 }
-                
+
                 tmp = strBuffer.extract(URL, "<", posAnfang, posEnde);
                 if (strBuffer.extract(WIDTH, "<", posAnfang, posEnde).equals(qual)) {
                     if (hd) {
@@ -468,7 +476,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         }
         return ret;
     }
-    
+
     private static String checkUrlHD(String url) {
         String ret = "";
         if (url.startsWith("http") && url.endsWith("mp4")) {
@@ -479,7 +487,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         }
         return ret;
     }
-    
+
     private static String checkUrl(String url) {
         String ret = "";
         if (url.startsWith("http") && url.endsWith("mp4")) {
@@ -489,5 +497,5 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         }
         return ret;
     }
-    
+
 }
