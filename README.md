@@ -9,3 +9,23 @@ Lib für das Programm **MediathekView**.
 
 - [Website](http://zdfmediathk.sourceforge.net)
 - [Download](http://sourceforge.net/projects/zdfmediathk/) Installationspakete
+
+# Entwicklung
+
+## Code auschecken
+```bash
+git clone https://github.com/mediathekview/MSearch.git
+```
+
+## Bauen an der Kommandozeile
+```bash
+cd MSearch
+./gradlew build
+```
+
+## Entwicklung mit Netbeans
+* Verzeichniss `MSearch` mit Netbeans öffnen
+
+## Entwicklung mit Eclipse
+* Falls noch nicht vorhanden: [Plugin buildship](https://projects.eclipse.org/projects/tools.buildship) installieren
+* Projekt `MSearch` als Gradle-Projekt importieren.
