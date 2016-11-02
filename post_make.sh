@@ -18,7 +18,7 @@ rm dist/README.TXT
 mkdir dist/info
 
 # release
-relNr=$(cat src/version.properties | grep BUILD | sed 's#BUILD=##g')
+relNr=$(cat src/main/resources/version.properties | grep BUILD | sed 's#BUILD=##g')
 datum=$(date +%d.%m.%Y )
 echo Datum: $datum >> dist/info/$relNr.build
 echo MSearch Buildnummer: $relNr >> dist/info/$relNr.build

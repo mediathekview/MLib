@@ -1,6 +1,12 @@
 /.gradle/
-/build/
+target
 /bin/
+/build/
 .classpath
+.settings
 .project
-.settings/
+*.class
+build/classes
+built-jar.properties
+dist/javadoc
+/nbproject/private/

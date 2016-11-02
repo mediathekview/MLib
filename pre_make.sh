@@ -8,7 +8,7 @@ echo ==msearch======================
 ver=13
 echo Version: $ver
 
-nr=$(cat src/version.properties | grep NR | sed 's#NR=##g')
+nr=$(cat src/main/resources/version.properties | grep NR | sed 's#NR=##g')
 echo Nr-vor:  $nr
 
 nr=$((nr + 1))
@@ -18,10 +18,10 @@ buildDate=$(date +%d.%m.%y\ -\ %H:%M:%S)
 echo Date:    $buildDate
 echo ==msearch======================
 
-echo VERSION=$ver > src/version.properties
-echo NR=$nr >> src/version.properties
-echo BUILD=$ver-$nr >> src/version.properties
-echo DATE=$buildDate >> src/version.properties
+echo VERSION=$ver > src/main/resources/version.properties
+echo NR=$nr >> src/main/resources/version.properties
+echo BUILD=$ver-$nr >> src/main/resources/version.properties
+echo DATE=$buildDate >> src/main/resources/version.properties
 
-cp src/version.properties build/classes
-cp src/version.properties /home/emil/daten/software/mediathek/mediathek/src
+cp src/main/resources/version.properties build/classes
+#cp src/main/resources/version.properties /home/emil/daten/software/mediathek/mediathek/src
