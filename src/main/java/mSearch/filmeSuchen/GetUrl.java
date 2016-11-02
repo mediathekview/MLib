@@ -66,6 +66,10 @@ public class GetUrl {
     }
 
     public synchronized MSStringBuilder getUri(String sender, String addr, String kodierung, int maxVersuche, MSStringBuilder seite, String meldung) {
+        return getUri(sender, addr, kodierung, maxVersuche, seite, meldung, "");
+    }
+
+    public synchronized MSStringBuilder getUri(String sender, String addr, String kodierung, int maxVersuche, MSStringBuilder seite, String meldung, String token) {
         final int PAUSE = 1000;
         int aktTimeout = timeout;
         int aktVer = 0;
@@ -79,7 +83,7 @@ public class GetUrl {
                     this.wait(PAUSE);
                 }
                 letzterVersuch = (aktVer >= maxVersuche);
-                seite = getUri(sender, addr, seite, kodierung, aktTimeout, meldung, maxVersuche, letzterVersuch);
+                seite = getUri(sender, addr, seite, kodierung, aktTimeout, meldung, maxVersuche, letzterVersuch, token);
                 if (seite.length() > 0) {
                     // und nix wie weiter 
                     if (Config.debug && aktVer > 1) {
@@ -112,7 +116,9 @@ public class GetUrl {
         return timeout;
     }
 
-    private synchronized MSStringBuilder getUri(String sender, String addr, MSStringBuilder seite, String kodierung, int timeout, String meldung, int versuch, boolean lVersuch) {
+    private synchronized MSStringBuilder getUri(String sender, String addr, MSStringBuilder seite,
+            String kodierung, int timeout, String meldung, int versuch, boolean lVersuch,
+            String token) {
         seite.setLength(0);
         HttpURLConnection conn = null;
         InputStream in = null;
@@ -139,6 +145,10 @@ public class GetUrl {
             conn = (HttpURLConnection) new URL(addr).openConnection();
             conn.setRequestProperty("User-Agent", Config.getUserAgent());
             conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
+
+            if (!token.isEmpty()) {
+                conn.setRequestProperty("Api-Auth", "Bearer " + token);
+            }
             if (timeout > 0) {
                 conn.setReadTimeout(timeout);
                 conn.setConnectTimeout(timeout);
