@@ -794,8 +794,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
         //für den Sender "" sind alle Themen im themenPerSender[0]
         themenPerSender = new String[sender.length][];
-        TreeSet<String>[] tree = new TreeSet[sender.length];
-        HashSet<String>[] hashSet = new HashSet[sender.length];
+        TreeSet<String>[] tree = (TreeSet<String>[]) new TreeSet<?>[sender.length];
+        HashSet<String>[] hashSet = (HashSet<String>[]) new HashSet<?>[sender.length];
         for (int i = 0; i < tree.length; ++i) {
             tree[i] = new TreeSet<>(mSearch.tool.GermanStringSorter.getInstance());
             tree[i].add("");
