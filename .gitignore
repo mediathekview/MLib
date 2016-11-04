@@ -11,3 +11,4 @@ built-jar.properties
 dist/javadoc
 /nbproject/private/
 .externalToolBuilders
+.idea
