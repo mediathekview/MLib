@@ -24,6 +24,8 @@ import java.util.Date;
 
 public class Datum extends Date {
 
+    private static final long serialVersionUID = 1L;
+
     private final static SimpleDateFormat dateFormatter1 = new SimpleDateFormat("dd.MM.yyyy");
     private final static SimpleDateFormat dateFormatter2 = new SimpleDateFormat("yyyy.MM.dd");
 

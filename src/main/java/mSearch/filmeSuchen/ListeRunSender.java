@@ -25,6 +25,8 @@ import java.util.LinkedList;
 
 public class ListeRunSender extends LinkedList<RunSender> {
 
+    private static final long serialVersionUID = 1L;
+
     private final static String TRENNER = " | ";
     private static final String SENDER = " Sender ";
 
