@@ -31,7 +31,7 @@ compileJava {
 }
 compileJava << {
 	Properties props = new Properties()
-	File propsFile = new File('src/main/resources/version.properties')
+	File propsFile = file('src/main/resources/version.properties').absoluteFile
 	props.load(propsFile.newDataInputStream())
 	
 	println '==msearch======================'
@@ -83,7 +83,9 @@ task copyRuntimeLibs(type: Copy) {
   }
 
 repositories {
-    jcenter()
+     maven {
+          url "https://repo.mediathekview.de/repository/maven-public/"
+    }
 }
 
 dependencies {
@@ -104,4 +106,3 @@ distributions {
         }
     }
 }
-
