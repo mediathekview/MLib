@@ -45,7 +45,7 @@ task renameAndFillBuildFile(type: Copy) {
     rename ('res/info/.*.build',
             buildFileName)
             
-    def buildFileWriter = new File('res/info/'+buildFileName).newWriter() 
+    def buildFileWriter = file('res/info/'+buildFileName).absoluteFile.newWriter() 
 
 	buildFileWriter << 'Datum: '+new Date().format('dd.MM.yyyy HH:mm:ss')
 	buildFileWriter << 'MSearch Buildnummer: '+buildInfo
