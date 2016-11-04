@@ -61,6 +61,8 @@ public class MediathekReader implements Runnable {
     //===================================
     class LinkedListUrl extends LinkedList<String[]> {
 
+        private static final long serialVersionUID = 1L;
+
         // Hilfsklasse die das einfügen/entnehmen bei mehreren Threads unterstützt
         synchronized boolean addUrl(String[] e) {
             // e[0] ist immer die URL

@@ -34,6 +34,8 @@ import mSearch.tool.Log;
 
 public class ListeFilme extends ArrayList<DatenFilm> {
 
+    private static final long serialVersionUID = 1L;
+
     public static final String THEMA_LIVE = "Livestream";
     public static final String FILMLISTE = "Filmliste";
     public static final String FILMLISTE_DATUM = "Filmliste-Datum";
