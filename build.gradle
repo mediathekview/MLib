@@ -50,10 +50,37 @@ compileJava << {
 	props.setProperty('DATE',buildDate)
 	
 	props.store(propsFile.newWriter(), null)
+	
 }
+
+task renameAndFillBuildFile(type: Copy) {
+	Properties props = new Properties()
+	File propsFile = new File('src/main/resources/version.properties')
+	props.load(propsFile.newDataInputStream())
+	
+	Integer nr=Integer.parseInt(props.getProperty('NR'))
+	String buildInfo = project.version+'-'+nr
+	String buildFileName = buildInfo+'.build'
+    from('res/info/')
+    into('res/info/')
+    rename ('.*.build',
+            buildFileName)
+            
+    def buildFileWriter = new File('res/info/'+buildFileName).newWriter() 
+
+	buildFileWriter << 'Datum: '+new Date().format('dd.MM.yyyy HH:mm:ss')
+	buildFileWriter << 'MSearch Buildnummer: '+buildInfo
+	buildFileWriter.close()
+}
+
 compileTestJava {
     options.compilerArgs = ['-Xlint:all']
 }
+
+task copyRuntimeLibs(type: Copy) {
+    into "libs"
+    from configurations.testRuntime - configurations.runtime
+  }
 
 repositories {
     jcenter()
@@ -68,8 +95,12 @@ dependencies {
 
 distributions {
     main {
+        baseName = 'MSearch_'+new Date().format('dd.MM.yyyy')
         contents {
-            from ('res')
+         from { configurations.runtime.allArtifacts.files }
+         into('libs')
+         
+         from{'res'}
         }
     }
 }
