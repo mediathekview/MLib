@@ -21,3 +21,16 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
     - $HOME/.sonar/cache/
+
+deploy:
+  provider: releases
+  api_key:
+      secure: "bbeug3aTt8lC9DP3JzYp1ZbRSm7GLtwaN0BiPcBzBlhmOPrhZoEfqRF8O4zHuJuV3eKMYBG4QpQAUmrZz5RkxJMoZzumBh6glunaGZA31kMQ4CWpNfFgpZziSHaz1Epq2L6H/rmhXFpi90UBdB48Gqhsl1WY/3xX4dC/Aa7X7rm8Fiy5R7DN+VQ/tPrtA1ziSzqSETgqWrbRJsA/ITW6arwKEoGcL2MufSV0kj41pmwkICP6bbPqXWNxyK3j/k6IWSwQLKrPaWkXqwvf0OmUcr4Ce2Y9Xg5ALMOp9//UBLm0hA20AaKVJg/JrgqpFBQlu7R1W6c5CKZhSu4mJY10tAs363G7zPEJebu25rYfGEYLUNZqmMWSG3LE6TnxLRBR6QmOv9qrZ18fGn7EBcy81psWgUBYD7qrjnNl0Kib1nHI9tlBL/m6Cff1wTnMw4MsXvzlkVCT++koh2wEPiAwSi9fep8UhFXM+Kgdml3rMDJ+diD1YFBWF/H3lcKFkKF0QBieXB8FbPdE+BNWMifP5qWfkm5C5VZ3RqQc1TMZ4oXjVejSClf9omJhrFyxYjC0dtzcjMNqzf3Q6okddi6vdTi9zBa9dU7Qa4jMND59jCBjurWqLdSFiOEx/pZhVDMuoWLYZ2udZE5kUEjBk+MTzFe9kUzuzSuJ0irWiWg1eGs="
+  file_glob: true
+  file:
+    - "build/libs/MSearch-.*.jar"
+    - "build/MSearch.*.zip"
+    - "build/MSearch.*.tar"
+  skip_cleanup: true
+  on:
+    tags: true
