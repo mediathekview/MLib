@@ -36,7 +36,7 @@ compileJava << {
 
 task renameAndFillBuildFile(type: Copy) {
 	Properties props = new Properties()
-	File propsFile = new File('src/main/resources/version.properties')
+	File propsFile = file('src/main/resources/version.properties').absoluteFile
 	props.load(propsFile.newDataInputStream())
 	
 	Integer nr=Integer.parseInt(props.getProperty('NR'))
