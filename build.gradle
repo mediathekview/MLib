@@ -7,24 +7,6 @@ targetCompatibility = 1.8
 mainClassName = 'mSearch.Main'
 version = '13'
 
-sourceSets {
-    main {
-        java {
-            srcDirs = ['src/main/java']
-        }
-        resources {
-            srcDirs = ['src/main/resources']
-        }
-    }
-    test {
-        java {
-            srcDirs = ['src/test/java']
-        }
-        resources {
-            srcDirs = ['src/test/resources']
-        }
-    }
-}
 
 compileJava {
     options.compilerArgs = ['-Xlint:all']
@@ -55,7 +37,7 @@ compileJava << {
 
 task renameAndFillBuildFile(type: Copy) {
 	Properties props = new Properties()
-	File propsFile = new File('src/main/resources/version.properties')
+	File propsFile = file('src/main/resources/version.properties').absoluteFile
 	props.load(propsFile.newDataInputStream())
 	
 	Integer nr=Integer.parseInt(props.getProperty('NR'))
@@ -64,7 +46,7 @@ task renameAndFillBuildFile(type: Copy) {
     rename ('res/info/.*.build',
             buildFileName)
             
-    def buildFileWriter = new File('res/info/'+buildFileName).newWriter() 
+    def buildFileWriter = file('res/info/'+buildFileName).absoluteFile.newWriter() 
 
 	buildFileWriter << 'Datum: '+new Date().format('dd.MM.yyyy HH:mm:ss')
 	buildFileWriter << 'MSearch Buildnummer: '+buildInfo
