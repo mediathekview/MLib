@@ -10,3 +10,4 @@ build/classes
 built-jar.properties
 dist/javadoc
 /nbproject/private/
+.externalToolBuilders
