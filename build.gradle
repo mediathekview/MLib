@@ -10,29 +10,34 @@ version = '13'
 compileJava {
     options.compilerArgs = ['-Xlint:all']
 }
-compileJava << {
+
+compileTestJava {
+    options.compilerArgs = ['-Xlint:all']
+}
+
+task updateVersion << {
 	Properties props = new Properties()
 	File propsFile = file('src/main/resources/version.properties').absoluteFile
 	props.load(propsFile.newDataInputStream())
 	
-	println '==msearch======================'
-	println 'Version: '+version
-	Integer nr=Integer.parseInt(props.getProperty('NR'))
-	println 'Nr-vor:  '+nr
-	nr++
-	println 'Nr-nach: '+nr
+	int nr = Integer.parseInt(props.getProperty('NR')) + 1
 	String buildDate=new Date().format('dd.MM.yyyy HH:mm:ss')
-	println 'Date:    '+buildDate
+
+	println '==msearch======================'
+	println "Version: $version"
+	println "Nr-nach: $nr"
+	println "Date:    $buildDate"
 	println '==msearch======================'
 	
-	props.setProperty('VERSION',project.version.toString())
-	props.setProperty('NR',nr.toString())
-	props.setProperty('BUILD',project.version.toString()+'-'+nr)
-	props.setProperty('DATE',buildDate)
+	props.setProperty('VERSION', project.version)
+	props.setProperty('NR', "$nr")
+	props.setProperty('BUILD', "${project.version}-${nr}")
+	props.setProperty('DATE', buildDate)
 	
 	props.store(propsFile.newWriter(), null)
-	
 }
+
+processResources.dependsOn updateVersion
 
 task renameAndFillBuildFile(type: Copy) {
 	Properties props = new Properties()
@@ -47,14 +52,11 @@ task renameAndFillBuildFile(type: Copy) {
             
     def buildFileWriter = file('res/info/'+buildFileName).absoluteFile.newWriter() 
 
-	buildFileWriter << 'Datum: '+new Date().format('dd.MM.yyyy HH:mm:ss')
+	buildFileWriter << 'Datum: '+new Date().format('dd.MM.yyyy HH:mm:ss')+'\n'
 	buildFileWriter << 'MSearch Buildnummer: '+buildInfo
 	buildFileWriter.close()
 }
 
-compileTestJava {
-    options.compilerArgs = ['-Xlint:all']
-}
 
 task copyRuntimeLibs(type: Copy) {
     into "libs"
