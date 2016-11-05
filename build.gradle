@@ -54,7 +54,11 @@ task renameAndFillBuildFile(dependsOn: updateVersion) << {
 	File buildFile = file("res/info/${buildInfo}.build").absoluteFile
     String date = new Date().format('dd.MM.yyyy HH:mm:ss')
     logger.lifecycle "Writing build info to $buildFile"
-        
+    
+    project.delete(fileTree('res/info') {
+      include '*.build'
+    })
+    
     def buildFileWriter = buildFile.newWriter() 
 	buildFileWriter << "Datum: ${date}\n"
 	buildFileWriter << "MSearch Buildnummer: ${buildInfo}\n"
