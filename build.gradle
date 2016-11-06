@@ -8,10 +8,12 @@ mainClassName = 'mSearch.Main'
 version = '13'
 
 compileJava {
+    compileJava {options.encoding = "UTF-8"}   
     options.compilerArgs = ['-Xlint:all']
 }
 
 compileTestJava {
+    compileJava {options.encoding = "UTF-8"}   
     options.compilerArgs = ['-Xlint:all']
 }
 
