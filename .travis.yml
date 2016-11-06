@@ -11,7 +11,6 @@ env:
 script:
   # other script steps might be done before running the actual SonarQube analysis
   - ./gradlew check
-  - ant test
   - sonar-scanner -Dsonar.login=$SONAR_TOKEN
 
 before_cache:
