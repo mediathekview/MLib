@@ -229,11 +229,12 @@ public class DatenFilm implements Comparable<DatenFilm> {
             case MediathekZdfTivi.SENDERNAME:
             case Mediathek3Sat.SENDERNAME:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/de/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/de/")) {
+                        || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/de/")
+                        || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/de/")) {
                     arr[DatenFilm.FILM_GEO] = GEO_DE;
                 } else if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/dach/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/dach/")
-                        || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/dach")) {
+                        || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/dach/")) {
                     arr[DatenFilm.FILM_GEO] = GEO_DE + "-" + GEO_AT + "-" + GEO_CH;
                 } else if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/ebu/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/ebu/")) {

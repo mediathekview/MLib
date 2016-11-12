@@ -138,8 +138,6 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 if (thema.contains("|")) {
                     thema = thema.substring(thema.indexOf("|") + 1).trim();
                     //thema = thema.substring(0, thema.indexOf("|")).trim();
-                } else {
-                    titel = thema;
                 }
                 String dauer = seite1.extract("<dd class=\"video-duration defdesc m-border\">", "<");
                 dauer = dauer.replace("min", "").trim();
