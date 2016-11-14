@@ -307,7 +307,7 @@ public class MediathekZdf extends MediathekReader implements Runnable {
         changeUrl("1456k_p13v12.mp4", "2328k_p35v12.mp4", film, urlSeite, mSFilmeSuchen);
         //wenns nicht geht, dann vielleicht so
         changeUrl("1456k_p13v12.mp4", "2256k_p14v12.mp4", film, urlSeite, mSFilmeSuchen);
-        changeUrl("1496k_p13v13.mp4", "2328k_p35v13.mp4", film, urlSeite, mSFilmeSuchen); 
+
         // manuell die Auflösung für HD setzen
         updateHd("1496k_p13v13.mp4", "3328k_p36v13.mp4", film, urlSeite);
         updateHd("2256k_p14v12.mp4", "3256k_p15v12.mp4", film, urlSeite);
