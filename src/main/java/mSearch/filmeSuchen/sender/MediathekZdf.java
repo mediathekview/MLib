@@ -138,8 +138,6 @@ public class MediathekZdf extends MediathekReader implements Runnable {
                 if (thema.contains("|")) {
                     thema = thema.substring(thema.indexOf("|") + 1).trim();
                     //thema = thema.substring(0, thema.indexOf("|")).trim();
-                } else {
-                    titel = thema;
                 }
                 String dauer = seite1.extract("<dd class=\"video-duration defdesc m-border\">", "<");
                 dauer = dauer.replace("min", "").trim();
@@ -299,11 +297,17 @@ public class MediathekZdf extends MediathekReader implements Runnable {
 
     }
 
-    public static void urlTauschen(DatenFilm film, String urlSeite, FilmeSuchen mSFilmeSuchen) {
+     public static void urlTauschen(DatenFilm film, String urlSeite, FilmeSuchen mSFilmeSuchen) {
         // manuell die Auflösung hochsetzen
         changeUrl("1456k_p13v11.mp4", "2256k_p14v11.mp4", film, urlSeite, mSFilmeSuchen);
-        changeUrl("1456k_p13v12.mp4", "2256k_p14v12.mp4", film, urlSeite, mSFilmeSuchen);
+        changeUrl("1496k_p13v13.mp4", "2328k_p35v13.mp4", film, urlSeite, mSFilmeSuchen);
 
+        changeUrl("2256k_p14v12.mp4", "2328k_p35v12.mp4", film, urlSeite, mSFilmeSuchen);
+
+        changeUrl("1456k_p13v12.mp4", "2328k_p35v12.mp4", film, urlSeite, mSFilmeSuchen);
+        //wenns nicht geht, dann vielleicht so
+        changeUrl("1456k_p13v12.mp4", "2256k_p14v12.mp4", film, urlSeite, mSFilmeSuchen);
+        changeUrl("1496k_p13v13.mp4", "2328k_p35v13.mp4", film, urlSeite, mSFilmeSuchen); 
         // manuell die Auflösung für HD setzen
         updateHd("1496k_p13v13.mp4", "3328k_p36v13.mp4", film, urlSeite);
         updateHd("2256k_p14v12.mp4", "3256k_p15v12.mp4", film, urlSeite);
