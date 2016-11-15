@@ -127,7 +127,7 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                         switch (link[1]) {
                             case THEMA_TAG:
                                 // dann ist von "Tage zurück"
-                                feedEinerSeiteSuchen(link[0], "", false /*themaBehalten*/, true /*nurUrlPruefen*/);
+                                feedEinerSeiteSuchen(link[0], true /*nurUrlPruefen*/);
                                 break;
                             case THEMA_SENDUNGEN:
                                 sendungen(link[0]);
@@ -149,7 +149,6 @@ public class MediathekOrf extends MediathekReader implements Runnable {
         private void sendungen(String url) {
             seite1 = getUrlIo.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 2, seite1, "");
             alSendung.clear();
-            String thema;
             int start = "http://tvthek.orf.at/profile/".length();
             seite1.extractList("", "", "<a href=\"http://tvthek.orf.at/profile/", "\"", "http://tvthek.orf.at/profile/", alSendung);
             for (String s : alSendung) {
@@ -160,52 +159,14 @@ public class MediathekOrf extends MediathekReader implements Runnable {
                     if (s.startsWith("http://tvthek.orf.at/profile/Archiv/")) {
                         break; // vorerst mal weglassen, sind zu viele
                     }
-                    //http://tvthek.orf.at/profile/ABC-Baer/4611813/ABC-Baer/13812120
-                    thema = s.substring(start, s.indexOf("/", start));
-                    if (thema.isEmpty()) {
-                        thema = SENDERNAME;
-                    }
-                    feedEinerSeiteSuchen(s, thema, !thema.equals(SENDERNAME) /*themaBehalten*/ , false /*nurUrlPruefen*/);
+                    feedEinerSeiteSuchen(s, false /*nurUrlPruefen*/);
                 } catch (Exception ex) {
                     Log.errorLog(702095478, ex);
                 }
             }
         }
 
-//        private void themen(String url) {
-//            final String URL = "http://tvthek.orf.at/program/";
-//            seite1 = getUrlIo.getUri(SENDERNAME, url, Const.KODIERUNG_UTF, 2, seite1, "");
-//            alSendung.clear();
-//            String thema, themaAlt = "";
-//            int count = 0, max = 3;
-//            seite1.extractList("", "", URL, "\"", "", alSendung);
-//            for (String s : alSendung) {
-//                if (Config.getStop()) {
-//                    break;
-//                }
-//                if (!Config.loadLongMax()) {
-//                    if (count > max) {
-//                        continue;
-//                    }
-//                }
-//                thema = "";
-//                if (s.contains("/")) {
-//                    thema = s.substring(0, s.indexOf("/"));
-//                    if (thema.equals(themaAlt)) {
-//                        ++count;
-//                    } else {
-//                        themaAlt = thema;
-//                        count = 0;
-//                    }
-//                    if (thema.isEmpty()) {
-//                        thema = SENDERNAME;
-//                    }
-//                }
-//                feedEinerSeiteSuchen(URL + s, thema, false /*themaBehalten*/, false /*nurUrlPruefen*/);
-//            }
-//        }
-
-        private void feedEinerSeiteSuchen(String strUrlFeed, String thema, boolean themaBehalten, boolean nurUrlPruefen) {
+        private void feedEinerSeiteSuchen(String strUrlFeed, boolean nurUrlPruefen) {
             //<title> ORF TVthek: a.viso - 28.11.2010 09:05 Uhr</title>
             seite2 = getUrl.getUri_Utf(SENDERNAME, strUrlFeed, seite2, "");
             String datum;
@@ -214,11 +175,11 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             String description;
             String tmp;
             String urlRtmpKlein = "", urlRtmp = "", url = "", urlKlein = "", urlHD = "";
-            String titel;
+            String titel, thema;
             String subtitle;
             int posStart = 0, posStopAlles = -1, posStopEpisode, pos = 0;
             meldung(strUrlFeed);
-            titel = seite2.extract("<title>", "vom"); //<title>ABC Bär vom 17.11.2013 um 07.35 Uhr / ORF TVthek</title>
+            thema = seite2.extract("<title>", "vom"); //<title>ABC Bär vom 17.11.2013 um 07.35 Uhr / ORF TVthek</title>
 
             datum = seite2.extract("<span class=\"meta meta_date\">", "<");
             if (datum.contains(",")) {
@@ -228,9 +189,6 @@ public class MediathekOrf extends MediathekReader implements Runnable {
             zeit = zeit.replace("Uhr", "").trim();
             if (zeit.length() == 5) {
                 zeit = zeit.replace(".", ":") + ":00";
-            }
-            if (!themaBehalten) {
-                thema = titel;
             }
             boolean onlyOne = false;
             posStart = seite2.indexOf("<!-- start playlist -->");
