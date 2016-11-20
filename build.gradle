@@ -41,34 +41,21 @@ dependencies {
     compile 'org.tukaani:xz:1.5'
 }
 
-ext {
-    propsFile = file('src/main/resources/version.properties').absoluteFile
-    if(!propsFile.exists())
-    {
-    	Files.createFile(propsFile.toPath())
-    }
-}
+task updateVersion {
 
-def loadVersionProperties() {
     Properties props = new Properties()
-    props.load(propsFile.newDataInputStream())
-    return props
-}
-
-task updateVersion << {
-    Properties props = loadVersionProperties()
     String buildDate = new Date().format('dd.MM.yyyy HH:mm:ss')
-    def oldVersion = props.getProperty('VERSION')
-    def newVersion = grgit.describe();
-    if(!oldVersion.equals(newVersion)){
-	logger.lifecycle "==MSearch======================"
-	logger.lifecycle "Version: ${newVersion}"
-	logger.lifecycle "Datum  : ${buildDate}"
-	logger.lifecycle "==MSearch======================"
-	props.setProperty('VERSION', newVersion)
+    def version = grgit.describe();
+    def propsFile = file('src/main/resources/version.properties')
+
+	props.setProperty('VERSION', version)
 	props.setProperty('DATE', buildDate)
 	props.store(propsFile.newWriter(), null)
-    }
+
+	logger.lifecycle "==MSearch======================"
+	logger.lifecycle "Version: ${version}"
+	logger.lifecycle "Datum  : ${buildDate}"
+	logger.lifecycle "==MSearch======================"
 }
 
 processResources.dependsOn updateVersion
