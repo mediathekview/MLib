@@ -57,13 +57,16 @@ def loadVersionProperties() {
 
 task updateVersion << {
     Properties props = loadVersionProperties()
+    String buildDate = new Date().format('dd.MM.yyyy HH:mm:ss')
     def oldVersion = props.getProperty('VERSION')
     def newVersion = grgit.describe();
     if(!oldVersion.equals(newVersion)){
 	logger.lifecycle "==MSearch======================"
 	logger.lifecycle "Version: ${newVersion}"
+	logger.lifecycle "Datum  : ${buildDate}"
 	logger.lifecycle "==MSearch======================"
 	props.setProperty('VERSION', newVersion)
+	props.setProperty('DATE', buildDate)
 	props.store(propsFile.newWriter(), null)
     }
 }
