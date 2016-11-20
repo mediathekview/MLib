@@ -1,11 +1,16 @@
+plugins {
+  id "org.ajoberstar.grgit" version "1.6.0"
+}
+
 apply plugin: 'java'
 apply plugin: 'application'
 apply from: "${project.rootDir}/gradle/eclipse.gradle"
 
+import java.nio.file.Files
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 mainClassName = 'mSearch.Main'
-version = '2.0.1'
 
 compileJava {
     options.encoding = "UTF-8"
@@ -35,6 +40,25 @@ dependencies {
     compile 'com.jidesoft:jide-oss:3.6.16'
     compile 'org.tukaani:xz:1.5'
 }
+
+task updateVersion {
+
+    Properties props = new Properties()
+    String buildDate = new Date().format('dd.MM.yyyy HH:mm:ss')
+    def version = grgit.describe();
+    def propsFile = file('src/main/resources/version.properties')
+
+	props.setProperty('VERSION', version)
+	props.setProperty('DATE', buildDate)
+	props.store(propsFile.newWriter(), null)
+
+	logger.lifecycle "==MSearch======================"
+	logger.lifecycle "Version: ${version}"
+	logger.lifecycle "Datum  : ${buildDate}"
+	logger.lifecycle "==MSearch======================"
+}
+
+processResources.dependsOn updateVersion
 
 distributions {
     main {

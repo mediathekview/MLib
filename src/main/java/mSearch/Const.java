@@ -23,7 +23,6 @@ import mSearch.tool.Functions;
 
 public class Const {
 
-    public static final String VERSION = "13";
     public static final String VERSION_FILMLISTE = "3";
     public static final String PROGRAMMNAME = "MSearch";
     public static final String USER_AGENT_DEFAULT = Const.PROGRAMMNAME + Functions.getProgVersionString();

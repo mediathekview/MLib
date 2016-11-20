@@ -128,8 +128,32 @@ public class Functions {
     }
 
     public static String getProgVersionString() {
-        return " [Rel: " + getBuildNr() + "]";
+        return " [Rel: " + getProgVersion() + "]";
     }
+
+    public static String getProgVersion(){
+        final ResourceBundle rb;
+        String propToken = "VERSION";
+        String msg = "";
+        try {
+            ResourceBundle.clearCache();
+            rb = ResourceBundle.getBundle("version-mv");
+            msg = rb.getString(propToken);
+        } catch (Exception e) {
+            Log.errorLog(807293848, "Versions-Ressource für MediathekView nicht gefunden!");
+        }
+        return msg;
+    }
+
+   public static String getProgVersionMajor(){
+
+       // 2.0.1-7-ge04f367 -> "2.0.1" -> "2"
+
+       String describeVersion = getProgVersion();
+       String[] split = describeVersion.split("[\\.-]");
+       return split[0];
+   }
+
 
     public static String[] getJavaVersion() {
         String[] ret = new String[4];
@@ -150,24 +174,24 @@ public class Functions {
             rb = ResourceBundle.getBundle("version");
             msg = rb.getString(propToken);
         } catch (Exception e) {
-            Log.errorLog(807293847, e);
+            Log.errorLog(807293847, "Versions-Ressource nicht gefunden!");
         }
         return msg;
     }
 
-    public static String getBuildNr() {
-        final ResourceBundle rb;
-        String propToken = "BUILD";
-        String msg = "";
-        try {
-            ResourceBundle.clearCache();
-            rb = ResourceBundle.getBundle("version");
-            msg = rb.getString(propToken);
-        } catch (Exception e) {
-            Log.errorLog(134679898, e);
-        }
-        return msg;
-    }
+    //public static String getBuildNr() {
+    //    final ResourceBundle rb;
+    //    String propToken = "BUILD";
+    //    String msg = "";
+    //    try {
+    //        ResourceBundle.clearCache();
+    //        rb = ResourceBundle.getBundle("version");
+    //        msg = rb.getString(propToken);
+    //    } catch (Exception e) {
+    //        Log.errorLog(134679898, e);
+    //    }
+    //    return msg;
+    //}
 
     public static void unescape(DatenFilm film) {
         film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_THEMA].trim());
