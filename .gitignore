@@ -12,3 +12,4 @@ dist/javadoc
 /nbproject/private/
 .externalToolBuilders
 .idea
+version.properties

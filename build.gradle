@@ -1,11 +1,12 @@
 apply plugin: 'java'
 apply plugin: 'application'
 apply from: "${project.rootDir}/gradle/eclipse.gradle"
+import java.nio.file.Files
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 mainClassName = 'mSearch.Main'
-version = '2.0.1'
+version = '2.0.2'
 
 compileJava {
     options.encoding = "UTF-8"
@@ -35,6 +36,33 @@ dependencies {
     compile 'com.jidesoft:jide-oss:3.6.16'
     compile 'org.tukaani:xz:1.5'
 }
+
+ext {
+    propsFile = file('src/main/resources/version.properties').absoluteFile
+    if(!propsFile.exists()) {
+        Files.createFile(propsFile.toPath())
+    }
+}
+
+def loadVersionProperties() {
+    Properties props = new Properties()
+    props.load(propsFile.newDataInputStream())
+    return props
+}
+
+task updateVersion << {
+    Properties props = loadVersionProperties()
+    def oldVersion = props.getProperty('VERSION')
+    if(!oldVersion.equals(project.version)) {
+	logger.lifecycle "==msearch======================"
+	logger.lifecycle "Version: $project.version"
+	logger.lifecycle "==msearch======================"
+	props.setProperty('VERSION', project.version)	
+	props.store(propsFile.newWriter(), null)
+    }
+}
+
+processResources.dependsOn updateVersion
 
 distributions {
     main {
