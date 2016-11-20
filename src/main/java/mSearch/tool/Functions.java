@@ -128,7 +128,7 @@ public class Functions {
     }
 
     public static String getProgVersionString() {
-        return " [Rel: " + getBuildNr() + "]";
+        return " [Vers.: " + getBuildNr() + "]";
     }
 
     public static String[] getJavaVersion() {
@@ -148,7 +148,9 @@ public class Functions {
         try {
             ResourceBundle.clearCache();
             rb = ResourceBundle.getBundle("version");
-            msg = rb.getString(propToken);
+            if (rb.containsKey(propToken)) {
+                msg = rb.getString(propToken);
+            }
         } catch (Exception e) {
             Log.errorLog(807293847, e);
         }
@@ -157,12 +159,17 @@ public class Functions {
 
     public static String getBuildNr() {
         final ResourceBundle rb;
-        String propToken = "BUILD";
-        String msg = "";
+        String TOKEN_BUILD = "BUILD";
+        String TOKEN_VERSION = "VERSION";
+        String msg = "0-0";
         try {
             ResourceBundle.clearCache();
             rb = ResourceBundle.getBundle("version");
-            msg = rb.getString(propToken);
+            if (rb.containsKey(TOKEN_BUILD)) {
+                msg = rb.getString(TOKEN_BUILD);
+            } else if (rb.containsKey(TOKEN_VERSION)) {
+                msg = rb.getString(TOKEN_VERSION);
+            }
         } catch (Exception e) {
             Log.errorLog(134679898, e);
         }
