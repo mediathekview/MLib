@@ -96,7 +96,10 @@ public class Log {
         sysLog("");
         //Version
         sysLog(progName + Functions.getProgVersionString());
-        sysLog("Compiled: " + Functions.getCompileDate());
+        String compile = Functions.getCompileDate();
+        if (!compile.isEmpty()) {
+            sysLog("Compiled: " + compile);
+        }
         sysLog("");
         sysLog(LILNE);
         sysLog("");
