@@ -65,10 +65,18 @@ task updateVersion << {
 processResources.dependsOn updateVersion
 
 distributions {
+
     main {
         baseName = 'MSearch'
         contents {
             from{'res'}
         }
     }
+}
+
+task debug (type: JavaExec, dependsOn: classes){
+    main = 'mSearch.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args '-gui'
+    debug true
 }
