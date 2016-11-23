@@ -19,7 +19,7 @@
  */
 package mSearch;
 
-import mSearch.daten.ListeFilme;
+import mSearch.daten.ListeFilmeSuchen;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.ListenerFilmeLaden;
 import mSearch.filmeSuchen.ListenerFilmeLadenEvent;
@@ -29,7 +29,7 @@ import mSearch.tool.Log;
 
 public class MSearch implements Runnable {
 
-    private ListeFilme listeFilme = new ListeFilme();
+    private ListeFilmeSuchen listeFilme = new ListeFilmeSuchen();
     private final FilmeSuchen msFilmeSuchen;
     private boolean serverLaufen = false;
 
@@ -83,11 +83,11 @@ public class MSearch implements Runnable {
         }
     }
 
-    public ListeFilme getListeFilme() {
+    public ListeFilmeSuchen getListeFilme() {
         return listeFilme;
     }
 
-    private void importLive(ListeFilme tmpListe, String importUrl) {
+    private void importLive(ListeFilmeSuchen tmpListe, String importUrl) {
         //================================================
         // noch anere Listen importieren
         Log.sysLog("Live-Streams importieren von: " + importUrl);
@@ -101,7 +101,7 @@ public class MSearch implements Runnable {
         listeFilme.sort();
     }
 
-    private void importUrl(ListeFilme tmpListe, String importUrl) {
+    private void importUrl(ListeFilmeSuchen tmpListe, String importUrl) {
         //================================================
         // noch anere Listen importieren
         Log.sysLog("Filmliste importieren von: " + importUrl);
@@ -115,7 +115,7 @@ public class MSearch implements Runnable {
         listeFilme.sort();
     }
 
-    private void importOld(ListeFilme tmpListe, String importUrl) {
+    private void importOld(ListeFilmeSuchen tmpListe, String importUrl) {
         //================================================
         // noch anere Listen importieren
         Log.sysLog("Alte Filmliste importieren von: " + importUrl);
@@ -133,7 +133,7 @@ public class MSearch implements Runnable {
     private void undTschuess() {
         Config.setStop(false); // zurücksetzen!! sonst klappt das Lesen der Importlisten nicht!!!!!
         listeFilme = msFilmeSuchen.listeFilmeNeu;
-        ListeFilme tmpListe = new ListeFilme();
+        ListeFilmeSuchen tmpListe = new ListeFilmeSuchen();
 
         //================================================
         // noch anere Listen importieren
@@ -213,19 +213,19 @@ public class MSearch implements Runnable {
         Log.sysLog("============================================================================");
         Log.sysLog("Diff erzeugen, von: " + org + " nach: " + Config.getPathFilmlist_json_diff());
         tmpListe.clear();
-        ListeFilme diff;
+        ListeFilmeSuchen diff;
         new FilmlisteLesen().readFilmListe(org, tmpListe, 0 /*all days*/);
         if (tmpListe.isEmpty()) {
             // dann ist die komplette Liste das diff
             Log.sysLog("   --> Lesefehler der Orgliste: Diff bleibt leer!");
-            diff = new ListeFilme();
+            diff = new ListeFilmeSuchen();
         } else if (tmpListe.isOlderThan(24 * 60 * 60)) {
             // älter als ein Tag, dann stimmt was nicht!
             Log.sysLog("   --> Orgliste zu alt: Diff bleibt leer!");
-            diff = new ListeFilme();
+            diff = new ListeFilmeSuchen();
         } else {
             // nur dann macht die Arbeit sinn
-            diff = listeFilme.neueFilme(tmpListe);
+            diff = (ListeFilmeSuchen) listeFilme.neueFilme(tmpListe);
         }
         Log.sysLog("   --> und schreiben:");
         new WriteFilmlistJson().filmlisteSchreibenJson(Config.getPathFilmlist_json_diff(), diff);
