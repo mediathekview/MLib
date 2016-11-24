@@ -23,11 +23,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import mSearch.Config;
+import mSearch.Const;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
@@ -318,6 +318,17 @@ public class MediathekKika extends MediathekReader implements Runnable {
                 if (thema.isEmpty()) {
                     thema = sendername;
                 }
+                // manuelle Anpassung, Notlösung!!
+                if (thema.equals("ABC-Bär")){
+                    thema = "ABC Bär";
+                }
+                //Test <channelName>ABC Bär</channelName>
+//                String th = seite3.extract("<channelName>", "<");
+//                String thh = seite3.extract("<broadcastName>", "<");
+//                String thhh = seite3.extract("<topline>", "<");
+//                if (!thhh.equals(thema)) {
+//                    System.out.println(" thhh: " + thhh + " thema: " + thema + " URL: " + xmlWebsite);
+//                }
                 String titel = seite3.extract("<title>", "<");
                 if (titel.toLowerCase().equals(thema.toLowerCase())) {
                     titel = seite3.extract("<headline>", "<");
