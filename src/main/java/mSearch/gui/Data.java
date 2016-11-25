@@ -19,11 +19,11 @@
  */
 package mSearch.gui;
 
-import mSearch.daten.ListeFilme;
+import mSearch.daten.ListeFilmeSuchen;
 
 public class Data {
 
-    public static ListeFilme listeFilme = new ListeFilme();
+    public static ListeFilmeSuchen listeFilme = new ListeFilmeSuchen();
     public static String pathFilmlist = "";
     public static MSearchGuiController mSearchGuiController = null;
 

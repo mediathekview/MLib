@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import javax.swing.event.EventListenerList;
 import mSearch.Config;
-import mSearch.daten.ListeFilme;
+import mSearch.daten.ListeFilmeSuchen;
 import mSearch.filmeSuchen.sender.*;
 import mSearch.tool.GermanStringSorter;
 import mSearch.tool.Log;
@@ -42,8 +42,8 @@ import mSearch.tool.Log;
  */
 public class FilmeSuchen {
 
-    public ListeFilme listeFilmeNeu; // neu angelegte Liste und da kommen die neu gesuchten Filme rein
-    public ListeFilme listeFilmeAlt; // ist die "alte" Liste, wird beim Aufruf übergeben und enthält am Ende das Ergebnis
+    public ListeFilmeSuchen listeFilmeNeu; // neu angelegte Liste und da kommen die neu gesuchten Filme rein
+    public ListeFilmeSuchen listeFilmeAlt; // ist die "alte" Liste, wird beim Aufruf übergeben und enthält am Ende das Ergebnis
     // private
     private final LinkedList<MediathekReader> mediathekListe = new LinkedList<>(); // ist die Liste mit allen MediathekReadern (also allen Sender)
     private final EventListenerList listeners = new EventListenerList();
@@ -119,7 +119,7 @@ public class FilmeSuchen {
      *
      * @param listeFilme
      */
-    public synchronized void filmeBeimSenderLaden(ListeFilme listeFilme) {
+    public synchronized void filmeBeimSenderLaden(ListeFilmeSuchen listeFilme) {
         initStart(listeFilme);
         // die mReader nach Prio starten
         mrStarten(0);
@@ -137,7 +137,7 @@ public class FilmeSuchen {
      * @param nameSender
      * @param listeFilme
      */
-    public void updateSender(String[] nameSender, ListeFilme listeFilme) {
+    public void updateSender(String[] nameSender, ListeFilmeSuchen listeFilme) {
         // nur für den Mauskontext "Sender aktualisieren"
         boolean starten = false;
         initStart(listeFilme);
@@ -303,14 +303,14 @@ public class FilmeSuchen {
         return sekunden;
     }
 
-    private void initStart(ListeFilme listeFilme) {
+    private void initStart(ListeFilmeSuchen listeFilme) {
         // das Absuchen der Sender vorbereiten
         listeSenderLaufen.clear();
         allStarted = false;
         listeFilmeAlt = listeFilme;
         Config.setStop(false);
         startZeit = new Date(System.currentTimeMillis());
-        listeFilmeNeu = new ListeFilme();
+        listeFilmeNeu = new ListeFilmeSuchen();
         listeFilmeNeu.liveStreamEintragen();
         Log.sysLog("");
         Log.sysLog("=======================================");
