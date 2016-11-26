@@ -23,6 +23,7 @@ import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import mSearch.Config;
 import mSearch.Const;
@@ -97,57 +98,54 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return addInit(film);
     }
 
+    protected synchronized String getCompareString(DatenFilm film, boolean index){
+        // Generiert den String mit dem in #updateListe verglichen wird.
+        if(index)
+            return film.getIndex();
+        else
+            return DatenFilm.getUrl(film);
+    }
+
     public synchronized void updateListe(ListeFilme listeEinsortieren, boolean index /* Vergleich über Index, sonst nur URL */, boolean ersetzen) {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
         // "ersetzen": true: dann werden gleiche (index/URL) in der Liste durch neue ersetzt
+
+        updateListeLambda(
+                this::getCompareString,
+                listeEinsortieren, index, ersetzen);
+    }
+
+    public synchronized void updateListeLambda(BiFunction<DatenFilm /*film*/, Boolean /*index*/, String /*compare string*/> getString,
+            ListeFilme listeEinsortieren, boolean index /* Vergleich über Index, sonst nur URL */, boolean ersetzen){
+
         final HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
 
         if (ersetzen) {
-            // ==========================================
-            for (DatenFilm f : listeEinsortieren) {
-                if (index) {
-                    hash.add(f.getIndex());
-                } else {
-                    hash.add(DatenFilm.getUrl(f));
-                }
-            }
 
-            Iterator<DatenFilm> it = this.iterator();
-            while (it.hasNext()) {
-                DatenFilm f = it.next();
-                if (index) {
-                    if (hash.contains(f.getIndex())) {
-                        it.remove();
-                    }
-                } else if (hash.contains(DatenFilm.getUrl(f))) {
-                    it.remove();
-                }
-            }
+            listeEinsortieren.forEach((film) -> {
+                hash.add(getString.apply(film, index));
+            });
 
-            //listeEinsortieren.forEach((e) -> liste.addInit(e));
+            this.removeIf((f) -> hash.contains(getString.apply(f, index)));
+
             listeEinsortieren.forEach(this::addInit);
         } else {
-            // ==============================================
-            for (DatenFilm f : this) {
-                if (index) {
-                    hash.add(f.getIndex());
-                } else {
-                    hash.add(DatenFilm.getUrl(f));
-                }
-            }
 
-            for (DatenFilm f : listeEinsortieren) {
-                if (index) {
-                    if (!hash.contains(f.getIndex())) {
-                        this.addInit(f);
-                    }
-                } else if (!hash.contains(DatenFilm.getUrl(f))) {
-                    this.addInit(f);
+            this.forEach((film) -> {
+               hash.add(getString.apply(film, index));
+            });
+
+            this.forEach((film) -> {
+                if(!hash.contains(getString.apply(film, index))){
+                    this.addInit(film);
                 }
-            }
+            });
+
         }
+
         hash.clear();
+
     }
 
 
