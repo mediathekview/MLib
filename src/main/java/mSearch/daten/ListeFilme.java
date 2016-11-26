@@ -98,19 +98,21 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return addInit(film);
     }
 
+    protected synchronized String getCompareString(DatenFilm film, boolean index){
+        // Generiert den String mit dem in #updateListe verglichen wird.
+        if(index)
+            return film.getIndex();
+        else
+            return DatenFilm.getUrl(film);
+    }
+
     public synchronized void updateListe(ListeFilme listeEinsortieren, boolean index /* Vergleich über Index, sonst nur URL */, boolean ersetzen) {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
         // "ersetzen": true: dann werden gleiche (index/URL) in der Liste durch neue ersetzt
 
         updateListeLambda(
-                // getString
-                (film, compareIndex) -> {
-                    if(index)
-                        return film.getIndex();
-                    else
-                        return DatenFilm.getUrl(film);
-                },
+                this::getCompareString,
                 listeEinsortieren, index, ersetzen);
     }
 

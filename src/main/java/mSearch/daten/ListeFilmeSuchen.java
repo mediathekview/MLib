@@ -37,53 +37,21 @@ public class ListeFilmeSuchen extends ListeFilme {
     private static final long serialVersionUID = 1L;
 
     public synchronized void updateListe(ListeFilme listeEinsortieren, boolean index /* Vergleich über Index, sonst nur URL */, boolean ersetzen) {
-        // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
-        // es werden nur Filme die noch nicht vorhanden sind, einsortiert
-        // "ersetzen": true: dann werden gleiche (index/URL) in der Liste durch neue ersetzt
-        final HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
 
-        if (ersetzen) {
-            // ==========================================
-            for (DatenFilm f : listeEinsortieren) {
-                if (f.arr[DatenFilm.FILM_SENDER].equals(MediathekKika.SENDERNAME)) {
-                    // beim KIKA ändern sich die URLs laufend
-                    hash.add(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL]);
-                }
-            }
 
-            Iterator<DatenFilm> it = this.iterator();
-            while (it.hasNext()) {
-                DatenFilm f = it.next();
-                if (f.arr[DatenFilm.FILM_SENDER].equals(MediathekKika.SENDERNAME)) {
-                    // beim KIKA ändern sich die URLs laufend
-                    if (hash.contains(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL])) {
-                        it.remove();
+        super.updateListeLambda(
+                //getString
+                (film, compareIndex) -> {
+
+                    if (film.arr[DatenFilm.FILM_SENDER].equals(MediathekKika.SENDERNAME)) {
+                        // beim KIKA ändern sich die URLs laufend
+                        return film.arr[DatenFilm.FILM_THEMA] + film.arr[DatenFilm.FILM_TITEL];
+                    } else {
+                       return super.getCompareString(film, compareIndex);
                     }
-                }
-            }
+                },
+                listeEinsortieren, index, ersetzen);
 
-            //listeEinsortieren.forEach((e) -> liste.addInit(e));
-            listeEinsortieren.forEach(this::addInit);
-        } else {
-            // ==============================================
-            for (DatenFilm f : this) {
-                if (f.arr[DatenFilm.FILM_SENDER].equals(MediathekKika.SENDERNAME)) {
-                    // beim KIKA ändern sich die URLs laufend
-                    hash.add(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL]);
-                }
-            }
-
-            for (DatenFilm f : listeEinsortieren) {
-                if (f.arr[DatenFilm.FILM_SENDER].equals(MediathekKika.SENDERNAME)) {
-                    if (!hash.contains(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL])) {
-                        this.addInit(f);
-                    }
-                }
-            }
-        }
-        hash.clear();
-
-        super.updateListe(listeEinsortieren, index, ersetzen);
 
     }
 
