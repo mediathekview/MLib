@@ -30,14 +30,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
     private static final GermanStringSorter sorter = GermanStringSorter.getInstance();
     private static final SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyyHH:mm:ss");
     private static final SimpleDateFormat sdf_datum = new SimpleDateFormat("dd.MM.yyyy");
-    public static final String AUFLOESUNG_NORMAL = "normal";
-    public static final String AUFLOESUNG_HD = "hd";
-    public static final String AUFLOESUNG_KLEIN = "klein";
-    public static final String GEO_DE = "DE"; // nur in .. zu sehen
-    public static final String GEO_AT = "AT";
-    public static final String GEO_CH = "CH";
-    public static final String GEO_EU = "EU";
-    public static final String GEO_WELT = "WELT";
     //
     public static final int FILM_NR = 0; // wird vor dem Speichern gelöscht!
     public static final int FILM_SENDER = 1;
@@ -173,20 +165,20 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     public String getUrlFuerAufloesung(String aufloesung) {
-        if (aufloesung.equals(AUFLOESUNG_KLEIN)) {
+        if (aufloesung.equals(Aufloesungen.KLEIN)) {
             return getUrlNormalKlein();
         }
-        if (aufloesung.equals(AUFLOESUNG_HD)) {
+        if (aufloesung.equals(Aufloesungen.HD)) {
             return getUrlNormalHd();
         }
         return arr[DatenFilm.FILM_URL];
     }
 
     public String getUrlRtmpFuerAufloesung(String aufloesung) {
-        if (aufloesung.equals(AUFLOESUNG_KLEIN)) {
+        if (aufloesung.equals(Aufloesungen.KLEIN)) {
             return getUrlFlvstreamerKlein();
         }
-        if (aufloesung.equals(AUFLOESUNG_HD)) {
+        if (aufloesung.equals(Aufloesungen.HD)) {
             return getUrlFlvstreamerHd();
         }
         return getUrlFlvstreamer();
@@ -222,7 +214,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                         || arr[DatenFilm.FILM_URL].startsWith("http://pd-ondemand.swr.de/geo/de/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://ondemandgeo.mdr.de/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://ondemand-de.wdr.de/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE;
+                    arr[DatenFilm.FILM_GEO] = GeoLocations.DE.toString();
                 }
                 break;
             case MediathekZdf.SENDERNAME:
@@ -231,36 +223,36 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/de/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/de/")
                         || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/de/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE;
+                    arr[DatenFilm.FILM_GEO] = GeoLocations.DE.toString();
                 } else if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/dach/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/dach/")
                         || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/dach")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE + "-" + GEO_AT + "-" + GEO_CH;
+                    arr[DatenFilm.FILM_GEO] = GeoLocations.DE + "-" + GeoLocations.AT + "-" + GeoLocations.CH;
                 } else if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/ebu/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/ebu/")
                         || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/ebu/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE + "-" + GEO_AT + "-" + GEO_CH + "-" + GEO_EU;
+                    arr[DatenFilm.FILM_GEO] = GeoLocations.DE + "-" + GeoLocations.AT + "-" + GeoLocations.CH + "-" + GeoLocations.EU;
                 }
                 break;
             case MediathekOrf.SENDERNAME:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://apasfpd.apa.at/cms-austria/")
                         || arr[DatenFilm.FILM_URL].startsWith("rtmp://apasfw.apa.at/cms-austria/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_AT;
+                    arr[DatenFilm.FILM_GEO] = GeoLocations.AT.toString();
                 }
                 break;
             case MediathekSrfPod.SENDERNAME:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://podcasts.srf.ch/ch/audio/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_CH;
+                    arr[DatenFilm.FILM_GEO] = GeoLocations.CH.toString();
                 }
                 break;
             case MediathekNdr.SENDERNAME:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://media.ndr.de/progressive_geo")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE;
+                    arr[DatenFilm.FILM_GEO] = GeoLocations.DE.toString();
                 }
                 break;
             case MediathekKika.SENDERNAME:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://pmdgeo.kika.de/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE;
+                    arr[DatenFilm.FILM_GEO] = GeoLocations.DE.toString();
                 }
                 break;
         }

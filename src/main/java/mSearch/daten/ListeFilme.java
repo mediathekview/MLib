@@ -481,10 +481,10 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             if (f.arr[DatenFilm.FILM_URL].equals(url)) {
                 ret = f;
                 break;
-            } else if (f.getUrlFuerAufloesung(DatenFilm.AUFLOESUNG_HD).equals(url)) {
+            } else if (f.getUrlFuerAufloesung(Aufloesungen.HD.getDescription()).equals(url)) {
                 ret = f;
                 break;
-            } else if (f.getUrlFuerAufloesung(DatenFilm.AUFLOESUNG_KLEIN).equals(url)) {
+            } else if (f.getUrlFuerAufloesung(Aufloesungen.KLEIN.getDescription()).equals(url)) {
                 ret = f;
                 break;
             }
