@@ -61,46 +61,68 @@ public class Const {
     public static final String TIME_MAX_AGE_FOR_DIFF = "09"; // Uhrzeit ab der die Diffliste alle Änderungen abdeckt, die Filmliste darf also nicht vor xx erstellt worden sein
     public static final int MAX_BESCHREIBUNG = 400; // max länge der Beschreibung in Zeichen -> mehr gibts aber jetzt nicht mehr!
 
-    public static enum Sender {
-        DREISAT("3Sat"),
-        ARD("ARD"),
-        ARTE_DE("ARTE.DE"),
-        ARTE_FR("ARTE.FR"),
-        BR("BR"),
-        DW("DW"),
-        HR("HR"),
-        KIKA("KiKA"),
-        MDR("MDR"),
-        NDR("NDR"),
-        ORF("ORF"),
-        PHOENIX("PHOENIX"),
-        RBB("RBB"),
-        SR("SR"),
-        SRF("SRF"),
-        SRF_PODCAST("SRF.Podcast"),
-        SWR("SWR"),
-        WDR("WDR"),
-        ZDF("ZDF"),
-        ZDF_TIVI("ZDF-tivi");
+    public static final String DREISAT = "3Sat";
+    public static final String ARD = "ARD";
+    public static final String ARTE_DE = "ARTE.DE";
+    public static final String ARTE_FR = "ARTE.FR";
+    public static final String BR = "BR";
+    public static final String DW = "DW";
+    public static final String HR = "HR";
+    public static final String KIKA = "KiKA";
+    public static final String MDR = "MDR";
+    public static final String NDR = "NDR";
+    public static final String ORF = "ORF";
+    public static final String PHOENIX = "PHOENIX";
+    public static final String RBB = "RBB";
+    public static final String SR = "SR";
+    public static final String SRF = "SRF";
+    public static final String SRF_PODCAST = "SRF.Podcast";
+    public static final String SWR = "SWR";
+    public static final String WDR = "WDR";
+    public static final String ZDF = "ZDF";
+    public static final String ZDF_TIVI = "ZDF-tivi";
 
-        public final String name;
+    public static final String[] SENDER = {DREISAT, ARD, ARTE_DE, ARTE_FR, BR, DW, HR, KIKA, MDR, NDR, ORF, PHOENIX, RBB, SR, SRF, SRF_PODCAST, SWR, WDR, ZDF, ZDF_TIVI};
 
-        Sender(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public static String[] getNames() {
-            String[] ret = new String[values().length];
-
-            for (int i = 0; i < values().length; ++i) {
-                ret[i] = values()[i].name;
-            }
-            return ret;
-        }
-    }
-
+//    public static enum Sender {
+//        DREISAT("3Sat"),
+//        ARD("ARD"),
+//        ARTE_DE("ARTE.DE"),
+//        ARTE_FR("ARTE.FR"),
+//        BR("BR"),
+//        DW("DW"),
+//        HR("HR"),
+//        KIKA("KiKA"),
+//        MDR("MDR"),
+//        NDR("NDR"),
+//        ORF("ORF"),
+//        PHOENIX("PHOENIX"),
+//        RBB("RBB"),
+//        SR("SR"),
+//        SRF("SRF"),
+//        SRF_PODCAST("SRF.Podcast"),
+//        SWR("SWR"),
+//        WDR("WDR"),
+//        ZDF("ZDF"),
+//        ZDF_TIVI("ZDF-tivi");
+//
+//        public final String name;
+//
+//        Sender(String name) {
+//            this.name = name;
+//        }
+//
+//        public String getName() {
+//            return name;
+//        }
+//
+//        public static String[] getNames() {
+//            String[] ret = new String[values().length];
+//
+//            for (int i = 0; i < values().length; ++i) {
+//                ret[i] = values()[i].name;
+//            }
+//            return ret;
+//        }
+//    }
 }

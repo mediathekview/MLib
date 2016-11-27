@@ -22,7 +22,6 @@ package mSearch.daten;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import mSearch.Const;
-import mSearch.Const.Sender;
 import mSearch.tool.*;
 
 public class DatenFilm implements Comparable<DatenFilm> {
@@ -210,12 +209,11 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     public void setGeo() {
-        Sender s = Sender.valueOf(arr[DatenFilm.FILM_SENDER]);
-        switch (s) {
-            case ARD:
-            case SWR:
-            case MDR:
-            case BR:
+        switch (arr[DatenFilm.FILM_SENDER]) {
+            case Const.ARD:
+            case Const.SWR:
+            case Const.MDR:
+            case Const.BR:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://mvideos-geo.daserste.de/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://media.ndr.de/progressive_geo/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://cdn-storage.br.de/geo/")
@@ -226,9 +224,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
                     arr[DatenFilm.FILM_GEO] = GEO_DE;
                 }
                 break;
-            case ZDF:
-            case ZDF_TIVI:
-            case DREISAT:
+            case Const.ZDF:
+            case Const.ZDF_TIVI:
+            case Const.DREISAT:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/de/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/de/")
                         || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/de/")) {
@@ -243,23 +241,23 @@ public class DatenFilm implements Comparable<DatenFilm> {
                     arr[DatenFilm.FILM_GEO] = GEO_DE + "-" + GEO_AT + "-" + GEO_CH + "-" + GEO_EU;
                 }
                 break;
-            case ORF:
+            case Const.ORF:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://apasfpd.apa.at/cms-austria/")
                         || arr[DatenFilm.FILM_URL].startsWith("rtmp://apasfw.apa.at/cms-austria/")) {
                     arr[DatenFilm.FILM_GEO] = GEO_AT;
                 }
                 break;
-            case SRF_PODCAST:
+            case Const.SRF_PODCAST:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://podcasts.srf.ch/ch/audio/")) {
                     arr[DatenFilm.FILM_GEO] = GEO_CH;
                 }
                 break;
-            case NDR:
+            case Const.NDR:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://media.ndr.de/progressive_geo")) {
                     arr[DatenFilm.FILM_GEO] = GEO_DE;
                 }
                 break;
-            case KIKA:
+            case Const.KIKA:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://pmdgeo.kika.de/")) {
                     arr[DatenFilm.FILM_GEO] = GEO_DE;
                 }
@@ -302,7 +300,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     private static String getUrl(String ssender, String uurl) {
         // liefert die URL zum VERGLEICHEN!!
         String url = "";
-        if (ssender.equals(Sender.ORF.name)) {
+        if (ssender.equals(Const.ORF)) {
             try {
                 url = uurl.substring(uurl.indexOf("/online/") + "/online/".length());
                 if (!url.contains("/")) {
@@ -322,7 +320,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             } catch (Exception ex) {
                 Log.errorLog(915230478, ex, "Url: " + uurl);
             }
-            return Sender.ORF.name + "----" + url;
+            return Const.ORF + "----" + url;
         } else {
             return uurl;
         }

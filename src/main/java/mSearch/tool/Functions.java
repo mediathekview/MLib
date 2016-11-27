@@ -23,7 +23,7 @@ import com.jidesoft.utils.SystemInfo;
 import java.io.File;
 import java.security.CodeSource;
 import java.util.ResourceBundle;
-import mSearch.Main;
+import mSearch.Const;
 import mSearch.daten.DatenFilm;
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -107,7 +107,7 @@ public class Functions {
         File propFile = new File(pFilePath);
         if (!propFile.exists()) {
             try {
-                CodeSource cS = Main.class.getProtectionDomain().getCodeSource();
+                CodeSource cS = Const.class.getProtectionDomain().getCodeSource();
                 File jarFile = new File(cS.getLocation().toURI().getPath());
                 String jarDir = jarFile.getParentFile().getPath();
                 propFile = new File(jarDir + File.separator + pFilePath);
