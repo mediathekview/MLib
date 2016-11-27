@@ -60,4 +60,47 @@ public class Const {
     public static final int ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE = 3 * 60 * 60; // beim Start des Programms wir die Liste geladen wenn sie älter ist als ..
     public static final String TIME_MAX_AGE_FOR_DIFF = "09"; // Uhrzeit ab der die Diffliste alle Änderungen abdeckt, die Filmliste darf also nicht vor xx erstellt worden sein
     public static final int MAX_BESCHREIBUNG = 400; // max länge der Beschreibung in Zeichen -> mehr gibts aber jetzt nicht mehr!
+
+    public static enum Sender {
+        DREISAT("3Sat"),
+        ARD("ARD"),
+        ARTE_DE("ARTE.DE"),
+        ARTE_FR("ARTE.FR"),
+        BR("BR"),
+        DW("DW"),
+        HR("HR"),
+        KIKA("KiKA"),
+        MDR("MDR"),
+        NDR("NDR"),
+        ORF("ORF"),
+        PHOENIX("PHOENIX"),
+        RBB("RBB"),
+        SR("SR"),
+        SRF("SRF"),
+        SRF_PODCAST("SRF.Podcast"),
+        SWR("SWR"),
+        WDR("WDR"),
+        ZDF("ZDF"),
+        ZDF_TIVI("ZDF-tivi");
+
+        public final String name;
+
+        Sender(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public static String[] getNames() {
+            String[] ret = new String[values().length];
+
+            for (int i = 0; i < values().length; ++i) {
+                ret[i] = values()[i].name;
+            }
+            return ret;
+        }
+    }
+
 }

@@ -13,3 +13,4 @@ dist/javadoc
 .externalToolBuilders
 .idea
 version.properties
+/.nb-gradle/

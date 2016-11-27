@@ -22,23 +22,24 @@
 package mSearch.filmeSuchen.sender;
 
 import java.util.ArrayList;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekRbb extends MediathekReader implements Runnable {
-    
-    public final static String SENDERNAME = "RBB";
+
+    public final static String SENDERNAME = Sender.RBB.name;
     final static String ROOTADR = "http://mediathek.rbb-online.de";
-    
+
     public MediathekRbb(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME,/* threads */ 2, /* urlWarten */ 500, startPrio);
     }
-    
+
     @Override
     void addToList() {
         MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
@@ -81,19 +82,19 @@ public class MediathekRbb extends MediathekReader implements Runnable {
             th.start();
         }
     }
-    
+
     private class ThemaLaden implements Runnable {
-        
+
         boolean addTage = false;
         GetUrl getUrl = new GetUrl(wartenSeiteLaden);
         private MSStringBuilder seite1 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite2 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
         private MSStringBuilder seite3 = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
-        
+
         public ThemaLaden(boolean addTage) {
             this.addTage = addTage;
         }
-        
+
         @Override
         public void run() {
             String link[];
@@ -112,7 +113,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
             }
             meldungThreadUndFertig();
         }
-        
+
         void addTage() {
             // http://mediathek.rbb-online.de/tv/sendungVerpasst?topRessort=tv&kanal=5874&tag=0
             final String MUSTER_START = "<h2 class=\"modHeadline\">7 Tage Rückblick</h2>";
@@ -134,10 +135,10 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         Log.errorLog(751203697, "keine URL für: " + urlSeite);
                     }
                 }
-                
+
             }
         }
-        
+
         void addThema(String url, boolean weiter) {
             try {
                 final String URL = "<a href=\"/tv/";
@@ -169,7 +170,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 Log.errorLog(541236987, ex);
             }
         }
-        
+
         void addFilme(String urlSeite) {
             try {
                 meldung(urlSeite);
@@ -201,7 +202,7 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                         datum = datum.substring(0, 6) + "20" + datum.substring(6);
                     }
                 }
-                
+
                 String urlFilm = urlSeite.substring(urlSeite.indexOf("documentId=") + "documentId=".length(), urlSeite.indexOf("&"));
                 // http://mediathek.rbb-online.de/play/media/24938774?devicetype=pc&features=hls
                 urlFilm = "http://mediathek.rbb-online.de/play/media/" + urlFilm + "?devicetype=pc&features=hls";
@@ -259,6 +260,6 @@ public class MediathekRbb extends MediathekReader implements Runnable {
                 Log.errorLog(541236987, ex);
             }
         }
-        
+
     }
 }

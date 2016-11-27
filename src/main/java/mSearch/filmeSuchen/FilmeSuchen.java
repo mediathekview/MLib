@@ -21,14 +21,13 @@ package mSearch.filmeSuchen;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import javax.swing.event.EventListenerList;
 import mSearch.Config;
+import mSearch.Const.Sender;
 import mSearch.daten.ListeFilme;
 import mSearch.filmeSuchen.sender.*;
-import mSearch.tool.GermanStringSorter;
 import mSearch.tool.Log;
 
 /**
@@ -82,32 +81,34 @@ public class FilmeSuchen {
 
     public static String[] getNamenSender() {
         // liefert eine Array mit allen Sendernamen
-        LinkedList<String> liste = new LinkedList<>();
-        liste.add(MediathekArd.SENDERNAME);
-        liste.add(MediathekZdf.SENDERNAME);
-        liste.add(MediathekZdfTivi.SENDERNAME);
-        liste.add(MediathekArte_de.SENDERNAME);
-        liste.add(MediathekArte_fr.SENDERNAME);
-        liste.add(Mediathek3Sat.SENDERNAME);
-        liste.add(MediathekSwr.SENDERNAME);
-        liste.add(MediathekNdr.SENDERNAME);
-        liste.add(MediathekKika.SENDERNAME);
-        liste.add(MediathekDw.SENDERNAME);
-        // Spalte 2
-        liste.add(MediathekMdr.SENDERNAME);
-        liste.add(MediathekWdr.SENDERNAME);
-        liste.add(MediathekHr.SENDERNAME);
-        liste.add(MediathekRbb.SENDERNAME);
-        liste.add(MediathekSr.SENDERNAME);
-        liste.add(MediathekBr.SENDERNAME);
-        liste.add(MediathekSrf.SENDERNAME);
-        liste.add(MediathekSrfPod.SENDERNAME);
-        liste.add(MediathekOrf.SENDERNAME);
-        liste.add(MediathekPhoenix.SENDERNAME);
-
-        GermanStringSorter sorter = GermanStringSorter.getInstance();
-        Collections.sort(liste, sorter);
-        return liste.toArray(new String[liste.size()]);
+        return Sender.getNames();
+        
+//        LinkedList<String> liste = new LinkedList<>();
+//        liste.add(MediathekArd.SENDERNAME);
+//        liste.add(MediathekZdf.SENDERNAME);
+//        liste.add(MediathekZdfTivi.SENDERNAME);
+//        liste.add(MediathekArte_de.SENDERNAME);
+//        liste.add(MediathekArte_fr.SENDERNAME);
+//        liste.add(Mediathek3Sat.SENDERNAME);
+//        liste.add(MediathekSwr.SENDERNAME);
+//        liste.add(MediathekNdr.SENDERNAME);
+//        liste.add(MediathekKika.SENDERNAME);
+//        liste.add(MediathekDw.SENDERNAME);
+//        // Spalte 2
+//        liste.add(MediathekMdr.SENDERNAME);
+//        liste.add(MediathekWdr.SENDERNAME);
+//        liste.add(MediathekHr.SENDERNAME);
+//        liste.add(MediathekRbb.SENDERNAME);
+//        liste.add(MediathekSr.SENDERNAME);
+//        liste.add(MediathekBr.SENDERNAME);
+//        liste.add(MediathekSrf.SENDERNAME);
+//        liste.add(MediathekSrfPod.SENDERNAME);
+//        liste.add(MediathekOrf.SENDERNAME);
+//        liste.add(MediathekPhoenix.SENDERNAME);
+//
+//        GermanStringSorter sorter = GermanStringSorter.getInstance();
+//        Collections.sort(liste, sorter);
+//        return liste.toArray(new String[liste.size()]);
     }
 
     public void addAdListener(ListenerFilmeLaden listener) {

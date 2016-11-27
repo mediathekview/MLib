@@ -22,6 +22,7 @@ package mSearch.filmeSuchen.sender;
 import java.util.ArrayList;
 import mSearch.Config;
 import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
@@ -30,7 +31,7 @@ import mSearch.tool.MSStringBuilder;
 
 public class MediathekDw extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "DW";
+    public final static String SENDERNAME = Sender.DW.name;
 
     public MediathekDw(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME, /* threads */ 4, /* urlWarten */ 500, startPrio);

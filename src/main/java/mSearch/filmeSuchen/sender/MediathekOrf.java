@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import mSearch.Config;
 import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
@@ -35,7 +36,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekOrf extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "ORF";
+    public final static String SENDERNAME = Sender.ORF.name;
     private static final String THEMA_TAG = "-1";
     private static final String THEMA_SENDUNGEN = "-2";
 

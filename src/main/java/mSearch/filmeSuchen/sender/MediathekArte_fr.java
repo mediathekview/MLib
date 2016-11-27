@@ -19,11 +19,12 @@
  */
 package mSearch.filmeSuchen.sender;
 
+import mSearch.Const.Sender;
 import mSearch.filmeSuchen.FilmeSuchen;
 
 public class MediathekArte_fr extends MediathekArte_de implements Runnable {
 
-    public final static String SENDERNAME = "ARTE.FR";
+    public final static String SENDERNAME = Sender.ARTE_FR.name;
 
     /**
      *

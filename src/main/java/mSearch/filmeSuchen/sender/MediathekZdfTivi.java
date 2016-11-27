@@ -21,17 +21,18 @@ package mSearch.filmeSuchen.sender;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekZdfTivi extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "ZDF-tivi";
+    public final static String SENDERNAME = Sender.ZDF_TIVI.name;
     private final SimpleDateFormat sdfIn = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     private final SimpleDateFormat sdfOut_date = new SimpleDateFormat("dd.MM.yyyy");
     private final SimpleDateFormat sdfOut_time = new SimpleDateFormat("HH:mm:ss");

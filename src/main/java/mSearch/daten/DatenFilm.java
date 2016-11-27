@@ -22,7 +22,7 @@ package mSearch.daten;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import mSearch.Const;
-import mSearch.filmeSuchen.sender.*;
+import mSearch.Const.Sender;
 import mSearch.tool.*;
 
 public class DatenFilm implements Comparable<DatenFilm> {
@@ -210,11 +210,12 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     public void setGeo() {
-        switch (arr[DatenFilm.FILM_SENDER]) {
-            case MediathekArd.SENDERNAME:
-            case MediathekSwr.SENDERNAME:
-            case MediathekMdr.SENDERNAME:
-            case MediathekBr.SENDERNAME:
+        Sender s = Sender.valueOf(arr[DatenFilm.FILM_SENDER]);
+        switch (s) {
+            case ARD:
+            case SWR:
+            case MDR:
+            case BR:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://mvideos-geo.daserste.de/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://media.ndr.de/progressive_geo/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://cdn-storage.br.de/geo/")
@@ -225,9 +226,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
                     arr[DatenFilm.FILM_GEO] = GEO_DE;
                 }
                 break;
-            case MediathekZdf.SENDERNAME:
-            case MediathekZdfTivi.SENDERNAME:
-            case Mediathek3Sat.SENDERNAME:
+            case ZDF:
+            case ZDF_TIVI:
+            case DREISAT:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/de/")
                         || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/de/")
                         || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/de/")) {
@@ -242,23 +243,23 @@ public class DatenFilm implements Comparable<DatenFilm> {
                     arr[DatenFilm.FILM_GEO] = GEO_DE + "-" + GEO_AT + "-" + GEO_CH + "-" + GEO_EU;
                 }
                 break;
-            case MediathekOrf.SENDERNAME:
+            case ORF:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://apasfpd.apa.at/cms-austria/")
                         || arr[DatenFilm.FILM_URL].startsWith("rtmp://apasfw.apa.at/cms-austria/")) {
                     arr[DatenFilm.FILM_GEO] = GEO_AT;
                 }
                 break;
-            case MediathekSrfPod.SENDERNAME:
+            case SRF_PODCAST:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://podcasts.srf.ch/ch/audio/")) {
                     arr[DatenFilm.FILM_GEO] = GEO_CH;
                 }
                 break;
-            case MediathekNdr.SENDERNAME:
+            case NDR:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://media.ndr.de/progressive_geo")) {
                     arr[DatenFilm.FILM_GEO] = GEO_DE;
                 }
                 break;
-            case MediathekKika.SENDERNAME:
+            case KIKA:
                 if (arr[DatenFilm.FILM_URL].startsWith("http://pmdgeo.kika.de/")) {
                     arr[DatenFilm.FILM_GEO] = GEO_DE;
                 }
@@ -301,7 +302,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     private static String getUrl(String ssender, String uurl) {
         // liefert die URL zum VERGLEICHEN!!
         String url = "";
-        if (ssender.equals(MediathekOrf.SENDERNAME)) {
+        if (ssender.equals(Sender.ORF.name)) {
             try {
                 url = uurl.substring(uurl.indexOf("/online/") + "/online/".length());
                 if (!url.contains("/")) {
@@ -321,7 +322,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             } catch (Exception ex) {
                 Log.errorLog(915230478, ex, "Url: " + uurl);
             }
-            return MediathekOrf.SENDERNAME + "----" + url;
+            return Sender.ORF.name + "----" + url;
         } else {
             return uurl;
         }

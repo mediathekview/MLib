@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import mSearch.Config;
 import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
@@ -33,7 +34,7 @@ import mSearch.tool.MSStringBuilder;
 
 public class MediathekKika extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "KiKA";
+    public final static String SENDERNAME = Sender.KIKA.name;
     private MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
     LinkedListUrl listeAllVideos = new LinkedListUrl();
 

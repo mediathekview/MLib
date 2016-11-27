@@ -21,17 +21,18 @@ package mSearch.filmeSuchen.sender;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekArte_de extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "ARTE.DE";
+    public final static String SENDERNAME = Sender.ARTE_DE.name;
 
     // "Freitag, 02. August um 12:41 Uhr"
     SimpleDateFormat sdfZeit = new SimpleDateFormat("HH:mm:ss");

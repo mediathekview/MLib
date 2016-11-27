@@ -22,18 +22,19 @@ package mSearch.filmeSuchen.sender;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Functions;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekHr extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "HR";
+    public final static String SENDERNAME = Sender.HR.name;
     private MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
     private MSStringBuilder rubrikSeite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 

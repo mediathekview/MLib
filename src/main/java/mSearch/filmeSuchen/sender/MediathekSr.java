@@ -20,17 +20,18 @@
 package mSearch.filmeSuchen.sender;
 
 import java.util.ArrayList;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekSr extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "SR";
+    public final static String SENDERNAME = Sender.SR.name;
 
     /**
      *

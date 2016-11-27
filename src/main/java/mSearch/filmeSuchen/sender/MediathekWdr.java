@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import mSearch.Config;
 import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
@@ -36,7 +37,7 @@ import mSearch.tool.MSStringBuilder;
 
 public class MediathekWdr extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "WDR";
+    public final static String SENDERNAME = Sender.WDR.name;
     private final static String ROCKPALAST_URL = "http://www1.wdr.de/fernsehen/rockpalast/startseite/index.html";
     private final static String ROCKPALAST_FESTIVAL = "http://www1.wdr.de/fernsehen/rockpalast/events/index.html";
     private final static String MAUS = "http://www.wdrmaus.de/lachgeschichten/spots.php5";

@@ -24,18 +24,19 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekSrf extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "SRF";
+    public final static String SENDERNAME = Sender.SRF.name;
     private final static int MAX_SEITEN_THEMA = 5;
     private final static int MAX_FILME_KURZ = 6;
 

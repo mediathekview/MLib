@@ -20,17 +20,18 @@
 package mSearch.filmeSuchen.sender;
 
 import java.util.ArrayList;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekArd extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "ARD";
+    public final static String SENDERNAME = Sender.ARD.name;
     MSStringBuilder seiteFeed = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
     private final String THEMA_TAGE = "TAGE";
 
@@ -470,7 +471,7 @@ public class MediathekArd extends MediathekReader implements Runnable {
 
         private void filmSuchen_old(String urlSendung, String thema, String titel, long dauer, String datum, String zeit) {
             // für ganz alte Sachen:
-                /*
+            /*
              </li><li data-ctrl-21282662-28534346-trigger="{&#039;xt_obj&#039;:{&#039;href&#039;
              :&#039;http://cdn-vod-ios.br.de/i/mir-live/bw1XsLzS/bLQH/bLOliLioMXZhiKT1/uLoXb69zbX06/MUJIuUOVBwQIb71S/bLWCMUJIuUOVBwQIb71S/_2rp9U1S/_-J
              S/_-4y5H1S/bc3757a9-1cfd-4aaa-a963-51e9fd0095f2_,0,A,B,E,C,.mp4.csmil/master.m3u8?__b__=200&#039;,&#039;target&#039;:&#039;_self&#039;},&#039;redirect&#0

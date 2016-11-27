@@ -22,17 +22,18 @@ package mSearch.filmeSuchen.sender;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekNdr extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "NDR";
+    public final static String SENDERNAME = Sender.NDR.name;
     private MSStringBuilder seiteAlle = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
     public MediathekNdr(FilmeSuchen ssearch, int startPrio) {

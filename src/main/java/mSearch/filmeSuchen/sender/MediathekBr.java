@@ -25,18 +25,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class MediathekBr extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "BR";
+    public final static String SENDERNAME = Sender.BR.name;
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.ENGLISH);//08.11.2013, 18:00
     private final SimpleDateFormat sdfOutTime = new SimpleDateFormat("HH:mm:ss");
     private final SimpleDateFormat sdfOutDay = new SimpleDateFormat("dd.MM.yyyy");

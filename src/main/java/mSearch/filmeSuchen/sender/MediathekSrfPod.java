@@ -22,17 +22,18 @@ package mSearch.filmeSuchen.sender;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekSrfPod extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "SRF.Podcast";
+    public final static String SENDERNAME = Sender.SRF_PODCAST.name;
     private MSStringBuilder seite = new MSStringBuilder(Const.STRING_BUFFER_START_BUFFER);
 
     public MediathekSrfPod(FilmeSuchen ssearch, int startPrio) {

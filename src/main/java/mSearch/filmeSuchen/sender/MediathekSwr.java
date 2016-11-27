@@ -20,11 +20,12 @@
 package mSearch.filmeSuchen.sender;
 
 import java.util.ArrayList;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -34,7 +35,7 @@ public class MediathekSwr extends MediathekReader implements Runnable {
     private static final int wartenKurz = 2000;
     private static final int wartenLang = 4000;
 
-    public final static String SENDERNAME = "SWR";
+    public final static String SENDERNAME = Sender.SWR.name;
 
     public MediathekSwr(FilmeSuchen ssearch, int startPrio) {
         super(ssearch, SENDERNAME, /* threads */ 2, /* urlWarten */ wartenLang, startPrio);

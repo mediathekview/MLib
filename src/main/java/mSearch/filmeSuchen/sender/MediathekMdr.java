@@ -23,17 +23,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.Const.Sender;
 import mSearch.daten.DatenFilm;
 import mSearch.filmeSuchen.FilmeSuchen;
 import mSearch.filmeSuchen.GetUrl;
-import mSearch.Config;
-import mSearch.Const;
 import mSearch.tool.Log;
 import mSearch.tool.MSStringBuilder;
 
 public class MediathekMdr extends MediathekReader implements Runnable {
 
-    public final static String SENDERNAME = "MDR";
+    public final static String SENDERNAME = Sender.MDR.name;
     private final LinkedList<String> listeTage = new LinkedList<>();
     private final LinkedList<String[]> listeGesucht = new LinkedList<>(); //thema,titel,datum,zeit
 
