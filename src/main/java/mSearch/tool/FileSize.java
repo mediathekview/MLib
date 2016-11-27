@@ -2,8 +2,6 @@ package mSearch.tool;
 
 import java.net.*;
 import mSearch.Config;
-import mSearch.filmeSuchen.FilmeSuchen;
-import mSearch.filmeSuchen.RunSender;
 
 public class FileSize {
 
@@ -53,7 +51,7 @@ public class FileSize {
         if (!url.toLowerCase().startsWith("http")) {
             return ret;
         }
-        FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_SUM);
+////        FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_SUM);
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestProperty("User-Agent", Config.getUserAgent());
@@ -67,7 +65,7 @@ public class FileSize {
 
             // dann über eine Proxy
             if (retCode == 403) {
-                FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_SUM403);
+////                FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_SUM403);
                 if (!Config.proxyUrl.isEmpty() && Config.proxyPort > 0) {
                     // nur dann verwenden, wenn ein Proxy angegeben
                     try {
@@ -80,7 +78,7 @@ public class FileSize {
                         ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
                         conn.disconnect();
                         if (ret > 0) {
-                            FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_PROXY);
+////                            FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_PROXY);
                         }
                     } catch (Exception ex) {
                         ret = -1;

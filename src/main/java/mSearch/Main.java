@@ -19,8 +19,6 @@
  */
 package mSearch;
 
-import javafx.application.Application;
-import mSearch.gui.MSG;
 import mSearch.tool.Log;
 
 public class Main {
@@ -35,7 +33,7 @@ public class Main {
             if (args != null) {
                 for (String s : args) {
                     if (s.equalsIgnoreCase("-gui")) {
-                        Application.launch(MSG.class, args);
+////                        Application.launch(MSG.class, args);
                     }
                 }
             }
