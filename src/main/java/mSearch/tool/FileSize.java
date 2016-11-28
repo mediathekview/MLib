@@ -1,6 +1,7 @@
 package mSearch.tool;
 
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import mSearch.Config;
 
 public class FileSize {
@@ -66,25 +67,25 @@ public class FileSize {
             // dann über eine Proxy
             if (retCode == 403) {
 ////                FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_SUM403);
-                if (!Config.proxyUrl.isEmpty() && Config.proxyPort > 0) {
-                    // nur dann verwenden, wenn ein Proxy angegeben
-                    try {
-                        SocketAddress saddr = new InetSocketAddress(Config.proxyUrl, Config.proxyPort);
-                        Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
-                        conn = (HttpURLConnection) new URL(url).openConnection(proxy);
-                        conn.setRequestProperty("User-Agent", Config.getUserAgent());
-                        conn.setReadTimeout(TIMEOUT);
-                        conn.setConnectTimeout(TIMEOUT);
-                        ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
-                        conn.disconnect();
-                        if (ret > 0) {
-////                            FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_PROXY);
-                        }
-                    } catch (Exception ex) {
-                        ret = -1;
-                        Log.errorLog(963215478, ex);
-                    }
-                }
+//                if (!Config.proxyUrl.isEmpty() && Config.proxyPort > 0) {
+//                    // nur dann verwenden, wenn ein Proxy angegeben
+//                    try {
+//                        SocketAddress saddr = new InetSocketAddress(Config.proxyUrl, Config.proxyPort);
+//                        Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
+//                        conn = (HttpURLConnection) new URL(url).openConnection(proxy);
+//                        conn.setRequestProperty("User-Agent", Config.getUserAgent());
+//                        conn.setReadTimeout(TIMEOUT);
+//                        conn.setConnectTimeout(TIMEOUT);
+//                        ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
+//                        conn.disconnect();
+//                        if (ret > 0) {
+//////                            FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_PROXY);
+//                        }
+//                    } catch (Exception ex) {
+//                        ret = -1;
+//                        Log.errorLog(963215478, ex);
+//                    }
+//                }
             }
         } catch (Exception ex) {
             ret = -1;
