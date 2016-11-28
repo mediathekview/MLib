@@ -148,19 +148,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 urlStream, ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "");
     }
 
-    public void addUrlKlein(String url, String urlRtmp) {
-        arr[FILM_URL_KLEIN] = url.isEmpty() ? "" : getKlein(arr[FILM_URL], url);
-        arr[FILM_URL_RTMP_KLEIN] = urlRtmp.isEmpty() ? "" : getKlein(arr[FILM_URL_RTMP], urlRtmp);
-    }
-
-    public void addUrlHd(String url, String urlRtmp) {
-        arr[FILM_URL_HD] = url.isEmpty() ? "" : getKlein(arr[FILM_URL], url);
-        arr[FILM_URL_RTMP_HD] = urlRtmp.isEmpty() ? "" : getKlein(arr[FILM_URL_RTMP], urlRtmp);
-    }
-
-    public void addUrlSubtitle(String url) {
-        arr[FILM_URL_SUBTITLE] = url;
-    }
 
     public String getUrlSubtitle() {
         return arr[FILM_URL_SUBTITLE];
@@ -208,62 +195,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
-    public void setGeo() {
-        switch (arr[DatenFilm.FILM_SENDER]) {
-            case Const.ARD:
-            case Const.SWR:
-            case Const.MDR:
-            case Const.BR:
-                if (arr[DatenFilm.FILM_URL].startsWith("http://mvideos-geo.daserste.de/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://media.ndr.de/progressive_geo/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://cdn-storage.br.de/geo/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://cdn-sotschi.br.de/geo/b7/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://pd-ondemand.swr.de/geo/de/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://ondemandgeo.mdr.de/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://ondemand-de.wdr.de/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE;
-                }
-                break;
-            case Const.ZDF:
-            case Const.ZDF_TIVI:
-            case Const.DREISAT:
-                if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/de/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/de/")
-                        || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/de/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE;
-                } else if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/dach/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/dach/")
-                        || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/dach")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE + "-" + GEO_AT + "-" + GEO_CH;
-                } else if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/ebu/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/ebu/")
-                        || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/ebu/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE + "-" + GEO_AT + "-" + GEO_CH + "-" + GEO_EU;
-                }
-                break;
-            case Const.ORF:
-                if (arr[DatenFilm.FILM_URL].startsWith("http://apasfpd.apa.at/cms-austria/")
-                        || arr[DatenFilm.FILM_URL].startsWith("rtmp://apasfw.apa.at/cms-austria/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_AT;
-                }
-                break;
-            case Const.SRF_PODCAST:
-                if (arr[DatenFilm.FILM_URL].startsWith("http://podcasts.srf.ch/ch/audio/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_CH;
-                }
-                break;
-            case Const.NDR:
-                if (arr[DatenFilm.FILM_URL].startsWith("http://media.ndr.de/progressive_geo")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE;
-                }
-                break;
-            case Const.KIKA:
-                if (arr[DatenFilm.FILM_URL].startsWith("http://pmdgeo.kika.de/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE;
-                }
-                break;
-        }
-    }
 
     public String getUrlHistory() {
         if (arr[DatenFilm.FILM_URL_HISTORY].isEmpty()) {
@@ -436,26 +367,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
-    private String getKlein(String url1, String url2) {
-        String ret = "";
-        boolean diff = false;
-        for (int i = 0; i < url2.length(); ++i) {
-            if (url1.length() > i) {
-                if (url1.charAt(i) != url2.charAt(i)) {
-                    if (!diff) {
-                        ret = i + "|";
-                    }
-                    diff = true;
-                }
-            } else {
-                diff = true;
-            }
-            if (diff) {
-                ret += url2.charAt(i);
-            }
-        }
-        return ret;
-    }
 
     private String getUrlNormalKlein() {
         // liefert die kleine normale URL

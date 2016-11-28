@@ -93,9 +93,9 @@ public class FilmlistenSuchen {
         ListeFilmlistenUrls tmp = new ListeFilmlistenUrls();
         if (akt) {
             getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_AKT, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
-            if (tmp.isEmpty()) {
-                getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_AKT_RES, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
-            }
+//            if (tmp.isEmpty()) {
+//                getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_AKT_RES, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
+//            }
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_akt = tmp;
             } else if (listeFilmlistenUrls_akt.isEmpty()) {
@@ -116,9 +116,9 @@ public class FilmlistenSuchen {
             listeFilmlistenUrls_akt.sort();
         } else {
             getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
-            if (tmp.isEmpty()) {
-                getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_DIFF_RES, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
-            }
+//            if (tmp.isEmpty()) {
+//                getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_DIFF_RES, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
+//            }
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_diff = tmp;
             } else if (listeFilmlistenUrls_diff.isEmpty()) {

@@ -28,12 +28,12 @@ public class Const {
     public static final String PROGRAMMNAME = "MSearch";
     public static final String USER_AGENT_DEFAULT = Const.PROGRAMMNAME + Functions.getProgVersionString();
     // MediathekView URLs
-    public static final String ADRESSE_FILMLISTEN_SERVER_XML = "http://zdfmediathk.sourceforge.net/update.xml";
-    public static final String ADRESSE_FILMLISTEN_SERVER_JSON = "http://zdfmediathk.sourceforge.net/update-json.xml";
+//    public static final String ADRESSE_FILMLISTEN_SERVER_XML = "http://zdfmediathk.sourceforge.net/update.xml";
+//    public static final String ADRESSE_FILMLISTEN_SERVER_JSON = "http://zdfmediathk.sourceforge.net/update-json.xml";
     public static final String ADRESSE_FILMLISTEN_SERVER_DIFF = "http://zdfmediathk.sourceforge.net/diff.xml";
     public static final String ADRESSE_FILMLISTEN_SERVER_AKT = "http://zdfmediathk.sourceforge.net/akt.xml";
-    public static final String ADRESSE_FILMLISTEN_SERVER_DIFF_RES = "http://92.51.131.172/diff.xml";
-    public static final String ADRESSE_FILMLISTEN_SERVER_AKT_RES = "http://92.51.131.172/akt.xml";
+//    public static final String ADRESSE_FILMLISTEN_SERVER_DIFF_RES = "http://92.51.131.172/diff.xml";
+//    public static final String ADRESSE_FILMLISTEN_SERVER_AKT_RES = "http://92.51.131.172/akt.xml";
 
 //    public static final String DATEINAME_LISTE_FILMLISTEN = "filmlisten.xml";
     public static final String ADRESSE_PROGRAMM_VERSION = "http://zdfmediathk.sourceforge.net/version.xml";
@@ -84,45 +84,4 @@ public class Const {
 
     public static final String[] SENDER = {DREISAT, ARD, ARTE_DE, ARTE_FR, BR, DW, HR, KIKA, MDR, NDR, ORF, PHOENIX, RBB, SR, SRF, SRF_PODCAST, SWR, WDR, ZDF, ZDF_TIVI};
 
-//    public static enum Sender {
-//        DREISAT("3Sat"),
-//        ARD("ARD"),
-//        ARTE_DE("ARTE.DE"),
-//        ARTE_FR("ARTE.FR"),
-//        BR("BR"),
-//        DW("DW"),
-//        HR("HR"),
-//        KIKA("KiKA"),
-//        MDR("MDR"),
-//        NDR("NDR"),
-//        ORF("ORF"),
-//        PHOENIX("PHOENIX"),
-//        RBB("RBB"),
-//        SR("SR"),
-//        SRF("SRF"),
-//        SRF_PODCAST("SRF.Podcast"),
-//        SWR("SWR"),
-//        WDR("WDR"),
-//        ZDF("ZDF"),
-//        ZDF_TIVI("ZDF-tivi");
-//
-//        public final String name;
-//
-//        Sender(String name) {
-//            this.name = name;
-//        }
-//
-//        public String getName() {
-//            return name;
-//        }
-//
-//        public static String[] getNames() {
-//            String[] ret = new String[values().length];
-//
-//            for (int i = 0; i < values().length; ++i) {
-//                ret[i] = values()[i].name;
-//            }
-//            return ret;
-//        }
-//    }
 }
