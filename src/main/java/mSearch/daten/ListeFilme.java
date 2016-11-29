@@ -19,21 +19,20 @@
  */
 package mSearch.daten;
 
-import java.security.MessageDigest;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
 import mSearch.Const;
 import mSearch.tool.Duration;
 import mSearch.tool.FileSize;
 import mSearch.tool.Functions;
 import mSearch.tool.Log;
 
+import java.security.MessageDigest;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@SuppressWarnings("serial")
 public class ListeFilme extends ArrayList<DatenFilm> {
-
-    private static final long serialVersionUID = 1L;
-
     public static final String THEMA_LIVE = "Livestream";
     public static final String FILMLISTE = "Filmliste";
     public static final String FILMLISTE_DATUM = "Filmliste-Datum";
