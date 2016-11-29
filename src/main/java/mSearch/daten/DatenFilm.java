@@ -22,7 +22,6 @@ package mSearch.daten;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import mSearch.Const;
-import mSearch.filmeSuchen.sender.*;
 import mSearch.tool.*;
 
 public class DatenFilm implements Comparable<DatenFilm> {
@@ -149,19 +148,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 urlStream, ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "");
     }
 
-    public void addUrlKlein(String url, String urlRtmp) {
-        arr[FILM_URL_KLEIN] = url.isEmpty() ? "" : getKlein(arr[FILM_URL], url);
-        arr[FILM_URL_RTMP_KLEIN] = urlRtmp.isEmpty() ? "" : getKlein(arr[FILM_URL_RTMP], urlRtmp);
-    }
-
-    public void addUrlHd(String url, String urlRtmp) {
-        arr[FILM_URL_HD] = url.isEmpty() ? "" : getKlein(arr[FILM_URL], url);
-        arr[FILM_URL_RTMP_HD] = urlRtmp.isEmpty() ? "" : getKlein(arr[FILM_URL_RTMP], urlRtmp);
-    }
-
-    public void addUrlSubtitle(String url) {
-        arr[FILM_URL_SUBTITLE] = url;
-    }
 
     public String getUrlSubtitle() {
         return arr[FILM_URL_SUBTITLE];
@@ -209,62 +195,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
-    public void setGeo() {
-        switch (arr[DatenFilm.FILM_SENDER]) {
-            case MediathekArd.SENDERNAME:
-            case MediathekSwr.SENDERNAME:
-            case MediathekMdr.SENDERNAME:
-            case MediathekBr.SENDERNAME:
-                if (arr[DatenFilm.FILM_URL].startsWith("http://mvideos-geo.daserste.de/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://media.ndr.de/progressive_geo/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://cdn-storage.br.de/geo/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://cdn-sotschi.br.de/geo/b7/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://pd-ondemand.swr.de/geo/de/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://ondemandgeo.mdr.de/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://ondemand-de.wdr.de/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE;
-                }
-                break;
-            case MediathekZdf.SENDERNAME:
-            case MediathekZdfTivi.SENDERNAME:
-            case Mediathek3Sat.SENDERNAME:
-                if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/de/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/de/")
-                        || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/de/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE;
-                } else if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/dach/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/dach/")
-                        || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/dach")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE + "-" + GEO_AT + "-" + GEO_CH;
-                } else if (arr[DatenFilm.FILM_URL].startsWith("http://nrodl.zdf.de/ebu/")
-                        || arr[DatenFilm.FILM_URL].startsWith("http://rodl.zdf.de/ebu/")
-                        || arr[DatenFilm.FILM_URL].startsWith("https://nrodlzdf-a.akamaihd.net/ebu/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE + "-" + GEO_AT + "-" + GEO_CH + "-" + GEO_EU;
-                }
-                break;
-            case MediathekOrf.SENDERNAME:
-                if (arr[DatenFilm.FILM_URL].startsWith("http://apasfpd.apa.at/cms-austria/")
-                        || arr[DatenFilm.FILM_URL].startsWith("rtmp://apasfw.apa.at/cms-austria/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_AT;
-                }
-                break;
-            case MediathekSrfPod.SENDERNAME:
-                if (arr[DatenFilm.FILM_URL].startsWith("http://podcasts.srf.ch/ch/audio/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_CH;
-                }
-                break;
-            case MediathekNdr.SENDERNAME:
-                if (arr[DatenFilm.FILM_URL].startsWith("http://media.ndr.de/progressive_geo")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE;
-                }
-                break;
-            case MediathekKika.SENDERNAME:
-                if (arr[DatenFilm.FILM_URL].startsWith("http://pmdgeo.kika.de/")) {
-                    arr[DatenFilm.FILM_GEO] = GEO_DE;
-                }
-                break;
-        }
-    }
 
     public String getUrlHistory() {
         if (arr[DatenFilm.FILM_URL_HISTORY].isEmpty()) {
@@ -301,7 +231,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     private static String getUrl(String ssender, String uurl) {
         // liefert die URL zum VERGLEICHEN!!
         String url = "";
-        if (ssender.equals(MediathekOrf.SENDERNAME)) {
+        if (ssender.equals(Const.ORF)) {
             try {
                 url = uurl.substring(uurl.indexOf("/online/") + "/online/".length());
                 if (!url.contains("/")) {
@@ -321,7 +251,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             } catch (Exception ex) {
                 Log.errorLog(915230478, ex, "Url: " + uurl);
             }
-            return MediathekOrf.SENDERNAME + "----" + url;
+            return Const.ORF + "----" + url;
         } else {
             return uurl;
         }
@@ -437,26 +367,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
-    private String getKlein(String url1, String url2) {
-        String ret = "";
-        boolean diff = false;
-        for (int i = 0; i < url2.length(); ++i) {
-            if (url1.length() > i) {
-                if (url1.charAt(i) != url2.charAt(i)) {
-                    if (!diff) {
-                        ret = i + "|";
-                    }
-                    diff = true;
-                }
-            } else {
-                diff = true;
-            }
-            if (diff) {
-                ret += url2.charAt(i);
-            }
-        }
-        return ret;
-    }
 
     private String getUrlNormalKlein() {
         // liefert die kleine normale URL

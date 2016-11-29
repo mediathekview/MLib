@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import mSearch.Config;
 import mSearch.Const;
-import org.apache.commons.lang3.StringUtils;
 
 public class Log {
 
@@ -50,7 +49,7 @@ public class Log {
     }
     private static final LinkedList<Error> fehlerListe = new LinkedList<>();
     private static boolean progress = false;
-    private static final Date startZeit = new Date(System.currentTimeMillis());
+    public static final Date startZeit = new Date(System.currentTimeMillis());
     private static File logFile = null;
     private static final ArrayList<String> logList = new ArrayList<>();
 
@@ -109,38 +108,6 @@ public class Log {
             Log.sysLog(ja);
         }
         sysLog("");
-    }
-
-    public static synchronized void startMsg() {
-        startZeit.setTime(System.currentTimeMillis());
-        versionMsg(Const.PROGRAMMNAME);
-        sysLog(LILNE);
-        sysLog("");
-        sysLog("Programmpfad: " + Functions.getPathJar());
-        sysLog("Filmliste: " + Config.getPathFilmlist_json_akt(true /*aktDate*/));
-        sysLog("Useragent: " + Config.getUserAgent());
-        sysLog("");
-        sysLog(LILNE);
-        sysLog("");
-        if (Config.loadLongMax()) {
-            sysLog("Laden:  alles");
-        } else {
-            sysLog("Laden:  nur update");
-        }
-        if (Config.updateFilmliste) {
-            sysLog("Filmliste:  nur updaten");
-        } else {
-            sysLog("Filmliste:  neu erstellen");
-        }
-        sysLog("ImportURL 1:  " + Config.importUrl_1__anhaengen);
-        sysLog("ImportURL 2:  " + Config.importUrl_2__anhaengen);
-        sysLog("ImportOLD:  " + Config.importOld);
-        sysLog("ImportAkt:  " + Config.importAkt);
-        if (Config.nurSenderLaden != null) {
-            sysLog("Nur Sender laden:  " + StringUtils.join(Config.nurSenderLaden, ','));
-        }
-        sysLog("");
-        sysLog(LILNE);
     }
 
     public static synchronized void endMsg() {
