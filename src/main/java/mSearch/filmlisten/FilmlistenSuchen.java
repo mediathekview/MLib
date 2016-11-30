@@ -182,7 +182,7 @@ public class FilmlistenSuchen {
                     String parsername = parser.getLocalName();
                     if (parsername.equals("Server")) {
                         //wieder ein neuer Server, toll
-                        getServer(parser, listeFilmlistenUrls, art);
+                        parseServerEntry(parser, listeFilmlistenUrls, art);
                     }
                 }
             }
@@ -191,7 +191,13 @@ public class FilmlistenSuchen {
         }
     }
 
-    private void getServer(XMLStreamReader parser, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
+    /**
+     * Parse the server XML file.
+     * @param parser
+     * @param listeFilmlistenUrls
+     * @param art
+     */
+    private void parseServerEntry(XMLStreamReader parser, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
         String serverUrl = "";
         String prio = "";
         int event;
