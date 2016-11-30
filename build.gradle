@@ -6,7 +6,7 @@ import java.nio.file.Files
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 mainClassName = 'mSearch.Main'
-version = '2.0.2'
+version = '2.1.0'
 
 compileJava {
     options.encoding = "UTF-8"
@@ -65,10 +65,23 @@ task updateVersion << {
 processResources.dependsOn updateVersion
 
 distributions {
+
     main {
         baseName = 'MSearch'
         contents {
             from{'res'}
         }
     }
+}
+
+/**
+ * HOWTO debug:
+ *  1. run "gradle debug"
+ *  2. Call your IDE to connect to a remote java application on port 5005.
+ */
+task debug (type: JavaExec, dependsOn: classes){
+    main = 'mSearch.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args '-gui'
+    debug true
 }

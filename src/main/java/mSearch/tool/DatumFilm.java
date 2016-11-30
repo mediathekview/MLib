@@ -23,10 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+@SuppressWarnings("serial")
 public class DatumFilm extends Datum {
-
-    private static final long serialVersionUID = 1L;
-
     // die Filme werden immer in der Zeitzone "Europe/Berlin" gesucht
 
     private final static SDF dateFormatter1 = new SDF("dd.MM.yyyy");
@@ -59,8 +57,6 @@ public class DatumFilm extends Datum {
     }
 
     private static class SDF extends SimpleDateFormat {
-
-        private static final long serialVersionUID = 1L;
         private final static TimeZone tz = TimeZone.getTimeZone("Europe/Berlin");
 
         public SDF() {

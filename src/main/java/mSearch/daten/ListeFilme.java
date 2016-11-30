@@ -19,23 +19,20 @@
  */
 package mSearch.daten;
 
-import java.security.MessageDigest;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
-import mSearch.Config;
 import mSearch.Const;
-import mSearch.filmeSuchen.sender.*;
 import mSearch.tool.Duration;
 import mSearch.tool.FileSize;
 import mSearch.tool.Functions;
 import mSearch.tool.Log;
 
+import java.security.MessageDigest;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@SuppressWarnings("serial")
 public class ListeFilme extends ArrayList<DatenFilm> {
-
-    private static final long serialVersionUID = 1L;
-
     public static final String THEMA_LIVE = "Livestream";
     public static final String FILMLISTE = "Filmliste";
     public static final String FILMLISTE_DATUM = "Filmliste-Datum";
@@ -107,7 +104,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         if (ersetzen) {
             // ==========================================
             for (DatenFilm f : listeEinsortieren) {
-                if (f.arr[DatenFilm.FILM_SENDER].equals(MediathekKika.SENDERNAME)) {
+                if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
                     // beim KIKA ändern sich die URLs laufend
                     hash.add(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL]);
                 } else if (index) {
@@ -120,7 +117,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             Iterator<DatenFilm> it = this.iterator();
             while (it.hasNext()) {
                 DatenFilm f = it.next();
-                if (f.arr[DatenFilm.FILM_SENDER].equals(MediathekKika.SENDERNAME)) {
+                if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
                     // beim KIKA ändern sich die URLs laufend
                     if (hash.contains(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL])) {
                         it.remove();
@@ -138,7 +135,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         } else {
             // ==============================================
             for (DatenFilm f : this) {
-                if (f.arr[DatenFilm.FILM_SENDER].equals(MediathekKika.SENDERNAME)) {
+                if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
                     // beim KIKA ändern sich die URLs laufend
                     hash.add(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL]);
                 } else if (index) {
@@ -149,7 +146,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             }
 
             for (DatenFilm f : listeEinsortieren) {
-                if (f.arr[DatenFilm.FILM_SENDER].equals(MediathekKika.SENDERNAME)) {
+                if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
                     if (!hash.contains(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL])) {
                         addInit(f);
                     }
@@ -165,130 +162,129 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         hash.clear();
     }
 
-    public synchronized void addLive(ListeFilme listeEinsortieren) {
-        // live-streams einfügen, es werde die vorhandenen ersetzt!
+//    public synchronized void addLive(ListeFilme listeEinsortieren) {
+//        // live-streams einfügen, es werde die vorhandenen ersetzt!
+//
+//        if (listeEinsortieren.size() <= 0) {
+//            //dann wars wohl nix
+//            return;
+//        }
+//
+//        Iterator<DatenFilm> it = this.iterator();
+//        while (it.hasNext()) {
+//            DatenFilm f = it.next();
+//            if (f.arr[DatenFilm.FILM_THEMA].equals(ListeFilme.THEMA_LIVE)) {
+//                it.remove();
+//            }
+//        }
+//        listeEinsortieren.forEach(this::add);
+//    }
 
-        if (listeEinsortieren.size() <= 0) {
-            //dann wars wohl nix
-            return;
-        }
-
-        Iterator<DatenFilm> it = this.iterator();
-        while (it.hasNext()) {
-            DatenFilm f = it.next();
-            if (f.arr[DatenFilm.FILM_THEMA].equals(ListeFilme.THEMA_LIVE)) {
-                it.remove();
-            }
-        }
-        listeEinsortieren.forEach(this::add);
-    }
-
-    final int COUNTER_MAX = 20;
-    int counter = 0;
-    int treffer = 0;
-
-    public synchronized int updateListeOld(ListeFilme listeEinsortieren) {
-        // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
-        // es werden nur Filme die noch nicht vorhanden sind, einsortiert
-        counter = 0;
-        treffer = 0;
-        int size = listeEinsortieren.size();
-
-        HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
-
-        // ==============================================
-        // nach "Thema-Titel" suchen
-        this.stream().forEach((f) -> hash.add(f.getIndexAddOld()));
-        listeEinsortieren.removeIf((f) -> hash.contains(f.getIndexAddOld()));
-        hash.clear();
-
-        Log.sysLog("===== Liste einsortieren Hash =====");
-        Log.sysLog("Liste einsortieren, Anzahl: " + size);
-        Log.sysLog("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
-        Log.sysLog("Liste einsortieren, noch einsortieren: " + listeEinsortieren.size());
-        Log.sysLog("");
-        size = listeEinsortieren.size();
-
-        // ==============================================
-        // nach "URL" suchen
-        this.stream().forEach((f) -> hash.add(DatenFilm.getUrl(f)));
-        listeEinsortieren.removeIf((f) -> hash.contains(DatenFilm.getUrl(f)));
-        hash.clear();
-
-        Log.sysLog("===== Liste einsortieren URL =====");
-        Log.sysLog("Liste einsortieren, Anzahl: " + size);
-        Log.sysLog("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
-        Log.sysLog("Liste einsortieren, noch einsortieren: " + listeEinsortieren.size());
-        Log.sysLog("");
-        size = listeEinsortieren.size();
-
-        // Rest nehmen wir wenn noch online
-        for (int i = 0; i < COUNTER_MAX; ++i) {
-            new Thread(new AddOld(listeEinsortieren)).start();
-        }
-        int count = 0;
-        final int COUNT_MAX = 300; // 10 Minuten
-        stopOld = false;
-        while (!Config.getStop() && counter > 0) {
-            try {
-                System.out.println("s: " + 2 * (count++) + "  Liste: " + listeEinsortieren.size() + "  Treffer: " + treffer + "   Threads: " + counter);
-                if (count > COUNT_MAX) {
-                    // dann haben wir mehr als 10 Minuten und: Stop
-                    Log.sysLog("===== Liste einsortieren: ABBRUCH =====");
-                    Log.sysLog("COUNT_MAX erreicht [s]: " + COUNT_MAX * 2);
-                    Log.sysLog("");
-                    stopOld = true;
-                }
-                wait(2000);
-            } catch (InterruptedException ignored) {
-            }
-        }
-        Log.sysLog("===== Liste einsortieren: Noch online =====");
-        Log.sysLog("Liste einsortieren, Anzahl: " + size);
-        Log.sysLog("Liste einsortieren, entfernt: " + (size - treffer));
-        Log.sysLog("");
-        Log.sysLog("In Liste einsortiert: " + treffer);
-        Log.sysLog("");
-        return treffer;
-    }
-    private boolean stopOld = false;
-
-    private class AddOld implements Runnable {
-
-        private DatenFilm film;
-        private final ListeFilme listeOld;
-        private final int MIN_SIZE_ADD_OLD = 5; //REST eh nur Trailer
-
-        public AddOld(ListeFilme listeOld) {
-            this.listeOld = listeOld;
-            ++counter;
-        }
-
-        @Override
-        public void run() {
-            while (!stopOld && (film = popOld(listeOld)) != null) {
-                long size = FileSize.laengeLong(film.arr[DatenFilm.FILM_URL]);
-                if (size > MIN_SIZE_ADD_OLD) {
-                    addOld(film);
-                }
-            }
-            --counter;
-        }
-    }
-
-    private synchronized DatenFilm popOld(ListeFilme listeOld) {
-        if (listeOld.size() > 0) {
-            return listeOld.remove(0);
-        }
-        return null;
-    }
-
-    private synchronized boolean addOld(DatenFilm film) {
-        ++treffer;
-        film.init();
-        return add(film);
-    }
-
+//    final int COUNTER_MAX = 20;
+//    int counter = 0;
+//    int treffer = 0;
+//
+//    public synchronized int updateListeOld(ListeFilme vonListe, ListeFilme listeEinsortieren) {
+//        // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
+//        // es werden nur Filme die noch nicht vorhanden sind, einsortiert
+//        counter = 0;
+//        treffer = 0;
+//        int size = listeEinsortieren.size();
+//
+//        HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
+//
+//        // ==============================================
+//        // nach "Thema-Titel" suchen
+//        vonListe.stream().forEach((f) -> hash.add(f.getIndexAddOld()));
+//        listeEinsortieren.removeIf((f) -> hash.contains(f.getIndexAddOld()));
+//        hash.clear();
+//
+//        Log.sysLog("===== Liste einsortieren Hash =====");
+//        Log.sysLog("Liste einsortieren, Anzahl: " + size);
+//        Log.sysLog("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
+//        Log.sysLog("Liste einsortieren, noch einsortieren: " + listeEinsortieren.size());
+//        Log.sysLog("");
+//        size = listeEinsortieren.size();
+//
+//        // ==============================================
+//        // nach "URL" suchen
+//        vonListe.stream().forEach((f) -> hash.add(DatenFilm.getUrl(f)));
+//        listeEinsortieren.removeIf((f) -> hash.contains(DatenFilm.getUrl(f)));
+//        hash.clear();
+//
+//        Log.sysLog("===== Liste einsortieren URL =====");
+//        Log.sysLog("Liste einsortieren, Anzahl: " + size);
+//        Log.sysLog("Liste einsortieren, entfernt: " + (size - listeEinsortieren.size()));
+//        Log.sysLog("Liste einsortieren, noch einsortieren: " + listeEinsortieren.size());
+//        Log.sysLog("");
+//        size = listeEinsortieren.size();
+//
+//        // Rest nehmen wir wenn noch online
+//        for (int i = 0; i < COUNTER_MAX; ++i) {
+//            new Thread(new AddOld(listeEinsortieren)).start();
+//        }
+//        int count = 0;
+//        final int COUNT_MAX = 300; // 10 Minuten
+//        stopOld = false;
+//        while (!Config.getStop() && counter > 0) {
+//            try {
+//                System.out.println("s: " + 2 * (count++) + "  Liste: " + listeEinsortieren.size() + "  Treffer: " + treffer + "   Threads: " + counter);
+//                if (count > COUNT_MAX) {
+//                    // dann haben wir mehr als 10 Minuten und: Stop
+//                    Log.sysLog("===== Liste einsortieren: ABBRUCH =====");
+//                    Log.sysLog("COUNT_MAX erreicht [s]: " + COUNT_MAX * 2);
+//                    Log.sysLog("");
+//                    stopOld = true;
+//                }
+//                wait(2000);
+//            } catch (InterruptedException ignored) {
+//            }
+//        }
+//        Log.sysLog("===== Liste einsortieren: Noch online =====");
+//        Log.sysLog("Liste einsortieren, Anzahl: " + size);
+//        Log.sysLog("Liste einsortieren, entfernt: " + (size - treffer));
+//        Log.sysLog("");
+//        Log.sysLog("In Liste einsortiert: " + treffer);
+//        Log.sysLog("");
+//        return treffer;
+//    }
+//    private boolean stopOld = false;
+//
+//    private class AddOld implements Runnable {
+//
+//        private DatenFilm film;
+//        private final ListeFilme listeOld;
+//        private final int MIN_SIZE_ADD_OLD = 5; //REST eh nur Trailer
+//
+//        public AddOld(ListeFilme listeOld) {
+//            this.listeOld = listeOld;
+//            ++counter;
+//        }
+//
+//        @Override
+//        public void run() {
+//            while (!stopOld && (film = popOld(listeOld)) != null) {
+//                long size = FileSize.laengeLong(film.arr[DatenFilm.FILM_URL]);
+//                if (size > MIN_SIZE_ADD_OLD) {
+//                    addOld(film);
+//                }
+//            }
+//            --counter;
+//        }
+//    }
+//
+//    private synchronized DatenFilm popOld(ListeFilme listeOld) {
+//        if (listeOld.size() > 0) {
+//            return listeOld.remove(0);
+//        }
+//        return null;
+//    }
+//
+//    private synchronized boolean addOld(DatenFilm film) {
+//        ++treffer;
+//        film.init();
+//        return add(film);
+//    }
     private boolean addInit(DatenFilm film) {
         film.init();
         return add(film);
@@ -307,14 +303,14 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         int count = 0;
         final SimpleDateFormat sdfClean = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         Log.sysLog("cleanList start: " + sdfClean.format(System.currentTimeMillis()));
-        ListeFilme tmp = this.stream().filter(datenFilm -> datenFilm.arr[DatenFilm.FILM_SENDER].equals(MediathekBr.SENDERNAME))
-                .filter(datenFilm -> datenFilm.arr[DatenFilm.FILM_THEMA].equals(MediathekBr.SENDERNAME))
+        ListeFilme tmp = this.stream().filter(datenFilm -> datenFilm.arr[DatenFilm.FILM_SENDER].equals(Const.BR))
+                .filter(datenFilm -> datenFilm.arr[DatenFilm.FILM_THEMA].equals(Const.BR))
                 .collect(Collectors.toCollection(ListeFilme::new));
 
         for (DatenFilm tFilm : tmp) {
             for (DatenFilm datenFilm : this) {
-                if (datenFilm.arr[DatenFilm.FILM_SENDER].equals(MediathekBr.SENDERNAME)) {
-                    if (!datenFilm.arr[DatenFilm.FILM_THEMA].equals(MediathekBr.SENDERNAME)) {
+                if (datenFilm.arr[DatenFilm.FILM_SENDER].equals(Const.BR)) {
+                    if (!datenFilm.arr[DatenFilm.FILM_THEMA].equals(Const.BR)) {
                         if (datenFilm.arr[DatenFilm.FILM_URL].equals(tFilm.arr[DatenFilm.FILM_URL])) {
                             this.remove(tFilm);
                             ++count;
@@ -495,50 +491,50 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         }
     }
 
-    public synchronized void liveStreamEintragen() {
-        // ARD
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, "", "http://daserste_live-lh.akamaihd.net/i/daserste_de@91204/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, " Alpha", "http://livestreams.br.de/i/bralpha_germany@119899/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArd.SENDERNAME, " Tagesschau", "http://tagesschau-lh.akamaihd.net/i/tagesschau_1@119231/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-
-        // BR
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekBr.SENDERNAME, "", "http://livestreams.br.de/i/bfsnord_germany@119898/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-        // ARTE
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekArte_de.SENDERNAME, "", "http://delive.artestras.cshls.lldns.net/artestras/contrib/delive.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-        // HR
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekHr.SENDERNAME, "", "http://live1_hr-lh.akamaihd.net/i/hr_fernsehen@75910/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-        // KiKa
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekKika.SENDERNAME, "", "http://kika_geo-lh.akamaihd.net/i/livetvkika_de@75114/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-        // MDR
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekMdr.SENDERNAME, "", "http://mdr_th_hls-lh.akamaihd.net/i/livetvmdrthueringen_de@106903/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-        // NDR
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekNdr.SENDERNAME, "", "http://ndr_fs-lh.akamaihd.net/i/ndrfs_nds@119224/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-        // RBB
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekRbb.SENDERNAME, "", "http://rbb_live-lh.akamaihd.net/i/rbb_brandenburg@107638/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-        // SR
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekSr.SENDERNAME, "", "http://live2_sr-lh.akamaihd.net/i/sr_universal02@107595/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-        // SWR
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekSwr.SENDERNAME, "", "http://swrbw-lh.akamaihd.net/i/swrbw_live@196738/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-        // WDR
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekWdr.SENDERNAME, "", "http://wdr_fs_geo-lh.akamaihd.net/i/wdrfs_geogeblockt@112044/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
-        // 3sat
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Mediathek3Sat.SENDERNAME, "", "http://zdf0910-lh.akamaihd.net/i/dach10_v1@392872/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
-
-        // ZDF
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, "", "http://zdf1314-lh.akamaihd.net/i/de14_v1@392878/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".info", "http://zdf1112-lh.akamaihd.net/i/de12_v1@392882/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".neo", "http://zdf1314-lh.akamaihd.net/i/de13_v1@392877/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".kultur", "http://zdf1112-lh.akamaihd.net/i/de11_v1@392881/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekZdf.SENDERNAME, ".heute", "http://zdf0102-lh.akamaihd.net/i/none01_v1@392849/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
-
-        // ORF
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-1", "http://apasfiisl.apa.at/ipad/orf1_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-2", "http://apasfiisl.apa.at/ipad/orf2_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-3", "http://apasfiisl.apa.at/ipad/orf3_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
-
-        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(MediathekOrf.SENDERNAME, "-Sport", "http://apasfiisl.apa.at/ipad/orfs_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
-
-    }
+//    public synchronized void liveStreamEintragen() {
+//        // ARD
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ARD, "", "http://daserste_live-lh.akamaihd.net/i/daserste_de@91204/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ARD, " Alpha", "http://livestreams.br.de/i/bralpha_germany@119899/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ARD, " Tagesschau", "http://tagesschau-lh.akamaihd.net/i/tagesschau_1@119231/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//
+//        // BR
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.BR, "", "http://livestreams.br.de/i/bfsnord_germany@119898/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//        // ARTE
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ARTE_DE, "", "http://delive.artestras.cshls.lldns.net/artestras/contrib/delive.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//        // HR
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.HR, "", "http://live1_hr-lh.akamaihd.net/i/hr_fernsehen@75910/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//        // KiKa
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.KIKA, "", "http://kika_geo-lh.akamaihd.net/i/livetvkika_de@75114/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//        // MDR
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.MDR, "", "http://mdr_th_hls-lh.akamaihd.net/i/livetvmdrthueringen_de@106903/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//        // NDR
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.NDR, "", "http://ndr_fs-lh.akamaihd.net/i/ndrfs_nds@119224/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//        // RBB
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.RBB, "", "http://rbb_live-lh.akamaihd.net/i/rbb_brandenburg@107638/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//        // SR
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.SR, "", "http://live2_sr-lh.akamaihd.net/i/sr_universal02@107595/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//        // SWR
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.SWR, "", "http://swrbw-lh.akamaihd.net/i/swrbw_live@196738/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//        // WDR
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.WDR, "", "http://wdr_fs_geo-lh.akamaihd.net/i/wdrfs_geogeblockt@112044/master.m3u8", "http://www.ardmediathek.de/tv/live?kanal=Alle"));
+//        // 3sat
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.DREISAT, "", "http://zdf0910-lh.akamaihd.net/i/dach10_v1@392872/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+//
+//        // ZDF
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ZDF, "", "http://zdf1314-lh.akamaihd.net/i/de14_v1@392878/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ZDF, ".info", "http://zdf1112-lh.akamaihd.net/i/de12_v1@392882/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ZDF, ".neo", "http://zdf1314-lh.akamaihd.net/i/de13_v1@392877/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ZDF, ".kultur", "http://zdf1112-lh.akamaihd.net/i/de11_v1@392881/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ZDF, ".heute", "http://zdf0102-lh.akamaihd.net/i/none01_v1@392849/master.m3u8", "http://www.zdf.de/ZDFmediathek/hauptnavigation/live"));
+//
+//        // ORF
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ORF, "-1", "http://apasfiisl.apa.at/ipad/orf1_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ORF, "-2", "http://apasfiisl.apa.at/ipad/orf2_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ORF, "-3", "http://apasfiisl.apa.at/ipad/orf3_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
+//
+//        addFilmVomSender(DatenFilm.getDatenFilmLiveStream(Const.ORF, "-Sport", "http://apasfiisl.apa.at/ipad/orfs_q4a/orf.sdp/playlist.m3u8", "http://tvthek.orf.at/live"));
+//
+//    }
 
     public synchronized DatenFilm getFilmByUrl(final String url) {
         for (DatenFilm film : this) {

@@ -21,11 +21,9 @@ package mSearch.filmlisten;
 
 import java.util.*;
 
+@SuppressWarnings("serial")
 public class ListeFilmlistenUrls extends LinkedList<DatenFilmlisteUrl> {
     // ist die Liste mit den URLs zum Download einer Filmliste
-
-    private static final long serialVersionUID = 1L;
-
     public boolean addWithCheck(DatenFilmlisteUrl filmliste) {
         for (DatenFilmlisteUrl datenUrlFilmliste : this) {
             if (datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR].equals(filmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR])) {
@@ -101,7 +99,7 @@ public class ListeFilmlistenUrls extends LinkedList<DatenFilmlisteUrl> {
         }
 
         DatenFilmlisteUrl datenFilmlisteUrl;
-        if (listePrio.size() > 0) {
+        if (!listePrio.isEmpty()) {
             int nr = new Random().nextInt(listePrio.size());
             datenFilmlisteUrl = listePrio.get(nr);
         } else {
