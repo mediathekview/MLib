@@ -31,7 +31,6 @@ import mSearch.filmeSuchen.ListenerFilmeLadenEvent;
 import mSearch.tool.InputStreamProgressMonitor;
 import mSearch.tool.Log;
 import mSearch.tool.ProgressMonitorInputStream;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.tukaani.xz.XZInputStream;
 
 import javax.swing.event.EventListenerList;
@@ -135,8 +134,7 @@ public class FilmlisteLesen {
         }
 
         try (InputStream in = selectDecompressor(source, getInputStreamForLocation(source));
-             JsonParser jp = new JsonFactory().createParser(in)) {
-
+                JsonParser jp = new JsonFactory().createParser(in)) {
 
             if (jp.nextToken() != JsonToken.START_OBJECT) {
                 throw new IllegalStateException("Expected data to start with an Object");
@@ -181,10 +179,11 @@ public class FilmlisteLesen {
                             }
                         }
 
-                        if (DatenFilm.JSON_NAMES[i] ==  DatenFilm.FILM_TITEL) {
-                            //convert UNICODE et al to java strings.
-                            datenFilm.arr[DatenFilm.JSON_NAMES[i]] = StringEscapeUtils.unescapeJava(jp.nextTextValue());
-                        } else if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_NEU) {
+//                        if (DatenFilm.JSON_NAMES[i] ==  DatenFilm.FILM_TITEL) {
+//                            //convert UNICODE et al to java strings.
+//                            datenFilm.arr[DatenFilm.JSON_NAMES[i]] = StringEscapeUtils.unescapeJava(jp.nextTextValue());
+//                        } else 
+                        if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_NEU) {
                             final String value = jp.nextTextValue();
                             //This value is unused...
                             //datenFilm.arr[DatenFilm.FILM_NEU_NR] = value;
