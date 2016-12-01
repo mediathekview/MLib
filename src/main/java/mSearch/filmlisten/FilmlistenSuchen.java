@@ -19,6 +19,15 @@
  */
 package mSearch.filmlisten;
 
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.tool.Functions;
+import mSearch.tool.Log;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -26,14 +35,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Random;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import mSearch.Config;
-import mSearch.Const;
-import mSearch.tool.Functions;
-import mSearch.tool.Log;
 
 public class FilmlistenSuchen {
 
@@ -89,63 +90,67 @@ public class FilmlistenSuchen {
         return retUrl;
     }
 
-    public void updateURLsFilmlisten(boolean akt /*sonst diff*/) {
+    /**
+     * Add our default full list servers.
+     */
+    private void insertDefaultActiveServers()
+    {
+        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://m.picn.de/f/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://m1.picn.de/f/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://m2.picn.de/f/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://download10.onlinetvrecorder.com/mediathekview/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mediathekview.jankal.me/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://verteiler1.mediathekview.de/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://verteiler2.mediathekview.de/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://verteiler3.mediathekview.de/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+    }
+
+    /**
+     * Add our default diff list servers.
+     */
+    private void insertDefaultDifferentialListServers()
+    {
+        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://m.picn.de/f/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://m1.picn.de/f/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://m2.picn.de/f/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://download10.onlinetvrecorder.com/mediathekview/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mediathekview.jankal.me/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://verteiler1.mediathekview.de/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://verteiler2.mediathekview.de/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://verteiler3.mediathekview.de/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+    }
+
+    /**
+     * Update the download server URLs.
+     * @param updateFullList if true, update full list server, otherwise diff servers.
+     **/
+    public void updateURLsFilmlisten(final boolean updateFullList) {
         ListeFilmlistenUrls tmp = new ListeFilmlistenUrls();
-        if (akt) {
+        if (updateFullList) {
             getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_AKT, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
-//            if (tmp.isEmpty()) {
-//                getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_AKT_RES, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
-//            }
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_akt = tmp;
             } else if (listeFilmlistenUrls_akt.isEmpty()) {
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://wp11128329.server-he.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://wp11234018.server-he.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv.mynews.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv.hostingkunde.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-1.df-kunde.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-2.df-kunde.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mv-3.df-kunde.de/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://hosting1735.af906.netcup.net/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://hosting1766.af915.netcup.net/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://hosting1767.af915.netcup.net/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mediathek.alfahosting.org/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-                listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mediathekview.alfahosting.org/filme/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+                insertDefaultActiveServers();
             }
             listeFilmlistenUrls_akt.sort();
         } else {
             getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
-//            if (tmp.isEmpty()) {
-//                getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_DIFF_RES, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
-//            }
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_diff = tmp;
             } else if (listeFilmlistenUrls_diff.isEmpty()) {
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://wp11128329.server-he.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://wp11234018.server-he.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv.mynews.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv.hostingkunde.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-1.df-kunde.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-2.df-kunde.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mv-3.df-kunde.de/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://hosting1735.af906.netcup.net/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://hosting1766.af915.netcup.net/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://hosting1767.af915.netcup.net/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mediathek.alfahosting.org/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-                listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mediathekview.alfahosting.org/filme/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+                insertDefaultDifferentialListServers();
             }
             listeFilmlistenUrls_diff.sort();
         }
         if (tmp.isEmpty()) {
             Log.errorLog(491203216, new String[]{"Es ist ein Fehler aufgetreten!",
-                "Es konnten keine Updateserver zum aktualisieren der Filme",
-                "gefunden werden."});
+                    "Es konnten keine Updateserver zum aktualisieren der Filme",
+                    "gefunden werden."});
         }
     }
 
-    public static void getDownloadUrlsFilmlisten(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String userAgent, String art) {
+    public void getDownloadUrlsFilmlisten(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String userAgent, String art) {
         //String[] ret = new String[]{""/* version */, ""/* release */, ""/* updateUrl */};
         try {
             int event;
@@ -177,7 +182,7 @@ public class FilmlistenSuchen {
                     String parsername = parser.getLocalName();
                     if (parsername.equals("Server")) {
                         //wieder ein neuer Server, toll
-                        getServer(parser, listeFilmlistenUrls, art);
+                        parseServerEntry(parser, listeFilmlistenUrls, art);
                     }
                 }
             }
@@ -186,7 +191,13 @@ public class FilmlistenSuchen {
         }
     }
 
-    private static void getServer(XMLStreamReader parser, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
+    /**
+     * Parse the server XML file.
+     * @param parser
+     * @param listeFilmlistenUrls
+     * @param art
+     */
+    private void parseServerEntry(XMLStreamReader parser, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
         String serverUrl = "";
         String prio = "";
         int event;

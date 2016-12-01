@@ -22,17 +22,6 @@ package mSearch.filmlisten;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.zip.ZipInputStream;
-import javax.swing.event.EventListenerList;
 import mSearch.Config;
 import mSearch.Const;
 import mSearch.daten.DatenFilm;
@@ -43,6 +32,18 @@ import mSearch.tool.InputStreamProgressMonitor;
 import mSearch.tool.Log;
 import mSearch.tool.ProgressMonitorInputStream;
 import org.tukaani.xz.XZInputStream;
+
+import javax.swing.event.EventListenerList;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.zip.ZipInputStream;
 
 public class FilmlisteLesen {
 
@@ -122,7 +123,6 @@ public class FilmlisteLesen {
         Log.sysLog("Liste Filme lesen von: " + source);
         JsonToken jsonToken;
         String sender = "", thema = "";
-        JsonParser jp = null;
         listeFilme.clear();
         this.notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
 
@@ -133,9 +133,9 @@ public class FilmlisteLesen {
             seconds = 0;
         }
 
-        try {
-            InputStream in = selectDecompressor(source, getInputStreamForLocation(source));
-            jp = new JsonFactory().createParser(in);
+        try (InputStream in = selectDecompressor(source, getInputStreamForLocation(source));
+                JsonParser jp = new JsonFactory().createParser(in)) {
+
             if (jp.nextToken() != JsonToken.START_OBJECT) {
                 throw new IllegalStateException("Expected data to start with an Object");
             }
@@ -179,6 +179,10 @@ public class FilmlisteLesen {
                             }
                         }
 
+//                        if (DatenFilm.JSON_NAMES[i] ==  DatenFilm.FILM_TITEL) {
+//                            //convert UNICODE et al to java strings.
+//                            datenFilm.arr[DatenFilm.JSON_NAMES[i]] = StringEscapeUtils.unescapeJava(jp.nextTextValue());
+//                        } else 
                         if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_NEU) {
                             final String value = jp.nextTextValue();
                             //This value is unused...
@@ -214,21 +218,14 @@ public class FilmlisteLesen {
                     }
                 }
             }
-            jp.close();
         } catch (FileNotFoundException ex) {
             Log.errorLog(894512369, "FilmListe existiert nicht: " + source);
             listeFilme.clear();
         } catch (Exception ex) {
             Log.errorLog(945123641, ex, "FilmListe: " + source);
             listeFilme.clear();
-        } finally {
-            try {
-                if (jp != null) {
-                    jp.close();
-                }
-            } catch (Exception ignored) {
-            }
         }
+
         if (Config.getStop()) {
             Log.sysLog("--> Abbruch");
             listeFilme.clear();
