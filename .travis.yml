@@ -10,15 +10,14 @@ script:
 # Build MSearch
 - "./gradlew check"
 
-#Sonar
-- sonar-scanner -Dsonar.login=$SONAR_TOKEN
-
-after_success:
 # Check if MediathekView still can build
 - "cd .."
 - "git clone https://github.com/mediathekview/MediathekView.git MediathekView"
 - "cd MediathekView"
 - "./gradlew check"
+
+#Sonar
+- sonar-scanner -Dsonar.login=$SONAR_TOKEN
 
 before_cache:
 - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
