@@ -1,11 +1,9 @@
 apply plugin: 'java'
-apply plugin: 'application'
 apply from: "${project.rootDir}/gradle/eclipse.gradle"
 import java.nio.file.Files
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-mainClassName = 'mSearch.Main'
 version = '2.1.1'
 
 compileJava {
@@ -18,15 +16,9 @@ compileTestJava {
     options.compilerArgs = ['-Xlint:all']
 }
 
-
-task copyRuntimeLibs(type: Copy) {
-    into "libs"
-    from configurations.testRuntime - configurations.runtime
-  }
-
 repositories {
-     maven {
-          url "https://repo.mediathekview.de/repository/maven-public/"
+    maven {
+        url "https://repo.mediathekview.de/repository/maven-public/"
     }
 }
 
@@ -39,7 +31,7 @@ dependencies {
 
 ext {
     propsFile = file('src/main/resources/version.properties').absoluteFile
-    if(!propsFile.exists()) {
+    if (!propsFile.exists()) {
         Files.createFile(propsFile.toPath())
     }
 }
@@ -53,35 +45,13 @@ def loadVersionProperties() {
 task updateVersion << {
     Properties props = loadVersionProperties()
     def oldVersion = props.getProperty('VERSION')
-    if(!oldVersion.equals(project.version)) {
-	logger.lifecycle "==msearch======================"
-	logger.lifecycle "Version: $project.version"
-	logger.lifecycle "==msearch======================"
-	props.setProperty('VERSION', project.version)	
-	props.store(propsFile.newWriter(), null)
+    if (!oldVersion.equals(project.version)) {
+        logger.lifecycle "==msearch======================"
+        logger.lifecycle "Version: $project.version"
+        logger.lifecycle "==msearch======================"
+        props.setProperty('VERSION', project.version)
+        props.store(propsFile.newWriter(), null)
     }
 }
 
 processResources.dependsOn updateVersion
-
-distributions {
-
-    main {
-        baseName = 'MSearch'
-        contents {
-            from{'res'}
-        }
-    }
-}
-
-/**
- * HOWTO debug:
- *  1. run "gradle debug"
- *  2. Call your IDE to connect to a remote java application on port 5005.
- */
-task debug (type: JavaExec, dependsOn: classes){
-    main = 'mSearch.Main'
-    classpath = sourceSets.main.runtimeClasspath
-    args '-gui'
-    debug true
-}
