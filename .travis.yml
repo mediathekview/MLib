@@ -23,8 +23,8 @@ deploy:
   file_glob: true
   file:
     - "build/libs/MSearch-.*.jar"
-    - "build/MSearch.*.zip"
-    - "build/MSearch.*.tar"
+    - "build/distributions/MSearch.*.zip"
+    - "build/distributions/MSearch.*.tar"
   skip_cleanup: true
   on:
     tags: true
