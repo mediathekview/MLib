@@ -1,14 +1,28 @@
 language: java
 jdk:
 - oraclejdk8
+
 addons:
   sonarqube: true
+  
 env:
   global:
-  - secure: vROFVCc18khzwp59MCvb7NqqhlSM07krRp27hnrYQePTm0YjfNo/fWd2R6/IP9ZrOuWfeFPvZI9ci1Q2MBFm2PUz9OLQg2UiKRk9XHN/u/aQsDaEO4Xlyuj9ONaIzYPjxXVIYw09gDZK34pOKFXmmb4Ef/lliHA91oMprUMB0k4yZRZSeF4o7UCL7UbNGWlg839Tg9hqKebL4vXuNwuoB75TgsqkKu3ayJVq+YD9bA+qzuygf8t8NlcdaHGbmRIPQigJFaUDehp9ntsKQNxazPtiwKB9rmnbtaKkdJNy1f0YAdQxmznSKc18bdGWr9eA69mVkPWrUlSxb304wBHB9CKnQT8yaWlFjMZSjyrIz5Xp7dNcJUHQ7Y19mG1ZmCmQxZd1uP7vA60kSUocCycciV2X0+CjdiYqFhjhiCLkrm3BD9TM7u2g7HjneRyK/5gkyxQo5YW8vfWtVy65vgiAlc0oVRA1YvhRq7v+ppnL3Fhz7osVVc15rZePjQyQ6mSURZ5r94EUU2Jcd6rbxiLnsKycr2dZDfDHhxgQ2L86WsclakoQXitRg2GpabSu/fjIaFAzOVnK5ezXFZaCoWaPJ8IwfMB8U4I0uQDCoWjUXl6c3uAI18xIHF1idvNIiEHiqfUIm0ZiEKLpL2m4EKpx6ig/nYNgNvwI8NDXXAIU56k=
+    - secure: vROFVCc18khzwp59MCvb7NqqhlSM07krRp27hnrYQePTm0YjfNo/fWd2R6/IP9ZrOuWfeFPvZI9ci1Q2MBFm2PUz9OLQg2UiKRk9XHN/u/aQsDaEO4Xlyuj9ONaIzYPjxXVIYw09gDZK34pOKFXmmb4Ef/lliHA91oMprUMB0k4yZRZSeF4o7UCL7UbNGWlg839Tg9hqKebL4vXuNwuoB75TgsqkKu3ayJVq+YD9bA+qzuygf8t8NlcdaHGbmRIPQigJFaUDehp9ntsKQNxazPtiwKB9rmnbtaKkdJNy1f0YAdQxmznSKc18bdGWr9eA69mVkPWrUlSxb304wBHB9CKnQT8yaWlFjMZSjyrIz5Xp7dNcJUHQ7Y19mG1ZmCmQxZd1uP7vA60kSUocCycciV2X0+CjdiYqFhjhiCLkrm3BD9TM7u2g7HjneRyK/5gkyxQo5YW8vfWtVy65vgiAlc0oVRA1YvhRq7v+ppnL3Fhz7osVVc15rZePjQyQ6mSURZ5r94EUU2Jcd6rbxiLnsKycr2dZDfDHhxgQ2L86WsclakoQXitRg2GpabSu/fjIaFAzOVnK5ezXFZaCoWaPJ8IwfMB8U4I0uQDCoWjUXl6c3uAI18xIHF1idvNIiEHiqfUIm0ZiEKLpL2m4EKpx6ig/nYNgNvwI8NDXXAIU56k=
+    - secure: WiuYJw9PhGCsJksIJXTrjuLyV7deMcnp5tkdVBiXV/CtYHsURxwgIVwQduGW4fbpj4/UiRQbEdeBfH4wCbjxfStBH8sRJOgUEBGQ/nlaqwujwpyDfEPBU+3dnGAxK5VNMesr5FCLEIAw4aXOmp60AhSOGSOl7MQ0QCLeWLvqXCE5Hpgq7y+kIRG39hkOyCA28pkoY2Yf1Hg56vhgsnBxc82RSNhlArb5zpgf0Mbd+Y5YB1PxqzFG0wRc2W8SdzmQUKgU2p9UxrEi+BtpfxXk2VbeUOZgRviCknAkyyCIgQp4dsCHMSjW2Tbnk6tRjSFbnraak3qf40OTibLB7ke5eK+4Zalk9RyUaugrdQ2UjgSrJ3+RcCyu+ohZvCcZHmlys7HXP0YYEGmvjOwG7KsBpXMVM7GiXrExE+2BxnYeJyqKFFJfsucwFb/7CVYk3BPR0FTX+0byfq5Cy+Q1T8XmsAlLhcsZJdfcTfemet7cMhXectN0efnAKtk79iMJNjkSXyuc8M3cL8MRC6Y3RXcPxEpzhQwsAJxZKKSdpgeWEmgW2aQrh1DCfUKPuPiBMUEPg4c1CwhIjMXE10hwwD60A4S4MMARG3c2FdhXIpXTcY1J6E/4OrPAtPXlvhoSMKKqAYvzNCF7Xk194imCJJ9EH2gh+Vr+/A2ejvriGmPqdtg=
+    - secure: rl9PNIgqKZEAX+bH5NEFsNAmG6YFGuvf4qVkD2B7Kv7M6IL1Z41N1rFryUz4m1u4N546BJiL/RSay6XdG3jzuKWPtOqltRCiiKIokZEiSyn2korpd5OWtDwkEFGMeD9ovoVl7ukc58dTOlspnEbOVA/gOlJ9IvTOjpY3AASfI+A1uNOVmhFi2eYB+niYmccn6+TE+xUKdCfL/NRwT5y2Mtgk8PVOYbCOZ7woG7vJ7Gma9x8xnX39bP7dTUwUMOWKlO5CgH/iSBD7p2dpXIz9NkmIk9BRgMnpn5dWAaFPeVF9C9rWm0mIReQP2Fndp9vd2v7dZuD57waAXuX0l4J2jnE1P7P9TCJ1HOfsLcykyC1wi10ruTIvknvt/CJkptO/p3moEujoFMP8lFEpm2LodYzOU/F3GyaLwCcOJRBT2sRgj/vcMb6FWXqGE1DheeZffsxcWroobDol1zKxpIElmXpvTgwolFB4aMGgQg6TXNokEycYsjJUzkGrvdud1VnrG/qrJqaPBaNEfovz7eqxZ31ULrGYtXBWqjX20FR507ILTFopdsebDAVE9HX4FV+GAMczRh02fBRGaKQRo3pG0iporN3GMspadCtDsEo8R4PC1tPPwxUSM6ESy8Lk9eCoN1dXJvgoigMFvTd9BKD1MdtS/UKPhaWdx92eXZfA6qY=
+
+#Build
 script:
-- "./gradlew check"
-- sonar-scanner -Dsonar.login=$SONAR_TOKEN
+    - if [ "$TRAVIS_BRANCH" == "master" ]
+        then ./gradlew build release -PnexusUser=$NEXUS_USER -PnexusPw=$NEXUS_PW
+        elif [ "$TRAVIS_BRANCH" == "develop" ]
+            then ./gradlew build releaseSnapshot -PnexusUser=$NEXUS_USER -PnexusPw=$NEXUS_PW
+        else ./gradlew build
+      fi
+      
+    - sonar-scanner -Dsonar.login=$SONAR_TOKEN
+
+#Cache
 before_cache:
 - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
@@ -16,6 +30,8 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
   - "$HOME/.sonar/cache/"
+  
+#Deploy  
 deploy:
   provider: releases
   api_key:
