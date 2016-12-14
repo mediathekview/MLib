@@ -1,9 +1,12 @@
 apply plugin: 'java'
+apply plugin: 'maven'
 apply from: "${project.rootDir}/gradle/eclipse.gradle"
 import java.nio.file.Files
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+group = 'de.mediathekview'
 version = '2.1.1'
 
 compileJava {
@@ -17,10 +20,24 @@ compileTestJava {
 }
 
 repositories {
+    mavenLocal()
     maven {
         url "https://repo.mediathekview.de/repository/maven-public/"
     }
 }
+
+uploadArchives {
+    repositories.mavenDeployer {
+
+        repository(url: "https://repo.mediathekview.de/repository/maven-releases/") {
+            authentication(userName:  nexusUser, password:  nexusPw)
+        }
+        snapshotRepository(url: "https://repo.mediathekview.de/repository/maven-snapshots/") {
+            authentication(userName:  nexusUser, password:  nexusPw)
+        }
+    }
+}
+build.dependsOn(install)
 
 dependencies {
     compile 'org.apache.commons:commons-lang3:3.5'
@@ -53,5 +70,30 @@ task updateVersion << {
         props.store(propsFile.newWriter(), null)
     }
 }
-
 processResources.dependsOn updateVersion
+
+/**
+ * <b>You don't have to call this. Travis will do it for you if a new releass (tag) will be build!<b/>
+ * Call this so: './gradlew build release -PnexusUser=[NEXUS_USER] -PnexusPw=[NEXUS_PASSWORD]'
+ */
+task release(dependsOn: 'uploadArchives') {
+    doLast {
+        println 'Released Version '+version
+    }
+}
+
+/**
+ * <b>You don't have to call this. Travis will do it for you if you push to develop!<b/>
+ * Call this so: './gradlew build releaseSnapshot -PnexusUser=[NEXUS_USER] -PnexusPw=[NEXUS_PASSWORD]'
+ */
+task releaseSnapshot(dependsOn: 'uploadArchives') {
+    doLast {
+        println 'Released Snapshot Version '+version
+    }
+}
+
+gradle.taskGraph.whenReady {taskGraph ->
+    if (!taskGraph.hasTask(release)) {
+        version = version+'-SNAPSHOT'
+    }
+}
