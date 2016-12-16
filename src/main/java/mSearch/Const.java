@@ -30,8 +30,8 @@ public class Const {
     // MediathekView URLs
 //    public static final String ADRESSE_FILMLISTEN_SERVER_XML = "http://zdfmediathk.sourceforge.net/update.xml";
 //    public static final String ADRESSE_FILMLISTEN_SERVER_JSON = "http://zdfmediathk.sourceforge.net/update-json.xml";
-    public static final String ADRESSE_FILMLISTEN_SERVER_DIFF = "http://zdfmediathk.sourceforge.net/diff.xml";
-    public static final String ADRESSE_FILMLISTEN_SERVER_AKT = "http://zdfmediathk.sourceforge.net/akt.xml";
+    public static final String ADRESSE_FILMLISTEN_SERVER_DIFF = "http://res.mediathekview.de/diff.xml";
+    public static final String ADRESSE_FILMLISTEN_SERVER_AKT = "http://res.mediathekview.de/akt.xml";
 //    public static final String ADRESSE_FILMLISTEN_SERVER_DIFF_RES = "http://92.51.131.172/diff.xml";
 //    public static final String ADRESSE_FILMLISTEN_SERVER_AKT_RES = "http://92.51.131.172/akt.xml";
 
@@ -40,8 +40,8 @@ public class Const {
     public static final String ADRESSE_DOWNLAD = "http://sourceforge.net/projects/zdfmediathk/";
     public static final String ADRESSE_ANLEITUNG = "http://sourceforge.net/p/zdfmediathk/wiki/Home/";
     public static final String ADRESSE_VORLAGE_PROGRAMMGRUPPEN = "http://zdfmediathk.sourceforge.net/programmgruppen/programmgruppen.xml";
-    public static final String ADRESSE_WEBSITE = "http://zdfmediathk.sourceforge.net/";
-    public static final String ADRESSE_FORUM = "http://sourceforge.net/apps/phpbb/zdfmediathk/";
+    public static final String ADRESSE_WEBSITE = "https://mediathekview.de";
+    public static final String ADRESSE_FORUM = "https://forum.mediathekview.de";
     // Dateien/Verzeichnisse
     public static final String XML_DATEI = "mediathek.xml";
     public static final String XML_DATEI_FILME = "filme.xml";
