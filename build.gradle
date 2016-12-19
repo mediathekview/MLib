@@ -9,6 +9,26 @@ targetCompatibility = 1.8
 group = 'de.mediathekview'
 version = '2.1.1'
 
+ext {
+    propsFile = file('src/main/resources/version.properties').absoluteFile
+    if (!propsFile.exists()) {
+        Files.createFile(propsFile.toPath())
+    }
+    repoZugangFile = file('scripte/deploy/RepoZugang.properties').absoluteFile
+}
+
+def loadVersionProperties() {
+    Properties props = new Properties()
+    props.load(propsFile.newDataInputStream())
+    return props
+}
+
+def loadRepoZugangProperties() {
+    Properties props = new Properties()
+    props.load(repoZugangFile.newDataInputStream())
+    return props
+}
+
 compileJava {
     options.encoding = "UTF-8"
     options.compilerArgs = ['-Xlint:all']
@@ -28,7 +48,9 @@ repositories {
 
 uploadArchives {
     repositories.mavenDeployer {
-
+        Properties props = loadRepoZugangProperties()
+        def nexusUser = props.getProperty('repoUser')
+        def nexusPw = props.getProperty('repoPw')
         repository(url: "https://repo.mediathekview.de/repository/maven-releases/") {
             authentication(userName:  nexusUser, password:  nexusPw)
         }
@@ -44,19 +66,6 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-core:2.7.0'
     compile 'com.jidesoft:jide-oss:3.6.16'
     compile 'org.tukaani:xz:1.5'
-}
-
-ext {
-    propsFile = file('src/main/resources/version.properties').absoluteFile
-    if (!propsFile.exists()) {
-        Files.createFile(propsFile.toPath())
-    }
-}
-
-def loadVersionProperties() {
-    Properties props = new Properties()
-    props.load(propsFile.newDataInputStream())
-    return props
 }
 
 task updateVersion << {
