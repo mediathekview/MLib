@@ -15,6 +15,9 @@ ext {
         Files.createFile(propsFile.toPath())
     }
     repoZugangFile = file('scripte/deploy/RepoZugang.properties').absoluteFile
+    if (!repoZugangFile.exists()) {
+        Files.createFile(repoZugangFile.toPath())
+    }
 }
 
 def loadVersionProperties() {
