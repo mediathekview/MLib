@@ -36,10 +36,10 @@ public class Const {
 //    public static final String ADRESSE_FILMLISTEN_SERVER_AKT_RES = "http://92.51.131.172/akt.xml";
 
 //    public static final String DATEINAME_LISTE_FILMLISTEN = "filmlisten.xml";
-    public static final String ADRESSE_PROGRAMM_VERSION = "http://zdfmediathk.sourceforge.net/version.xml";
-    public static final String ADRESSE_DOWNLAD = "http://sourceforge.net/projects/zdfmediathk/";
-    public static final String ADRESSE_ANLEITUNG = "http://sourceforge.net/p/zdfmediathk/wiki/Home/";
-    public static final String ADRESSE_VORLAGE_PROGRAMMGRUPPEN = "http://zdfmediathk.sourceforge.net/programmgruppen/programmgruppen.xml";
+    public static final String ADRESSE_PROGRAMM_VERSION = "https://res.mediathekview.de/version.xml";
+    public static final String ADRESSE_DOWNLAD = "https://mediathekview.de/download/";
+    public static final String ADRESSE_ANLEITUNG = "https://github.com/mediathekview/MediathekView/wiki";
+    public static final String ADRESSE_VORLAGE_PROGRAMMGRUPPEN = "https://res.mediathekview.de/programmgruppen/programmgruppen.xml";
     public static final String ADRESSE_WEBSITE = "https://mediathekview.de";
     public static final String ADRESSE_FORUM = "https://forum.mediathekview.de";
     // Dateien/Verzeichnisse
