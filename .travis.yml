@@ -44,8 +44,6 @@ deploy:
   file_glob: true
   file:
     - "build/libs/MSearch-.*.jar"
-    - "build/distributions/MSearch.*.zip"
-    - "build/distributions/MSearch.*.tar"
   skip_cleanup: true
   on:
     tags: true
