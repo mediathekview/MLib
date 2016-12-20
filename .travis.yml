@@ -2,10 +2,6 @@ language: java
 jdk:
 - oraclejdk8
 
-before_install:
-- openssl aes-256-cbc -K $encrypted_3b3271a2a39d_key -iv $encrypted_3b3271a2a39d_iv
-  -in scripte/deploy/RepoZugang.properties.enc -out scripte/deploy/RepoZugang.properties -d
-
 addons:
   sonarqube: true
   
@@ -17,13 +13,17 @@ env:
 
 #Build
 script:
-    - if [ "$TRAVIS_BRANCH" == "master" ]
-        then ./gradlew build release -PnexusUser=$NEXUS_USER -PnexusPw=$NEXUS_PW
-        elif [ "$TRAVIS_BRANCH" == "develop" ]
-            then ./gradlew build releaseSnapshot -PnexusUser=$NEXUS_USER -PnexusPw=$NEXUS_PW
-        else ./gradlew build
-      fi
-      
+    - if [ "$TRAVIS_BRANCH" == "master" ]; then 
+        - openssl aes-256-cbc -K $encrypted_3b3271a2a39d_key -iv $encrypted_3b3271a2a39d_iv
+            -in scripte/deploy/RepoZugang.properties.enc -out scripte/deploy/RepoZugang.properties -d;
+        ./gradlew build release; 
+      elif [ "$TRAVIS_BRANCH" == "develop" ]; then 
+        - openssl aes-256-cbc -K $encrypted_3b3271a2a39d_key -iv $encrypted_3b3271a2a39d_iv
+            -in scripte/deploy/RepoZugang.properties.enc -out scripte/deploy/RepoZugang.properties -d;
+        ./gradlew build releaseSnapshot; 
+      else 
+        ./gradlew build; 
+      fi 
     - sonar-scanner -Dsonar.login=$SONAR_TOKEN
 
 #Cache
