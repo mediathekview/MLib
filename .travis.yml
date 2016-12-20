@@ -15,16 +15,17 @@ env:
 script:
     - if [ "$TRAVIS_BRANCH" == "master" ]; then 
         - openssl aes-256-cbc -K $encrypted_3b3271a2a39d_key -iv $encrypted_3b3271a2a39d_iv
-            -in scripte/deploy/RepoZugang.properties.enc -out scripte/deploy/RepoZugang.properties -d;
+          -in scripte/deploy/RepoZugang.properties.enc -out scripte/deploy/RepoZugang.properties -d;
         ./gradlew build release; 
       elif [ "$TRAVIS_BRANCH" == "develop" ]; then 
         - openssl aes-256-cbc -K $encrypted_3b3271a2a39d_key -iv $encrypted_3b3271a2a39d_iv
-            -in scripte/deploy/RepoZugang.properties.enc -out scripte/deploy/RepoZugang.properties -d;
+          -in scripte/deploy/RepoZugang.properties.enc -out scripte/deploy/RepoZugang.properties -d;
         ./gradlew build releaseSnapshot; 
       else 
         ./gradlew build; 
-      fi 
-    - sonar-scanner -Dsonar.login=$SONAR_TOKEN
+      fi
+after_success:
+  - sonar-scanner -Dsonar.login=$SONAR_TOKEN
 
 #Cache
 before_cache:
