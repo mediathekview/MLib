@@ -11,7 +11,7 @@ env:
 
 #Build
 script:
-  - ./gradlew build; TRAVIS_BRANCH="develop";
+  - ./gradlew build
   - if [ "$TRAVIS_BRANCH" == "develop" ]; then
       openssl aes-256-cbc -K $encrypted_3b3271a2a39d_key -iv $encrypted_3b3271a2a39d_iv
         -in scripte/deploy/RepoZugang.properties.enc -out scripte/deploy/RepoZugang.properties -d;
