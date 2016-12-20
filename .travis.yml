@@ -11,7 +11,7 @@ env:
 
 #Build
 script:
-  - ./gradlew build;
+  - ./gradlew build releaseSnapshot
   - if [ "$TRAVIS_BRANCH" == "develop" ]; then ./gradlew releaseSnapshot; fi
 after_success:
   - sonar-scanner -Dsonar.login=$SONAR_TOKEN
