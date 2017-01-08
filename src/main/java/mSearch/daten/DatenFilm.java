@@ -19,10 +19,11 @@
  */
 package mSearch.daten;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import mSearch.Const;
 import mSearch.tool.*;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 
@@ -126,8 +127,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         arr[FILM_URL] = uurl;
         arr[FILM_URL_RTMP] = uurlRtmp;
         arr[FILM_WEBSEITE] = filmWebsite;
-        checkDatum(datum, arr[FILM_SENDER] + " " + arr[FILM_THEMA] + " " + arr[FILM_TITEL]);
-        checkZeit(arr[FILM_DATUM], zeit, arr[FILM_SENDER] + " " + arr[FILM_THEMA] + " " + arr[FILM_TITEL]);
+        checkDatum(datum, arr[FILM_SENDER] + ' ' + arr[FILM_THEMA] + ' ' + arr[FILM_TITEL]);
+        checkZeit(arr[FILM_DATUM], zeit, arr[FILM_SENDER] + ' ' + arr[FILM_THEMA] + ' ' + arr[FILM_TITEL]);
         arr[FILM_BESCHREIBUNG] = cleanDescription(description, tthema, ttitel);
 
         // Filmlänge
@@ -138,13 +139,13 @@ public class DatenFilm implements Comparable<DatenFilm> {
             dauerSekunden = dauerSekunden % 3600;
             String min = String.valueOf(dauerSekunden / 60);
             String seconds = String.valueOf(dauerSekunden % 60);
-            arr[FILM_DAUER] = fuellen(2, hours) + ":" + fuellen(2, min) + ":" + fuellen(2, seconds);
+            arr[FILM_DAUER] = fuellen(2, hours) + ':' + fuellen(2, min) + ':' + fuellen(2, seconds);
         }
     }
 
     public static DatenFilm getDatenFilmLiveStream(String ssender, String addTitle, String urlStream, String urlWebsite) {
         return new DatenFilm(ssender, ListeFilme.THEMA_LIVE, urlWebsite/* urlThema */,
-                ssender + addTitle + " " + ListeFilme.THEMA_LIVE,
+                ssender + addTitle + ' ' + ListeFilme.THEMA_LIVE,
                 urlStream, ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "");
     }
 
@@ -238,12 +239,12 @@ public class DatenFilm implements Comparable<DatenFilm> {
                     Log.errorLog(915230478, "Url: " + uurl);
                     return "";
                 }
-                url = url.substring(url.indexOf("/") + 1);
+                url = url.substring(url.indexOf('/') + 1);
                 if (!url.contains("/")) {
                     Log.errorLog(915230478, "Url: " + uurl);
                     return "";
                 }
-                url = url.substring(url.indexOf("/") + 1);
+                url = url.substring(url.indexOf('/') + 1);
                 if (url.isEmpty()) {
                     Log.errorLog(915230478, "Url: " + uurl);
                     return "";
@@ -319,13 +320,13 @@ public class DatenFilm implements Comparable<DatenFilm> {
                         long min = l / 60;
                         l = l - (min * 60);
                         long seconds = l;
-                        this.arr[DatenFilm.FILM_DAUER] = fuellen(2, String.valueOf(hours)) + ":" + fuellen(2, String.valueOf(min)) + ":" + fuellen(2, String.valueOf(seconds));
+                        this.arr[DatenFilm.FILM_DAUER] = fuellen(2, String.valueOf(hours)) + ':' + fuellen(2, String.valueOf(min)) + ':' + fuellen(2, String.valueOf(seconds));
                     } else {
                         this.arr[DatenFilm.FILM_DAUER] = "";
                     }
                 } else {
                     dauerL = 0;
-                    if (!this.arr[DatenFilm.FILM_DAUER].equals("")) {
+                    if (!this.arr[DatenFilm.FILM_DAUER].isEmpty()) {
                         String[] parts = this.arr[DatenFilm.FILM_DAUER].split(":");
                         long power = 1;
                         for (int i = parts.length - 1; i >= 0; i--) {
@@ -373,8 +374,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         int i;
         if (!arr[DatenFilm.FILM_URL_KLEIN].isEmpty()) {
             try {
-                i = Integer.parseInt(arr[DatenFilm.FILM_URL_KLEIN].substring(0, arr[DatenFilm.FILM_URL_KLEIN].indexOf("|")));
-                return arr[DatenFilm.FILM_URL].substring(0, i) + arr[DatenFilm.FILM_URL_KLEIN].substring(arr[DatenFilm.FILM_URL_KLEIN].indexOf("|") + 1);
+                i = Integer.parseInt(arr[DatenFilm.FILM_URL_KLEIN].substring(0, arr[DatenFilm.FILM_URL_KLEIN].indexOf('|')));
+                return arr[DatenFilm.FILM_URL].substring(0, i) + arr[DatenFilm.FILM_URL_KLEIN].substring(arr[DatenFilm.FILM_URL_KLEIN].indexOf('|') + 1);
             } catch (Exception ignored) {
             }
         }
@@ -386,8 +387,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         int i;
         if (!arr[DatenFilm.FILM_URL_HD].isEmpty()) {
             try {
-                i = Integer.parseInt(arr[DatenFilm.FILM_URL_HD].substring(0, arr[DatenFilm.FILM_URL_HD].indexOf("|")));
-                return arr[DatenFilm.FILM_URL].substring(0, i) + arr[DatenFilm.FILM_URL_HD].substring(arr[DatenFilm.FILM_URL_HD].indexOf("|") + 1);
+                i = Integer.parseInt(arr[DatenFilm.FILM_URL_HD].substring(0, arr[DatenFilm.FILM_URL_HD].indexOf('|')));
+                return arr[DatenFilm.FILM_URL].substring(0, i) + arr[DatenFilm.FILM_URL_HD].substring(arr[DatenFilm.FILM_URL_HD].indexOf('|') + 1);
             } catch (Exception ignored) {
             }
         }
@@ -418,7 +419,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             }
         }
         // es gibt keine kleine RTMP
-        if (!arr[DatenFilm.FILM_URL_RTMP].equals("")) {
+        if (!arr[DatenFilm.FILM_URL_RTMP].isEmpty()) {
             // dann gibts keine kleine
             ret = arr[DatenFilm.FILM_URL_RTMP];
         } else {
@@ -437,8 +438,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         if (!arr[DatenFilm.FILM_URL_RTMP_HD].isEmpty()) {
             // es gibt eine HD RTMP
             try {
-                int i = Integer.parseInt(arr[DatenFilm.FILM_URL_RTMP_HD].substring(0, arr[DatenFilm.FILM_URL_RTMP_HD].indexOf("|")));
-                return arr[DatenFilm.FILM_URL_RTMP].substring(0, i) + arr[DatenFilm.FILM_URL_RTMP_HD].substring(arr[DatenFilm.FILM_URL_RTMP_HD].indexOf("|") + 1);
+                int i = Integer.parseInt(arr[DatenFilm.FILM_URL_RTMP_HD].substring(0, arr[DatenFilm.FILM_URL_RTMP_HD].indexOf('|')));
+                return arr[DatenFilm.FILM_URL_RTMP].substring(0, i) + arr[DatenFilm.FILM_URL_RTMP_HD].substring(arr[DatenFilm.FILM_URL_RTMP_HD].indexOf('|') + 1);
             } catch (Exception ignored) {
             }
         }
@@ -447,14 +448,19 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     private static final String[] GERMAN_ONLY = {
-        "+++ Aus rechtlichen Gründen ist der Film nur innerhalb von Deutschland abrufbar. +++",
-        "+++ Aus rechtlichen Gründen ist diese Sendung nur innerhalb von Deutschland abrufbar. +++",
-        "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland abrufbar. +++",
-        "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland verfügbar. +++",
-        "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++ Due to legal reasons the video is only available in Germany.+++",
-        "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++",
-        "+++ Due to legal reasons the video is only available in Germany.+++",
-        "+++ Aus rechtlichen Gründen kann das Video nur in Deutschland abgerufen werden. +++"
+            "+++ Aus rechtlichen Gründen ist der Film nur innerhalb von Deutschland abrufbar. +++",
+            "+++ Aus rechtlichen Gründen ist diese Sendung nur innerhalb von Deutschland abrufbar. +++",
+            "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland abrufbar. +++",
+            "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland verfügbar. +++",
+            "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++ Due to legal reasons the video is only available in Germany.+++",
+            "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++",
+            "+++ Due to legal reasons the video is only available in Germany.+++",
+            "+++ Aus rechtlichen Gründen kann das Video nur in Deutschland abgerufen werden. +++",
+            "[Aus rechtlichen Günden können wir die Partie nicht als Einzelclip anbieten.]",
+            "+++ Aus rechtlichen Gründen ist das Video nur innerhalb von Deutschland abrufbar. +++",
+            "+++Aus rechtlichen Gründen kann die Sendung nur innerhalb von Deutschland abgerufen werden. +++",
+            "+++ Aus rechtlichen Gründen dürfen wir dieses Video nur innerhalb von Deutschland anbieten. +++",
+            "+++Aus rechtlichen Gründen kann dieses Video nur innerhalb von Deutschland abgerufen werden.+++"
     };
 
     public static String cleanDescription(String s, String thema, String titel) {
@@ -482,15 +488,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
         if (s.startsWith(titel)) {
             s = s.substring(titel.length()).trim();
         }
-        if (s.startsWith(":")) {
+        if (s.startsWith(":") || s.startsWith(",") || s.startsWith("\n")) {
             s = s.substring(1).trim();
         }
-        if (s.startsWith(",")) {
-            s = s.substring(1).trim();
-        }
-        if (s.startsWith("\n")) {
-            s = s.substring(1).trim();
-        }
+
         if (s.contains("\\\"")) { // wegen " in json-Files
             s = s.replace("\\\"", "\"");
         }
@@ -519,7 +520,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 }
             } catch (Exception ex) {
                 Log.errorLog(794630593, ex);
-                Log.errorLog(946301596, "[" + datum + "] " + fehlermeldung);
+                Log.errorLog(946301596, '[' + datum + "] " + fehlermeldung);
             }
         }
     }
@@ -531,14 +532,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
             if (zeit.contains(":") && zeit.length() == 8) {
                 arr[FILM_ZEIT] = zeit;
             } else {
-                Log.errorLog(159623647, "[" + zeit + "] " + fehlermeldung);
+                Log.errorLog(159623647, '[' + zeit + "] " + fehlermeldung);
             }
         }
     }
 
     private String fuellen(int anz, String s) {
         while (s.length() < anz) {
-            s = "0" + s;
+            s = '0' + s;
         }
         return s;
     }

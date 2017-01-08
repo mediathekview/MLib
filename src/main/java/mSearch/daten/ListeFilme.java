@@ -568,7 +568,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         String ret;
         SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         String date;
-        if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
+        if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].isEmpty()) {
             // noch eine alte Filmliste
             ret = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
         } else {
@@ -600,7 +600,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         String ret;
         SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         String date;
-        if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
+        if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].isEmpty()) {
             // noch eine alte Filmliste
             ret = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
         } else {
