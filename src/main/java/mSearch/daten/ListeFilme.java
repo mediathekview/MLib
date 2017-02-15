@@ -56,22 +56,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public String[][] themenPerSender = {{""}};
     public boolean neueFilme = false;
 
-//    @Override
-//    public ListIterator<DatenFilm> listIterator() {
-//        Duration.staticDbgPing("getListIterator");
-//        return super.listIterator(0);
-//    }
-//
-//    @Override
-//    public synchronized Iterator<DatenFilm> iterator() {
-//        Duration.staticDbgPing("getIterator");
-//        DbgMsg.print("Filmliste länge: " + size());
-//        return super.iterator();
-//    }
-//    @Override
-//    public synchronized int size() {
-//        return super.size();
-//    }
     public synchronized boolean importFilmliste(DatenFilm film) {
         // hier nur beim Laden aus einer fertigen Filmliste mit der GUI
         // die Filme sind schon sortiert, nur die Nummer muss noch ergänzt werden
@@ -443,36 +427,21 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    public synchronized String getFileSizeUrl(String url, String sender) {
-        // ist deutlich schneller als
-        // return this.parallelStream().filter(f -> f.arr[DatenFilm.FILM_URL_NR].equals(url)).filter(f -> !f.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()).findAny().get().arr[DatenFilm.FILM_GROESSE_NR];
-        for (DatenFilm film : this) {
-            if (film.arr[DatenFilm.FILM_URL].equals(url)) {
-                if (!film.arr[DatenFilm.FILM_GROESSE].isEmpty()) {
-                    return film.arr[DatenFilm.FILM_GROESSE];
-                } else {
-                    break;
-                }
-            }
-        }
-        // dann ist der Film nicht in der Liste
-        return FileSize.laengeString(url, sender);
-    }
+    public String getFileSizeUrl(String url, String sender) {
+        String res;
 
-    /**
-     * Count the number of films belonging to a sender.
-     *
-     * @param sender The sender name.
-     * @return Number of films.
-     */
-    public synchronized int countSender(final String sender) {
-        int ret = 0;
-        for (DatenFilm film : this) {
-            if (film.arr[DatenFilm.FILM_SENDER].equalsIgnoreCase(sender)) {
-                ret++;
-            }
-        }
-        return ret;
+        Optional<DatenFilm> opt = this.parallelStream()
+                .filter(f -> f.arr[DatenFilm.FILM_URL].equals(url)).findFirst();
+        if (opt.isPresent()) {
+            DatenFilm film = opt.get();
+            if (!film.arr[DatenFilm.FILM_GROESSE].isEmpty())
+                res = film.arr[DatenFilm.FILM_GROESSE];
+            else
+                res = FileSize.laengeString(url, sender);
+        } else
+            res = FileSize.laengeString(url, sender);
+
+        return res;
     }
 
     /**
@@ -584,7 +553,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         String ret;
         SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         String date;
-        if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
+        if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].isEmpty()) {
             // noch eine alte Filmliste
             ret = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
         } else {
@@ -616,7 +585,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         String ret;
         SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         String date;
-        if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].equals("")) {
+        if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].isEmpty()) {
             // noch eine alte Filmliste
             ret = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
         } else {
@@ -767,31 +736,29 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return this.stream().filter(DatenFilm::isNew).count();
     }
 
+    private static final String THEME_SEARCH_TEXT = "Themen in Filmliste suchen";
     /**
      * Erstellt ein StringArray der Themen eines Senders oder wenn "sender" leer, aller Sender.
      * Ist für die Filterfelder in GuiFilme.
      */
     @SuppressWarnings("unchecked")
     public synchronized void themenLaden() {
-        Duration.counterStart("Themen in Filmliste suchen");
-        TreeSet<String> senderSet = new TreeSet<>();
+        Duration.counterStart(THEME_SEARCH_TEXT);
+        LinkedHashSet<String> senderSet = new LinkedHashSet<>(21);
         // der erste Sender ist ""
         senderSet.add("");
-        // Sendernamen gibts nur in einer Schreibweise
-        // doppelte Einträge nicht hinzufügen.
+
         for (DatenFilm film : this) {
-            final String str = film.arr[DatenFilm.FILM_SENDER];
-            if (!senderSet.contains(str)) {
-                senderSet.add(str);
-            }
+            senderSet.add(film.arr[DatenFilm.FILM_SENDER]);
         }
         sender = senderSet.toArray(new String[senderSet.size()]);
         senderSet.clear();
 
         //für den Sender "" sind alle Themen im themenPerSender[0]
-        themenPerSender = new String[sender.length][];
-        TreeSet<String>[] tree = (TreeSet<String>[]) new TreeSet<?>[sender.length];
-        HashSet<String>[] hashSet = (HashSet<String>[]) new HashSet<?>[sender.length];
+        final int senderLength = sender.length;
+        themenPerSender = new String[senderLength][];
+        TreeSet<String>[] tree = (TreeSet<String>[]) new TreeSet<?>[senderLength];
+        HashSet<String>[] hashSet = (HashSet<String>[]) new HashSet<?>[senderLength];
         for (int i = 0; i < tree.length; ++i) {
             tree[i] = new TreeSet<>(mSearch.tool.GermanStringSorter.getInstance());
             tree[i].add("");
@@ -808,7 +775,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 hashSet[0].add(filmThema);
                 tree[0].add(filmThema);
             }
-            for (int i = 1; i < sender.length; ++i) {
+            for (int i = 1; i < senderLength; ++i) {
                 if (filmSender.equals(sender[i])) {
                     if (!hashSet[i].contains(filmThema)) {
                         hashSet[i].add(filmThema);
@@ -822,6 +789,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             tree[i].clear();
             hashSet[i].clear();
         }
-        Duration.counterStop("Themen in Filmliste suchen");
+        Duration.counterStop(THEME_SEARCH_TEXT);
     }
 }

@@ -19,13 +19,15 @@
  */
 package mSearch.tool;
 
+import com.jidesoft.utils.SystemInfo;
+import mSearch.Config;
+import mSearch.Const;
+
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
-import mSearch.Config;
-import mSearch.Const;
 
 public class Log {
 
@@ -65,31 +67,36 @@ public class Log {
 
     }
 
-    public static synchronized void versionMsg(String progName) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-        sysLog("");
-        sysLog("");
-        sysLog("");
-        sysLog("");
-        sysLog("");
-        sysLog("___  ___         _ _       _   _          _    _   _ _               ");
-        sysLog("|  \\/  |        | (_)     | | | |        | |  | | | (_)              ");
-        sysLog("| .  . | ___  __| |_  __ _| |_| |__   ___| | _| | | |_  _____      __");
-        sysLog("| |\\/| |/ _ \\/ _` | |/ _` | __| '_ \\ / _ \\ |/ / | | | |/ _ \\ \\ /\\ / /");
-        sysLog("| |  | |  __/ (_| | | (_| | |_| | | |  __/   <\\ \\_/ / |  __/\\ V  V / ");
-        sysLog("\\_|  |_/\\___|\\__,_|_|\\__,_|\\__|_| |_|\\___|_|\\_\\\\___/|_|\\___| \\_/\\_/  ");
-        sysLog("");
-        sysLog("");
+    private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+
+    private static final long TO_MEGABYTE = 1000L * 1000L;
+
+    public static void versionMsg(String progName) {
+        if (!SystemInfo.isMacOSX()) {
+            sysLog("");
+            sysLog("");
+            sysLog("");
+            sysLog("");
+            sysLog("");
+            sysLog("___  ___         _ _       _   _          _    _   _ _               ");
+            sysLog("|  \\/  |        | (_)     | | | |        | |  | | | (_)              ");
+            sysLog("| .  . | ___  __| |_  __ _| |_| |__   ___| | _| | | |_  _____      __");
+            sysLog("| |\\/| |/ _ \\/ _` | |/ _` | __| '_ \\ / _ \\ |/ / | | | |/ _ \\ \\ /\\ / /");
+            sysLog("| |  | |  __/ (_| | | (_| | |_| | | |  __/   <\\ \\_/ / |  __/\\ V  V / ");
+            sysLog("\\_|  |_/\\___|\\__,_|_|\\__,_|\\__|_| |_|\\___|_|\\_\\\\___/|_|\\___| \\_/\\_/  ");
+            sysLog("");
+            sysLog("");
+        }
         sysLog(LILNE);
-        sysLog("Programmstart: " + sdf.format(startZeit));
+        sysLog("Programmstart: " + dateFormatter.format(Log.startZeit));
         sysLog(LILNE);
         sysLog("");
-        long totalMem = Runtime.getRuntime().totalMemory();
-        sysLog("totalMemory: " + totalMem / (1000L * 1000L) + " MB");
-        long maxMem = Runtime.getRuntime().maxMemory();
-        sysLog("maxMemory: " + maxMem / (1000L * 1000L) + " MB");
-        long freeMem = Runtime.getRuntime().freeMemory();
-        sysLog("freeMemory: " + freeMem / (1000L * 1000L) + " MB");
+        final long totalMem = Runtime.getRuntime().totalMemory();
+        sysLog("totalMemory: " + totalMem / TO_MEGABYTE + " MB");
+        final long maxMem = Runtime.getRuntime().maxMemory();
+        sysLog("maxMemory: " + maxMem / TO_MEGABYTE + " MB");
+        final long freeMem = Runtime.getRuntime().freeMemory();
+        sysLog("freeMemory: " + freeMem / TO_MEGABYTE + " MB");
         sysLog("");
         sysLog(LILNE);
         sysLog("");
@@ -103,14 +110,14 @@ public class Log {
         sysLog(LILNE);
         sysLog("");
         sysLog("Java");
-        String[] java = Functions.getJavaVersion();
+        final String[] java = Functions.getJavaVersion();
         for (String ja : java) {
-            Log.sysLog(ja);
+            sysLog(ja);
         }
         sysLog("");
     }
 
-    public static synchronized void endMsg() {
+    public static void endMsg() {
         sysLog("");
         sysLog("");
         sysLog("");
@@ -120,18 +127,17 @@ public class Log {
 
         // Laufzeit ausgeben
         Date stopZeit = new Date(System.currentTimeMillis());
-        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         int minuten;
         try {
-            minuten = Math.round((stopZeit.getTime() - startZeit.getTime()) / (1000 * 60));
+            minuten = Math.round((stopZeit.getTime() - Log.startZeit.getTime()) / (1000 * 60));
         } catch (Exception ex) {
             minuten = -1;
         }
         sysLog("");
         sysLog("");
         sysLog(LILNE);
-        sysLog("   --> Beginn: " + sdf.format(startZeit));
-        sysLog("   --> Fertig: " + sdf.format(stopZeit));
+        sysLog("   --> Beginn: " + dateFormatter.format(Log.startZeit));
+        sysLog("   --> Fertig: " + dateFormatter.format(stopZeit));
         sysLog("   --> Dauer[Min]: " + (minuten == 0 ? "<1" : minuten));
         sysLog(LILNE);
         sysLog("");
@@ -146,7 +152,7 @@ public class Log {
         ArrayList<String> retList = new ArrayList<>();
         retList.add("");
         retList.add(LILNE);
-        if (fehlerListe.size() == 0) {
+        if (fehlerListe.isEmpty()) {
             retList.add(" Keine Fehler :)");
         } else {
             // Fehler ausgeben
@@ -160,7 +166,7 @@ public class Log {
             max++;
             for (Error e : fehlerListe) {
                 while (e.cl.length() < max) {
-                    e.cl = e.cl + " ";
+                    e.cl = e.cl + ' ';
                 }
             }
             for (int i = 1; i < fehlerListe.size(); ++i) {
@@ -221,7 +227,7 @@ public class Log {
     public static synchronized void progress(String texte) {
         progress = true;
         if (!texte.isEmpty()) {
-            System.out.print(texte + "\r");
+            System.out.print(texte + '\r');
         }
     }
 
@@ -247,7 +253,7 @@ public class Log {
     private static void fehlermeldung_(int fehlerNummer, Exception ex, String[] texte) {
         final Throwable t = new Throwable();
         final StackTraceElement methodCaller = t.getStackTrace()[2];
-        final String klasse = methodCaller.getClassName() + "." + methodCaller.getMethodName();
+        final String klasse = methodCaller.getClassName() + '.' + methodCaller.getMethodName();
         String kl;
         try {
             kl = klasse;
@@ -255,7 +261,7 @@ public class Log {
                 if (Character.isUpperCase(kl.charAt(0))) {
                     break;
                 } else {
-                    kl = kl.substring(kl.indexOf(".") + 1);
+                    kl = kl.substring(kl.indexOf('.') + 1);
                 }
             }
         } catch (Exception ignored) {
@@ -292,7 +298,7 @@ public class Log {
             if (ex != null) {
                 logList.add(z + " Exception: " + ex.getMessage());
             }
-            logList.add(z + " " + FEHLER + kl);
+            logList.add(z + ' ' + FEHLER + kl);
             for (String aTexte : texte) {
                 logList.add(z + "           " + aTexte);
             }
@@ -305,7 +311,7 @@ public class Log {
         resetProgress();
         final String z = ". ";
         if (texte.length <= 1) {
-            logList.add(z + " " + texte[0]);
+            logList.add(z + ' ' + texte[0]);
         } else {
             String zeile = "---------------------------------------";
             String txt;
