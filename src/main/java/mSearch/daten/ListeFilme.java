@@ -427,36 +427,21 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    public synchronized String getFileSizeUrl(String url, String sender) {
-        // ist deutlich schneller als
-        // return this.parallelStream().filter(f -> f.arr[DatenFilm.FILM_URL_NR].equals(url)).filter(f -> !f.arr[DatenFilm.FILM_GROESSE_NR].isEmpty()).findAny().get().arr[DatenFilm.FILM_GROESSE_NR];
-        for (DatenFilm film : this) {
-            if (film.arr[DatenFilm.FILM_URL].equals(url)) {
-                if (!film.arr[DatenFilm.FILM_GROESSE].isEmpty()) {
-                    return film.arr[DatenFilm.FILM_GROESSE];
-                } else {
-                    break;
-                }
-            }
-        }
-        // dann ist der Film nicht in der Liste
-        return FileSize.laengeString(url, sender);
-    }
+    public String getFileSizeUrl(String url, String sender) {
+        String res;
 
-    /**
-     * Count the number of films belonging to a sender.
-     *
-     * @param sender The sender name.
-     * @return Number of films.
-     */
-    public synchronized int countSender(final String sender) {
-        int ret = 0;
-        for (DatenFilm film : this) {
-            if (film.arr[DatenFilm.FILM_SENDER].equalsIgnoreCase(sender)) {
-                ret++;
-            }
-        }
-        return ret;
+        Optional<DatenFilm> opt = this.parallelStream()
+                .filter(f -> f.arr[DatenFilm.FILM_URL].equals(url)).findFirst();
+        if (opt.isPresent()) {
+            DatenFilm film = opt.get();
+            if (!film.arr[DatenFilm.FILM_GROESSE].isEmpty())
+                res = film.arr[DatenFilm.FILM_GROESSE];
+            else
+                res = FileSize.laengeString(url, sender);
+        } else
+            res = FileSize.laengeString(url, sender);
+
+        return res;
     }
 
     /**
