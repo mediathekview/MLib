@@ -78,7 +78,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
         Functions.unescape(film);
 
-        return indexes.contains(film.getIndex()) && addInit(film);
+        return !indexes.contains(film.getIndex()) && addInit(film);
     }
 
     public synchronized void updateListe(ListeFilme listeEinsortieren, boolean index /* Vergleich über Index, sonst nur URL */, boolean ersetzen) {
