@@ -19,7 +19,9 @@ script:
     fi
 after_success:
   - sonar-scanner -Dsonar.login=$SONAR_TOKEN
-
+  - gzip build/distributions/MSearch-*.tar;
+  - rm build/distributions/MSearch-*.tar.SHA-1;
+  - cd build/distributions;for i in `ls -x -1 |grep *.tar.gz`; do sha1sum $i|cut -d' ' -f1 > $i.SHA-1; done; cd ../../;
 #Cache
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
