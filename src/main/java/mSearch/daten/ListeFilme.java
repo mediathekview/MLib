@@ -164,6 +164,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized void clear() {
         nr = 1;
         neueFilme = false;
+        indexes.clear();
         super.clear();
     }
 
