@@ -39,13 +39,14 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 public class WriteFilmlistJson {
 
     private final JsonFactory jsonF = new JsonFactory();
 
-    public void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
-        final ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024);
+    private void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
+        final ByteBuffer buffer = ByteBuffer.allocateDirect(64 * 1024);
         while (src.read(buffer) != -1) {
             buffer.flip();
             dest.write(buffer);
@@ -73,22 +74,26 @@ public class WriteFilmlistJson {
      * @param listeFilme film data
      */
     public void filmlisteSchreibenJsonCompressed(String datei, ListeFilme listeFilme) {
-        filmlisteSchreibenJson(datei, listeFilme);
+        final String tempFile = datei + "_temp";
+        filmlisteSchreibenJson(tempFile, listeFilme);
 
-        //remove .xz from fimlist file
         try {
             Log.sysLog("Komprimiere Datei: " + datei);
             if (datei.endsWith(Const.FORMAT_XZ)) {
-                Path xz = testNativeXz();
-                xz = null; //DEBUG
+                final Path xz = testNativeXz();
                 if (xz != null) {
-                    final String datei_ohne_xz = datei.substring(0, datei.length() - ".xz".length());
-                    //native compression here
-                    Process p = new ProcessBuilder(xz.toString(), "-9", datei_ohne_xz).start();
-                    p.waitFor();
+                    EtmPoint compress = EtmManager.getEtmMonitor().createPoint("WriteFilmlistJson:nativeCompress");
+                    Process p = new ProcessBuilder(xz.toString(), "-9", tempFile).start();
+                    final int exitCode = p.waitFor();
+                    if (exitCode == 0) {
+                        Files.move(Paths.get(tempFile + ".xz"), Paths.get(datei), StandardCopyOption.REPLACE_EXISTING);
+                    }
+                    compress.collect();
                 } else
-                    compressFile(datei);
+                    compressFile(tempFile, datei);
             }
+
+            Files.deleteIfExists(Paths.get(tempFile));
         } catch (IOException ex) {
             ex.printStackTrace();
             Log.sysLog("Komprimieren fehlgeschlagen");
@@ -164,10 +169,10 @@ public class WriteFilmlistJson {
         Path xz = null;
 
         for (String path : paths) {
-            System.out.println("Path: " + path);
+            //System.out.println("Path: " + path);
             xz = Paths.get(path);
             if (Files.isExecutable(xz)) {
-                System.out.println("FOUND...");
+                //System.out.println("FOUND...");
                 break;
             }
         }
@@ -175,12 +180,11 @@ public class WriteFilmlistJson {
         return xz;
     }
 
-    private void compressFile(String datei) throws IOException {
+    private void compressFile(String inputName, String outputName) throws IOException {
         EtmPoint compress = EtmManager.getEtmMonitor().createPoint("WriteFilmlistJson.compressFile");
 
-        Path tempFile = Files.createTempFile("prefix", "suffix");
-        try (InputStream input = new FileInputStream(datei);
-             FileOutputStream fos = new FileOutputStream(tempFile.toString());
+        try (InputStream input = new FileInputStream(inputName);
+             FileOutputStream fos = new FileOutputStream(outputName);
              final OutputStream output = new XZOutputStream(fos, new LZMA2Options());
              final ReadableByteChannel inputChannel = Channels.newChannel(input);
              final WritableByteChannel outputChannel = Channels.newChannel(output)) {
