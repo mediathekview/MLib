@@ -19,8 +19,11 @@
  */
 package mSearch.daten;
 
+import etm.core.configuration.EtmManager;
+import etm.core.monitor.EtmPoint;
 import mSearch.Const;
 import mSearch.tool.*;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,8 +31,10 @@ import java.util.Date;
 public class DatenFilm implements Comparable<DatenFilm> {
 
     private static final GermanStringSorter sorter = GermanStringSorter.getInstance();
-    private static final SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyyHH:mm:ss");
-    private static final SimpleDateFormat sdf_datum = new SimpleDateFormat("dd.MM.yyyy");
+
+    private static final FastDateFormat sdf_datum_zeit = FastDateFormat.getInstance("dd.MM.yyyyHH:mm:ss");
+    private static final FastDateFormat sdf_datum = FastDateFormat.getInstance("dd.MM.yyyy");
+
     public static final String AUFLOESUNG_NORMAL = "normal";
     public static final String AUFLOESUNG_HD = "hd";
     public static final String AUFLOESUNG_KLEIN = "klein";
@@ -143,11 +148,11 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
-    public static DatenFilm getDatenFilmLiveStream(String ssender, String addTitle, String urlStream, String urlWebsite) {
-        return new DatenFilm(ssender, ListeFilme.THEMA_LIVE, urlWebsite/* urlThema */,
-                ssender + addTitle + ' ' + ListeFilme.THEMA_LIVE,
-                urlStream, ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "");
-    }
+//    public static DatenFilm getDatenFilmLiveStream(String ssender, String addTitle, String urlStream, String urlWebsite) {
+//        return new DatenFilm(ssender, ListeFilme.THEMA_LIVE, urlWebsite/* urlThema */,
+//                ssender + addTitle + ' ' + ListeFilme.THEMA_LIVE,
+//                urlStream, ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "");
+//    }
 
 
     public String getUrlSubtitle() {
@@ -188,7 +193,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     public void setUrlHistory() {
-        String u = getUrl(this);
+        String u = getUrl();
         if (u.equals(arr[DatenFilm.FILM_URL])) {
             arr[DatenFilm.FILM_URL_HISTORY] = "";
         } else {
@@ -208,7 +213,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public String getIndex() {
         // liefert einen eindeutigen Index für die Filmliste
         // URL beim KiKa und ORF ändern sich laufend!
-        return arr[FILM_SENDER].toLowerCase() + arr[FILM_THEMA].toLowerCase() + DatenFilm.getUrl(this);
+        return arr[FILM_SENDER].toLowerCase() + arr[FILM_THEMA].toLowerCase() + getUrl();
     }
 
     public String getIndexAddOld() {
@@ -220,19 +225,41 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return s.replace("-", "").replace("_", "").replace(".", "").replace(" ", "").replace(",", "").toLowerCase();
     }
 
+    public Hash getHashValueIndexAddOld() {
+        EtmPoint performancePoint = EtmManager.getEtmMonitor().createPoint("DatenFilm.getHashValueIndexAddOld");
+
+        if (hashValueIndexAddOld == null)
+            hashValueIndexAddOld = new Hash(getIndexAddOld());
+
+        performancePoint.collect();
+
+        return hashValueIndexAddOld;
+    }
+
+    public Hash getHashValueUrl() {
+        EtmPoint performancePoint = EtmManager.getEtmMonitor().createPoint("DatenFilm.getHashValueUrl");
+        if (hashValueUrl == null)
+            hashValueUrl = new Hash(getUrl());
+
+        performancePoint.collect();
+
+        return hashValueUrl;
+    }
+
+    private Hash hashValueIndexAddOld = null;
+    private Hash hashValueUrl = null;
+
 //    public String getIndexAddOld_() {
 //        // liefert einen eindeutigen Index zum Anhängen einer alten Liste
 //        return arr[FILM_SENDER] + arr[FILM_THEMA].toLowerCase() + arr[FILM_TITEL].toLowerCase() + arr[FILM_DATUM]; //liefert zu viel Müll
 //        //return arr[FILM_SENDER] + arr[FILM_THEMA].toLowerCase() + arr[FILM_TITEL].toLowerCase();
 //    }
-    public static String getUrl(DatenFilm film) {
-        return getUrl(film.arr[DatenFilm.FILM_SENDER], film.arr[DatenFilm.FILM_URL]);
-    }
 
-    private static String getUrl(String ssender, String uurl) {
+    public String getUrl() {
         // liefert die URL zum VERGLEICHEN!!
         String url = "";
-        if (ssender.equals(Const.ORF)) {
+        if (arr[DatenFilm.FILM_SENDER].equals(Const.ORF)) {
+            final String uurl = arr[DatenFilm.FILM_URL];
             try {
                 url = uurl.substring(uurl.indexOf("/online/") + "/online/".length());
                 if (!url.contains("/")) {
@@ -254,7 +281,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             }
             return Const.ORF + "----" + url;
         } else {
-            return uurl;
+            return arr[DatenFilm.FILM_URL];
         }
 
     }
@@ -284,11 +311,11 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return ret;
     }
 
-    public void clean() {
-        // vor dem Speichern nicht benötigte Felder löschen
-        arr[FILM_NR] = "";
-        arr[FILM_ABO_NAME] = "";
-    }
+//    public void clean() {
+//        // vor dem Speichern nicht benötigte Felder löschen
+//        arr[FILM_NR] = "";
+//        arr[FILM_ABO_NAME] = "";
+//    }
 
     public void init() {
         try {
@@ -371,10 +398,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     private String getUrlNormalKlein() {
         // liefert die kleine normale URL
-        int i;
         if (!arr[DatenFilm.FILM_URL_KLEIN].isEmpty()) {
             try {
-                i = Integer.parseInt(arr[DatenFilm.FILM_URL_KLEIN].substring(0, arr[DatenFilm.FILM_URL_KLEIN].indexOf('|')));
+                final int i = Integer.parseInt(arr[DatenFilm.FILM_URL_KLEIN].substring(0, arr[DatenFilm.FILM_URL_KLEIN].indexOf('|')));
                 return arr[DatenFilm.FILM_URL].substring(0, i) + arr[DatenFilm.FILM_URL_KLEIN].substring(arr[DatenFilm.FILM_URL_KLEIN].indexOf('|') + 1);
             } catch (Exception ignored) {
             }
@@ -384,10 +410,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     private String getUrlNormalHd() {
         // liefert die HD normale URL
-        int i;
         if (!arr[DatenFilm.FILM_URL_HD].isEmpty()) {
             try {
-                i = Integer.parseInt(arr[DatenFilm.FILM_URL_HD].substring(0, arr[DatenFilm.FILM_URL_HD].indexOf('|')));
+                final int i = Integer.parseInt(arr[DatenFilm.FILM_URL_HD].substring(0, arr[DatenFilm.FILM_URL_HD].indexOf('|')));
                 return arr[DatenFilm.FILM_URL].substring(0, i) + arr[DatenFilm.FILM_URL_HD].substring(arr[DatenFilm.FILM_URL_HD].indexOf('|') + 1);
             } catch (Exception ignored) {
             }
@@ -438,7 +463,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         if (!arr[DatenFilm.FILM_URL_RTMP_HD].isEmpty()) {
             // es gibt eine HD RTMP
             try {
-                int i = Integer.parseInt(arr[DatenFilm.FILM_URL_RTMP_HD].substring(0, arr[DatenFilm.FILM_URL_RTMP_HD].indexOf('|')));
+                final int i = Integer.parseInt(arr[DatenFilm.FILM_URL_RTMP_HD].substring(0, arr[DatenFilm.FILM_URL_RTMP_HD].indexOf('|')));
                 return arr[DatenFilm.FILM_URL_RTMP].substring(0, i) + arr[DatenFilm.FILM_URL_RTMP_HD].substring(arr[DatenFilm.FILM_URL_RTMP_HD].indexOf('|') + 1);
             } catch (Exception ignored) {
             }
