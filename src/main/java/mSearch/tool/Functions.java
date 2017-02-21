@@ -128,7 +128,7 @@ public class Functions {
     }
 
     public static String getProgVersionString() {
-        return " [Vers.: " + getBuildNr() + "]";
+        return " [Vers.: " + getProgVersion().toString() + "]";
     }
 
     public static String[] getJavaVersion() {
@@ -157,20 +157,35 @@ public class Functions {
         return msg;
     }
 
-    public static String getBuildNr() {
+    public static Version getProgVersion() {
         final ResourceBundle rb;
         String TOKEN_VERSION = "VERSION";
-        String msg = "0";
         try {
             ResourceBundle.clearCache();
             rb = ResourceBundle.getBundle("version");
             if (rb.containsKey(TOKEN_VERSION)) {
-                msg = rb.getString(TOKEN_VERSION);
+                return new Version(rb.getString(TOKEN_VERSION));
             }
         } catch (Exception e) {
             Log.errorLog(134679898, e);
         }
-        return msg;
+        return new Version("");
+    }
+    
+    @Deprecated
+    public static String getBuildNr() {
+        final ResourceBundle rb;
+        String TOKEN_VERSION = "VERSION";
+        try {
+            ResourceBundle.clearCache();
+            rb = ResourceBundle.getBundle("version");
+            if (rb.containsKey(TOKEN_VERSION)) {
+                return new Version(rb.getString(TOKEN_VERSION)).toString();
+            }
+        } catch (Exception e) {
+            Log.errorLog(134679898, e);
+        }
+        return new Version("").toString();
     }
 
     public static void unescape(DatenFilm film) {
