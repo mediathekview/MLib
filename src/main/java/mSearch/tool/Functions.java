@@ -160,7 +160,7 @@ public class Functions {
     public static String getBuildNr() {
         final ResourceBundle rb;
         String TOKEN_VERSION = "VERSION";
-        String msg = "-1";
+        String msg = "0";
         try {
             ResourceBundle.clearCache();
             rb = ResourceBundle.getBundle("version");
