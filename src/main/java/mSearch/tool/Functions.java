@@ -159,15 +159,12 @@ public class Functions {
 
     public static String getBuildNr() {
         final ResourceBundle rb;
-        String TOKEN_BUILD = "BUILD";
         String TOKEN_VERSION = "VERSION";
-        String msg = "0-0";
+        String msg = "-1";
         try {
             ResourceBundle.clearCache();
             rb = ResourceBundle.getBundle("version");
-            if (rb.containsKey(TOKEN_BUILD)) {
-                msg = rb.getString(TOKEN_BUILD);
-            } else if (rb.containsKey(TOKEN_VERSION)) {
+            if (rb.containsKey(TOKEN_VERSION)) {
                 msg = rb.getString(TOKEN_VERSION);
             }
         } catch (Exception e) {
