@@ -8,7 +8,6 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
-import static mSearch.tool.Functions.OperatingSystemType.*;
 
 /**
  * User: crystalpalace1977
