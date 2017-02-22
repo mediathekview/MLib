@@ -23,7 +23,6 @@ import mSearch.Const;
 import mSearch.tool.*;
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class DatenFilm implements Comparable<DatenFilm> {
@@ -250,7 +249,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         if (arr[DatenFilm.FILM_SENDER].equals(Const.ORF)) {
             final String uurl = arr[DatenFilm.FILM_URL];
             try {
-                url = uurl.substring(uurl.indexOf("/online/") + "/online/".length());
+                final String online = "/online/";
+                url = uurl.substring(uurl.indexOf(online) + online.length());
                 if (!url.contains("/")) {
                     Log.errorLog(915230478, "Url: " + uurl);
                     return "";
@@ -522,8 +522,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         datum = datum.trim();
         if (datum.contains(".") && datum.length() == 10) {
             try {
-                SimpleDateFormat sdfIn = new SimpleDateFormat("dd.MM.yyyy");
-                Date filmDate = sdfIn.parse(datum);
+                Date filmDate = FastDateFormat.getInstance("dd.MM.yyyy").parse(datum);
                 if (filmDate.getTime() < 0) {
                     //Datum vor 1970
                     Log.errorLog(923012125, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);

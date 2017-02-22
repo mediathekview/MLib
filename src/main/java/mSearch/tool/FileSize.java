@@ -22,7 +22,7 @@ public class FileSize {
         return groesseStr;
     }
 
-    public static long getFileSizeInMByteFromUrl(String url) {
+    /*public static long getFileSizeInMByteFromUrl(String url) {
         // liefert die Dateigröße einer URL in MB!!
         // Anzeige der Größe in MiB und deshalb: Faktor 1000
         long l = getFileSizeFromUrl(url);
@@ -33,7 +33,7 @@ public class FileSize {
             l = 1;
         }
         return l;
-    }
+    }*/
 
     /**
      * Return the size of a URL in bytes.
@@ -46,13 +46,12 @@ public class FileSize {
             return -1;
         }
 
-        Request request = new Request.Builder().url(url).head().build();
+        final Request request = new Request.Builder().url(url).head().build();
         long respLength = -1;
         try (Response response = MVHttpClient.getInstance().getHttpClient().newCall(request).execute();
              ResponseBody body = response.body()) {
-            if (response.isSuccessful()) {
+            if (response.isSuccessful())
                 respLength = body.contentLength();
-            }
         } catch (IOException ex) {
             ex.printStackTrace();
         }

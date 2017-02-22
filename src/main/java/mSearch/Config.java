@@ -19,12 +19,14 @@
  */
 package mSearch;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class Config {
 
     public static int bandbreite = 0; // maxBandbreite in Byte
     private static String userAgent = null;
     public static boolean debug = false; // Debugmodus
-    private static boolean stop = false; // damit kannn das Laden gestoppt werden
+    private static final AtomicBoolean stop = new AtomicBoolean(false); // damit kannn das Laden gestoppt werden
 
     public static void setUserAgent(String ua) {
         // Useragent den der Benutzer vorgegeben hat
@@ -40,19 +42,13 @@ public class Config {
     }
 
     /**
-     * Damit kann das Suchen abgebrochen werden
-     */
-    public static synchronized void setStop() {
-        Config.stop = true;
-    }
-
-    /**
-     * Damit kann "stop" gesetzt/rückgesetzt werden
+     * Damit kann "stop" gesetzt/rückgesetzt werden.
+     * Bei true wird die Suche abgebrochen.
      *
      * @param set
      */
-    public static synchronized void setStop(boolean set) {
-        Config.stop = set;
+    public static void setStop(boolean set) {
+        stop.set(set);
     }
 
     /**
@@ -60,7 +56,7 @@ public class Config {
      *
      * @return true/false
      */
-    public static synchronized boolean getStop() {
-        return Config.stop;
+    public static boolean getStop() {
+        return stop.get();
     }
 }
