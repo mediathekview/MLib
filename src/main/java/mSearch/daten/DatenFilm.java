@@ -119,6 +119,18 @@ public class DatenFilm implements Comparable<DatenFilm> {
         dateigroesseL = new MSLong(0); // Dateigröße in MByte
     }
 
+    private void checkFilmDauer(long dauerSekunden) {
+        if (dauerSekunden <= 0 || dauerSekunden > 3600 * 5 /* Werte über 5 Stunden */) {
+            arr[FILM_DAUER] = "";
+        } else {
+            String hours = String.valueOf(dauerSekunden / 3600);
+            dauerSekunden = dauerSekunden % 3600;
+            String min = String.valueOf(dauerSekunden / 60);
+            String seconds = String.valueOf(dauerSekunden % 60);
+            arr[FILM_DAUER] = fuellen(2, hours) + ':' + fuellen(2, min) + ':' + fuellen(2, seconds);
+        }
+    }
+
     public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
             String datum, String zeit,
             long dauerSekunden, String description) {
@@ -135,15 +147,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         arr[FILM_BESCHREIBUNG] = cleanDescription(description, tthema, ttitel);
 
         // Filmlänge
-        if (dauerSekunden <= 0 || dauerSekunden > 3600 * 5 /* Werte über 5 Stunden */) {
-            arr[FILM_DAUER] = "";
-        } else {
-            String hours = String.valueOf(dauerSekunden / 3600);
-            dauerSekunden = dauerSekunden % 3600;
-            String min = String.valueOf(dauerSekunden / 60);
-            String seconds = String.valueOf(dauerSekunden % 60);
-            arr[FILM_DAUER] = fuellen(2, hours) + ':' + fuellen(2, min) + ':' + fuellen(2, seconds);
-        }
+        checkFilmDauer(dauerSekunden);
     }
 
 //    public static DatenFilm getDatenFilmLiveStream(String ssender, String addTitle, String urlStream, String urlWebsite) {
