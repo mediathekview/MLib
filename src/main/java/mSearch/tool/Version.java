@@ -70,6 +70,7 @@ public class Version {
 	 * Gibt die Version als String zurück
 	 * @return String mit der Version
 	 */
+	@Override
 	public String toString() {
 		return String.format("%d.%d.%d", major, minor, patch);
 	}
