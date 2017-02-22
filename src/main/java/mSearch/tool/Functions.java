@@ -28,6 +28,8 @@ import mSearch.daten.DatenFilm;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class Functions {
+	
+	private static final ResourceBundle rbversion = ResourceBundle.getBundle("version");
 
     public static String textLaenge(int max, String text, boolean mitte, boolean addVorne) {
         if (text.length() > max) {
@@ -142,14 +144,12 @@ public class Functions {
     }
 
     public static String getCompileDate() {
-        final ResourceBundle rb;
         String propToken = "DATE";
         String msg = "";
         try {
             ResourceBundle.clearCache();
-            rb = ResourceBundle.getBundle("version");
-            if (rb.containsKey(propToken)) {
-                msg = rb.getString(propToken);
+            if (rbversion.containsKey(propToken)) {
+                msg = rbversion.getString(propToken);
             }
         } catch (Exception e) {
             Log.errorLog(807293847, e);
@@ -158,13 +158,11 @@ public class Functions {
     }
 
     public static Version getProgVersion() {
-        final ResourceBundle rb;
         String TOKEN_VERSION = "VERSION";
         try {
             ResourceBundle.clearCache();
-            rb = ResourceBundle.getBundle("version");
-            if (rb.containsKey(TOKEN_VERSION)) {
-                return new Version(rb.getString(TOKEN_VERSION));
+            if (rbversion.containsKey(TOKEN_VERSION)) {
+                return new Version(rbversion.getString(TOKEN_VERSION));
             }
         } catch (Exception e) {
             Log.errorLog(134679898, e);
@@ -174,13 +172,11 @@ public class Functions {
     
     @Deprecated
     public static String getBuildNr() {
-        final ResourceBundle rb;
         String TOKEN_VERSION = "VERSION";
         try {
             ResourceBundle.clearCache();
-            rb = ResourceBundle.getBundle("version");
-            if (rb.containsKey(TOKEN_VERSION)) {
-                return new Version(rb.getString(TOKEN_VERSION)).toString();
+            if (rbversion.containsKey(TOKEN_VERSION)) {
+                return new Version(rbversion.getString(TOKEN_VERSION)).toString();
             }
         } catch (Exception e) {
             Log.errorLog(134679898, e);
