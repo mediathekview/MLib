@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 public class Functions {
 	
-	private static final ResourceBundle rbversion = ResourceBundle.getBundle("version");
+	private static final String RBVERSION = "version";
 
     public static String textLaenge(int max, String text, boolean mitte, boolean addVorne) {
         if (text.length() > max) {
@@ -148,8 +148,9 @@ public class Functions {
         String msg = "";
         try {
             ResourceBundle.clearCache();
-            if (rbversion.containsKey(propToken)) {
-                msg = rbversion.getString(propToken);
+            ResourceBundle rb = ResourceBundle.getBundle(RBVERSION);
+            if (rb.containsKey(propToken)) {
+                msg = rb.getString(propToken);
             }
         } catch (Exception e) {
             Log.errorLog(807293847, e);
@@ -161,8 +162,9 @@ public class Functions {
         String TOKEN_VERSION = "VERSION";
         try {
             ResourceBundle.clearCache();
-            if (rbversion.containsKey(TOKEN_VERSION)) {
-                return new Version(rbversion.getString(TOKEN_VERSION));
+            ResourceBundle rb = ResourceBundle.getBundle(RBVERSION);
+            if (rb.containsKey(TOKEN_VERSION)) {
+                return new Version(rb.getString(TOKEN_VERSION));
             }
         } catch (Exception e) {
             Log.errorLog(134679898, e);
@@ -175,8 +177,9 @@ public class Functions {
         String TOKEN_VERSION = "VERSION";
         try {
             ResourceBundle.clearCache();
-            if (rbversion.containsKey(TOKEN_VERSION)) {
-                return new Version(rbversion.getString(TOKEN_VERSION)).toString();
+            ResourceBundle rb = ResourceBundle.getBundle(RBVERSION);
+            if (rb.containsKey(TOKEN_VERSION)) {
+                return new Version(rb.getString(TOKEN_VERSION)).toString();
             }
         } catch (Exception e) {
             Log.errorLog(134679898, e);
