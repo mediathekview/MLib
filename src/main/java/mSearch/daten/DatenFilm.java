@@ -19,8 +19,6 @@
  */
 package mSearch.daten;
 
-import etm.core.configuration.EtmManager;
-import etm.core.monitor.EtmPoint;
 import mSearch.Const;
 import mSearch.tool.*;
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -226,34 +224,21 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     public Hash getHashValueIndexAddOld() {
-        EtmPoint performancePoint = EtmManager.getEtmMonitor().createPoint("DatenFilm.getHashValueIndexAddOld");
-
         if (hashValueIndexAddOld == null)
             hashValueIndexAddOld = new Hash(getIndexAddOld());
-
-        performancePoint.collect();
 
         return hashValueIndexAddOld;
     }
 
     public Hash getHashValueUrl() {
-        EtmPoint performancePoint = EtmManager.getEtmMonitor().createPoint("DatenFilm.getHashValueUrl");
         if (hashValueUrl == null)
             hashValueUrl = new Hash(getUrl());
-
-        performancePoint.collect();
 
         return hashValueUrl;
     }
 
     private Hash hashValueIndexAddOld = null;
     private Hash hashValueUrl = null;
-
-//    public String getIndexAddOld_() {
-//        // liefert einen eindeutigen Index zum Anhängen einer alten Liste
-//        return arr[FILM_SENDER] + arr[FILM_THEMA].toLowerCase() + arr[FILM_TITEL].toLowerCase() + arr[FILM_DATUM]; //liefert zu viel Müll
-//        //return arr[FILM_SENDER] + arr[FILM_THEMA].toLowerCase() + arr[FILM_TITEL].toLowerCase();
-//    }
 
     public String getUrl() {
         // liefert die URL zum VERGLEICHEN!!
