@@ -3,7 +3,16 @@ jdk:
 - oraclejdk8
 
 addons:
-  sonarqube: true
+  sonarqube:
+    token:
+      secure: 0KaESwMnF1zDoDDQ0PIgBAeAMhpPVym+K/D31GxFzgBjGdMnuj+DnVm1wnFhuynnAKkCApMhXiBrDYTmRzdQHjWpLtdJMiLorf8rWxvlZ4Jjhoh+RQvlsagXh94cchUBvz3ZrNqs4eFKTn3i57atTRygP2gO30iVxBOOt9QFwEeZ7bfsvXqMo4KiaYcyitmNdZAkgTkphsk4VtWqcMKMTxp5adITzFc8AkOifMi7bQivfrogzVAhjWlYi0GiH6CRl0S9Kxqzky/nSlVyMuukMl6FOT2t8DCMNrD42nehEgusTB1XaWe504iO/BcdTk4cmYwgT5UfLdl/usilwi9Az58sMCUSpJvc3M7Jjc4PqKSFmU0vozNW0oY4lGdGG3vLNqOoTd8+TPpW7JpRZpjsa7YEeAoizdivkUxG86DaTGNkCEh4kAXpIFahLNSMO1gREmJHkD2gdz+luhkIMjyMp+cqq+EKhG8T0g0SmIiDiJkL9nCCVc5InS9vWNxINhjr4R0GtVp1p+YINknkO1k5IZ53sNY47yKFZz88zWKy7jyN20abwPIv5qccwa0yTbiLC+al0IyaIeC9AWOgikuFY8Su5aaGIK8ZNdlq0gcNz0iw1igjc+Y0qOuA9JHMGHZkT3qujC7KdLTUUSDNG9ImKmzsycl/Nt+deOPqVq1Hbjw=
+    github_token:
+      secure: g1ScaT1Ck6osYVnOx6yRCJyS99/1xkB4cQOwBSxMfz8kaj3QCUVPs/HkzP6Em0rXSiKWuUGNviGgthK1gM7JOmkNU3wf0pY5vpcFy5QBYtS9OFRr9tk6XMEL4F1myFtPiulkDsmiveVzoGVIux4CTJJkWTUFEaYl6bmRryb3mm+XYVFMXGHYjoaBhpN4IoNVngBKEWkyBEh4yaf/7Ao1bXWZvgb1ai7v/tnOTyWmEL8a8ZCmLmCkpjwu2hVWtaJ/6J1mwN90d1UbA9ZK6Ci3AYtf2zMdYhudi0n8VHBdZXdO4Pau/k3wR1mwMOW79zfQAaXuabeSQB79XauHjUcGAgA0Gt0Lf9xUKfZv8uAziXhO2aPEjbFMEJiYtX1EIWg5+9C3APrLVXxagZQPVVZsWb8fS1TZP5wkq7VR5vlb3/VVR4q5iwUemGCJVyXvjT+tPKejF2S3OKZli3Dt17paTZkcGRZ86h7NFguzcfBUMIsCuya4Ga9bLMp0dBDrJbSmvhgWWQiXz75tzGd355QAnScfdrVnLSc9eNYaPctLtJgeZ6g8TuaywUPeDjy/aQdPqe0WdwWT6M7OR6DH5fFapQVT/X+b7ouiMs0q2BwCzneD5+k9aE5FQSNw3P9Bunwm8kpv96IH5xrbH//L1GeBCpq3TDl8WnVAOTa9gSSH0ec=
+    branches:
+      - master
+      - develop
+      - feature/.*
+      - hotfix/.*
   
 env:
   global:
@@ -18,10 +27,7 @@ script:
       ./gradlew releaseSnapshot;
     fi
 after_success:
-  - sonar-scanner -Dsonar.login=$SONAR_TOKEN
-  - gzip build/distributions/MSearch-*.tar;
-  - rm build/distributions/MSearch-*.tar.SHA-1;
-  - cd build/distributions;for i in `ls -x -1 |grep *.tar.gz`; do sha1sum $i|cut -d' ' -f1 > $i.SHA-1; done; cd ../../;
+  - sonar-scanner
 #Cache
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
