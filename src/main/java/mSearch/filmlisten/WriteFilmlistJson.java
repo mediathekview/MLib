@@ -22,8 +22,6 @@ package mSearch.filmlisten;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import etm.core.configuration.EtmManager;
-import etm.core.monitor.EtmPoint;
 import mSearch.Const;
 import mSearch.daten.DatenFilm;
 import mSearch.daten.ListeFilme;
@@ -82,13 +80,11 @@ public class WriteFilmlistJson {
             if (datei.endsWith(Const.FORMAT_XZ)) {
                 final Path xz = testNativeXz();
                 if (xz != null) {
-                    EtmPoint compress = EtmManager.getEtmMonitor().createPoint("WriteFilmlistJson:nativeCompress");
                     Process p = new ProcessBuilder(xz.toString(), "-9", tempFile).start();
                     final int exitCode = p.waitFor();
                     if (exitCode == 0) {
                         Files.move(Paths.get(tempFile + ".xz"), Paths.get(datei), StandardCopyOption.REPLACE_EXISTING);
                     }
-                    compress.collect();
                 } else
                     compressFile(tempFile, datei);
             }
@@ -103,8 +99,6 @@ public class WriteFilmlistJson {
     }
 
     public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
-        EtmPoint performancePoint = EtmManager.getEtmMonitor().createPoint("WriteFilmlistJson.filmlisteSchreibenJson");
-
         try {
             Log.sysLog("Filme schreiben (" + listeFilme.size() + " Filme) :");
 
@@ -160,7 +154,6 @@ public class WriteFilmlistJson {
         } catch (Exception ex) {
             Log.errorLog(846930145, ex, "nach: " + datei);
         }
-        performancePoint.collect();
     }
 
     private Path testNativeXz() {
@@ -181,8 +174,6 @@ public class WriteFilmlistJson {
     }
 
     private void compressFile(String inputName, String outputName) throws IOException {
-        EtmPoint compress = EtmManager.getEtmMonitor().createPoint("WriteFilmlistJson.compressFile");
-
         try (InputStream input = new FileInputStream(inputName);
              FileOutputStream fos = new FileOutputStream(outputName);
              final OutputStream output = new XZOutputStream(fos, new LZMA2Options());
@@ -193,6 +184,5 @@ public class WriteFilmlistJson {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        compress.collect();
     }
 }
