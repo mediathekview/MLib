@@ -69,6 +69,8 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-core:2.7.0'
     compile 'com.jidesoft:jide-oss:3.6.16'
     compile 'org.tukaani:xz:1.5'
+    compile 'com.squareup.okhttp3:okhttp:3.6.0'
+
 }
 
 task updateVersion << {
