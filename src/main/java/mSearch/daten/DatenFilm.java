@@ -104,7 +104,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public DatumFilm datumFilm = new DatumFilm(0);
     public long dauerL = 0; // Sekunden
     public Object abo = null;
-    public MSLong dateigroesseL; // Dateigröße in MByte
+    public MSLong dateigroesseL = new MSLong(0); // Dateigröße in MByte
     public int nr;
     private boolean neuerFilm = false;
     private Hash hashValueIndexAddOld = null;
@@ -118,7 +118,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
                      String datum, String zeit,
                      long dauerSekunden, String description) {
         // da werden die gefundenen Filme beim Absuchen der Senderwebsites erstellt, und nur die!!
-        dateigroesseL = new MSLong(0); // Dateigröße in MByte
         arr[FILM_SENDER] = ssender;
         arr[FILM_THEMA] = tthema.isEmpty() ? ssender : tthema.trim();
         arr[FILM_TITEL] = ttitel.isEmpty() ? tthema : ttitel.trim();
