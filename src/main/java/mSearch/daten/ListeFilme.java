@@ -51,7 +51,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public int nr = 1;
     public String[] metaDaten = new String[]{"", "", "", "", ""};
     private final static String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
-    private final static String DATUM_ZEIT_FORMAT_REV = "yyyy.MM.dd__HH:mm";
+    //private final static String DATUM_ZEIT_FORMAT_REV = "yyyy.MM.dd__HH:mm";
     private static final SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
     public String[] sender = {""};
     public String[][] themenPerSender = {{""}};
@@ -378,13 +378,13 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "dd.MM.yyyy, HH:mm"
         String ret;
-        SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         String date;
         if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].isEmpty()) {
             // noch eine alte Filmliste
             ret = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
         } else {
             date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
+            SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
             sdf_.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
             Date filmDate = null;
             try {
@@ -394,7 +394,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             if (filmDate == null) {
                 ret = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
             } else {
-                SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+                FastDateFormat formatter = FastDateFormat.getInstance(DATUM_ZEIT_FORMAT);
                 ret = formatter.format(filmDate);
             }
         }
@@ -406,17 +406,15 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return metaDaten[ListeFilme.FILMLISTE_ID_NR];
     }
 
-    public synchronized String genDateRev() {
-        // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
-        // in der Form "yyyy.MM.dd__HH:mm"
+/*    public synchronized String genDateRev() {
         String ret;
-        SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
         String date;
         if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].isEmpty()) {
             // noch eine alte Filmliste
             ret = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
         } else {
             date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
+            SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
             sdf_.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
             Date filmDate = null;
             try {
@@ -426,12 +424,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             if (filmDate == null) {
                 ret = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
             } else {
-                SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT_REV);
+                FastDateFormat formatter = FastDateFormat.getInstance(DATUM_ZEIT_FORMAT_REV);
                 ret = formatter.format(filmDate);
             }
         }
         return ret;
-    }
+    }*/
 
     /**
      * Get the age of the film list.
