@@ -21,7 +21,7 @@ public class MVHttpClient {
         //.cache(cache).build();
         httpClient.dispatcher().setMaxRequests(100);
 
-        copyClient = MVHttpClient.getInstance().getHttpClient().newBuilder()
+        copyClient = httpClient.newBuilder()
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(2, TimeUnit.SECONDS)
                 .writeTimeout(2, TimeUnit.SECONDS).build();
