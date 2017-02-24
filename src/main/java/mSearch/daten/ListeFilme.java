@@ -30,6 +30,7 @@ import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 @SuppressWarnings("serial")
 public class ListeFilme extends ArrayList<DatenFilm> {
@@ -61,7 +62,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public ListeFilme()
     {
         super();
-        indexes = new ArrayList<>(200_000);
+        indexes = new ConcurrentSkipListSet<>();
     }
 
 
@@ -81,6 +82,17 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return !indexes.contains(film.getIndex()) && addInit(film);
     }
 
+    private void addHash(DatenFilm f, HashSet<String> hash, boolean index) {
+        if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
+            // beim KIKA ändern sich die URLs laufend
+            hash.add(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL]);
+        } else if (index) {
+            hash.add(f.getIndex());
+        } else {
+            hash.add(f.getUrl());
+        }
+    }
+
     public synchronized void updateListe(ListeFilme listeEinsortieren, boolean index /* Vergleich über Index, sonst nur URL */, boolean ersetzen) {
         // in eine vorhandene Liste soll eine andere Filmliste einsortiert werden
         // es werden nur Filme die noch nicht vorhanden sind, einsortiert
@@ -88,17 +100,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         final HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
 
         if (ersetzen) {
-            // ==========================================
-            for (DatenFilm f : listeEinsortieren) {
-                if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
-                    // beim KIKA ändern sich die URLs laufend
-                    hash.add(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL]);
-                } else if (index) {
-                    hash.add(f.getIndex());
-                } else {
-                    hash.add(f.getUrl());
-                }
-            }
+            listeEinsortieren.forEach((DatenFilm f) -> addHash(f, hash, index));
 
             Iterator<DatenFilm> it = this.iterator();
             while (it.hasNext()) {
@@ -120,16 +122,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             listeEinsortieren.forEach(this::addInit);
         } else {
             // ==============================================
-            for (DatenFilm f : this) {
-                if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
-                    // beim KIKA ändern sich die URLs laufend
-                    hash.add(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL]);
-                } else if (index) {
-                    hash.add(f.getIndex());
-                } else {
-                    hash.add(f.getUrl());
-                }
-            }
+            this.forEach(f -> addHash(f, hash, index));
 
             for (DatenFilm f : listeEinsortieren) {
                 if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
@@ -314,6 +307,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
+    //FIXME bring to DatenFilm and reduce calculation
+    @Deprecated
     public String getFileSizeUrl(String url) {
         String res;
 

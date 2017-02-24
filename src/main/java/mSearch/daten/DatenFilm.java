@@ -132,11 +132,13 @@ public class DatenFilm implements Comparable<DatenFilm> {
         checkFilmDauer(dauerSekunden);
     }
 
-//    public static DatenFilm getDatenFilmLiveStream(String ssender, String addTitle, String urlStream, String urlWebsite) {
-//        return new DatenFilm(ssender, ListeFilme.THEMA_LIVE, urlWebsite/* urlThema */,
-//                ssender + addTitle + ' ' + ListeFilme.THEMA_LIVE,
-//                urlStream, ""/*rtmpURL*/, ""/* datum */, ""/* zeit */, 0, "");
-//    }
+    /**
+     * Determine file size from remote location.
+     */
+    public void setFileSize() {
+        if (arr[DatenFilm.FILM_GROESSE].isEmpty())
+            arr[DatenFilm.FILM_GROESSE] = FileSize.laengeString(arr[DatenFilm.FILM_URL]);
+    }
 
     public static String cleanDescription(String s, String thema, String titel) {
         // die Beschreibung auf x Zeichen beschränken
