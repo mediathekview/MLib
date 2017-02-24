@@ -23,7 +23,7 @@ public class MVHttpClient {
 
         copyClient = httpClient.newBuilder()
                 .connectTimeout(5, TimeUnit.SECONDS)
-                .readTimeout(2, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
                 .writeTimeout(2, TimeUnit.SECONDS).build();
     }
 
