@@ -41,8 +41,6 @@ import java.nio.file.StandardCopyOption;
 
 public class WriteFilmlistJson {
 
-    private final JsonFactory jsonF = new JsonFactory();
-
     private void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(64 * 1024);
         while (src.read(buffer) != -1) {
@@ -58,7 +56,8 @@ public class WriteFilmlistJson {
         }
     }
 
-    private JsonGenerator getJsonGenerator(OutputStream os) throws IOException {
+    protected JsonGenerator getJsonGenerator(OutputStream os) throws IOException {
+        JsonFactory jsonF = new JsonFactory();
         JsonGenerator jg = jsonF.createGenerator(os, JsonEncoding.UTF8);
         //jg.useDefaultPrettyPrinter(); // enable indentation just to make debug/testing easier
 
