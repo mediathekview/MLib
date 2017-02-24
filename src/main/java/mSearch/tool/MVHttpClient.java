@@ -9,6 +9,7 @@ public class MVHttpClient {
     private final static MVHttpClient ourInstance = new MVHttpClient();
     //private static final Cache cache = new Cache(new File("./cache"), 1024L * 1024L * 200L);
     private final OkHttpClient httpClient;
+    private final OkHttpClient copyClient;
 
     private MVHttpClient() {
         httpClient = new OkHttpClient.Builder()
@@ -19,6 +20,11 @@ public class MVHttpClient {
                 .build();
         //.cache(cache).build();
         httpClient.dispatcher().setMaxRequests(100);
+
+        copyClient = MVHttpClient.getInstance().getHttpClient().newBuilder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(2, TimeUnit.SECONDS)
+                .writeTimeout(2, TimeUnit.SECONDS).build();
     }
 
     public static MVHttpClient getInstance() {
@@ -27,5 +33,9 @@ public class MVHttpClient {
 
     public OkHttpClient getHttpClient() {
         return httpClient;
+    }
+
+    public OkHttpClient getReducedTimeOutClient() {
+        return copyClient;
     }
 }

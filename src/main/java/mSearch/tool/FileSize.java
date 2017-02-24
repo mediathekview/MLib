@@ -48,7 +48,7 @@ public class FileSize {
 
         final Request request = new Request.Builder().url(url).head().build();
         long respLength = -1;
-        try (Response response = MVHttpClient.getInstance().getHttpClient().newCall(request).execute();
+        try (Response response = MVHttpClient.getInstance().getReducedTimeOutClient().newCall(request).execute();
              ResponseBody body = response.body()) {
             if (response.isSuccessful())
                 respLength = body.contentLength();
