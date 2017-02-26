@@ -146,18 +146,24 @@ public final class Hash {
         return sb.toString();
     }
 
+    @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || !(obj instanceof Hash)) return false;
+        if (this == obj)
+            return true;
+        if (obj == null || !(obj instanceof Hash))
+            return false;
+
         Hash hash = (Hash) obj;
         return Arrays.equals(getBytes(), hash.getBytes());
     }
 
+    @Override
     public int hashCode() {
         byte[] b = getBytes();
         return (b[0] << 24) | (b[1] << 16) | (b[2] << 8) | b[3];
     }
 
+    @Override
     public String toString() {
         return toHexString();
     }
@@ -169,6 +175,7 @@ public final class Hash {
     }
 
     private void ensureFinished() {
-        if (bytes == null) finish();
+        if (bytes == null)
+            finish();
     }
 }
