@@ -161,41 +161,9 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         super.clear();
     }
 
-//    public void cleanList() {
-//        // für den BR: alle Filme mit Thema "BR" die es auch in einem anderen Thema gibt löschen
-//        // wird vorerst nicht verwendet: findet nur ~200 Filme von über 3000
-//        int count = 0;
-//        final SimpleDateFormat sdfClean = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
-//        Log.sysLog("cleanList start: " + sdfClean.format(System.currentTimeMillis()));
-//        ListeFilme tmp = this.stream().filter(datenFilm -> datenFilm.arr[DatenFilm.FILM_SENDER].equals(Const.BR))
-//                .filter(datenFilm -> datenFilm.arr[DatenFilm.FILM_THEMA].equals(Const.BR))
-//                .collect(Collectors.toCollection(ListeFilme::new));
-//
-//        for (DatenFilm tFilm : tmp) {
-//            for (DatenFilm datenFilm : this) {
-//                if (datenFilm.arr[DatenFilm.FILM_SENDER].equals(Const.BR)) {
-//                    if (!datenFilm.arr[DatenFilm.FILM_THEMA].equals(Const.BR)) {
-//                        if (datenFilm.arr[DatenFilm.FILM_URL].equals(tFilm.arr[DatenFilm.FILM_URL])) {
-//                            this.remove(tFilm);
-//                            ++count;
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        tmp.clear();
-//
-//        Log.sysLog("cleanList stop: " + sdfClean.format(System.currentTimeMillis()));
-//        Log.sysLog("cleanList count: " + count);
-//    }
-
     public synchronized void check() {
         // zum Debuggen
         for (DatenFilm film : this) {
-//            film.arr[DatenFilm.FILM_THEMA_NR] = FilenameUtils.cleanUnicode(film.arr[DatenFilm.FILM_THEMA_NR], "!!!!!!!!!!!!!");
-//            film.arr[DatenFilm.FILM_TITEL_NR] = FilenameUtils.cleanUnicode(film.arr[DatenFilm.FILM_TITEL_NR], "!!!!!!!!!!!!!");
             String s = film.arr[DatenFilm.FILM_BESCHREIBUNG];
             film.arr[DatenFilm.FILM_BESCHREIBUNG] = Functions.removeHtml(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
             if (!s.equals(film.arr[DatenFilm.FILM_BESCHREIBUNG])) {
@@ -223,39 +191,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         }
     }
 
-//    public synchronized void nurDoppelteAnzeigen(boolean index) {
-//        // zum Debuggen: URLs die doppelt sind, in die History eintragen
-//        // damit sie markiert werden
-//        DatenFilm film;
-//        HashSet<String> hashDoppelt = new HashSet<>();
-//        HashSet<String> hash = new HashSet<>();
-//        Iterator<DatenFilm> it = this.iterator();
-//        while (it.hasNext()) {
-//            film = it.next();
-//            if (index) {
-//                if (!hash.contains(film.getIndex())) {
-//                    hash.add(film.getIndex());
-//                } else {
-//                    // dann ist er mind. doppelt in der Liste
-//                    hashDoppelt.add(film.arr[DatenFilm.FILM_URL]);
-//                }
-//            } else if (!hash.contains(film.arr[DatenFilm.FILM_URL])) {
-//                hash.add(film.arr[DatenFilm.FILM_URL]);
-//            } else {
-//                // dann ist er mind. doppelt in der Liste
-//                hashDoppelt.add(film.arr[DatenFilm.FILM_URL]);
-//            }
-//        }
-//        it = this.iterator();
-//        while (it.hasNext()) {
-//            if (!hashDoppelt.contains(it.next().arr[DatenFilm.FILM_URL])) {
-//                it.remove();
-//            }
-//        }
-//        hash.clear();
-//        hashDoppelt.clear();
-//    }
-
     public synchronized void sort() {
         Collections.sort(this);
         // und jetzt noch die Nummerierung in Ordnung bringen
@@ -268,19 +203,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized void setMeta(ListeFilme listeFilme) {
         System.arraycopy(listeFilme.metaDaten, 0, metaDaten, 0, MAX_ELEM);
     }
-
-//    public synchronized DatenFilm istInFilmListe(String sender, String thema, String titel) {
-//        // prüfen ob es den Film schon gibt
-//        // und sich evtl. nur die URL geändert hat
-//        for (DatenFilm film : this) {
-//            if (film.arr[DatenFilm.FILM_SENDER].equals(sender)
-//                    && film.arr[DatenFilm.FILM_THEMA].equalsIgnoreCase(thema)
-//                    && film.arr[DatenFilm.FILM_TITEL].equalsIgnoreCase(titel)) {
-//                return film;
-//            }
-//        }
-//        return null;
-//    }
 
     public synchronized ListeFilme neueFilme(ListeFilme orgListe) {
         // Funktion liefert eine Liste mit Filmen
@@ -405,31 +327,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // liefert die ID einer Filmliste
         return metaDaten[ListeFilme.FILMLISTE_ID_NR];
     }
-
-/*    public synchronized String genDateRev() {
-        String ret;
-        String date;
-        if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].isEmpty()) {
-            // noch eine alte Filmliste
-            ret = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
-        } else {
-            date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
-            SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
-            sdf_.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
-            Date filmDate = null;
-            try {
-                filmDate = sdf_.parse(date);
-            } catch (ParseException ignored) {
-            }
-            if (filmDate == null) {
-                ret = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
-            } else {
-                FastDateFormat formatter = FastDateFormat.getInstance(DATUM_ZEIT_FORMAT_REV);
-                ret = formatter.format(filmDate);
-            }
-        }
-        return ret;
-    }*/
 
     /**
      * Get the age of the film list.
