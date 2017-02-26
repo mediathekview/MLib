@@ -175,8 +175,7 @@ public class WriteFilmlistJson {
              final WritableByteChannel outputChannel = Channels.newChannel(output)) {
 
             fastChannelCopy(inputChannel, outputChannel);
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException ignored) {
         }
     }
 }
