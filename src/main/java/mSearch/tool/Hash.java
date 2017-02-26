@@ -115,11 +115,11 @@ public final class Hash {
     }
 
     public Hash update(float f) {
-        return update((Float.floatToRawIntBits(f)));
+        return update(Float.floatToRawIntBits(f));
     }
 
     public Hash update(double d) {
-        return update((Double.doubleToRawLongBits(d)));
+        return update(Double.doubleToRawLongBits(d));
     }
 
     public Hash finish() {
