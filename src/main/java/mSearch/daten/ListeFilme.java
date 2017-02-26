@@ -51,8 +51,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public int nr = 1;
     public String[] metaDaten = new String[]{"", "", "", "", ""};
     private final static String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
-    //private final static String DATUM_ZEIT_FORMAT_REV = "yyyy.MM.dd__HH:mm";
-    private static final SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+    private final SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
     public String[] sender = {""};
     public String[][] themenPerSender = {{""}};
     public boolean neueFilme = false;
@@ -229,9 +228,14 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    //FIXME bring to DatenFilm and reduce calculation
+    /**
+     * @param url the URL as String.
+     * @return the determined size or -1.
+     * @deprecated Move this someday to DatenFilm.
+     */
     @Deprecated
     public String getFileSizeUrl(String url) {
+        //FIXME bring to DatenFilm and reduce calculation
         String res;
 
         Optional<DatenFilm> opt = this.parallelStream()
