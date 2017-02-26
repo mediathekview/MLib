@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 public class MVHttpClient {
     private final static MVHttpClient ourInstance = new MVHttpClient();
-    //private static final Cache cache = new Cache(new File("./cache"), 1024L * 1024L * 200L);
     private final OkHttpClient httpClient;
     private final OkHttpClient copyClient;
 
@@ -18,7 +17,6 @@ public class MVHttpClient {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .connectionPool(new ConnectionPool(100, 1, TimeUnit.SECONDS))
                 .build();
-        //.cache(cache).build();
         httpClient.dispatcher().setMaxRequests(100);
 
         copyClient = httpClient.newBuilder()
