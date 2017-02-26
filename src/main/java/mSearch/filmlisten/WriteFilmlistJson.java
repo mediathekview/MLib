@@ -89,10 +89,8 @@ public class WriteFilmlistJson {
             }
 
             Files.deleteIfExists(Paths.get(tempFile));
-        } catch (IOException ex) {
+        } catch (IOException | InterruptedException ex) {
             Log.sysLog("Komprimieren fehlgeschlagen");
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
         }
     }
 
