@@ -22,19 +22,6 @@ public class FileSize {
         return groesseStr;
     }
 
-    /*public static long getFileSizeInMByteFromUrl(String url) {
-        // liefert die Dateigröße einer URL in MB!!
-        // Anzeige der Größe in MiB und deshalb: Faktor 1000
-        long l = getFileSizeFromUrl(url);
-        if (l > 1_000_000) {
-            // größer als 1MiB sonst kann ich mirs sparen
-            l = l / 1_000_000;
-        } else if (l > 0) {
-            l = 1;
-        }
-        return l;
-    }*/
-
     /**
      * Return the size of a URL in bytes.
      *
@@ -52,8 +39,8 @@ public class FileSize {
              ResponseBody body = response.body()) {
             if (response.isSuccessful())
                 respLength = body.contentLength();
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException ignored) {
+            respLength = -1;
         }
 
         if (respLength < 1_000_000) {
