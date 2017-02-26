@@ -158,10 +158,8 @@ public class WriteFilmlistJson {
         Path xz = null;
 
         for (String path : paths) {
-            //System.out.println("Path: " + path);
             xz = Paths.get(path);
             if (Files.isExecutable(xz)) {
-                //System.out.println("FOUND...");
                 break;
             }
         }
