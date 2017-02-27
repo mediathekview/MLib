@@ -256,7 +256,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public String getIndex() {
         // liefert einen eindeutigen Index für die Filmliste
         // URL beim KiKa und ORF ändern sich laufend!
-        return arr[FILM_SENDER].toLowerCase() + arr[FILM_THEMA].toLowerCase() + getUrl();
+        return (arr[FILM_SENDER] + arr[FILM_THEMA]).toLowerCase() + getUrl();
     }
 
     public String getIndexAddOld() {
