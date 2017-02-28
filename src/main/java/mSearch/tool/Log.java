@@ -24,6 +24,7 @@ import mSearch.Config;
 import mSearch.Const;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -329,7 +330,7 @@ public class Log {
         logList.forEach(System.out::println);
 
         if (logFile != null) {
-            try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(logFile, true), Const.KODIERUNG_UTF)) {
+            try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(logFile, true), StandardCharsets.UTF_8)) {
                 for (String s : logList) {
                     out.write(s);
                     out.write("\n");

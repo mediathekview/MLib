@@ -33,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -166,14 +167,14 @@ public class FilmlistenSuchen {
                 conn.setRequestProperty("User-Agent", userAgent);
                 conn.setReadTimeout(timeout);
                 conn.setConnectTimeout(timeout);
-                inReader = new InputStreamReader(conn.getInputStream(), Const.KODIERUNG_UTF);
+                inReader = new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8);
             } else {
                 // eine Datei verarbeiten
                 File f = new File(dateiUrl);
                 if (!f.exists()) {
                     return;
                 }
-                inReader = new InputStreamReader(new FileInputStream(f), Const.KODIERUNG_UTF);
+                inReader = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8);
             }
             parser = inFactory.createXMLStreamReader(inReader);
             while (parser.hasNext()) {
