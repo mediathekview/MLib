@@ -1,106 +1,54 @@
 package mSearch.tool;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-import mSearch.Config;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+
+import java.io.IOException;
 
 public class FileSize {
-
-    final static int TIMEOUT = 3000; // ms //ToDo evtl. wieder kürzen!!
-
     public static String laengeString(String url) {
-        // liefert die Dateigröße einer URL in MB!!
-        // Anzeige der Größe in MB und deshalb: Faktor 1000
-        return laengeString(url, "");
-    }
-
-    public static String laengeString(String url, String ssender) {
         // liefert die Dateigröße einer URL in MB!!
         // Anzeige der Größe in MiB und deshalb: Faktor 1000
         String groesseStr = "";
 
-        long l = laenge(url, ssender);
-        if (l > 1000 * 1000) {
+        long l = getFileSizeFromUrl(url);
+        if (l > 1_000_000) {
             // größer als 1MiB sonst kann ich mirs sparen
-            groesseStr = String.valueOf(l / (1000 * 1000));
+            groesseStr = String.valueOf(l / 1_000_000);
         } else if (l > 0) {
             groesseStr = "1";
         }
         return groesseStr;
     }
 
-    public static long laengeLong(String url) {
-        // liefert die Dateigröße einer URL in MB!!
-        // Anzeige der Größe in MiB und deshalb: Faktor 1000
-        long groesse = 0;
-
-        long l = laenge(url, "");
-        if (l > 1000 * 1000) {
-            // größer als 1MiB sonst kann ich mirs sparen
-            groesse = l / (1000 * 1000);
-        } else if (l > 0) {
-            groesse = 1;
-        }
-        return groesse;
-    }
-
-    private static long laenge(String url, String ssender) {
-        // liefert die Dateigröße einer URL in BYTE!
-        // oder -1
-        long ret = -1;
-        int retCode;
+    /**
+     * Return the size of a URL in bytes.
+     *
+     * @param url URL as String to query.
+     * @return size in bytes or -1.
+     */
+    private static long getFileSizeFromUrl(String url) {
         if (!url.toLowerCase().startsWith("http")) {
-            return ret;
+            return -1;
         }
-////        FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_SUM);
-        try {
-            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-            conn.setRequestProperty("User-Agent", Config.getUserAgent());
-            conn.setReadTimeout(TIMEOUT);
-            conn.setConnectTimeout(TIMEOUT);
-            retCode = conn.getResponseCode();
-            if (retCode < 400) {
-                ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
-            }
-            conn.disconnect();
 
-            // dann über eine Proxy
-            if (retCode == 403) {
-////                FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_SUM403);
-//                if (!Config.proxyUrl.isEmpty() && Config.proxyPort > 0) {
-//                    // nur dann verwenden, wenn ein Proxy angegeben
-//                    try {
-//                        SocketAddress saddr = new InetSocketAddress(Config.proxyUrl, Config.proxyPort);
-//                        Proxy proxy = new Proxy(Proxy.Type.SOCKS, saddr);
-//                        conn = (HttpURLConnection) new URL(url).openConnection(proxy);
-//                        conn.setRequestProperty("User-Agent", Config.getUserAgent());
-//                        conn.setReadTimeout(TIMEOUT);
-//                        conn.setConnectTimeout(TIMEOUT);
-//                        ret = conn.getContentLengthLong(); //gibts erst seit jdk 7
-//                        conn.disconnect();
-//                        if (ret > 0) {
-//////                            FilmeSuchen.listeSenderLaufen.inc(ssender, RunSender.Count.GET_SIZE_PROXY);
-//                        }
-//                    } catch (Exception ex) {
-//                        ret = -1;
-//                        Log.errorLog(963215478, ex);
-//                    }
-//                }
-            }
-        } catch (Exception ex) {
-            ret = -1;
-            if (ex.getMessage().equals("Read timed out")) {
-                Log.errorLog(825141452, "Read timed out: " + ssender + " url: " + url);
-            } else {
-                Log.errorLog(643298301, ex, "url: " + url);
-            }
+        final Request request = new Request.Builder().url(url).head().build();
+        long respLength = -1;
+        try (Response response = MVHttpClient.getInstance().getReducedTimeOutClient().newCall(request).execute();
+             ResponseBody body = response.body()) {
+            if (response.isSuccessful())
+                respLength = body.contentLength();
+        } catch (IOException ignored) {
+            respLength = -1;
         }
-        if (ret < 1000 * 1000) {
+
+        if (respLength < 1_000_000) {
             // alles unter 1MB sind Playlisten, ORF: Trailer bei im Ausland gesperrten Filmen, ...
             // dann wars nix
-            ret = -1;
+            respLength = -1;
         }
-        return ret;
+        return respLength;
     }
 
 }

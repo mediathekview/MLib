@@ -20,12 +20,13 @@
 package mSearch.tool;
 
 import com.jidesoft.utils.SystemInfo;
-import java.io.File;
-import java.security.CodeSource;
-import java.util.ResourceBundle;
 import mSearch.Const;
 import mSearch.daten.DatenFilm;
 import org.apache.commons.lang3.StringEscapeUtils;
+
+import java.io.File;
+import java.security.CodeSource;
+import java.util.ResourceBundle;
 
 public class Functions {
 	
@@ -41,9 +42,9 @@ public class Functions {
         }
         while (text.length() < max) {
             if (addVorne) {
-                text = " " + text;
+                text = ' ' + text;
             } else {
-                text = text + " ";
+                text = text + ' ';
             }
         }
         return text;
@@ -51,7 +52,7 @@ public class Functions {
 
     public static String minTextLaenge(int max, String text) {
         while (text.length() < max) {
-            text = text + " ";
+            text = text + ' ';
         }
         return text;
     }
@@ -130,7 +131,7 @@ public class Functions {
     }
 
     public static String getProgVersionString() {
-        return " [Vers.: " + getProgVersion().toString() + "]";
+        return " [Vers.: " + getProgVersion().toString() + ']';
     }
 
     public static String[] getJavaVersion() {
@@ -187,36 +188,40 @@ public class Functions {
         return new Version("").toString();
     }
 
-    public static void unescape(DatenFilm film) {
-
+    private static void unescapeThema(DatenFilm film) {
         // Thema
         film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_THEMA]);
         film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_THEMA]);
         film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_THEMA]);
+    }
 
+    private static void unescapeTitel(DatenFilm film) {
         // Titel
         film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_TITEL]);
         film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_TITEL]);
         film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_TITEL]);
+    }
 
+    private static void unescapeDescription(DatenFilm film) {
         // Beschreibung
         film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
         film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
         film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
         film.arr[DatenFilm.FILM_BESCHREIBUNG] = removeHtml(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
+    }
 
-        // aus "(2\3)" wird durch escapen: (2\u0003)
-        // deswegen "\" tauschen in "/"
-//        if (film.arr[DatenFilm.FILM_THEMA].contains("\\") || film.arr[DatenFilm.FILM_TITEL].contains("\\")
-//                || film.arr[DatenFilm.FILM_BESCHREIBUNG].contains("\\")) {
-//            System.out.print(film.arr[DatenFilm.FILM_THEMA]);
-//            System.out.print(film.arr[DatenFilm.FILM_TITEL]);
-//            System.out.print(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-//        }
+    private static void replaceText(DatenFilm film) {
         film.arr[DatenFilm.FILM_THEMA] = film.arr[DatenFilm.FILM_THEMA].replace("\\", "/").trim();
         film.arr[DatenFilm.FILM_TITEL] = film.arr[DatenFilm.FILM_TITEL].replace("\\", "/").trim();
         film.arr[DatenFilm.FILM_BESCHREIBUNG] = film.arr[DatenFilm.FILM_BESCHREIBUNG].replace("\\", "/").trim();
+    }
 
+    public static void unescape(DatenFilm film) {
+        unescapeThema(film);
+        unescapeTitel(film);
+        unescapeDescription(film);
+
+        replaceText(film);
     }
 
 //    public static String utf8(String ret) {
@@ -255,7 +260,7 @@ public class Functions {
                 ret = pfad2;
             } else if (pfad2.isEmpty()) {
                 ret = pfad1;
-            } else if (!pfad1.equals("") && !pfad2.equals("")) {
+            } else if (!pfad1.isEmpty() && !pfad2.isEmpty()) {
                 if (pfad1.endsWith(File.separator)) {
                     ret = pfad1.substring(0, pfad1.length() - 1);
                 } else {
@@ -268,7 +273,7 @@ public class Functions {
                 }
             }
         }
-        if (ret.equals("")) {
+        if (ret.isEmpty()) {
             Log.errorLog(283946015, pfad1 + " - " + pfad2);
         }
         return ret;
@@ -278,7 +283,7 @@ public class Functions {
         if (u1.endsWith("/")) {
             return u1 + u2;
         } else {
-            return u1 + "/" + u2;
+            return u1 + '/' + u2;
         }
     }
 
@@ -291,17 +296,17 @@ public class Functions {
         //Dateinamen einer URL extrahieren
         String ret = "";
         if (pfad != null) {
-            if (!pfad.equals("")) {
-                ret = pfad.substring(pfad.lastIndexOf("/") + 1);
+            if (!pfad.isEmpty()) {
+                ret = pfad.substring(pfad.lastIndexOf('/') + 1);
             }
         }
         if (ret.contains("?")) {
-            ret = ret.substring(0, ret.indexOf("?"));
+            ret = ret.substring(0, ret.indexOf('?'));
         }
         if (ret.contains("&")) {
-            ret = ret.substring(0, ret.indexOf("&"));
+            ret = ret.substring(0, ret.indexOf('&'));
         }
-        if (ret.equals("")) {
+        if (ret.isEmpty()) {
             Log.errorLog(395019631, pfad);
         }
         return ret;
