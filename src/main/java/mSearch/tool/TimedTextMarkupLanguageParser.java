@@ -18,17 +18,21 @@
  */
 package mSearch.tool;
 
-import java.io.PrintWriter;
-import java.nio.file.Path;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Converter for TTML XML subtitle files into SubRip Text format.
@@ -285,7 +289,9 @@ public class TimedTextMarkupLanguageParser {
      * Convert internal representation into SubRip Text Format and save to file.
      */
     public void toSrt(Path srtFile) {
-        try (PrintWriter writer = new PrintWriter(srtFile.toFile())) {
+        try (FileOutputStream fos = new FileOutputStream(srtFile.toFile());
+             OutputStreamWriter osw = new OutputStreamWriter(fos, Charset.forName("UTF-8"));
+             PrintWriter writer = new PrintWriter(osw)) {
             long counter = 1;
             for (Subtitle title : subtitleList) {
                 writer.println(counter);

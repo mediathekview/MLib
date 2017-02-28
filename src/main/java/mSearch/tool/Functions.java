@@ -28,6 +28,8 @@ import mSearch.daten.DatenFilm;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class Functions {
+	
+	private static final String RBVERSION = "version";
 
     public static String textLaenge(int max, String text, boolean mitte, boolean addVorne) {
         if (text.length() > max) {
@@ -128,7 +130,7 @@ public class Functions {
     }
 
     public static String getProgVersionString() {
-        return " [Vers.: " + getBuildNr() + "]";
+        return " [Vers.: " + getProgVersion().toString() + "]";
     }
 
     public static String[] getJavaVersion() {
@@ -142,12 +144,11 @@ public class Functions {
     }
 
     public static String getCompileDate() {
-        final ResourceBundle rb;
         String propToken = "DATE";
         String msg = "";
         try {
             ResourceBundle.clearCache();
-            rb = ResourceBundle.getBundle("version");
+            ResourceBundle rb = ResourceBundle.getBundle(RBVERSION);
             if (rb.containsKey(propToken)) {
                 msg = rb.getString(propToken);
             }
@@ -157,41 +158,65 @@ public class Functions {
         return msg;
     }
 
-    public static String getBuildNr() {
-        final ResourceBundle rb;
-        String TOKEN_BUILD = "BUILD";
+    public static Version getProgVersion() {
         String TOKEN_VERSION = "VERSION";
-        String msg = "0-0";
         try {
             ResourceBundle.clearCache();
-            rb = ResourceBundle.getBundle("version");
-            if (rb.containsKey(TOKEN_BUILD)) {
-                msg = rb.getString(TOKEN_BUILD);
-            } else if (rb.containsKey(TOKEN_VERSION)) {
-                msg = rb.getString(TOKEN_VERSION);
+            ResourceBundle rb = ResourceBundle.getBundle(RBVERSION);
+            if (rb.containsKey(TOKEN_VERSION)) {
+                return new Version(rb.getString(TOKEN_VERSION));
             }
         } catch (Exception e) {
             Log.errorLog(134679898, e);
         }
-        return msg;
+        return new Version("");
+    }
+    
+    @Deprecated
+    public static String getBuildNr() {
+        String TOKEN_VERSION = "VERSION";
+        try {
+            ResourceBundle.clearCache();
+            ResourceBundle rb = ResourceBundle.getBundle(RBVERSION);
+            if (rb.containsKey(TOKEN_VERSION)) {
+                return new Version(rb.getString(TOKEN_VERSION)).toString();
+            }
+        } catch (Exception e) {
+            Log.errorLog(134679898, e);
+        }
+        return new Version("").toString();
     }
 
     public static void unescape(DatenFilm film) {
+
         // Thema
-        film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_THEMA].trim());
-        film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_THEMA].trim());
-        film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_THEMA].trim());
+        film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_THEMA]);
+        film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_THEMA]);
+        film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_THEMA]);
 
         // Titel
-        film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_TITEL].trim());
-        film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_TITEL].trim());
-        film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_TITEL].trim());
+        film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_TITEL]);
+        film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_TITEL]);
+        film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_TITEL]);
 
         // Beschreibung
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_BESCHREIBUNG].trim());
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_BESCHREIBUNG].trim());
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_BESCHREIBUNG].trim());
+        film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
+        film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
+        film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
         film.arr[DatenFilm.FILM_BESCHREIBUNG] = removeHtml(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
+
+        // aus "(2\3)" wird durch escapen: (2\u0003)
+        // deswegen "\" tauschen in "/"
+//        if (film.arr[DatenFilm.FILM_THEMA].contains("\\") || film.arr[DatenFilm.FILM_TITEL].contains("\\")
+//                || film.arr[DatenFilm.FILM_BESCHREIBUNG].contains("\\")) {
+//            System.out.print(film.arr[DatenFilm.FILM_THEMA]);
+//            System.out.print(film.arr[DatenFilm.FILM_TITEL]);
+//            System.out.print(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
+//        }
+        film.arr[DatenFilm.FILM_THEMA] = film.arr[DatenFilm.FILM_THEMA].replace("\\", "/").trim();
+        film.arr[DatenFilm.FILM_TITEL] = film.arr[DatenFilm.FILM_TITEL].replace("\\", "/").trim();
+        film.arr[DatenFilm.FILM_BESCHREIBUNG] = film.arr[DatenFilm.FILM_BESCHREIBUNG].replace("\\", "/").trim();
+
     }
 
 //    public static String utf8(String ret) {

@@ -23,25 +23,25 @@ import mSearch.tool.Functions;
 
 public class Const {
 
-    public static final String VERSION = "13";
+    @Deprecated public static final String VERSION = "13";
     public static final String VERSION_FILMLISTE = "3";
     public static final String PROGRAMMNAME = "MSearch";
     public static final String USER_AGENT_DEFAULT = Const.PROGRAMMNAME + Functions.getProgVersionString();
     // MediathekView URLs
 //    public static final String ADRESSE_FILMLISTEN_SERVER_XML = "http://zdfmediathk.sourceforge.net/update.xml";
 //    public static final String ADRESSE_FILMLISTEN_SERVER_JSON = "http://zdfmediathk.sourceforge.net/update-json.xml";
-    public static final String ADRESSE_FILMLISTEN_SERVER_DIFF = "http://zdfmediathk.sourceforge.net/diff.xml";
-    public static final String ADRESSE_FILMLISTEN_SERVER_AKT = "http://zdfmediathk.sourceforge.net/akt.xml";
+    public static final String ADRESSE_FILMLISTEN_SERVER_DIFF = "http://res.mediathekview.de/diff.xml";
+    public static final String ADRESSE_FILMLISTEN_SERVER_AKT = "http://res.mediathekview.de/akt.xml";
 //    public static final String ADRESSE_FILMLISTEN_SERVER_DIFF_RES = "http://92.51.131.172/diff.xml";
 //    public static final String ADRESSE_FILMLISTEN_SERVER_AKT_RES = "http://92.51.131.172/akt.xml";
 
 //    public static final String DATEINAME_LISTE_FILMLISTEN = "filmlisten.xml";
-    public static final String ADRESSE_PROGRAMM_VERSION = "http://zdfmediathk.sourceforge.net/version.xml";
-    public static final String ADRESSE_DOWNLAD = "http://sourceforge.net/projects/zdfmediathk/";
-    public static final String ADRESSE_ANLEITUNG = "http://sourceforge.net/p/zdfmediathk/wiki/Home/";
-    public static final String ADRESSE_VORLAGE_PROGRAMMGRUPPEN = "http://zdfmediathk.sourceforge.net/programmgruppen/programmgruppen.xml";
-    public static final String ADRESSE_WEBSITE = "http://zdfmediathk.sourceforge.net/";
-    public static final String ADRESSE_FORUM = "http://sourceforge.net/apps/phpbb/zdfmediathk/";
+    public static final String ADRESSE_PROGRAMM_VERSION = "https://res.mediathekview.de/version.xml";
+    public static final String ADRESSE_DOWNLAD = "https://mediathekview.de/download/";
+    public static final String ADRESSE_ANLEITUNG = "https://github.com/mediathekview/MediathekView/wiki";
+    public static final String ADRESSE_VORLAGE_PROGRAMMGRUPPEN = "https://res.mediathekview.de/programmgruppen/programmgruppen.xml";
+    public static final String ADRESSE_WEBSITE = "https://mediathekview.de";
+    public static final String ADRESSE_FORUM = "https://forum.mediathekview.de";
     // Dateien/Verzeichnisse
     public static final String XML_DATEI = "mediathek.xml";
     public static final String XML_DATEI_FILME = "filme.xml";

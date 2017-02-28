@@ -5,10 +5,10 @@
 # MSearch
 Lib für das Programm **MediathekView**.
 
-# Sourceforge
+# MediathekView
 
-- [Website](http://zdfmediathk.sourceforge.net)
-- [Download](http://sourceforge.net/projects/zdfmediathk/) Installationspakete
+- [Website](https://mediathekview.de)
+- [Download](https://mediathekview.de/download/) Installationspakete
 
 # Entwicklung
 
