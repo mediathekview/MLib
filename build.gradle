@@ -74,18 +74,20 @@ dependencies {
 
 }
 
-task updateVersion << {
-    Properties props = loadVersionProperties()
-    def oldVersion = props.getProperty('VERSION')
-    String buildDate = new Date().format('dd.MM.yyyy HH:mm:ss')
-    if (!oldVersion.equals(project.version)) {
-        logger.lifecycle "==msearch======================"
-        logger.lifecycle "Version: $project.version"
-        logger.lifecycle "Baudatum: $buildDate"
-        logger.lifecycle "==msearch======================"
-        props.setProperty('VERSION', project.version)
-        props.setProperty('DATE', buildDate)
-        props.store(propsFile.newWriter(), null)
+task updateVersion {
+    doLast {
+        Properties props = loadVersionProperties()
+        def oldVersion = props.getProperty('VERSION')
+        String buildDate = new Date().format('dd.MM.yyyy HH:mm:ss')
+        if (!oldVersion.equals(project.version)) {
+            logger.lifecycle "==msearch======================"
+            logger.lifecycle "Version: $project.version"
+            logger.lifecycle "Baudatum: $buildDate"
+            logger.lifecycle "==msearch======================"
+            props.setProperty('VERSION', project.version)
+            props.setProperty('DATE', buildDate)
+            props.store(propsFile.newWriter(), null)
+        }
     }
 }
 processResources.dependsOn updateVersion
