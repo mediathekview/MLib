@@ -167,13 +167,16 @@ public class MSStringBuilder {
             }
 
             str = addUrl + str;
-            if (!result.contains(str)) {
-                result.add(str);
-                if (result.size() > 1000) {
-                    DbgMsg.print("Achtung");
-                }
-            }
+            addStr(str, result);
+        }
+    }
 
+    private void addStr(String str, ArrayList<String> result) {
+        if (!result.contains(str)) {
+            result.add(str);
+            if (result.size() > 1000) {
+                DbgMsg.print("Achtung");
+            }
         }
     }
 
