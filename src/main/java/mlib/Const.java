@@ -19,7 +19,6 @@
  */
 package mlib;
 
-import mlib.Const;
 import mlib.tool.Functions;
 
 public class Const {

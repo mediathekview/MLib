@@ -24,8 +24,6 @@ import java.text.Collator;
 import java.util.Comparator;
 import java.util.Locale;
 
-import mlib.tool.GermanStringSorter;
-
 public class GermanStringSorter implements Comparator<String> {
 
     private static Collator collator;

@@ -22,8 +22,6 @@ package mlib.tool;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import mlib.tool.Datum;
-
 @SuppressWarnings("serial")
 public class Datum extends Date {
     private final static SimpleDateFormat dateFormatter1 = new SimpleDateFormat("dd.MM.yyyy");

@@ -1,9 +1,9 @@
 package mlib.tool;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
-
-import java.util.concurrent.TimeUnit;
 
 public class MVHttpClient {
     private final static MVHttpClient ourInstance = new MVHttpClient();

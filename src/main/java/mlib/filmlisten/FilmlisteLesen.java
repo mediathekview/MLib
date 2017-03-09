@@ -19,10 +19,24 @@
  */
 package mlib.filmlisten;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipInputStream;
+
+import javax.swing.event.EventListenerList;
+
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.tukaani.xz.XZInputStream;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-
 
 import mlib.Config;
 import mlib.Const;
@@ -37,19 +51,6 @@ import mlib.tool.ProgressMonitorInputStream;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.apache.commons.lang3.time.FastDateFormat;
-import org.tukaani.xz.XZInputStream;
-
-import javax.swing.event.EventListenerList;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-import java.util.zip.ZipInputStream;
 
 public class FilmlisteLesen {
     private static final int PROGRESS_MAX = 100;

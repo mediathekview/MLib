@@ -1,7 +1,5 @@
 package mlib.tool;
 
-import mlib.tool.Log;
-
 public class Version {
 	
 	private int major;

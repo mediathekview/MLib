@@ -21,7 +21,6 @@ package mlib.tool;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import mlib.tool.SysMsg;
 
 public class SysMsg {
 

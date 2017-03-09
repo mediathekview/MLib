@@ -23,8 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import mlib.tool.Datum;
-
 @SuppressWarnings("serial")
 public class DatumFilm extends Datum {
     // die Filme werden immer in der Zeitzone "Europe/Berlin" gesucht

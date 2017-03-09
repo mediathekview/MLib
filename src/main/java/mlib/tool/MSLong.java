@@ -19,8 +19,6 @@
  */
 package mlib.tool;
 
-import mlib.tool.Log;
-import mlib.tool.MSLong;
 import mlib.daten.DatenFilm;
 
 public class MSLong implements Comparable<MSLong> {

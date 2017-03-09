@@ -21,8 +21,6 @@ package mlib.filmeSuchen;
 
 import java.util.EventListener;
 
-import mlib.filmeSuchen.ListenerFilmeLadenEvent;
-
 public class ListenerFilmeLaden implements EventListener {
 
     ListenerFilmeLadenEvent event;

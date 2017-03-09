@@ -1,10 +1,5 @@
 package mlib.tool;
 
-import com.jidesoft.utils.SystemInfo;
-
-import mlib.tool.Functions;
-import mlib.tool.ReplaceList;
-
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -12,6 +7,8 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
+
+import com.jidesoft.utils.SystemInfo;
 
 /**
  * User: crystalpalace1977

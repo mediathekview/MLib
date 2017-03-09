@@ -19,19 +19,18 @@
  */
 package mlib.daten;
 
+import java.util.Date;
+
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import mlib.daten.DatenFilm;
+import mlib.Const;
 import mlib.tool.DatumFilm;
 import mlib.tool.FileSize;
 import mlib.tool.Functions;
 import mlib.tool.GermanStringSorter;
+import mlib.tool.Hash;
 import mlib.tool.Log;
 import mlib.tool.MSLong;
-import mlib.Const;
-import mlib.tool.*;
-
-import java.util.Date;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 

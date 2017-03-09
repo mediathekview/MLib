@@ -26,7 +26,6 @@ package mlib.tool;
 import java.io.IOException;
 import java.io.InputStream;
 
-import mlib.tool.Log;
 import mlib.Config;
 
 public class MSInputStream extends InputStream {

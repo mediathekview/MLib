@@ -25,7 +25,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.SimpleTimeZone;
 
-import mlib.filmlisten.DatenFilmlisteUrl;
 import mlib.tool.Log;
 
 public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {

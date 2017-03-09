@@ -21,8 +21,6 @@ package mlib.tool;
 
 import java.util.ArrayList;
 
-import mlib.tool.DbgMsg;
-
 public class MSStringBuilder {
 
     private final StringBuilder cont;

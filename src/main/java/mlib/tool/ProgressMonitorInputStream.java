@@ -4,8 +4,6 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import mlib.tool.InputStreamProgressMonitor;
-
 /**
  * User: Christian F.
  * Date: 15.06.16

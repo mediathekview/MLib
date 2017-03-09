@@ -20,12 +20,9 @@
 package mlib.tool;
 
 import java.util.EventListener;
+
 import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
-
-import mlib.tool.DbgMsg;
-import mlib.tool.Listener;
-import mlib.tool.Log;
 
 public class Listener implements EventListener {
 

@@ -19,21 +19,29 @@
  */
 package mlib.daten;
 
+import java.security.MessageDigest;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Optional;
+import java.util.SimpleTimeZone;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
+
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import mlib.daten.DatenFilm;
-import mlib.daten.ListeFilme;
 import mlib.Const;
 import mlib.tool.Duration;
 import mlib.tool.FileSize;
 import mlib.tool.Functions;
 import mlib.tool.Log;
-
-import java.security.MessageDigest;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 @SuppressWarnings("serial")
 public class ListeFilme extends ArrayList<DatenFilm> {

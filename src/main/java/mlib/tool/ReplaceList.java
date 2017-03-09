@@ -23,9 +23,6 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import mlib.tool.Listener;
-import mlib.tool.ReplaceList;
-
 public final class ReplaceList {
 
     public final static String REPLACELIST = "Ersetzungstabelle";
