@@ -17,24 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package de.mediathekview.mlib.filmeSuchen;
+package de.mediathekview.mlib.filmesuchen;
 
-import java.util.EventListener;
+public class ListenerFilmeLadenEvent {
 
-public class ListenerFilmeLaden implements EventListener {
+    public String senderUrl = "";
+    public String text = "";
+    public int max = 0;
+    public int progress = 0;
+    public boolean fehler = false;
+    public int count = 0;
 
-    ListenerFilmeLadenEvent event;
-
-    public void start(ListenerFilmeLadenEvent e) {
-    }
-
-    public void progress(ListenerFilmeLadenEvent e) {
-    }
-
-    public void fertig(ListenerFilmeLadenEvent e) {
-    }
-
-    public void fertigOnlyOne(ListenerFilmeLadenEvent e) {
-        // dient dem Melden des ersten Mal Laden der Filmliste beim ProgStart
+    public ListenerFilmeLadenEvent(String ssender, String ttext, int mmax, int pprogress, int ccount, boolean ffehler) {
+        senderUrl = ssender;
+        text = ttext;
+        max = mmax;
+        progress = pprogress;
+        count = ccount;
+        fehler = ffehler;
     }
 }
