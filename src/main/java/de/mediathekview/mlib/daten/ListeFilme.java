@@ -44,7 +44,7 @@ import de.mediathekview.mlib.tool.Functions;
 import de.mediathekview.mlib.tool.Log;
 
 @SuppressWarnings("serial")
-public class ListeFilme extends ArrayList<DatenFilm> {
+public class ListeFilme extends ArrayList<Film> {
     public static final String THEMA_LIVE = "Livestream";
     public static final String FILMLISTE = "Filmliste";
     public static final String FILMLISTE_DATUM = "Filmliste-Datum";
@@ -76,30 +76,25 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
 
-    public synchronized boolean importFilmliste(DatenFilm film) {
+    public synchronized boolean importFilmliste(Film film) {
         // hier nur beim Laden aus einer fertigen Filmliste mit der GUI
         // die Filme sind schon sortiert, nur die Nummer muss noch ergänzt werden
-        film.nr = nr++;
         return addInit(film);
     }
 
-    public synchronized boolean addFilmVomSender(DatenFilm film) {
+    public synchronized boolean addFilmVomSender(Film film) {
         // Filme die beim Sender gesucht wurden (und nur die) hier eintragen, nur für die MediathekReader!!
         // ist: "Sender-Thema-URL" schon vorhanden, wird sie verworfen
 
-        Functions.unescape(film);
-
-        return !indexes.contains(film.getIndex()) && addInit(film);
+        return !indexes.contains(film) && addInit(film);
     }
 
-    private void addHash(DatenFilm f, HashSet<String> hash, boolean index) {
-        if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
-            // beim KIKA ändern sich die URLs laufend
-            hash.add(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL]);
-        } else if (index) {
-            hash.add(f.getIndex());
-        } else {
-            hash.add(f.getUrl());
+    private void addHash(Film f, HashSet<String> hash, boolean aCheckWithIndex) {
+        if(aCheckWithIndex)
+        {
+            hash.add(String.valueOf(f.hashCode()));
+        }else {
+            hash.add(f.getUrl(Qualities.NORMAL).toString());
         }
     }
 
@@ -110,21 +105,16 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         final HashSet<String> hash = new HashSet<>(listeEinsortieren.size() + 1, 1);
 
         if (ersetzen) {
-            listeEinsortieren.forEach((DatenFilm f) -> addHash(f, hash, index));
+            listeEinsortieren.forEach((Film f) -> addHash(f, hash, index));
 
-            Iterator<DatenFilm> it = this.iterator();
+            Iterator<Film> it = this.iterator();
             while (it.hasNext()) {
-                DatenFilm f = it.next();
-                if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
-                    // beim KIKA ändern sich die URLs laufend
-                    if (hash.contains(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL])) {
+                Film f = it.next();
+                if (index) {
+                    if (hash.contains(f.hashCode())) {
                         it.remove();
                     }
-                } else if (index) {
-                    if (hash.contains(f.getIndex())) {
-                        it.remove();
-                    }
-                } else if (hash.contains(f.getUrl())) {
+                } else if (hash.contains(f.getUrl(Qualities.NORMAL))) {
                     it.remove();
                 }
             }
@@ -134,16 +124,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             // ==============================================
             this.forEach(f -> addHash(f, hash, index));
 
-            for (DatenFilm f : listeEinsortieren) {
-                if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
-                    if (!hash.contains(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL])) {
+            for (Film f : listeEinsortieren) {
+                if (index) {
+                    if (!hash.contains(f.hashCode())) {
                         addInit(f);
                     }
-                } else if (index) {
-                    if (!hash.contains(f.getIndex())) {
-                        addInit(f);
-                    }
-                } else if (!hash.contains(f.getUrl())) {
+                } else if (!hash.contains(f.getUrl(Qualities.NORMAL))) {
                     addInit(f);
                 }
             }
@@ -151,15 +137,14 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         hash.clear();
     }
 
-    private boolean addInit(DatenFilm film) {
-        film.init();
+    private boolean addInit(Film film) {
         return add(film);
     }
 
     @Override
-    public boolean add(DatenFilm aFilm)
+    public boolean add(Film aFilm)
     {
-        indexes.add(aFilm.getIndex());
+        indexes.add(String.valueOf(aFilm.hashCode()));
         return super.add(aFilm);
     }
 
@@ -171,43 +156,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         super.clear();
     }
 
-    public synchronized void check() {
-        // zum Debuggen
-        for (DatenFilm film : this) {
-            String s = film.arr[DatenFilm.FILM_BESCHREIBUNG];
-            film.arr[DatenFilm.FILM_BESCHREIBUNG] = Functions.removeHtml(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-            if (!s.equals(film.arr[DatenFilm.FILM_BESCHREIBUNG])) {
-                System.out.println("---------------------");
-                System.out.println(s);
-                System.out.println(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-            }
-            s = film.arr[DatenFilm.FILM_THEMA];
-            film.arr[DatenFilm.FILM_THEMA] = Functions.removeHtml(film.arr[DatenFilm.FILM_THEMA]);
-            if (!s.equals(film.arr[DatenFilm.FILM_THEMA])) {
-                System.out.println("---------------------");
-                System.out.println(s);
-                System.out.println(film.arr[DatenFilm.FILM_THEMA]);
-            }
-            s = film.arr[DatenFilm.FILM_TITEL];
-            film.arr[DatenFilm.FILM_TITEL] = Functions.removeHtml(film.arr[DatenFilm.FILM_TITEL]);
-            if (!s.equals(film.arr[DatenFilm.FILM_TITEL])) {
-                System.out.println("---------------------");
-                System.out.println(s);
-                System.out.println(film.arr[DatenFilm.FILM_TITEL]);
-            }
-            if (film.arr[DatenFilm.FILM_URL].contains(" ")) {
-                System.out.println(film.arr[DatenFilm.FILM_URL]);
-            }
-        }
-    }
-
     public synchronized void sort() {
-        Collections.sort(this);
-        // und jetzt noch die Nummerierung in Ordnung bringen
-        int i = 1;
-        for (DatenFilm film : this) {
-            film.nr = i++;
-        }
+        Collections.sort(new ArrayList<T>());
     }
 
     public synchronized void setMeta(ListeFilme listeFilme) {
@@ -221,16 +171,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         ListeFilme ret = new ListeFilme();
         final HashSet<String> hashSet = new HashSet<>(orgListe.size() + 1, 1);
 
-        for (DatenFilm film : orgListe) {
-            final String s = film.arr[DatenFilm.FILM_SENDER] + film.arr[DatenFilm.FILM_THEMA] + film.arr[DatenFilm.FILM_TITEL] + film.arr[DatenFilm.FILM_URL];
-            hashSet.add(s);
+        for (Film film : orgListe) {
+            hashSet.add(String.valueOf(film.hashCode()));
         }
 
-        for (DatenFilm film : this) {
-            final String s = film.arr[DatenFilm.FILM_SENDER] + film.arr[DatenFilm.FILM_THEMA] + film.arr[DatenFilm.FILM_TITEL] + film.arr[DatenFilm.FILM_URL];
-            if (!hashSet.contains(s)) {
-                ret.add(film);
-            }
+        for (Film film : this) {
+            hashSet.add(String.valueOf(film.hashCode()));
         }
 
         hashSet.clear();
@@ -249,14 +195,11 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         //FIXME bring to DatenFilm and reduce calculation
         String res;
 
-        Optional<DatenFilm> opt = this.parallelStream()
-                .filter(f -> f.arr[DatenFilm.FILM_URL].equals(url)).findAny();
+        Optional<Film> opt = this.parallelStream()
+                .filter(f -> f.getUrl(Qualities.NORMAL).equals(url)).findAny();
         if (opt.isPresent()) {
-            DatenFilm film = opt.get();
-            if (!film.arr[DatenFilm.FILM_GROESSE].isEmpty())
-                res = film.arr[DatenFilm.FILM_GROESSE];
-            else
-                res = FileSize.laengeString(url);
+            Film film = opt.get();
+                res = String.valueOf(film.getSize(film.getUrl(Qualities.NORMAL)));
         } else
             res = FileSize.laengeString(url);
 
@@ -269,40 +212,36 @@ public class ListeFilme extends ArrayList<DatenFilm> {
      * @param sender Sender which films are to be deleted.
      */
     public synchronized void deleteAllFilms(String sender) {
-        removeIf(film -> film.arr[DatenFilm.FILM_SENDER].equalsIgnoreCase(sender));
+        removeIf(film -> film.getSender().getName().equalsIgnoreCase(sender));
     }
 
 
-    public synchronized DatenFilm getFilmByUrl(final String url) {
-        Optional<DatenFilm> opt = this.parallelStream().filter(f -> f.arr[DatenFilm.FILM_URL].equalsIgnoreCase(url)).findAny();
+    public synchronized Film getFilmByUrl(final String url) {
+        Optional<Film> opt = this.parallelStream().filter(f -> f.getUrl(Qualities.NORMAL).toString().equalsIgnoreCase(url)).findAny();
         return opt.orElse(null);
     }
 
-    public synchronized void checkThema(String sender, LinkedList<String> liste, String thema) {
-        this.stream().filter(film -> film.arr[DatenFilm.FILM_SENDER].equals(sender))
-                .filter(film -> !film.arr[DatenFilm.FILM_THEMA].equals(ListeFilme.THEMA_LIVE)
-                        && !liste.contains(film.arr[DatenFilm.FILM_THEMA]))
-                .forEach(film -> film.arr[DatenFilm.FILM_THEMA] = thema);
-    }
-
     public synchronized void getThema(String sender, LinkedList<String> liste) {
-        this.stream().filter(film -> film.arr[DatenFilm.FILM_SENDER].equals(sender))
-                .filter(film -> !liste.contains(film.arr[DatenFilm.FILM_THEMA]))
-                .forEach(film -> liste.add(film.arr[DatenFilm.FILM_THEMA]));
+        this.stream().filter(film -> film.getSender().getName().equals(sender))
+                .filter(film -> !liste.contains(film.getThema()))
+                .forEach(film -> liste.add(film.getThema()));
     }
 
-    public synchronized DatenFilm getFilmByUrl_klein_hoch_hd(String url) {
+    public synchronized Film getFilmByUrl_klein_hoch_hd(String url) {
         // Problem wegen gleicher URLs
         // wird versucht, einen Film mit einer kleinen/Hoher/HD-URL zu finden
-        DatenFilm ret = null;
-        for (DatenFilm f : this) {
-            if (f.arr[DatenFilm.FILM_URL].equals(url)) {
+        Film ret = null;
+        for (Film f : this) {
+            if (f.getUrl(Qualities.NORMAL).toString().equals(url)) {
                 ret = f;
                 break;
-            } else if (f.getUrlFuerAufloesung(DatenFilm.AUFLOESUNG_HD).equals(url)) {
+            } else if (f.getUrl(Qualities.HD).equals(url)) {
                 ret = f;
                 break;
-            } else if (f.getUrlFuerAufloesung(DatenFilm.AUFLOESUNG_KLEIN).equals(url)) {
+            } else if (f.getUrl(Qualities.SMALL).equals(url)) {
+                ret = f;
+                break;
+            }else if (f.getUrl(Qualities.VERY_SMALL).equals(url)) {
                 ret = f;
                 break;
             }
@@ -470,10 +409,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return formatter.format(new Date());
     }
 
-    public synchronized long countNewFilms() {
-        return this.stream().filter(DatenFilm::isNew).count();
-    }
-
     private static final String THEME_SEARCH_TEXT = "Themen in Filmliste suchen";
     /**
      * Erstellt ein StringArray der Themen eines Senders oder wenn "sender" leer, aller Sender.
@@ -486,8 +421,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         // der erste Sender ist ""
         senderSet.add("");
 
-        for (DatenFilm film : this) {
-            senderSet.add(film.arr[DatenFilm.FILM_SENDER]);
+        for (Film film : this) {
+            senderSet.add(film.getSender().getName());
         }
         sender = senderSet.toArray(new String[senderSet.size()]);
         senderSet.clear();
@@ -505,9 +440,9 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
         //alle Themen
         String filmThema, filmSender;
-        for (DatenFilm film : this) {
-            filmSender = film.arr[DatenFilm.FILM_SENDER];
-            filmThema = film.arr[DatenFilm.FILM_THEMA];
+        for (Film film : this) {
+            filmSender = film.getSender().getName();
+            filmThema = film.getThema();
             //hinzufügen
             if (!hashSet[0].contains(filmThema)) {
                 hashSet[0].add(filmThema);

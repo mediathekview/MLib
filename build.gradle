@@ -71,6 +71,7 @@ dependencies {
     compile 'com.jidesoft:jide-oss:3.6.16'
     compile 'org.tukaani:xz:1.5'
     compile 'com.squareup.okhttp3:okhttp:3.6.0'
+    compile 'org.apache.logging.log4j:log4j-core:2.7'
     compile 'fm.void.jetm:jetm:1.2.3'
 
 }
