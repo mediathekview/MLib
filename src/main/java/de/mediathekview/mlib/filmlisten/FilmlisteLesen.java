@@ -31,6 +31,7 @@ import java.util.zip.ZipInputStream;
 
 import javax.swing.event.EventListenerList;
 
+import de.mediathekview.mlib.daten.Film;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.tukaani.xz.XZInputStream;
 
@@ -119,8 +120,8 @@ public class FilmlisteLesen {
                 break;
             }
             if (jp.isExpectedStartArrayToken()) {
-                DatenFilm datenFilm = new DatenFilm();
-                for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
+                Film film = new Film();
+                for (int i = 0; i < Film.JSON_NAMES.length; ++i) {
                     //if we are in FASTAUTO mode, we don´t need film descriptions.
                     //this should speed up loading on low end devices...
                     if (workMode == WorkMode.FASTAUTO) {
@@ -134,34 +135,34 @@ public class FilmlisteLesen {
                     if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_NEU) {
                         final String value = jp.nextTextValue();
                         //This value is unused...
-                        //datenFilm.arr[DatenFilm.FILM_NEU_NR] = value;
-                        datenFilm.setNew(Boolean.parseBoolean(value));
+                        //film.arr[DatenFilm.FILM_NEU_NR] = value;
+                        film.setNew(Boolean.parseBoolean(value));
                     } else {
-                        datenFilm.arr[DatenFilm.JSON_NAMES[i]] = jp.nextTextValue();
+                        film.arr[DatenFilm.JSON_NAMES[i]] = jp.nextTextValue();
                     }
 
                     /// für die Entwicklungszeit
-                    if (datenFilm.arr[DatenFilm.JSON_NAMES[i]] == null) {
-                        datenFilm.arr[DatenFilm.JSON_NAMES[i]] = "";
+                    if (film.arr[DatenFilm.JSON_NAMES[i]] == null) {
+                        film.arr[DatenFilm.JSON_NAMES[i]] = "";
                     }
                 }
-                if (datenFilm.arr[DatenFilm.FILM_SENDER].isEmpty()) {
-                    datenFilm.arr[DatenFilm.FILM_SENDER] = sender;
+                if (film.arr[DatenFilm.FILM_SENDER].isEmpty()) {
+                    film.arr[DatenFilm.FILM_SENDER] = sender;
                 } else {
-                    sender = datenFilm.arr[DatenFilm.FILM_SENDER];
+                    sender = film.arr[DatenFilm.FILM_SENDER];
                 }
-                if (datenFilm.arr[DatenFilm.FILM_THEMA].isEmpty()) {
-                    datenFilm.arr[DatenFilm.FILM_THEMA] = thema;
+                if (film.arr[DatenFilm.FILM_THEMA].isEmpty()) {
+                    film.arr[DatenFilm.FILM_THEMA] = thema;
                 } else {
-                    thema = datenFilm.arr[DatenFilm.FILM_THEMA];
+                    thema = film.arr[DatenFilm.FILM_THEMA];
                 }
 
-                listeFilme.importFilmliste(datenFilm);
+                listeFilme.importFilmliste(film);
                 if (milliseconds > 0) {
                     // muss "rückwärts" laufen, da das Datum sonst 2x gebaut werden muss
                     // wenns drin bleibt, kann mans noch ändern
-                    if (!checkDate(datenFilm)) {
-                        listeFilme.remove(datenFilm);
+                    if (!checkDate(film)) {
+                        listeFilme.remove(film);
                     }
                 }
             }

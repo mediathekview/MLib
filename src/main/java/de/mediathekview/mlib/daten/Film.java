@@ -33,6 +33,7 @@ public class Film
     private final String thema;
     private final LocalDateTime time;
     private final Duration duration;
+    private boolean neu;
 
     /**
      * The file size in byte.
@@ -58,6 +59,7 @@ public class Film
         time = aTime;
         duration = aDuration;
         website = aWebsite;
+        neu = false;
 
         beschreibung = "";
     }
@@ -221,6 +223,16 @@ public class Film
         return !subtitles.isEmpty();
     }
 
+    public boolean isNeu()
+    {
+        return neu;
+    }
+
+    public void setNeu(final boolean aNeu)
+    {
+        neu = aNeu;
+    }
+
     @Override
     public boolean equals(final Object o)
     {
@@ -270,6 +282,7 @@ public class Film
                 ", subtitles=" + subtitles +
                 ", beschreibung='" + beschreibung + '\'' +
                 ", website=" + website +
+                ", neu=" + neu +
                 '}';
     }
 }
