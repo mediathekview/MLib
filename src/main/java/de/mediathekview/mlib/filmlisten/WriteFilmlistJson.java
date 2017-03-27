@@ -19,11 +19,18 @@
  */
 package de.mediathekview.mlib.filmlisten;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.jidesoft.utils.SystemInfo;
+import de.mediathekview.mlib.Const;
+import de.mediathekview.mlib.daten.DatenFilm;
+import de.mediathekview.mlib.daten.ListeFilme;
+import de.mediathekview.mlib.tool.Log;
+import org.tukaani.xz.LZMA2Options;
+import org.tukaani.xz.XZOutputStream;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -32,18 +39,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
-import org.tukaani.xz.LZMA2Options;
-import org.tukaani.xz.XZOutputStream;
-
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-
-import de.mediathekview.mlib.Const;
-import de.mediathekview.mlib.daten.DatenFilm;
-import de.mediathekview.mlib.daten.ListeFilme;
-import de.mediathekview.mlib.tool.Log;
 
 public class WriteFilmlistJson {
 
@@ -106,6 +101,14 @@ public class WriteFilmlistJson {
 
             Log.sysLog("   --> Start Schreiben nach: " + datei);
             String sender = "", thema = "";
+
+            if (SystemInfo.isMacOSX()) {
+                //Hotfix for OSX 10.12.4 update
+                final Path f = Paths.get(datei);
+                final Path parentDirectory = f.getParent();
+                if (!Files.exists(parentDirectory))
+                    Files.createDirectory(parentDirectory);
+            }
 
             try (FileOutputStream fos = new FileOutputStream(datei);
                  JsonGenerator jg = getJsonGenerator(fos)) {
