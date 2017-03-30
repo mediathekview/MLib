@@ -19,18 +19,10 @@
  */
 package de.mediathekview.mlib.daten;
 
-import java.util.Date;
-
-import org.apache.commons.lang3.time.FastDateFormat;
-
 import de.mediathekview.mlib.Const;
-import de.mediathekview.mlib.tool.DatumFilm;
-import de.mediathekview.mlib.tool.FileSize;
-import de.mediathekview.mlib.tool.Functions;
-import de.mediathekview.mlib.tool.GermanStringSorter;
-import de.mediathekview.mlib.tool.Hash;
-import de.mediathekview.mlib.tool.Log;
-import de.mediathekview.mlib.tool.MSLong;
+import de.mediathekview.mlib.tool.*;
+import java.util.Date;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 
@@ -445,7 +437,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             try {
                 final int i = Integer.parseInt(arr[DatenFilm.FILM_URL_KLEIN].substring(0, arr[DatenFilm.FILM_URL_KLEIN].indexOf('|')));
                 return arr[DatenFilm.FILM_URL].substring(0, i) + arr[DatenFilm.FILM_URL_KLEIN].substring(arr[DatenFilm.FILM_URL_KLEIN].indexOf('|') + 1);
-            } catch (NumberFormatException ignored) {
+            } catch (Exception ignored) {
             }
         }
         return arr[DatenFilm.FILM_URL];
@@ -457,7 +449,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             try {
                 final int i = Integer.parseInt(arr[DatenFilm.FILM_URL_HD].substring(0, arr[DatenFilm.FILM_URL_HD].indexOf('|')));
                 return arr[DatenFilm.FILM_URL].substring(0, i) + arr[DatenFilm.FILM_URL_HD].substring(arr[DatenFilm.FILM_URL_HD].indexOf('|') + 1);
-            } catch (NumberFormatException ignored) {
+            } catch (Exception ignored) {
             }
         }
         return arr[DatenFilm.FILM_URL];
