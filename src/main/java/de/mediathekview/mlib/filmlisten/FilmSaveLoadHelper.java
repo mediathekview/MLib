@@ -28,6 +28,8 @@ public final class FilmSaveLoadHelper
     private static final String ZERO_TEXT = "0";
     private static final String RTMP = "rtmp";
     private static final char GEO_SPLITTERATOR = '-';
+    private static final String URL_INTERSECTION_REDUCE_PATTERN = "%d|";
+    private static final String DURATION_FORMAT = "%02d:%02d:%02d";
 
     private FilmSaveLoadHelper()
     {
@@ -96,6 +98,12 @@ public final class FilmSaveLoadHelper
                 }
             }
 
+            urlKlein = reduceUrl(url,urlKlein);
+            urlHd = reduceUrl(url,urlHd);
+            urlRtmp = reduceUrl(url,urlRtmp);
+            urlRtmpKlein=reduceUrl(url,urlRtmpKlein);
+            urlRtmpHd = reduceUrl(url,urlRtmpHd);
+
             fakeJsonBuilder.append(String.format(OUTPUT_PATTERN, sender,
                     thema,
                     film.getTitel(),
@@ -125,6 +133,24 @@ public final class FilmSaveLoadHelper
         return fakeJsonBuilder.toString();
     }
 
+    private static String reduceUrl(String aBaseUrl, String aUrlToReduce)
+    {
+        StringBuilder urlIntersectionBuilder = new StringBuilder();
+        for(int i=0; i<aBaseUrl.length() && i<aUrlToReduce.length() && aBaseUrl.charAt(i)==aUrlToReduce.charAt(i); i++)
+        {
+            urlIntersectionBuilder.append(aBaseUrl.charAt(i));
+        }
+
+        String urlIntersection = urlIntersectionBuilder.toString();
+        String result;
+        if(urlIntersection.isEmpty())
+        {
+            result = aUrlToReduce;
+        }else {
+            result = aUrlToReduce.replace(urlIntersection,String.format(URL_INTERSECTION_REDUCE_PATTERN,urlIntersection.length()));
+        }
+    }
+
     private static String geolocationsToStirng(Collection<GeoLocations> aGeoLocations)
     {
         StringBuilder geolocationsStringBuilder = new StringBuilder();
@@ -139,7 +165,7 @@ public final class FilmSaveLoadHelper
 
     private static String durationToString(final Duration aDuration)
     {
-        return String.format("%02d:%02d:%02d", aDuration.get(ChronoUnit.HOURS), aDuration.get(ChronoUnit.MINUTES), aDuration.get(ChronoUnit.SECONDS));
+        return String.format(DURATION_FORMAT, aDuration.get(ChronoUnit.HOURS), aDuration.get(ChronoUnit.MINUTES), aDuration.get(ChronoUnit.SECONDS));
     }
 
     private static void appendEnd(final StringBuilder fakeJsonBuilder)
