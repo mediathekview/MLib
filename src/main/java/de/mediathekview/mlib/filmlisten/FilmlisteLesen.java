@@ -19,29 +19,28 @@
  */
 package de.mediathekview.mlib.filmlisten;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipInputStream;
 
 import javax.swing.event.EventListenerList;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import de.mediathekview.mlib.daten.Film;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.tukaani.xz.XZInputStream;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-
 import de.mediathekview.mlib.Config;
 import de.mediathekview.mlib.Const;
-import de.mediathekview.mlib.daten.DatenFilm;
 import de.mediathekview.mlib.daten.ListeFilme;
 import de.mediathekview.mlib.filmesuchen.ListenerFilmeLaden;
 import de.mediathekview.mlib.filmesuchen.ListenerFilmeLadenEvent;
@@ -86,105 +85,37 @@ public class FilmlisteLesen {
         return in;
     }
 
-    private void readData(JsonParser jp, ListeFilme listeFilme) throws IOException {
-        JsonToken jsonToken;
-        String sender = "", thema = "";
-
-        if (jp.nextToken() != JsonToken.START_OBJECT) {
-            throw new IllegalStateException("Expected data to start with an Object");
+    public ListeFilme readData(InputStream aInputStream) throws IOException {
+        Type filmListType = new TypeToken<List<Film>>(){}.getType();
+        Gson gson = new GsonBuilder().registerTypeAdapter(filmListType, new FakeJsonDeserializer()).create();
+        try(InputStreamReader inputStreamReader = new InputStreamReader(aInputStream))
+        {
+            ListeFilme listeFilme = new ListeFilme();
+            listeFilme.addAll(gson.fromJson(inputStreamReader, filmListType));
+            return listeFilme;
         }
+    }
 
-        while ((jsonToken = jp.nextToken()) != null) {
-            if (jsonToken == JsonToken.END_OBJECT) {
-                break;
-            }
-            if (jp.isExpectedStartArrayToken()) {
-                for (int k = 0; k < ListeFilme.MAX_ELEM; ++k) {
-                    listeFilme.metaDaten[k] = jp.nextTextValue();
-                }
-                break;
-            }
-        }
-        while ((jsonToken = jp.nextToken()) != null) {
-            if (jsonToken == JsonToken.END_OBJECT) {
-                break;
-            }
-            if (jp.isExpectedStartArrayToken()) {
-                // sind nur die Feldbeschreibungen, brauch mer nicht
-                jp.nextToken();
-                break;
-            }
-        }
-        while (!Config.getStop() && (jsonToken = jp.nextToken()) != null) {
-            if (jsonToken == JsonToken.END_OBJECT) {
-                break;
-            }
-            if (jp.isExpectedStartArrayToken()) {
-                Film film = new Film();
-                for (int i = 0; i < Film.JSON_NAMES.length; ++i) {
-                    //if we are in FASTAUTO mode, we don´t need film descriptions.
-                    //this should speed up loading on low end devices...
-                    if (workMode == WorkMode.FASTAUTO) {
-                        if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_BESCHREIBUNG
-                                || DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_WEBSEITE
-                                || DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_GEO) {
-                            jp.nextToken();
-                            continue;
-                        }
-                    }
-                    if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_NEU) {
-                        final String value = jp.nextTextValue();
-                        //This value is unused...
-                        //film.arr[DatenFilm.FILM_NEU_NR] = value;
-                        film.setNew(Boolean.parseBoolean(value));
-                    } else {
-                        film.arr[DatenFilm.JSON_NAMES[i]] = jp.nextTextValue();
-                    }
-
-                    /// für die Entwicklungszeit
-                    if (film.arr[DatenFilm.JSON_NAMES[i]] == null) {
-                        film.arr[DatenFilm.JSON_NAMES[i]] = "";
-                    }
-                }
-                if (film.arr[DatenFilm.FILM_SENDER].isEmpty()) {
-                    film.arr[DatenFilm.FILM_SENDER] = sender;
-                } else {
-                    sender = film.arr[DatenFilm.FILM_SENDER];
-                }
-                if (film.arr[DatenFilm.FILM_THEMA].isEmpty()) {
-                    film.arr[DatenFilm.FILM_THEMA] = thema;
-                } else {
-                    thema = film.arr[DatenFilm.FILM_THEMA];
-                }
-
-                listeFilme.importFilmliste(film);
-                if (milliseconds > 0) {
-                    // muss "rückwärts" laufen, da das Datum sonst 2x gebaut werden muss
-                    // wenns drin bleibt, kann mans noch ändern
-                    if (!checkDate(film)) {
-                        listeFilme.remove(film);
-                    }
-                }
-            }
-        }
+    public static void main(String... args)
+    {
+        new FilmlisteLesen().processFromFile("/home/nicklas/Entwicklung/git/MLib/src/test/resources/TestFilmlist.json",new ListeFilme());
     }
 
     /**
      * Read a locally available filmlist.
      *
-     * @param source     file path as string
+     * @param aSource     file path as string
      * @param listeFilme the list to read to
      */
-    private void processFromFile(String source, ListeFilme listeFilme) {
-        notifyProgress(source, PROGRESS_MAX);
-        try (InputStream in = selectDecompressor(source, new FileInputStream(source));
-             JsonParser jp = new JsonFactory().createParser(in)) {
-            readData(jp, listeFilme);
+    private void processFromFile(String aSource, ListeFilme listeFilme) {
+        notifyProgress(aSource, PROGRESS_MAX);
+        try (InputStream in = selectDecompressor(aSource, Files.newInputStream(Paths.get(aSource)))){
+            listeFilme = readData(in);
         } catch (FileNotFoundException ex) {
-            Log.errorLog(894512369, "FilmListe existiert nicht: " + source);
+            Log.errorLog(894512369, "FilmListe existiert nicht: " + aSource);
             listeFilme.clear();
         } catch (Exception ex) {
-            Log.errorLog(945123641, ex, "FilmListe: " + source);
+            Log.errorLog(945123641, ex, "FilmListe: " + aSource);
             listeFilme.clear();
         }
     }
@@ -250,9 +181,9 @@ public class FilmlisteLesen {
              ResponseBody body = response.body()) {
             if (response.isSuccessful()) {
                 try (InputStream input = new ProgressMonitorInputStream(body.byteStream(), body.contentLength(), monitor)) {
-                    try (InputStream is = selectDecompressor(source.toString(), input);
-                         JsonParser jp = new JsonFactory().createParser(is)) {
-                        readData(jp, listeFilme);
+                    try (InputStream is = selectDecompressor(source.toString(), input))
+                    {
+                        listeFilme = readData(is);
                     }
                 }
             }
@@ -260,20 +191,6 @@ public class FilmlisteLesen {
             Log.errorLog(945123641, ex, "FilmListe: " + source);
             listeFilme.clear();
         }
-    }
-
-    private boolean checkDate(DatenFilm film) {
-        // true wenn der Film angezeigt werden kann!
-        try {
-            if (film.datumFilm.getTime() != 0) {
-                if (film.datumFilm.getTime() < milliseconds) {
-                    return false;
-                }
-            }
-        } catch (Exception ex) {
-            Log.errorLog(495623014, ex);
-        }
-        return true;
     }
 
     private void notifyStart(String url, int mmax) {

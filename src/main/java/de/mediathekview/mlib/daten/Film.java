@@ -54,8 +54,8 @@ public class Film
 
         uuid = aUuid;
         sender = aSender;
-        titel = Functions.removeHtml(aTitel);
-        thema = Functions.removeHtml(aThema);
+        titel = Functions.unescape(Functions.removeHtml(aTitel));
+        thema = Functions.unescape(Functions.removeHtml(aThema));
         time = aTime;
         duration = aDuration;
         website = aWebsite;
@@ -128,7 +128,7 @@ public class Film
     {
         // die Beschreibung auf x Zeichen beschränken
         String beschreibung = aBeschreibung;
-        beschreibung = Functions.removeHtml(beschreibung); // damit die Beschreibung nicht unnötig kurz wird wenn es erst später gemacht wird
+        beschreibung = Functions.unescape(Functions.removeHtml(beschreibung)); // damit die Beschreibung nicht unnötig kurz wird wenn es erst später gemacht wird
 
         for (String geoBlockingText : GERMAN_GEOBLOCKING_TEXTS)
         {

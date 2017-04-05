@@ -19,7 +19,9 @@
  */
 package de.mediathekview.mlib.tool;
 
-import de.mediathekview.mlib.daten.DatenFilm;
+
+import de.mediathekview.mlib.daten.Film;
+import de.mediathekview.mlib.daten.Qualities;
 
 public class MSLong implements Comparable<MSLong> {
 
@@ -34,20 +36,9 @@ public class MSLong implements Comparable<MSLong> {
         s = l.toString();
     }
 
-    public MSLong(DatenFilm film) {
-        if (film.arr[DatenFilm.FILM_GROESSE].equals("<1")) {
-            film.arr[DatenFilm.FILM_GROESSE] = "1";
-        }
-        try {
-            if (!film.arr[DatenFilm.FILM_GROESSE].isEmpty()) {
-                l = Long.valueOf(film.arr[DatenFilm.FILM_GROESSE]);
-                s = film.arr[DatenFilm.FILM_GROESSE];
-            }
-        } catch (Exception ex) {
-            Log.errorLog(649891025,  ex, "String: " + film.arr[DatenFilm.FILM_GROESSE]);
-            l = 0L;
-            s = "";
-        }
+    public MSLong(Film film) {
+                l = film.getSize(film.getUrl(Qualities.NORMAL));
+                s = String.valueOf(film.getSize(film.getUrl(Qualities.NORMAL)));
     }
 
     @Override

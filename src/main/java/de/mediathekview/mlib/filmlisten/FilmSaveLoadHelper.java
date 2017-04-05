@@ -149,6 +149,7 @@ public final class FilmSaveLoadHelper
         }else {
             result = aUrlToReduce.replace(urlIntersection,String.format(URL_INTERSECTION_REDUCE_PATTERN,urlIntersection.length()));
         }
+        return result;
     }
 
     private static String geolocationsToStirng(Collection<GeoLocations> aGeoLocations)

@@ -28,48 +28,61 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import com.jidesoft.utils.SystemInfo;
 
 import de.mediathekview.mlib.Const;
-import de.mediathekview.mlib.daten.DatenFilm;
+import de.mediathekview.mlib.daten.Film;
 
-public class Functions {
-	
-	private static final String RBVERSION = "version";
+public class Functions
+{
 
-    public static String textLaenge(int max, String text, boolean mitte, boolean addVorne) {
-        if (text.length() > max) {
-            if (mitte) {
+    private static final String RBVERSION = "version";
+
+    public static String textLaenge(int max, String text, boolean mitte, boolean addVorne)
+    {
+        if (text.length() > max)
+        {
+            if (mitte)
+            {
                 text = text.substring(0, 25) + " .... " + text.substring(text.length() - (max - 31));
-            } else {
+            } else
+            {
                 text = text.substring(0, max - 1);
             }
         }
-        while (text.length() < max) {
-            if (addVorne) {
+        while (text.length() < max)
+        {
+            if (addVorne)
+            {
                 text = ' ' + text;
-            } else {
+            } else
+            {
                 text = text + ' ';
             }
         }
         return text;
     }
 
-    public static String minTextLaenge(int max, String text) {
-        while (text.length() < max) {
+    public static String minTextLaenge(int max, String text)
+    {
+        while (text.length() < max)
+        {
             text = text + ' ';
         }
         return text;
     }
 
-    public enum OperatingSystemType {
+    public enum OperatingSystemType
+    {
 
         UNKNOWN(""), WIN32("Windows"), WIN64("Windows"), LINUX("Linux"), MAC("Mac");
         private final String name;
 
-        OperatingSystemType(String name) {
+        OperatingSystemType(String name)
+        {
             this.name = name;
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             return name;
         }
     }
@@ -79,64 +92,81 @@ public class Functions {
      *
      * @return The enum for supported Operating Systems.
      */
-    public static OperatingSystemType getOs() {
+    public static OperatingSystemType getOs()
+    {
         OperatingSystemType os = OperatingSystemType.UNKNOWN;
 
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            if (System.getenv("ProgramFiles(x86)") != null) {
+        if (System.getProperty("os.name").toLowerCase().contains("windows"))
+        {
+            if (System.getenv("ProgramFiles(x86)") != null)
+            {
                 // win 64Bit
                 os = OperatingSystemType.WIN64;
-            } else if (System.getenv("ProgramFiles") != null) {
+            } else if (System.getenv("ProgramFiles") != null)
+            {
                 // win 32Bit
                 os = OperatingSystemType.WIN32;
             }
 
-        } else if (SystemInfo.isLinux()) {
+        } else if (SystemInfo.isLinux())
+        {
             os = OperatingSystemType.LINUX;
-        } else if (System.getProperty("os.name").toLowerCase().contains("freebsd")) {
+        } else if (System.getProperty("os.name").toLowerCase().contains("freebsd"))
+        {
             os = OperatingSystemType.LINUX;
 
-        } else if (SystemInfo.isMacOSX()) {
+        } else if (SystemInfo.isMacOSX())
+        {
             os = OperatingSystemType.MAC;
         }
         return os;
     }
 
-    public static String getOsString() {
+    public static String getOsString()
+    {
         return getOs().toString();
     }
 
-    public static String getPathJar() {
+    public static String getPathJar()
+    {
         // liefert den Pfad der Programmdatei mit File.separator am Schluss
         String pFilePath = "version.properties";
         File propFile = new File(pFilePath);
-        if (!propFile.exists()) {
-            try {
+        if (!propFile.exists())
+        {
+            try
+            {
                 CodeSource cS = Const.class.getProtectionDomain().getCodeSource();
                 File jarFile = new File(cS.getLocation().toURI().getPath());
                 String jarDir = jarFile.getParentFile().getPath();
                 propFile = new File(jarDir + File.separator + pFilePath);
-            } catch (Exception ignored) {
+            } catch (Exception ignored)
+            {
             }
-        } else {
+        } else
+        {
             DbgMsg.print("getPath");
         }
         String s = propFile.getAbsolutePath().replace(pFilePath, "");
-        if (!s.endsWith(File.separator)) {
+        if (!s.endsWith(File.separator))
+        {
             s = s + File.separator;
         }
-        if (s.endsWith("/lib/")) {
+        if (s.endsWith("/lib/"))
+        {
             // dann sind wir in der msearch-lib
             s = s.replace("/lib/", "");
         }
         return s;
     }
 
-    public static String getProgVersionString() {
+    public static String getProgVersionString()
+    {
         return " [Vers.: " + getProgVersion().toString() + ']';
     }
 
-    public static String[] getJavaVersion() {
+    public static String[] getJavaVersion()
+    {
         String[] ret = new String[4];
         int i = 0;
         ret[i++] = "Vendor: " + System.getProperty("java.vendor");
@@ -146,175 +176,182 @@ public class Functions {
         return ret;
     }
 
-    public static String getCompileDate() {
+    public static String getCompileDate()
+    {
         String propToken = "DATE";
         String msg = "";
-        try {
+        try
+        {
             ResourceBundle.clearCache();
             ResourceBundle rb = ResourceBundle.getBundle(RBVERSION);
-            if (rb.containsKey(propToken)) {
+            if (rb.containsKey(propToken))
+            {
                 msg = rb.getString(propToken);
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             Log.errorLog(807293847, e);
         }
         return msg;
     }
 
-    public static Version getProgVersion() {
+    public static Version getProgVersion()
+    {
         String TOKEN_VERSION = "VERSION";
-        try {
+        try
+        {
             ResourceBundle.clearCache();
             ResourceBundle rb = ResourceBundle.getBundle(RBVERSION);
-            if (rb.containsKey(TOKEN_VERSION)) {
+            if (rb.containsKey(TOKEN_VERSION))
+            {
                 return new Version(rb.getString(TOKEN_VERSION));
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             Log.errorLog(134679898, e);
         }
         return new Version("");
     }
-    
+
     @Deprecated
-    public static String getBuildNr() {
+    public static String getBuildNr()
+    {
         String TOKEN_VERSION = "VERSION";
-        try {
+        try
+        {
             ResourceBundle.clearCache();
             ResourceBundle rb = ResourceBundle.getBundle(RBVERSION);
-            if (rb.containsKey(TOKEN_VERSION)) {
+            if (rb.containsKey(TOKEN_VERSION))
+            {
                 return new Version(rb.getString(TOKEN_VERSION)).toString();
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             Log.errorLog(134679898, e);
         }
         return new Version("").toString();
     }
 
-    private static void unescapeThema(DatenFilm film) {
-        // Thema
-        film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_THEMA]);
-        film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_THEMA]);
-        film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_THEMA]);
+    public static String unescape(String aText)
+    {
+        String unescapedText;
+        unescapedText = StringEscapeUtils.unescapeXml(aText);
+        unescapedText = StringEscapeUtils.unescapeHtml4(unescapedText);
+        unescapedText = StringEscapeUtils.unescapeJava(unescapedText);
+        unescapedText = unescapedText.replace("\\", "/").trim();
+        return unescapedText;
     }
 
-    private static void unescapeTitel(DatenFilm film) {
-        // Titel
-        film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_TITEL]);
-        film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_TITEL]);
-        film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_TITEL]);
-    }
-
-    private static void unescapeDescription(DatenFilm film) {
-        // Beschreibung
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = removeHtml(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-    }
-
-    private static void replaceText(DatenFilm film) {
-        film.arr[DatenFilm.FILM_THEMA] = film.arr[DatenFilm.FILM_THEMA].replace("\\", "/").trim();
-        film.arr[DatenFilm.FILM_TITEL] = film.arr[DatenFilm.FILM_TITEL].replace("\\", "/").trim();
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = film.arr[DatenFilm.FILM_BESCHREIBUNG].replace("\\", "/").trim();
-    }
-
-    public static void unescape(DatenFilm film) {
-        unescapeThema(film);
-        unescapeTitel(film);
-        unescapeDescription(film);
-
-        replaceText(film);
-    }
-
-//    public static String utf8(String ret) {
-//        ret = ret.replace("\\u0026", "&");
-//        ret = ret.replace("\\u003C", "<");
-//        ret = ret.replace("\\u003c", "<");
-//        ret = ret.replace("\\u003E", ">");
-//        ret = ret.replace("\\u003e", ">");
-//        ret = ret.replace("\\u00E4", "ä");
-//        ret = ret.replace("\\u00e4", "ä");
-//        ret = ret.replace("\\u00C4", "Ä");
-//        ret = ret.replace("\\u00c4", "Ä");
-//        ret = ret.replace("\\u00F6", "ö");
-//        ret = ret.replace("\\u00f6", "ö");
-//        ret = ret.replace("\\u00D6", "Ö");
-//        ret = ret.replace("\\u00d6", "Ö");
-//        ret = ret.replace("\\u00FC", "ü");
-//        ret = ret.replace("\\u00fc", "ü");
-//        ret = ret.replace("\\u00DC", "Ü");
-//        ret = ret.replace("\\u00dc", "Ü");
-//        ret = ret.replace("\\u00DF", "ß");
-//        ret = ret.replace("\\u00df", "ß");
-//        ret = ret.replace("\\u20AC", "€");
-//        ret = ret.replace("\\u20ac", "€");
-//        ret = ret.replace("\\u0024", "$");
-//        ret = ret.replace("\\u00A3", "£");
-//        ret = ret.replace("\\u00a3", "£");
-//        ret = ret.replace("\\u00F3", "\u00f3");
-//        ret = ret.replace("\\u00f3", "\u00f3");
-//        return ret;
-//    }
-    public static String addsPfad(String pfad1, String pfad2) {
+    //    public static String utf8(String ret) {
+    //        ret = ret.replace("\\u0026", "&");
+    //        ret = ret.replace("\\u003C", "<");
+    //        ret = ret.replace("\\u003c", "<");
+    //        ret = ret.replace("\\u003E", ">");
+    //        ret = ret.replace("\\u003e", ">");
+    //        ret = ret.replace("\\u00E4", "ä");
+    //        ret = ret.replace("\\u00e4", "ä");
+    //        ret = ret.replace("\\u00C4", "Ä");
+    //        ret = ret.replace("\\u00c4", "Ä");
+    //        ret = ret.replace("\\u00F6", "ö");
+    //        ret = ret.replace("\\u00f6", "ö");
+    //        ret = ret.replace("\\u00D6", "Ö");
+    //        ret = ret.replace("\\u00d6", "Ö");
+    //        ret = ret.replace("\\u00FC", "ü");
+    //        ret = ret.replace("\\u00fc", "ü");
+    //        ret = ret.replace("\\u00DC", "Ü");
+    //        ret = ret.replace("\\u00dc", "Ü");
+    //        ret = ret.replace("\\u00DF", "ß");
+    //        ret = ret.replace("\\u00df", "ß");
+    //        ret = ret.replace("\\u20AC", "€");
+    //        ret = ret.replace("\\u20ac", "€");
+    //        ret = ret.replace("\\u0024", "$");
+    //        ret = ret.replace("\\u00A3", "£");
+    //        ret = ret.replace("\\u00a3", "£");
+    //        ret = ret.replace("\\u00F3", "\u00f3");
+    //        ret = ret.replace("\\u00f3", "\u00f3");
+    //        return ret;
+    //    }
+    public static String addsPfad(String pfad1, String pfad2)
+    {
         String ret = "";
-        if (pfad1 != null && pfad2 != null) {
-            if (pfad1.isEmpty()) {
+        if (pfad1 != null && pfad2 != null)
+        {
+            if (pfad1.isEmpty())
+            {
                 ret = pfad2;
-            } else if (pfad2.isEmpty()) {
+            } else if (pfad2.isEmpty())
+            {
                 ret = pfad1;
-            } else if (!pfad1.isEmpty() && !pfad2.isEmpty()) {
-                if (pfad1.endsWith(File.separator)) {
+            } else if (!pfad1.isEmpty() && !pfad2.isEmpty())
+            {
+                if (pfad1.endsWith(File.separator))
+                {
                     ret = pfad1.substring(0, pfad1.length() - 1);
-                } else {
+                } else
+                {
                     ret = pfad1;
                 }
-                if (pfad2.charAt(0) == File.separatorChar) {
+                if (pfad2.charAt(0) == File.separatorChar)
+                {
                     ret += pfad2;
-                } else {
+                } else
+                {
                     ret += File.separator + pfad2;
                 }
             }
         }
-        if (ret.isEmpty()) {
+        if (ret.isEmpty())
+        {
             Log.errorLog(283946015, pfad1 + " - " + pfad2);
         }
         return ret;
     }
 
-    public static String addUrl(String u1, String u2) {
-        if (u1.endsWith("/")) {
+    public static String addUrl(String u1, String u2)
+    {
+        if (u1.endsWith("/"))
+        {
             return u1 + u2;
-        } else {
+        } else
+        {
             return u1 + '/' + u2;
         }
     }
 
-    public static boolean istUrl(String dateiUrl) {
+    public static boolean istUrl(String dateiUrl)
+    {
         //return dateiUrl.startsWith("http") ? true : false || dateiUrl.startsWith("www") ? true : false;
         return dateiUrl.startsWith("http") || dateiUrl.startsWith("www");
     }
 
-    public static String getDateiName(String pfad) {
+    public static String getDateiName(String pfad)
+    {
         //Dateinamen einer URL extrahieren
         String ret = "";
-        if (pfad != null) {
-            if (!pfad.isEmpty()) {
+        if (pfad != null)
+        {
+            if (!pfad.isEmpty())
+            {
                 ret = pfad.substring(pfad.lastIndexOf('/') + 1);
             }
         }
-        if (ret.contains("?")) {
+        if (ret.contains("?"))
+        {
             ret = ret.substring(0, ret.indexOf('?'));
         }
-        if (ret.contains("&")) {
+        if (ret.contains("&"))
+        {
             ret = ret.substring(0, ret.indexOf('&'));
         }
-        if (ret.isEmpty()) {
+        if (ret.isEmpty())
+        {
             Log.errorLog(395019631, pfad);
         }
         return ret;
     }
 
-    public static String removeHtml(String in) {
+    public static String removeHtml(String in)
+    {
         return in.replaceAll("\\<.*?>", "");
     }
 }
