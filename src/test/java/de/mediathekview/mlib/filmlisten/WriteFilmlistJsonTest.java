@@ -22,13 +22,14 @@ import java.util.UUID;
  */
 public class WriteFilmlistJsonTest
 {
+    private static final String BASE_PATH = WriteFilmlistJsonTest.class.getClassLoader().getResource("").toString();
     private static final String TEST_RIGHT_RESULT_FILENAME = "TestFilmlist.json";
     private static final String TEST_FILENAME = "TestGeneratedFilmlist.json";
 
     private ListeFilme testData;
 
     @Before
-    public void setUp()throws URISyntaxException
+    public void setUp() throws URISyntaxException
     {
         testData = new ListeFilme();
         Film testFilm1 = new Film(UUID.randomUUID(),
@@ -40,9 +41,9 @@ public class WriteFilmlistJsonTest
                 Duration.of(10, ChronoUnit.MINUTES),
                 new URI("http://www.example.org/"));
         testFilm1.setBeschreibung("Test beschreibung.");
-        testFilm1.addUrl(Qualities.SMALL, new FilmUrl(new URI("http://example.org/klein.mp4"),42l));
-        testFilm1.addUrl(Qualities.NORMAL, new FilmUrl(new URI("http://example.org/Test.mp4"),42l));
-        testFilm1.addUrl(Qualities.HD, new FilmUrl(new URI("http://example.org/hd.mp4"),42l));
+        testFilm1.addUrl(Qualities.SMALL, new FilmUrl(new URI("http://example.org/klein.mp4"), 42l));
+        testFilm1.addUrl(Qualities.NORMAL, new FilmUrl(new URI("http://example.org/Test.mp4"), 42l));
+        testFilm1.addUrl(Qualities.HD, new FilmUrl(new URI("http://example.org/hd.mp4"), 42l));
 
 
         Film testFilm2 = new Film(UUID.randomUUID(),
@@ -54,9 +55,9 @@ public class WriteFilmlistJsonTest
                 Duration.of(10, ChronoUnit.MINUTES),
                 new URI("http://www.example.org/2"));
         testFilm2.setBeschreibung("Test beschreibung.");
-        testFilm2.addUrl(Qualities.SMALL, new FilmUrl(new URI("http://example.org/klein2.mp4"),42l));
-        testFilm2.addUrl(Qualities.NORMAL, new FilmUrl(new URI("http://example.org/Test2.mp4"),42l));
-        testFilm2.addUrl(Qualities.HD, new FilmUrl(new URI("http://example.org/hd2.mp4"),42l));
+        testFilm2.addUrl(Qualities.SMALL, new FilmUrl(new URI("http://example.org/klein2.mp4"), 42l));
+        testFilm2.addUrl(Qualities.NORMAL, new FilmUrl(new URI("http://example.org/Test2.mp4"), 42l));
+        testFilm2.addUrl(Qualities.HD, new FilmUrl(new URI("http://example.org/hd2.mp4"), 42l));
 
         Film testFilm3 = new Film(UUID.randomUUID(),
                 new ArrayList<>(),
@@ -67,9 +68,9 @@ public class WriteFilmlistJsonTest
                 Duration.of(10, ChronoUnit.MINUTES),
                 new URI("http://www.example.org/"));
         testFilm3.setBeschreibung("Test beschreibung.");
-        testFilm3.addUrl(Qualities.SMALL, new FilmUrl(new URI("http://example.org/klein.mp4"),42l));
-        testFilm3.addUrl(Qualities.NORMAL, new FilmUrl(new URI("http://example.org/Test.mp4"),42l));
-        testFilm3.addUrl(Qualities.HD, new FilmUrl(new URI("http://example.org/hd.mp4"),42l));
+        testFilm3.addUrl(Qualities.SMALL, new FilmUrl(new URI("http://example.org/klein.mp4"), 42l));
+        testFilm3.addUrl(Qualities.NORMAL, new FilmUrl(new URI("http://example.org/Test.mp4"), 42l));
+        testFilm3.addUrl(Qualities.HD, new FilmUrl(new URI("http://example.org/hd.mp4"), 42l));
 
         testData.add(testFilm1);
         testData.add(testFilm2);
@@ -81,7 +82,9 @@ public class WriteFilmlistJsonTest
     {
         WriteFilmlistJson writeFilmlistJson = new WriteFilmlistJson();
         writeFilmlistJson.filmlisteSchreibenJson(TEST_FILENAME, testData);
-
-        Assert.assertThat(FileUtils.readLines(new File(TEST_RIGHT_RESULT_FILENAME)), CoreMatchers.is(FileUtils.readLines(new File(TEST_FILENAME))));
+        Assert.assertThat(
+                FileUtils.readLines(new File(BASE_PATH, TEST_RIGHT_RESULT_FILENAME)),
+                CoreMatchers.is(FileUtils.readLines(new File(BASE_PATH, TEST_FILENAME))
+                ));
     }
 }
