@@ -213,7 +213,7 @@ public class ListeFilme extends ArrayList<Film>
         if (opt.isPresent())
         {
             Film film = opt.get();
-            res = String.valueOf(film.getSize(film.getUrl(Qualities.NORMAL)));
+            res = String.valueOf(film.getFileSize(Qualities.NORMAL));
         } else
             res = FileSize.laengeString(url);
 

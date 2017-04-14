@@ -35,12 +35,6 @@ public class Film
     private final Duration duration;
     private boolean neu;
 
-    /**
-     * The file size in byte.
-     *
-     * @see Files#size
-     */
-    private final Map<URI, Long> sizes;
     private final Collection<URI> subtitles;
     private String beschreibung;
     private final URI website;
@@ -48,7 +42,6 @@ public class Film
     public Film(UUID aUuid, Collection<GeoLocations> aGeoLocations, Sender aSender, String aTitel, String aThema, LocalDateTime aTime, Duration aDuration, URI aWebsite)
     {
         urls = new HashMap<>();
-        sizes = new HashMap<>();
         subtitles = new ArrayList<>();
         geoLocations = new ArrayList<>();
 
@@ -102,16 +95,6 @@ public class Film
     public Duration getDuration()
     {
         return duration;
-    }
-
-    public long getSize(URI aUrl)
-    {
-        return sizes.get(aUrl);
-    }
-
-    public void addSize(URI aUrl, final long size)
-    {
-        sizes.put(aUrl, size);
     }
 
     public Collection<URI> getSubtitles()
@@ -208,6 +191,11 @@ public class Film
         return urls.get(aQuality).getUrl();
     }
 
+    public Long getFileSize(Qualities aQuality)
+    {
+        return urls.get(aQuality).getFileSize();
+    }
+
     public String getIndexName()
     {
         return new StringBuilder(titel == null ? "" : titel).append(thema == null ? "" : thema).append(urls.isEmpty() ? "" : urls.get(0)).toString();
@@ -247,8 +235,9 @@ public class Film
         if (getSender() != film.getSender()) return false;
         if (!getTitel().equals(film.getTitel())) return false;
         if (!getThema().equals(film.getThema())) return false;
-        if (!getDuration().equals(film.getDuration())) return false;
-        if (sizes != null ? !sizes.equals(film.sizes) : film.sizes != null) return false;
+        if (getTime() != null ? !getTime().equals(film.getTime()) : film.getTime() != null) return false;
+        if (getDuration() != null ? !getDuration().equals(film.getDuration()) : film.getDuration() != null)
+            return false;
         return getSubtitles() != null ? getSubtitles().equals(film.getSubtitles()) : film.getSubtitles() == null;
     }
 
@@ -260,8 +249,8 @@ public class Film
         result = 31 * result + getSender().hashCode();
         result = 31 * result + getTitel().hashCode();
         result = 31 * result + getThema().hashCode();
-        result = 31 * result + getDuration().hashCode();
-        result = 31 * result + (sizes != null ? sizes.hashCode() : 0);
+        result = 31 * result + (getTime() != null ? getTime().hashCode() : 0);
+        result = 31 * result + (getDuration() != null ? getDuration().hashCode() : 0);
         result = 31 * result + (getSubtitles() != null ? getSubtitles().hashCode() : 0);
         return result;
     }
@@ -278,7 +267,6 @@ public class Film
                 ", thema='" + thema + '\'' +
                 ", time=" + time +
                 ", duration=" + duration +
-                ", sizes=" + sizes +
                 ", subtitles=" + subtitles +
                 ", beschreibung='" + beschreibung + '\'' +
                 ", website=" + website +

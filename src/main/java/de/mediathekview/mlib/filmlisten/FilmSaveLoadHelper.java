@@ -8,10 +8,6 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 import java.util.Collection;
 import java.util.Locale;
 
@@ -22,10 +18,10 @@ import static java.time.format.FormatStyle.*;
  */
 public final class FilmSaveLoadHelper
 {
-    private static final String[] COLUMNNAMES = new String[]{"Sender", "Thema", "Titel", "Datum", "Zeit", "Dauer", "Größe [MB]", "Beschreibung", "Url", "Website", "Url Untertitel", "Url RTMP", "Url Klein", "Url RTMP Klein", "Url HD", "Url RTMP HD", "DatumL", "Url History", "Geo", "neu"};
-    private static final String OUTPUT_PATTERN = "\"X\" : [\"%s\", \"%s\", \"%s\", \"%s\", \"%s\",\"%s\", \"%s\", \"%s\", \"%s\", \"%s\",\"%s\", \"%s\", \"%s\", \"%s\", \"%s\",\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"]";
-    private static final String META_INFORMATION_PATTERN = "\"Filmliste\" : [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
-    private static final String COLUMNNAMES_PATTERN = "\"Filmliste\" : [\"%s\", \"%s\", \"%s\", \"%s\", \"%s\",\"%s\", \"%s\", \"%s\", \"%s\", \"%s\",\"%s\", \"%s\", \"%s\", \"%s\", \"%s\",\"%s\", \"%s\", \"%s\", \"%s\", \"%s\"]";
+    private static final String[] COLUMNNAMES = new String[]{"Sender","Thema","Titel","Datum","Zeit","Dauer","Größe [MB]","Beschreibung","Url","Website","Url Untertitel","Url RTMP","Url Klein","Url RTMP Klein","Url HD","Url RTMP HD","DatumL","Url History","Geo","neu"};
+    private static final String OUTPUT_PATTERN = "\"X\": [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
+    private static final String META_INFORMATION_PATTERN = "\"Filmliste\": [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
+    private static final String COLUMNNAMES_PATTERN = "\"Filmliste\": [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
     private static final char SPLITTERATOR = ',';
     private static final char FAKE_JSON_BEGIN = '{';
     private static final char FAKE_JSON_END = '}';
@@ -64,11 +60,17 @@ public final class FilmSaveLoadHelper
             if (lastSender.equals(sender))
             {
                 sender = "";
+            } else
+            {
+                lastSender = sender;
             }
 
             if (lastThema.equals(thema))
             {
                 thema = "";
+            } else
+            {
+                lastThema = thema;
             }
 
             String url = "";
@@ -120,7 +122,7 @@ public final class FilmSaveLoadHelper
                     DATE_FORMATTER.format(film.getTime().toLocalDate()),
                     TIME_FORMATTER.format(film.getTime().toLocalTime()),
                     durationToString(film.getDuration()),
-                    film.getSize(film.getUrl(Qualities.NORMAL)),
+                    film.getFileSize(Qualities.NORMAL),
                     film.getBeschreibung(),
                     url,
                     film.getWebsite(),
@@ -166,12 +168,15 @@ public final class FilmSaveLoadHelper
     private static String geolocationsToStirng(Collection<GeoLocations> aGeoLocations)
     {
         StringBuilder geolocationsStringBuilder = new StringBuilder();
-        for (GeoLocations geoLocation : aGeoLocations)
+        if (!aGeoLocations.isEmpty())
         {
-            geolocationsStringBuilder.append(geoLocation.getDescription());
-            geolocationsStringBuilder.append(GEO_SPLITTERATOR);
+            for (GeoLocations geoLocation : aGeoLocations)
+            {
+                geolocationsStringBuilder.append(geoLocation.getDescription());
+                geolocationsStringBuilder.append(GEO_SPLITTERATOR);
+            }
+            geolocationsStringBuilder.deleteCharAt(geolocationsStringBuilder.lastIndexOf(String.valueOf(GEO_SPLITTERATOR)));
         }
-        geolocationsStringBuilder.deleteCharAt(geolocationsStringBuilder.lastIndexOf(String.valueOf(GEO_SPLITTERATOR)));
         return geolocationsStringBuilder.toString();
     }
 

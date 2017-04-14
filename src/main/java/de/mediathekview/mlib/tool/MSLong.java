@@ -23,31 +23,37 @@ package de.mediathekview.mlib.tool;
 import de.mediathekview.mlib.daten.Film;
 import de.mediathekview.mlib.daten.Qualities;
 
-public class MSLong implements Comparable<MSLong> {
+public class MSLong implements Comparable<MSLong>
+{
 
     public Long l = 0L;
     public String s = "";
 
-    public MSLong() {
+    public MSLong()
+    {
     }
 
-    public MSLong(long ll) {
+    public MSLong(long ll)
+    {
         l = ll;
         s = l.toString();
     }
 
-    public MSLong(Film film) {
-                l = film.getSize(film.getUrl(Qualities.NORMAL));
-                s = String.valueOf(film.getSize(film.getUrl(Qualities.NORMAL)));
+    public MSLong(Film film)
+    {
+        l = film.getFileSize(Qualities.NORMAL);
+        s = String.valueOf(film.getFileSize(Qualities.NORMAL));
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return s;
     }
 
     @Override
-    public int compareTo(MSLong ll) {
+    public int compareTo(MSLong ll)
+    {
         return (l.compareTo(ll.l));
     }
 }

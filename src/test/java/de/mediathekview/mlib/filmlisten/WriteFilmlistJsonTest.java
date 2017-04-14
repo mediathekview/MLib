@@ -11,6 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -22,7 +25,7 @@ import java.util.UUID;
  */
 public class WriteFilmlistJsonTest
 {
-    private static final String BASE_PATH = WriteFilmlistJsonTest.class.getClassLoader().getResource("").toString();
+    private static final URL BASE_PATH = WriteFilmlistJsonTest.class.getClassLoader().getResource("");
     private static final String TEST_RIGHT_RESULT_FILENAME = "TestFilmlist.json";
     private static final String TEST_FILENAME = "TestGeneratedFilmlist.json";
 
@@ -32,6 +35,8 @@ public class WriteFilmlistJsonTest
     public void setUp() throws URISyntaxException
     {
         testData = new ListeFilme();
+        testData.writeMetaData();
+
         Film testFilm1 = new Film(UUID.randomUUID(),
                 new ArrayList<>(),
                 Sender.ARD,
@@ -78,13 +83,12 @@ public class WriteFilmlistJsonTest
     }
 
     @Test
-    public void testFilmlistSave() throws IOException
+    public void testFilmlistSave() throws IOException, URISyntaxException
     {
         WriteFilmlistJson writeFilmlistJson = new WriteFilmlistJson();
         writeFilmlistJson.filmlisteSchreibenJson(TEST_FILENAME, testData);
-        Assert.assertThat(
-                FileUtils.readLines(new File(BASE_PATH, TEST_RIGHT_RESULT_FILENAME)),
-                CoreMatchers.is(FileUtils.readLines(new File(BASE_PATH, TEST_FILENAME))
+        Assert.assertThat(Files.readAllLines(Paths.get(BASE_PATH.toURI()).resolve(TEST_FILENAME)).remove(2),
+                CoreMatchers.is(Files.readAllLines(Paths.get(BASE_PATH.toURI()).resolve(TEST_RIGHT_RESULT_FILENAME)).remove(2)
                 ));
     }
 }
