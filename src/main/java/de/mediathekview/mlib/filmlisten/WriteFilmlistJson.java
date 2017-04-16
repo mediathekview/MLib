@@ -103,7 +103,7 @@ public class WriteFilmlistJson
             final Path filePath = Paths.get(this.getClass().getResource("/").toURI()).resolve(datei);
             try (BufferedWriter bufferedWriter = Files.newBufferedWriter(filePath))
             {
-                String fakeJson = FilmSaveLoadHelper.toFakeJson(listeFilme, listeFilme.metaDaten[0], listeFilme.metaDaten[1], listeFilme.metaDaten[2], listeFilme.metaDaten[3], listeFilme.metaDaten[4]);
+                String fakeJson = new FilmToFakeJsonConverter().toFakeJson(listeFilme, listeFilme.metaDaten[0], listeFilme.metaDaten[1], listeFilme.metaDaten[2], listeFilme.metaDaten[3], listeFilme.metaDaten[4]);
                 bufferedWriter.write(fakeJson);
                 bufferedWriter.flush();
                 Log.sysLog("   --> geschrieben!");
