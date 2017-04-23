@@ -25,4 +25,16 @@ public enum GeoLocations
     {
         return description;
     }
+
+    public static GeoLocations getFromDescription(String aDescription)
+    {
+        for (GeoLocations geoLoc : GeoLocations.values())
+        {
+            if (geoLoc.getDescription().equals(aDescription))
+            {
+                return geoLoc;
+            }
+        }
+        return null;
+    }
 }
