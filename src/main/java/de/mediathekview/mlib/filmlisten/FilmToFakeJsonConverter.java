@@ -65,48 +65,22 @@ public class FilmToFakeJsonConverter
 
         String thema = setThema(film);
 
-        String url = "";
+        String url = url = film.getUrl(Qualities.NORMAL).toString();
         String urlKlein = "";
         String urlHd = "";
-        String urlRtmp = "";
-        String urlRtmpKlein = "";
-        String urlRtmpHd = "";
-
-        if (film.getUrl(Qualities.NORMAL).toString().startsWith(RTMP))
-        {
-            urlRtmp = film.getUrl(Qualities.NORMAL).toString();
-        } else
-        {
-            url = film.getUrl(Qualities.NORMAL).toString();
-        }
 
         if (film.getUrls().containsKey(Qualities.SMALL))
         {
-            if (film.getUrl(Qualities.SMALL).toString().startsWith(RTMP))
-            {
-                urlRtmpKlein = film.getUrl(Qualities.SMALL).toString();
-            } else
-            {
                 urlKlein = film.getUrl(Qualities.SMALL).toString();
-            }
         }
 
         if (film.getUrls().containsKey(Qualities.HD))
         {
-            if (film.getUrl(Qualities.HD).toString().startsWith(RTMP))
-            {
-                urlRtmpHd = film.getUrl(Qualities.HD).toString();
-            } else
-            {
                 urlHd = film.getUrl(Qualities.HD).toString();
-            }
         }
 
         urlKlein = reduceUrl(url, urlKlein);
         urlHd = reduceUrl(url, urlHd);
-        urlRtmp = reduceUrl(url, urlRtmp);
-        urlRtmpKlein = reduceUrl(url, urlRtmpKlein);
-        urlRtmpHd = reduceUrl(url, urlRtmpHd);
 
         fakeJsonBuilder.append(String.format(OUTPUT_PATTERN, sender,
                 thema,
@@ -119,11 +93,11 @@ public class FilmToFakeJsonConverter
                 url,
                 film.getWebsite(),
                 film.getSubtitles().isEmpty() ? "" : film.getSubtitles().iterator().next().toString(),
-                urlRtmp,
+                "",
                 urlKlein,
-                urlRtmpKlein,
+                "",
                 urlHd,
-                urlRtmpHd,
+                "",
                 Timestamp.valueOf(film.getTime()).toString(),
                 "", //History
                 geolocationsToStirng(film.getGeoLocations()),
