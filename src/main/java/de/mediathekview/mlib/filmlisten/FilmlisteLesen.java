@@ -81,7 +81,6 @@ public class FilmlisteLesen
     private final EventListenerList listeners = new EventListenerList();
     private int max = 0;
     private int progress = 0;
-    private long milliseconds = 0;
 
     /**
      * Set the specific work mode for reading film list.
@@ -260,7 +259,7 @@ public class FilmlisteLesen
             int lengthOfOld = Integer.parseInt(splittedUrlText[0]);
 
             StringBuilder newUrlBuilder = new StringBuilder();
-            newUrlBuilder.append(aUrlNormal.toString().substring(lengthOfOld));
+            newUrlBuilder.append(aUrlNormal.toString().substring(0,lengthOfOld));
             newUrlBuilder.append(splittedUrlText[1]);
 
             filmUrl = new FilmUrl(new URI(newUrlBuilder.toString()), aGroesse);
@@ -310,12 +309,6 @@ public class FilmlisteLesen
         return textBuilder.toString();
     }
 
-    public static void main(String... args)
-    {
-        ListeFilme listeFilme = new FilmlisteLesen().processFromFile("/home/nicklas/Entwicklung/git/MLib/src/test/resources/TestFilmlist.json");
-        listeFilme.size();
-    }
-
     /**
      * Read a locally available filmlist.
      *
@@ -337,17 +330,6 @@ public class FilmlisteLesen
         return new ListeFilme();
     }
 
-    private void checkDays(long days)
-    {
-        if (days > 0)
-        {
-            milliseconds = System.currentTimeMillis() - TimeUnit.MILLISECONDS.convert(days, TimeUnit.DAYS);
-        } else
-        {
-            milliseconds = 0;
-        }
-    }
-
     public void readFilmListe(String source, int days)
     {
         ListeFilme listeFilme;
@@ -355,8 +337,6 @@ public class FilmlisteLesen
         {
             Log.sysLog("Liste Filme lesen von: " + source);
             this.notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
-
-            checkDays(days);
 
             if (!source.startsWith("http"))
             {

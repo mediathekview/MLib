@@ -1,19 +1,9 @@
 package de.mediathekview.mlib.filmlisten;
 
 import de.mediathekview.mlib.daten.*;
-import org.apache.commons.io.FileUtils;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -21,18 +11,30 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 /**
- * Tests the class {@link WriteFilmlistJson}
+ * A singelton to get the test data for Filmlist tests.
  */
-public class WriteFilmlistJsonTest
+public class FilmlistTestData
 {
-    private static final URL BASE_PATH = WriteFilmlistJsonTest.class.getClassLoader().getResource("");
-    private static final String TEST_RIGHT_RESULT_FILENAME = "TestFilmlist.json";
-    private static final String TEST_FILENAME = "TestGeneratedFilmlist.json";
+    private static FilmlistTestData instance=null;
+
+    public static FilmlistTestData getInstance() throws URISyntaxException
+    {
+        if(instance==null)
+        {
+            instance = new FilmlistTestData();
+        }
+        return instance;
+    }
 
     private ListeFilme testData;
 
-    @Before
-    public void setUp() throws URISyntaxException
+    private FilmlistTestData() throws URISyntaxException
+    {
+        super();
+        createTestdata();
+    }
+
+    private void createTestdata() throws URISyntaxException
     {
         testData = new ListeFilme();
         testData.writeMetaData();
@@ -82,13 +84,8 @@ public class WriteFilmlistJsonTest
         testData.add(testFilm3);
     }
 
-    @Test
-    public void testFilmlistSave() throws IOException, URISyntaxException
+    public ListeFilme getTestData()
     {
-        WriteFilmlistJson writeFilmlistJson = new WriteFilmlistJson();
-        writeFilmlistJson.filmlisteSchreibenJson(TEST_FILENAME, testData);
-        Assert.assertThat(Files.readAllLines(Paths.get(BASE_PATH.toURI()).resolve(TEST_FILENAME)).remove(2),
-                CoreMatchers.is(Files.readAllLines(Paths.get(BASE_PATH.toURI()).resolve(TEST_RIGHT_RESULT_FILENAME)).remove(2)
-                ));
+        return testData;
     }
 }
