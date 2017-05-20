@@ -1,0 +1,54 @@
+package de.mediathekview.mlib.daten;
+
+/**
+ * Created by nicklas on 29.12.16.
+ */
+public enum Sender
+{
+    BR("BR"),
+    MDR("MDR"),
+    SWR("SWR"),
+    ZDF("ZDF"),
+    ZDF_TIVI("ZDF Tivi"),
+    DREISAT("3sat"),
+    ORF("ORF"),
+    SRF_PODCAST("SRF Podcast"),
+    NDR("NDR"),
+    KIKA("KIKA"),
+    ARD("ARD"),
+    ARTE_DE("ARTE.DE"),
+    ARTE_FR("ARTE.FR"),
+    DW("DW"),
+    HR("HR"),
+    PHOENIX("Phönix"),
+    RBB("RBB"),
+    SR("SR"),
+    SRF("SRF"),
+    WDR("WDR");
+
+    private String name;
+
+    Sender(String aName)
+    {
+        name = aName;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public static Sender getSenderByName(String aName)
+    {
+        for (Sender sender : Sender.values())
+        {
+            if (sender.getName().equalsIgnoreCase(aName))
+            {
+                return sender;
+            }
+        }
+
+        System.out.println("Cant find Sender: \""+aName+"\"");
+        return null;
+    }
+}

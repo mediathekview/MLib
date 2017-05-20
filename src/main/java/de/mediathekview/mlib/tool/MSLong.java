@@ -19,44 +19,41 @@
  */
 package de.mediathekview.mlib.tool;
 
-import de.mediathekview.mlib.daten.DatenFilm;
 
-public class MSLong implements Comparable<MSLong> {
+import de.mediathekview.mlib.daten.Film;
+import de.mediathekview.mlib.daten.Qualities;
+
+public class MSLong implements Comparable<MSLong>
+{
 
     public Long l = 0L;
     public String s = "";
 
-    public MSLong() {
+    public MSLong()
+    {
     }
 
-    public MSLong(long ll) {
+    public MSLong(long ll)
+    {
         l = ll;
         s = l.toString();
     }
 
-    public MSLong(DatenFilm film) {
-        if (film.arr[DatenFilm.FILM_GROESSE].equals("<1")) {
-            film.arr[DatenFilm.FILM_GROESSE] = "1";
-        }
-        try {
-            if (!film.arr[DatenFilm.FILM_GROESSE].isEmpty()) {
-                l = Long.valueOf(film.arr[DatenFilm.FILM_GROESSE]);
-                s = film.arr[DatenFilm.FILM_GROESSE];
-            }
-        } catch (Exception ex) {
-            Log.errorLog(649891025,  ex, "String: " + film.arr[DatenFilm.FILM_GROESSE]);
-            l = 0L;
-            s = "";
-        }
+    public MSLong(Film film)
+    {
+        l = film.getFileSize(Qualities.NORMAL);
+        s = String.valueOf(film.getFileSize(Qualities.NORMAL));
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return s;
     }
 
     @Override
-    public int compareTo(MSLong ll) {
+    public int compareTo(MSLong ll)
+    {
         return (l.compareTo(ll.l));
     }
 }

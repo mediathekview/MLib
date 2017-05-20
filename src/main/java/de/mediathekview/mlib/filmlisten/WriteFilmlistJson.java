@@ -19,11 +19,7 @@
  */
 package de.mediathekview.mlib.filmlisten;
 
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import de.mediathekview.mlib.Const;
-import de.mediathekview.mlib.daten.DatenFilm;
 import de.mediathekview.mlib.daten.ListeFilme;
 import de.mediathekview.mlib.tool.Log;
 import org.tukaani.xz.LZMA2Options;
@@ -39,11 +35,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-public class WriteFilmlistJson {
+public class WriteFilmlistJson
+{
 
-    private void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
+    private void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException
+    {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(64 * 1024);
-        while (src.read(buffer) != -1) {
+        while (src.read(buffer) != -1)
+        {
             buffer.flip();
             dest.write(buffer);
             buffer.compact();
@@ -51,17 +50,10 @@ public class WriteFilmlistJson {
 
         buffer.flip();
 
-        while (buffer.hasRemaining()) {
+        while (buffer.hasRemaining())
+        {
             dest.write(buffer);
         }
-    }
-
-    protected JsonGenerator getJsonGenerator(OutputStream os) throws IOException {
-        JsonFactory jsonF = new JsonFactory();
-        JsonGenerator jg = jsonF.createGenerator(os, JsonEncoding.UTF8);
-        //jg.useDefaultPrettyPrinter(); // enable indentation just to make debug/testing easier
-
-        return jg;
     }
 
     /**
@@ -70,18 +62,23 @@ public class WriteFilmlistJson {
      * @param datei      file path
      * @param listeFilme film data
      */
-    public void filmlisteSchreibenJsonCompressed(String datei, ListeFilme listeFilme) {
+    public void filmlisteSchreibenJsonCompressed(String datei, ListeFilme listeFilme)
+    {
         final String tempFile = datei + "_temp";
         filmlisteSchreibenJson(tempFile, listeFilme);
 
-        try {
+        try
+        {
             Log.sysLog("Komprimiere Datei: " + datei);
-            if (datei.endsWith(Const.FORMAT_XZ)) {
+            if (datei.endsWith(Const.FORMAT_XZ))
+            {
                 final Path xz = testNativeXz();
-                if (xz != null) {
+                if (xz != null)
+                {
                     Process p = new ProcessBuilder(xz.toString(), "-9", tempFile).start();
                     final int exitCode = p.waitFor();
-                    if (exitCode == 0) {
+                    if (exitCode == 0)
+                    {
                         Files.move(Paths.get(tempFile + ".xz"), Paths.get(datei), StandardCopyOption.REPLACE_EXISTING);
                     }
                 } else
@@ -89,74 +86,45 @@ public class WriteFilmlistJson {
             }
 
             Files.deleteIfExists(Paths.get(tempFile));
-        } catch (IOException | InterruptedException ex) {
+        } catch (IOException | InterruptedException ex)
+        {
             Log.sysLog("Komprimieren fehlgeschlagen");
         }
     }
 
-    public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
-        try (FileOutputStream fos = new FileOutputStream(datei);
-             JsonGenerator jg = getJsonGenerator(fos)) {
+    public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme)
+    {
+        try
+        {
             Log.sysLog("Filme schreiben (" + listeFilme.size() + " Filme) :");
 
             Log.sysLog("   --> Start Schreiben nach: " + datei);
-            String sender = "", thema = "";
 
-            jg.writeStartObject();
-            // Infos zur Filmliste
-            jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
-            for (int i = 0; i < ListeFilme.MAX_ELEM; ++i) {
-                jg.writeString(listeFilme.metaDaten[i]);
+            final Path filePath = Paths.get(this.getClass().getResource("/").toURI()).resolve(datei);
+            try (BufferedWriter bufferedWriter = Files.newBufferedWriter(filePath))
+            {
+                String fakeJson = new FilmToFakeJsonConverter().toFakeJson(listeFilme, listeFilme.metaDaten[0], listeFilme.metaDaten[1], listeFilme.metaDaten[2], listeFilme.metaDaten[3], listeFilme.metaDaten[4]);
+                bufferedWriter.write(fakeJson);
+                bufferedWriter.flush();
+                Log.sysLog("   --> geschrieben!");
             }
-            jg.writeEndArray();
-            // Infos der Felder in der Filmliste
-            jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
-            for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
-                jg.writeString(DatenFilm.COLUMN_NAMES[DatenFilm.JSON_NAMES[i]]);
-            }
-            jg.writeEndArray();
-            //Filme schreiben
-            for (DatenFilm datenFilm : listeFilme) {
-                datenFilm.arr[DatenFilm.FILM_NEU] = Boolean.toString(datenFilm.isNew()); // damit wirs beim nächsten Programmstart noch wissen
-
-                jg.writeArrayFieldStart(DatenFilm.TAG_JSON_LIST);
-                for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
-                    int m = DatenFilm.JSON_NAMES[i];
-                    if (m == DatenFilm.FILM_SENDER) {
-                        if (datenFilm.arr[m].equals(sender)) {
-                            jg.writeString("");
-                        } else {
-                            sender = datenFilm.arr[m];
-                            jg.writeString(datenFilm.arr[m]);
-                        }
-                    } else if (m == DatenFilm.FILM_THEMA) {
-                        if (datenFilm.arr[m].equals(thema)) {
-                            jg.writeString("");
-                        } else {
-                            thema = datenFilm.arr[m];
-                            jg.writeString(datenFilm.arr[m]);
-                        }
-                    } else {
-                        jg.writeString(datenFilm.arr[m]);
-                    }
-                }
-                jg.writeEndArray();
-            }
-            jg.writeEndObject();
-            Log.sysLog("   --> geschrieben!");
-        } catch (Exception ex) {
+        } catch (Exception ex)
+        {
             Log.errorLog(846930145, ex, "nach: " + datei);
         }
     }
 
-    private Path testNativeXz() {
+    private Path testNativeXz()
+    {
         final String[] paths = {"/usr/bin/xz", "/opt/local/bin/xz", "/usr/local/bin/xz"};
 
         Path xz = null;
 
-        for (String path : paths) {
+        for (String path : paths)
+        {
             xz = Paths.get(path);
-            if (Files.isExecutable(xz)) {
+            if (Files.isExecutable(xz))
+            {
                 break;
             }
         }
@@ -164,15 +132,18 @@ public class WriteFilmlistJson {
         return xz;
     }
 
-    private void compressFile(String inputName, String outputName) throws IOException {
+    private void compressFile(String inputName, String outputName) throws IOException
+    {
         try (InputStream input = new FileInputStream(inputName);
              FileOutputStream fos = new FileOutputStream(outputName);
              final OutputStream output = new XZOutputStream(fos, new LZMA2Options());
              final ReadableByteChannel inputChannel = Channels.newChannel(input);
-             final WritableByteChannel outputChannel = Channels.newChannel(output)) {
+             final WritableByteChannel outputChannel = Channels.newChannel(output))
+        {
 
             fastChannelCopy(inputChannel, outputChannel);
-        } catch (IOException ignored) {
+        } catch (IOException ignored)
+        {
         }
     }
 }

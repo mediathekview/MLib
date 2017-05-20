@@ -19,29 +19,39 @@
  */
 package de.mediathekview.mlib.filmlisten;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Date;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
 import javax.swing.event.EventListenerList;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import de.mediathekview.mlib.daten.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tukaani.xz.XZInputStream;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 
 import de.mediathekview.mlib.Config;
 import de.mediathekview.mlib.Const;
-import de.mediathekview.mlib.daten.DatenFilm;
-import de.mediathekview.mlib.daten.ListeFilme;
 import de.mediathekview.mlib.filmesuchen.ListenerFilmeLaden;
 import de.mediathekview.mlib.filmesuchen.ListenerFilmeLadenEvent;
 import de.mediathekview.mlib.tool.InputStreamProgressMonitor;
@@ -52,13 +62,25 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-public class FilmlisteLesen {
+import static java.time.format.FormatStyle.MEDIUM;
+import static java.time.format.FormatStyle.SHORT;
+
+public class FilmlisteLesen
+{
+    private static final Logger LOG = LogManager.getLogger(FilmlisteLesen.class);
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(MEDIUM).withLocale(Locale.GERMANY);
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(MEDIUM).withLocale(Locale.GERMANY);
     private static final int PROGRESS_MAX = 100;
+    private static final String ENTRY_PATTERN = "\"\\w*\":\\s*\\[(\"[^\"]*\",?)*]";
+    private static final String ENTRY_SPLIT_PATTERN = "\"[^\"]*\"";
+    private static final String FILM_ENTRY_ID = "X";
+    private static final char GEO_SPLITTERATOR = '-';
+    private static final String EXCEPTION_TEXT_CANT_BUILD_FILM = "Can't build a Film from splits.";
+    private static final String URL_SPLITTERATOR = "\\|";
     private static WorkMode workMode = WorkMode.NORMAL; // die Klasse wird an verschiedenen Stellen benutzt, klappt sonst nicht immer, zB. FilmListe zu alt und neu laden
     private final EventListenerList listeners = new EventListenerList();
     private int max = 0;
     private int progress = 0;
-    private long milliseconds = 0;
 
     /**
      * Set the specific work mode for reading film list.
@@ -66,18 +88,23 @@ public class FilmlisteLesen {
      *
      * @param mode The mode in which to operate when reading film list.
      */
-    public static void setWorkMode(WorkMode mode) {
+    public static void setWorkMode(WorkMode mode)
+    {
         workMode = mode;
     }
 
-    public void addAdListener(ListenerFilmeLaden listener) {
+    public void addAdListener(ListenerFilmeLaden listener)
+    {
         listeners.add(ListenerFilmeLaden.class, listener);
     }
 
-    private InputStream selectDecompressor(String source, InputStream in) throws Exception {
-        if (source.endsWith(Const.FORMAT_XZ)) {
+    private InputStream selectDecompressor(String source, InputStream in) throws Exception
+    {
+        if (source.endsWith(Const.FORMAT_XZ))
+        {
             in = new XZInputStream(in);
-        } else if (source.endsWith(Const.FORMAT_ZIP)) {
+        } else if (source.endsWith(Const.FORMAT_ZIP))
+        {
             ZipInputStream zipInputStream = new ZipInputStream(in);
             zipInputStream.getNextEntry();
             in = zipInputStream;
@@ -85,137 +112,248 @@ public class FilmlisteLesen {
         return in;
     }
 
-    private void readData(JsonParser jp, ListeFilme listeFilme) throws IOException {
-        JsonToken jsonToken;
-        String sender = "", thema = "";
+    public ListeFilme readData(InputStream aInputStream) throws IOException
+    {
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(aInputStream)))
+        {
+            ListeFilme listeFilme = new ListeFilme();
 
-        if (jp.nextToken() != JsonToken.START_OBJECT) {
-            throw new IllegalStateException("Expected data to start with an Object");
-        }
+            String fileAsText = allLinesToOneText(bufferedReader);
+            Matcher entryMatcher = Pattern.compile(ENTRY_PATTERN).matcher(fileAsText);
 
-        while ((jsonToken = jp.nextToken()) != null) {
-            if (jsonToken == JsonToken.END_OBJECT) {
-                break;
-            }
-            if (jp.isExpectedStartArrayToken()) {
-                for (int k = 0; k < ListeFilme.MAX_ELEM; ++k) {
-                    listeFilme.metaDaten[k] = jp.nextTextValue();
-                }
-                break;
-            }
-        }
-        while ((jsonToken = jp.nextToken()) != null) {
-            if (jsonToken == JsonToken.END_OBJECT) {
-                break;
-            }
-            if (jp.isExpectedStartArrayToken()) {
-                // sind nur die Feldbeschreibungen, brauch mer nicht
-                jp.nextToken();
-                break;
-            }
-        }
-        while (!Config.getStop() && (jsonToken = jp.nextToken()) != null) {
-            if (jsonToken == JsonToken.END_OBJECT) {
-                break;
-            }
-            if (jp.isExpectedStartArrayToken()) {
-                DatenFilm datenFilm = new DatenFilm();
-                for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
-                    //if we are in FASTAUTO mode, we don´t need film descriptions.
-                    //this should speed up loading on low end devices...
-                    if (workMode == WorkMode.FASTAUTO) {
-                        if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_BESCHREIBUNG
-                                || DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_WEBSEITE
-                                || DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_GEO) {
-                            jp.nextToken();
-                            continue;
+            boolean isFirst = true;
+            Film filmEntryBefore = null;
+            while (entryMatcher.find())
+            {
+                String entry = entryMatcher.group();
+                List<String> splittedEntry = splittEntry(entry);
+
+                if (!splittedEntry.isEmpty())
+                {
+                    if (isFirst)
+                    {
+                        setMetaInfo(listeFilme, splittedEntry);
+                        isFirst = false;
+                    } else if (splittedEntry.size() == 21 && FILM_ENTRY_ID.equals(splittedEntry.get(0)))
+                    {
+                        try
+                        {
+                            filmEntryBefore = entrySplitsToFilm(splittedEntry, filmEntryBefore);
+                            listeFilme.add(filmEntryBefore);
+                        } catch (Exception exception)
+                        {
+                            LOG.fatal(EXCEPTION_TEXT_CANT_BUILD_FILM, exception);
                         }
                     }
-                    if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_NEU) {
-                        final String value = jp.nextTextValue();
-                        //This value is unused...
-                        //datenFilm.arr[DatenFilm.FILM_NEU_NR] = value;
-                        datenFilm.setNew(Boolean.parseBoolean(value));
-                    } else {
-                        datenFilm.arr[DatenFilm.JSON_NAMES[i]] = jp.nextTextValue();
-                    }
-
-                    /// für die Entwicklungszeit
-                    if (datenFilm.arr[DatenFilm.JSON_NAMES[i]] == null) {
-                        datenFilm.arr[DatenFilm.JSON_NAMES[i]] = "";
-                    }
-                }
-                if (datenFilm.arr[DatenFilm.FILM_SENDER].isEmpty()) {
-                    datenFilm.arr[DatenFilm.FILM_SENDER] = sender;
-                } else {
-                    sender = datenFilm.arr[DatenFilm.FILM_SENDER];
-                }
-                if (datenFilm.arr[DatenFilm.FILM_THEMA].isEmpty()) {
-                    datenFilm.arr[DatenFilm.FILM_THEMA] = thema;
-                } else {
-                    thema = datenFilm.arr[DatenFilm.FILM_THEMA];
-                }
-
-                listeFilme.importFilmliste(datenFilm);
-                if (milliseconds > 0) {
-                    // muss "rückwärts" laufen, da das Datum sonst 2x gebaut werden muss
-                    // wenns drin bleibt, kann mans noch ändern
-                    if (!checkDate(datenFilm)) {
-                        listeFilme.remove(datenFilm);
-                    }
                 }
             }
+
+            return listeFilme;
         }
+    }
+
+    private void setMetaInfo(final ListeFilme aListeFilme, final List<String> aSplittedEntry)
+    {
+        for (int i = 0; i < ListeFilme.MAX_ELEM; i++)
+        {
+            aListeFilme.metaDaten[i] = aSplittedEntry.get(i);
+        }
+    }
+
+    private Film entrySplitsToFilm(List<String> aEntrySplits, Film aFilmEntryBefore) throws Exception
+    {
+        try
+        {
+            String senderText = aEntrySplits.get(1);
+            Sender sender;
+            if (senderText.isEmpty() && aFilmEntryBefore != null)
+            {
+                sender = aFilmEntryBefore.getSender();
+            } else
+            {
+                sender = Sender.valueOf(senderText);
+            }
+
+            String thema = aEntrySplits.get(2);
+            if (thema.isEmpty() && aFilmEntryBefore != null)
+            {
+                thema = aFilmEntryBefore.getThema();
+            }
+
+            String titel = aEntrySplits.get(3);
+            if (titel.isEmpty() && aFilmEntryBefore != null)
+            {
+                titel = aFilmEntryBefore.getTitel();
+            }
+            LocalDate date = LocalDate.parse(aEntrySplits.get(4), DATE_FORMATTER);
+            LocalTime time = LocalTime.parse(aEntrySplits.get(5), TIME_FORMATTER);
+
+            Duration dauer = Duration.between(LocalTime.MIDNIGHT, LocalTime.parse(aEntrySplits.get(6)));
+            long groesse = Long.parseLong(aEntrySplits.get(7));
+            String beschreibung = aEntrySplits.get(8);
+
+            URI urlNormal = new URI(aEntrySplits.get(9));
+            URI urlWebseite = new URI(aEntrySplits.get(10));
+
+            String urlTextUntertitel = aEntrySplits.get(11);
+
+            String urlTextKlein = aEntrySplits.get(13);
+            String urlTextHD = aEntrySplits.get(15);
+
+            //Ignoring RTMP because can't find any usage.
+
+            //Ignoring Film URL History because can't find any usage.
+
+            Collection<GeoLocations> geoLocations = readGeoLocations(aEntrySplits.get(19));
+
+            String neu = aEntrySplits.get(20);
+
+            Film film = new Film(UUID.randomUUID(), geoLocations, sender, titel, thema, LocalDateTime.of(date, time), dauer, urlWebseite);
+
+            if (StringUtils.isNotBlank(neu))
+            {
+                film.setNeu(Boolean.parseBoolean(neu));
+            }
+
+            film.addUrl(Qualities.NORMAL, new FilmUrl(urlNormal, groesse));
+            film.setBeschreibung(beschreibung);
+
+            if (!urlTextUntertitel.isEmpty())
+            {
+                film.addSubtitle(new URI(urlTextUntertitel));
+            }
+
+            if (!urlTextKlein.isEmpty())
+            {
+                FilmUrl urlKlein = urlTextToUri(urlNormal, groesse, urlTextKlein);
+                if (urlKlein != null)
+                {
+                    film.addUrl(Qualities.SMALL, urlKlein);
+                }
+            }
+
+            if (!urlTextHD.isEmpty())
+            {
+                FilmUrl urlHD = urlTextToUri(urlNormal, groesse, urlTextHD);
+                if (urlHD != null)
+                {
+                    film.addUrl(Qualities.HD, urlHD);
+                }
+            }
+
+
+            return film;
+        } catch (Exception exception)
+        {
+            throw new Exception(EXCEPTION_TEXT_CANT_BUILD_FILM, exception);
+        }
+    }
+
+    private FilmUrl urlTextToUri(final URI aUrlNormal, final long aGroesse, final String aUrlText) throws URISyntaxException
+    {
+        FilmUrl filmUrl = null;
+
+        String[] splittedUrlText = aUrlText.split(URL_SPLITTERATOR);
+        if (splittedUrlText.length == 2)
+        {
+            int lengthOfOld = Integer.parseInt(splittedUrlText[0]);
+
+            StringBuilder newUrlBuilder = new StringBuilder();
+            newUrlBuilder.append(aUrlNormal.toString().substring(0,lengthOfOld));
+            newUrlBuilder.append(splittedUrlText[1]);
+
+            filmUrl = new FilmUrl(new URI(newUrlBuilder.toString()), aGroesse);
+        }
+        return filmUrl;
+    }
+
+    private Collection<GeoLocations> readGeoLocations(final String aGeoText)
+    {
+        Collection<GeoLocations> geoLocations = new ArrayList<>();
+
+        GeoLocations singleGeoLocation = GeoLocations.getFromDescription(aGeoText);
+        if (singleGeoLocation == null)
+        {
+            for (String geoText : aGeoText.split(String.valueOf(GEO_SPLITTERATOR)))
+            {
+                GeoLocations geoLocation = GeoLocations.getFromDescription(geoText);
+                if (geoLocation != null)
+                {
+                    geoLocations.add(geoLocation);
+                }
+            }
+        } else
+        {
+            geoLocations.add(singleGeoLocation);
+        }
+
+        return geoLocations;
+    }
+
+    private List<String> splittEntry(final String aEntry)
+    {
+        List<String> entrySplits = new ArrayList<>();
+        Matcher entrySplitMatcher = Pattern.compile(ENTRY_SPLIT_PATTERN).matcher(aEntry);
+        while (entrySplitMatcher.find())
+        {
+            entrySplits.add(entrySplitMatcher.group().replaceAll("\"", ""));
+        }
+
+        return entrySplits;
+    }
+
+    private String allLinesToOneText(final BufferedReader bufferedReader)
+    {
+        StringBuilder textBuilder = new StringBuilder();
+        bufferedReader.lines().forEach(textBuilder::append);
+        return textBuilder.toString();
     }
 
     /**
      * Read a locally available filmlist.
      *
-     * @param source     file path as string
-     * @param listeFilme the list to read to
+     * @param aSource file path as string
      */
-    private void processFromFile(String source, ListeFilme listeFilme) {
-        notifyProgress(source, PROGRESS_MAX);
-        try (InputStream in = selectDecompressor(source, new FileInputStream(source));
-             JsonParser jp = new JsonFactory().createParser(in)) {
-            readData(jp, listeFilme);
-        } catch (FileNotFoundException ex) {
-            Log.errorLog(894512369, "FilmListe existiert nicht: " + source);
-            listeFilme.clear();
-        } catch (Exception ex) {
-            Log.errorLog(945123641, ex, "FilmListe: " + source);
-            listeFilme.clear();
+    private ListeFilme processFromFile(String aSource)
+    {
+        notifyProgress(aSource, PROGRESS_MAX);
+        try (InputStream in = selectDecompressor(aSource, Files.newInputStream(Paths.get(aSource))))
+        {
+            return readData(in);
+        } catch (FileNotFoundException ex)
+        {
+            Log.errorLog(894512369, "FilmListe existiert nicht: " + aSource);
+        } catch (Exception ex)
+        {
+            Log.errorLog(945123641, ex, "FilmListe: " + aSource);
         }
+        return new ListeFilme();
     }
 
-    private void checkDays(long days) {
-        if (days > 0) {
-            milliseconds = System.currentTimeMillis() - TimeUnit.MILLISECONDS.convert(days, TimeUnit.DAYS);
-        } else {
-            milliseconds = 0;
-        }
-    }
-
-    public void readFilmListe(String source, final ListeFilme listeFilme, int days) {
-        try {
+    public void readFilmListe(String source, int days)
+    {
+        ListeFilme listeFilme;
+        try
+        {
             Log.sysLog("Liste Filme lesen von: " + source);
-            listeFilme.clear();
             this.notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
 
-            checkDays(days);
-
-            if (!source.startsWith("http")) {
-                processFromFile(source, listeFilme);
-            } else {
-                processFromWeb(new URL(source), listeFilme);
+            if (!source.startsWith("http"))
+            {
+                listeFilme = processFromFile(source);
+            } else
+            {
+                listeFilme = processFromWeb(new URL(source));
             }
 
-            if (Config.getStop()) {
+            if (Config.getStop())
+            {
                 Log.sysLog("--> Abbruch");
-                listeFilme.clear();
             }
-        } catch (MalformedURLException ex) {
+        } catch (MalformedURLException ex)
+        {
             ex.printStackTrace();
+            listeFilme = new ListeFilme();
         }
 
         notifyFertig(source, listeFilme);
@@ -224,21 +362,24 @@ public class FilmlisteLesen {
     /**
      * Download a process a filmliste from the web.
      *
-     * @param source     source url as string
-     * @param listeFilme the list to read to
+     * @param source source url as string
      */
-    private void processFromWeb(URL source, ListeFilme listeFilme) {
+    private ListeFilme processFromWeb(URL source)
+    {
         Request.Builder builder = new Request.Builder().url(source);
         builder.addHeader("User-Agent", Config.getUserAgent());
 
         //our progress monitor callback
-        InputStreamProgressMonitor monitor = new InputStreamProgressMonitor() {
+        InputStreamProgressMonitor monitor = new InputStreamProgressMonitor()
+        {
             private int oldProgress = 0;
 
             @Override
-            public void progress(long bytesRead, long size) {
+            public void progress(long bytesRead, long size)
+            {
                 final int iProgress = (int) (bytesRead * 100 / size);
-                if (iProgress != oldProgress) {
+                if (iProgress != oldProgress)
+                {
                     oldProgress = iProgress;
                     notifyProgress(source.toString(), iProgress);
                 }
@@ -246,63 +387,61 @@ public class FilmlisteLesen {
         };
 
         try (Response response = MVHttpClient.getInstance().getHttpClient().newCall(builder.build()).execute();
-             ResponseBody body = response.body()) {
-            if (response.isSuccessful()) {
-                try (InputStream input = new ProgressMonitorInputStream(body.byteStream(), body.contentLength(), monitor)) {
-                    try (InputStream is = selectDecompressor(source.toString(), input);
-                         JsonParser jp = new JsonFactory().createParser(is)) {
-                        readData(jp, listeFilme);
+             ResponseBody body = response.body())
+        {
+            if (response.isSuccessful())
+            {
+                try (InputStream input = new ProgressMonitorInputStream(body.byteStream(), body.contentLength(), monitor))
+                {
+                    try (InputStream is = selectDecompressor(source.toString(), input))
+                    {
+                        return readData(is);
                     }
                 }
             }
-        } catch (Exception ex) {
+        } catch (Exception ex)
+        {
             Log.errorLog(945123641, ex, "FilmListe: " + source);
-            listeFilme.clear();
         }
+        return new ListeFilme();
     }
 
-    private boolean checkDate(DatenFilm film) {
-        // true wenn der Film angezeigt werden kann!
-        try {
-            if (film.datumFilm.getTime() != 0) {
-                if (film.datumFilm.getTime() < milliseconds) {
-                    return false;
-                }
-            }
-        } catch (Exception ex) {
-            Log.errorLog(495623014, ex);
-        }
-        return true;
-    }
-
-    private void notifyStart(String url, int mmax) {
+    private void notifyStart(String url, int mmax)
+    {
         max = mmax;
         progress = 0;
-        for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
+        for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class))
+        {
             l.start(new ListenerFilmeLadenEvent(url, "", max, 0, 0, false));
         }
     }
 
-    private void notifyProgress(String url, int iProgress) {
+    private void notifyProgress(String url, int iProgress)
+    {
         progress = iProgress;
-        if (progress > max) {
+        if (progress > max)
+        {
             progress = max;
         }
-        for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
+        for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class))
+        {
             l.progress(new ListenerFilmeLadenEvent(url, "Download", max, progress, 0, false));
         }
     }
 
-    private void notifyFertig(String url, ListeFilme liste) {
+    private void notifyFertig(String url, ListeFilme liste)
+    {
         Log.sysLog("Liste Filme gelesen am: " + FastDateFormat.getInstance("dd.MM.yyyy, HH:mm").format(new Date()));
         Log.sysLog("  erstellt am: " + liste.genDate());
         Log.sysLog("  Anzahl Filme: " + liste.size());
-        for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
+        for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class))
+        {
             l.fertig(new ListenerFilmeLadenEvent(url, "", max, progress, 0, false));
         }
     }
 
-    public enum WorkMode {
+    public enum WorkMode
+    {
 
         NORMAL, FASTAUTO
     }
