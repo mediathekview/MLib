@@ -171,7 +171,7 @@ public class FilmlisteLesen
                 sender = aFilmEntryBefore.getSender();
             } else
             {
-                sender = Sender.valueOf(senderText);
+                sender = Sender.getSenderByName(senderText);
             }
 
             String thema = aEntrySplits.get(2);
@@ -185,15 +185,52 @@ public class FilmlisteLesen
             {
                 titel = aFilmEntryBefore.getTitel();
             }
-            LocalDate date = LocalDate.parse(aEntrySplits.get(4), DATE_FORMATTER);
-            LocalTime time = LocalTime.parse(aEntrySplits.get(5), TIME_FORMATTER);
 
-            Duration dauer = Duration.between(LocalTime.MIDNIGHT, LocalTime.parse(aEntrySplits.get(6)));
-            long groesse = Long.parseLong(aEntrySplits.get(7));
+            String dateText =aEntrySplits.get(4);
+            LocalDate date;
+            if(StringUtils.isNotBlank(dateText))
+            {
+                date = LocalDate.parse(dateText, DATE_FORMATTER);
+            }else {
+                date = null;
+                LOG.error(String.format("Film ohne Datum \"%s %s - %s\".",sender.getName(),thema,titel));
+            }
+
+
+            LocalTime time;
+            String timeText = aEntrySplits.get(5);
+            if(StringUtils.isNotBlank(timeText))
+            {
+                time = LocalTime.parse(timeText, TIME_FORMATTER);
+            }else {
+                time = LocalTime.MIDNIGHT;
+            }
+
+            String durationText = aEntrySplits.get(6);
+            Duration dauer;
+            if(StringUtils.isNotBlank(durationText))
+            {
+                dauer = Duration.between(LocalTime.MIDNIGHT, LocalTime.parse(durationText));
+            }else {
+                dauer = Duration.ZERO;
+                LOG.error(String.format("Film ohne Dauer \"%s - %s\".",sender.getName(),thema,titel));
+            }
+
+            String groesseText = aEntrySplits.get(7);
+
+            long groesse;
+            if(StringUtils.isNotBlank(groesseText))
+            {
+                groesse = Long.parseLong(groesseText);
+            }else {
+                groesse = 0l;
+                LOG.error(String.format("Film ohne Größe \"%s - %s\".",sender.getName(),thema,titel));
+            }
+
             String beschreibung = aEntrySplits.get(8);
 
             URI urlNormal = new URI(aEntrySplits.get(9));
-            URI urlWebseite = new URI(aEntrySplits.get(10));
+            URI urlWebseite = new URI(aEntrySplits.get(10).trim());
 
             String urlTextUntertitel = aEntrySplits.get(11);
 
@@ -208,7 +245,7 @@ public class FilmlisteLesen
 
             String neu = aEntrySplits.get(20);
 
-            Film film = new Film(UUID.randomUUID(), geoLocations, sender, titel, thema, LocalDateTime.of(date, time), dauer, urlWebseite);
+            Film film = new Film(UUID.randomUUID(), geoLocations, sender, titel, thema, date == null ? null : LocalDateTime.of(date, time), dauer, urlWebseite);
 
             if (StringUtils.isNotBlank(neu))
             {
