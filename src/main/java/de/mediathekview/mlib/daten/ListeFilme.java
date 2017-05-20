@@ -78,7 +78,7 @@ public class ListeFilme extends ArrayList<Film>
         // Filme die beim Sender gesucht wurden (und nur die) hier eintragen, nur für die MediathekReader!!
         // ist: "Sender-Thema-URL" schon vorhanden, wird sie verworfen
 
-        return !indexes.contains(film) && addInit(film);
+        return !this.contains(film) && addInit(film);
     }
 
     private void addHash(Film f, HashSet<String> hash, boolean aCheckWithIndex)

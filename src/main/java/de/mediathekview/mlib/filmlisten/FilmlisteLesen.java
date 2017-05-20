@@ -330,7 +330,7 @@ public class FilmlisteLesen
         return new ListeFilme();
     }
 
-    public void readFilmListe(String source, int days)
+    public ListeFilme readFilmListe(String source, int days)
     {
         ListeFilme listeFilme;
         try
@@ -357,6 +357,7 @@ public class FilmlisteLesen
         }
 
         notifyFertig(source, listeFilme);
+        return listeFilme;
     }
 
     /**

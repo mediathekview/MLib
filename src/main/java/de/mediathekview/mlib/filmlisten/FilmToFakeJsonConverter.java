@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 import static java.time.format.FormatStyle.*;
@@ -35,23 +36,23 @@ public class FilmToFakeJsonConverter
     private String lastThema;
 
 
-    public String toFakeJson(Collection<Film> aFilme, String aFilmlisteDatum, String aFilmlisteDatumGmt, String aFilmlisteVersion, String aFilmlisteProgramm, String aFilmlisteId)
+    public String toFakeJson(List<Film> aFilme, String aFilmlisteDatum, String aFilmlisteDatumGmt, String aFilmlisteVersion, String aFilmlisteProgramm, String aFilmlisteId)
     {
         StringBuilder fakeJsonBuilder = new StringBuilder();
         fakeJsonBuilder.append(FAKE_JSON_BEGIN);
         fakeJsonBuilder.append(System.lineSeparator());
 
         fakeJsonBuilder.append(String.format(META_INFORMATION_PATTERN, aFilmlisteDatum, aFilmlisteDatumGmt, aFilmlisteVersion, aFilmlisteProgramm, aFilmlisteId));
-        appendEnd(fakeJsonBuilder);
+        appendEnd(fakeJsonBuilder,false);
 
         fakeJsonBuilder.append(String.format(COLUMNNAMES_PATTERN, COLUMNNAMES));
-        appendEnd(fakeJsonBuilder);
+        appendEnd(fakeJsonBuilder,false);
 
         lastSender = "";
         lastThema = "";
         for (Film film : aFilme)
         {
-            filmToFakeJson(fakeJsonBuilder, film);
+            filmToFakeJson(fakeJsonBuilder, film, film.equals(aFilme.get(aFilme.size()-1)));
         }
 
 
@@ -59,7 +60,7 @@ public class FilmToFakeJsonConverter
         return fakeJsonBuilder.toString();
     }
 
-    private void filmToFakeJson(final StringBuilder fakeJsonBuilder, final Film film)
+    private void filmToFakeJson(final StringBuilder fakeJsonBuilder, final Film film, boolean aIsLastFilm)
     {
         String sender = setSender(film);
 
@@ -103,7 +104,7 @@ public class FilmToFakeJsonConverter
                 geolocationsToStirng(film.getGeoLocations()),
                 film.isNeu()
         ));
-        appendEnd(fakeJsonBuilder);
+        appendEnd(fakeJsonBuilder,aIsLastFilm);
     }
 
     private String setThema(final Film film)
@@ -172,9 +173,12 @@ public class FilmToFakeJsonConverter
         return LocalTime.MIDNIGHT.plus(aDuration).format(DateTimeFormatter.ofPattern(DURATION_FORMAT));
     }
 
-    private void appendEnd(final StringBuilder fakeJsonBuilder)
+    private void appendEnd(final StringBuilder fakeJsonBuilder, boolean aIsLastFilm)
     {
-        fakeJsonBuilder.append(SPLITTERATOR);
+        if(!aIsLastFilm)
+        {
+            fakeJsonBuilder.append(SPLITTERATOR);
+        }
         fakeJsonBuilder.append(System.lineSeparator());
     }
 }

@@ -1,5 +1,9 @@
 package de.mediathekview.mlib.daten;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Created by nicklas on 29.12.16.
  */
@@ -48,7 +52,18 @@ public enum Sender
             }
         }
 
-        System.out.println("Cant find Sender: \""+aName+"\"");
         return null;
+    }
+
+    public static Collection<String> getSenderNamen()
+    {
+        Collection<String> senderNamen = new ArrayList<>();
+
+        for (Sender sender : Sender.values())
+        {
+            senderNamen.add(sender.getName());
+        }
+
+        return senderNamen;
     }
 }

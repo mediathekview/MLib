@@ -39,7 +39,7 @@ public class ReadFilmlistFromFakeJsonTest
         ClassLoader classLoader = getClass().getClassLoader();
 
         FilmlisteLesen filmlisteLesen = new FilmlisteLesen();
-        ListeFilme readFilme = filmlisteLesen.readData(Files.newInputStream(Paths.get(classLoader.getResource("TestFilmlist.json").toURI())));
+        ListeFilme readFilme = filmlisteLesen.readData(Files.newInputStream(Paths.get(classLoader.getResource(TEST_FILENAME).toURI())));
         Assert.assertThat(readFilme,
                 Matchers.hasItems(testData.toArray(new Film[]{})));
     }
