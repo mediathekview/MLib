@@ -22,7 +22,6 @@ package de.mediathekview.mlib.filmlisten;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.jidesoft.utils.SystemInfo;
 import de.mediathekview.mlib.Const;
 import de.mediathekview.mlib.daten.DatenFilm;
 import de.mediathekview.mlib.daten.ListeFilme;
@@ -96,66 +95,55 @@ public class WriteFilmlistJson {
     }
 
     public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
-        try {
+        try (FileOutputStream fos = new FileOutputStream(datei);
+             JsonGenerator jg = getJsonGenerator(fos)) {
             Log.sysLog("Filme schreiben (" + listeFilme.size() + " Filme) :");
 
             Log.sysLog("   --> Start Schreiben nach: " + datei);
             String sender = "", thema = "";
 
-            if (SystemInfo.isMacOSX()) {
-                //Hotfix for OSX 10.12.4 update
-                final Path f = Paths.get(datei);
-                final Path parentDirectory = f.getParent();
-                if (!Files.exists(parentDirectory))
-                    Files.createDirectory(parentDirectory);
+            jg.writeStartObject();
+            // Infos zur Filmliste
+            jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
+            for (int i = 0; i < ListeFilme.MAX_ELEM; ++i) {
+                jg.writeString(listeFilme.metaDaten[i]);
             }
+            jg.writeEndArray();
+            // Infos der Felder in der Filmliste
+            jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
+            for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
+                jg.writeString(DatenFilm.COLUMN_NAMES[DatenFilm.JSON_NAMES[i]]);
+            }
+            jg.writeEndArray();
+            //Filme schreiben
+            for (DatenFilm datenFilm : listeFilme) {
+                datenFilm.arr[DatenFilm.FILM_NEU] = Boolean.toString(datenFilm.isNew()); // damit wirs beim nächsten Programmstart noch wissen
 
-            try (FileOutputStream fos = new FileOutputStream(datei);
-                 JsonGenerator jg = getJsonGenerator(fos)) {
-
-                jg.writeStartObject();
-                // Infos zur Filmliste
-                jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
-                for (int i = 0; i < ListeFilme.MAX_ELEM; ++i) {
-                    jg.writeString(listeFilme.metaDaten[i]);
-                }
-                jg.writeEndArray();
-                // Infos der Felder in der Filmliste
-                jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
+                jg.writeArrayFieldStart(DatenFilm.TAG_JSON_LIST);
                 for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
-                    jg.writeString(DatenFilm.COLUMN_NAMES[DatenFilm.JSON_NAMES[i]]);
-                }
-                jg.writeEndArray();
-                //Filme schreiben
-                for (DatenFilm datenFilm : listeFilme) {
-                    datenFilm.arr[DatenFilm.FILM_NEU] = Boolean.toString(datenFilm.isNew()); // damit wirs beim nächsten Programmstart noch wissen
-
-                    jg.writeArrayFieldStart(DatenFilm.TAG_JSON_LIST);
-                    for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
-                        int m = DatenFilm.JSON_NAMES[i];
-                        if (m == DatenFilm.FILM_SENDER) {
-                            if (datenFilm.arr[m].equals(sender)) {
-                                jg.writeString("");
-                            } else {
-                                sender = datenFilm.arr[m];
-                                jg.writeString(datenFilm.arr[m]);
-                            }
-                        } else if (m == DatenFilm.FILM_THEMA) {
-                            if (datenFilm.arr[m].equals(thema)) {
-                                jg.writeString("");
-                            } else {
-                                thema = datenFilm.arr[m];
-                                jg.writeString(datenFilm.arr[m]);
-                            }
+                    int m = DatenFilm.JSON_NAMES[i];
+                    if (m == DatenFilm.FILM_SENDER) {
+                        if (datenFilm.arr[m].equals(sender)) {
+                            jg.writeString("");
                         } else {
+                            sender = datenFilm.arr[m];
                             jg.writeString(datenFilm.arr[m]);
                         }
+                    } else if (m == DatenFilm.FILM_THEMA) {
+                        if (datenFilm.arr[m].equals(thema)) {
+                            jg.writeString("");
+                        } else {
+                            thema = datenFilm.arr[m];
+                            jg.writeString(datenFilm.arr[m]);
+                        }
+                    } else {
+                        jg.writeString(datenFilm.arr[m]);
                     }
-                    jg.writeEndArray();
                 }
-                jg.writeEndObject();
-                Log.sysLog("   --> geschrieben!");
+                jg.writeEndArray();
             }
+            jg.writeEndObject();
+            Log.sysLog("   --> geschrieben!");
         } catch (Exception ex) {
             Log.errorLog(846930145, ex, "nach: " + datei);
         }
