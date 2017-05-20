@@ -40,8 +40,8 @@ public class WriteFilmlistToFakeJsonTest
         ClassLoader classLoader = getClass().getClassLoader();
         WriteFilmlistJson writeFilmlistJson = new WriteFilmlistJson();
         writeFilmlistJson.filmlisteSchreibenJson(TEST_FILENAME, testData);
-        Assert.assertThat(Files.readAllLines(Paths.get(classLoader.getResource("TestFilmlist.json").toURI())).remove(2),
-                CoreMatchers.is(Files.readAllLines(Paths.get(classLoader.getResource("TestFilmlist.json").toURI())).remove(2)
+        Assert.assertThat(Files.readAllLines(Paths.get(classLoader.getResource(TEST_FILENAME).toURI())).remove(2),
+                CoreMatchers.is(Files.readAllLines(Paths.get(classLoader.getResource(TEST_RIGHT_RESULT_FILENAME).toURI())).remove(2)
                 ));
     }
 }

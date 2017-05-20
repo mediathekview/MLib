@@ -238,7 +238,7 @@ public class Functions
         unescapedText = StringEscapeUtils.unescapeXml(aText);
         unescapedText = StringEscapeUtils.unescapeHtml4(unescapedText);
         unescapedText = StringEscapeUtils.unescapeJava(unescapedText);
-        unescapedText = unescapedText.replace("\\", "/").trim();
+        unescapedText = unescapedText.replace("\\", "/").replace("\n"," ").replace("\"","'").trim();
         return unescapedText;
     }
 
