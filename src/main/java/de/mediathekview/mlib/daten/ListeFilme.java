@@ -133,7 +133,7 @@ public class ListeFilme extends ArrayList<Film>
                     {
                         addInit(f);
                     }
-                } else if (!hash.contains(f.getUrl(Qualities.NORMAL)))
+                } else if (!hash.contains(f.getUrl(Qualities.NORMAL).toString()))
                 {
                     addInit(f);
                 }

@@ -126,6 +126,7 @@ public class FilmlisteLesen
             while (entryMatcher.find())
             {
                 String entry = entryMatcher.group();
+                entry = entry.replaceAll("\\\\u","\\u");
                 List<String> splittedEntry = splittEntry(entry);
 
                 if (!splittedEntry.isEmpty())
@@ -213,7 +214,7 @@ public class FilmlisteLesen
                 dauer = Duration.between(LocalTime.MIDNIGHT, LocalTime.parse(durationText));
             }else {
                 dauer = Duration.ZERO;
-                LOG.error(String.format("Film ohne Dauer \"%s - %s\".",sender.getName(),thema,titel));
+                LOG.error(String.format("Film ohne Dauer \"%s %s - %s\".",sender.getName(),thema,titel));
             }
 
             String groesseText = aEntrySplits.get(7);
@@ -224,7 +225,7 @@ public class FilmlisteLesen
                 groesse = Long.parseLong(groesseText);
             }else {
                 groesse = 0l;
-                LOG.error(String.format("Film ohne Größe \"%s - %s\".",sender.getName(),thema,titel));
+                LOG.error(String.format("Film ohne Größe \"%s %s - %s\".",sender.getName(),thema,titel));
             }
 
             String beschreibung = aEntrySplits.get(8);
