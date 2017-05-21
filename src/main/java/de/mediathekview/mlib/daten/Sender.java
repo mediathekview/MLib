@@ -46,7 +46,7 @@ public enum Sender
     {
         for (Sender sender : Sender.values())
         {
-            if (sender.getName().equalsIgnoreCase(aName))
+            if (sender.getName().equalsIgnoreCase(aName) || sender.toString().equalsIgnoreCase(aName))
             {
                 return sender;
             }

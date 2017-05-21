@@ -26,6 +26,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -71,8 +72,8 @@ public class FilmlisteLesen
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(MEDIUM).withLocale(Locale.GERMANY);
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(MEDIUM).withLocale(Locale.GERMANY);
     private static final int PROGRESS_MAX = 100;
-    private static final String ENTRY_PATTERN = "\"\\w*\":\\s*\\[(\"[^\"]*\",?)*]";
-    private static final String ENTRY_SPLIT_PATTERN = "\"[^\"]*\"";
+    private static final String ENTRY_PATTERN = "\"\\w*\":\\s*\\[(\"([^\"]|\\\\\")*\",?)*\\]";
+    private static final String ENTRY_SPLIT_PATTERN = "\"(\\\\\"|[^\"])*\"";
     private static final String FILM_ENTRY_ID = "X";
     private static final char GEO_SPLITTERATOR = '-';
     private static final String EXCEPTION_TEXT_CANT_BUILD_FILM = "Can't build a Film from splits.";
@@ -126,7 +127,7 @@ public class FilmlisteLesen
             while (entryMatcher.find())
             {
                 String entry = entryMatcher.group();
-                entry = entry.replaceAll("\\\\u","\\u");
+                entry = entry.replaceAll("\\\\u","\\u").replaceAll("\\\\\"","'").replaceAll("\\\\u003d","=");
                 List<String> splittedEntry = splittEntry(entry);
 
                 if (!splittedEntry.isEmpty())
@@ -139,8 +140,9 @@ public class FilmlisteLesen
                     {
                         try
                         {
-                            filmEntryBefore = entrySplitsToFilm(splittedEntry, filmEntryBefore);
-                            listeFilme.add(filmEntryBefore);
+                            final Film newEntry = entrySplitsToFilm(splittedEntry, filmEntryBefore);
+                            listeFilme.add(newEntry);
+                            filmEntryBefore = newEntry;
                         } catch (Exception exception)
                         {
                             LOG.fatal(EXCEPTION_TEXT_CANT_BUILD_FILM, exception);
@@ -165,9 +167,10 @@ public class FilmlisteLesen
     {
         try
         {
+            aEntrySplits.forEach(String::trim);
             String senderText = aEntrySplits.get(1);
             Sender sender;
-            if (senderText.isEmpty() && aFilmEntryBefore != null)
+            if (StringUtils.isBlank(senderText) && aFilmEntryBefore != null)
             {
                 sender = aFilmEntryBefore.getSender();
             } else
@@ -176,13 +179,13 @@ public class FilmlisteLesen
             }
 
             String thema = aEntrySplits.get(2);
-            if (thema.isEmpty() && aFilmEntryBefore != null)
+            if (StringUtils.isBlank(thema) && aFilmEntryBefore != null)
             {
                 thema = aFilmEntryBefore.getThema();
             }
 
             String titel = aEntrySplits.get(3);
-            if (titel.isEmpty() && aFilmEntryBefore != null)
+            if (StringUtils.isBlank(titel) && aFilmEntryBefore != null)
             {
                 titel = aFilmEntryBefore.getTitel();
             }
@@ -194,7 +197,7 @@ public class FilmlisteLesen
                 date = LocalDate.parse(dateText, DATE_FORMATTER);
             }else {
                 date = null;
-                LOG.error(String.format("Film ohne Datum \"%s %s - %s\".",sender.getName(),thema,titel));
+                LOG.debug(String.format("Film ohne Datum \"%s %s - %s\".",sender.getName(),thema,titel));
             }
 
 
@@ -214,7 +217,7 @@ public class FilmlisteLesen
                 dauer = Duration.between(LocalTime.MIDNIGHT, LocalTime.parse(durationText));
             }else {
                 dauer = Duration.ZERO;
-                LOG.error(String.format("Film ohne Dauer \"%s %s - %s\".",sender.getName(),thema,titel));
+                LOG.debug(String.format("Film ohne Dauer \"%s %s - %s\".",sender.getName(),thema,titel));
             }
 
             String groesseText = aEntrySplits.get(7);
@@ -225,7 +228,7 @@ public class FilmlisteLesen
                 groesse = Long.parseLong(groesseText);
             }else {
                 groesse = 0l;
-                LOG.error(String.format("Film ohne Größe \"%s %s - %s\".",sender.getName(),thema,titel));
+                LOG.debug(String.format("Film ohne Größe \"%s %s - %s\".",sender.getName(),thema,titel));
             }
 
             String beschreibung = aEntrySplits.get(8);
@@ -358,7 +361,7 @@ public class FilmlisteLesen
         try (InputStream in = selectDecompressor(aSource, Files.newInputStream(Paths.get(aSource))))
         {
             return readData(in);
-        } catch (FileNotFoundException ex)
+        } catch (NoSuchFileException ex)
         {
             Log.errorLog(894512369, "FilmListe existiert nicht: " + aSource);
         } catch (Exception ex)
