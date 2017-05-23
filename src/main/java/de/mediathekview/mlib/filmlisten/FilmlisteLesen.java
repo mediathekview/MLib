@@ -126,8 +126,7 @@ public class FilmlisteLesen
             Film filmEntryBefore = null;
             while (entryMatcher.find())
             {
-                String entry = entryMatcher.group();
-                entry = entry.replaceAll("\\\\u","\\u").replaceAll("\\\\\"","'").replaceAll("\\\\u003d","=");
+                String entry = Functions.unescape(entryMatcher.group());
                 List<String> splittedEntry = splittEntry(entry);
 
                 if (!splittedEntry.isEmpty())
