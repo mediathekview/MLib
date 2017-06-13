@@ -193,7 +193,13 @@ public class Film
 
     public Long getFileSize(Qualities aQuality)
     {
-        return urls.get(aQuality).getFileSize();
+        if(urls.containsKey(aQuality))
+        {
+            return urls.get(aQuality).getFileSize();
+        }
+        else {
+            return 0l;
+        }
     }
 
     public String getIndexName()
