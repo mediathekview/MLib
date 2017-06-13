@@ -19,8 +19,12 @@
  */
 package de.mediathekview.mlib.filmlisten;
 
-import java.io.*;
-import java.lang.reflect.Type;
+import static java.time.format.FormatStyle.MEDIUM;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,18 +37,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
 import javax.swing.event.EventListenerList;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import de.mediathekview.mlib.daten.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
@@ -53,8 +57,15 @@ import org.tukaani.xz.XZInputStream;
 
 import de.mediathekview.mlib.Config;
 import de.mediathekview.mlib.Const;
+import de.mediathekview.mlib.daten.Film;
+import de.mediathekview.mlib.daten.FilmUrl;
+import de.mediathekview.mlib.daten.GeoLocations;
+import de.mediathekview.mlib.daten.ListeFilme;
+import de.mediathekview.mlib.daten.Qualities;
+import de.mediathekview.mlib.daten.Sender;
 import de.mediathekview.mlib.filmesuchen.ListenerFilmeLaden;
 import de.mediathekview.mlib.filmesuchen.ListenerFilmeLadenEvent;
+import de.mediathekview.mlib.tool.Functions;
 import de.mediathekview.mlib.tool.InputStreamProgressMonitor;
 import de.mediathekview.mlib.tool.Log;
 import de.mediathekview.mlib.tool.MVHttpClient;
@@ -62,9 +73,6 @@ import de.mediathekview.mlib.tool.ProgressMonitorInputStream;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-
-import static java.time.format.FormatStyle.MEDIUM;
-import static java.time.format.FormatStyle.SHORT;
 
 public class FilmlisteLesen
 {
