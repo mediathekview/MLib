@@ -7,7 +7,7 @@ addons:
   apt:
     packages:
       - oracle-java8-installer
-  sonarqube:
+  sonarcloud:
     token:
       secure: 0KaESwMnF1zDoDDQ0PIgBAeAMhpPVym+K/D31GxFzgBjGdMnuj+DnVm1wnFhuynnAKkCApMhXiBrDYTmRzdQHjWpLtdJMiLorf8rWxvlZ4Jjhoh+RQvlsagXh94cchUBvz3ZrNqs4eFKTn3i57atTRygP2gO30iVxBOOt9QFwEeZ7bfsvXqMo4KiaYcyitmNdZAkgTkphsk4VtWqcMKMTxp5adITzFc8AkOifMi7bQivfrogzVAhjWlYi0GiH6CRl0S9Kxqzky/nSlVyMuukMl6FOT2t8DCMNrD42nehEgusTB1XaWe504iO/BcdTk4cmYwgT5UfLdl/usilwi9Az58sMCUSpJvc3M7Jjc4PqKSFmU0vozNW0oY4lGdGG3vLNqOoTd8+TPpW7JpRZpjsa7YEeAoizdivkUxG86DaTGNkCEh4kAXpIFahLNSMO1gREmJHkD2gdz+luhkIMjyMp+cqq+EKhG8T0g0SmIiDiJkL9nCCVc5InS9vWNxINhjr4R0GtVp1p+YINknkO1k5IZ53sNY47yKFZz88zWKy7jyN20abwPIv5qccwa0yTbiLC+al0IyaIeC9AWOgikuFY8Su5aaGIK8ZNdlq0gcNz0iw1igjc+Y0qOuA9JHMGHZkT3qujC7KdLTUUSDNG9ImKmzsycl/Nt+deOPqVq1Hbjw=
     github_token:

@@ -197,7 +197,7 @@ public class Functions
     @Deprecated
     public static Version getProgVersion()
     {
-        String TOKEN_VERSION = "VERSION";
+        /*String TOKEN_VERSION = "VERSION";
 
         try
         {
@@ -210,8 +210,8 @@ public class Functions
         } catch (Exception e)
         {
             Log.errorLog(134679898, e);
-        }
-        return new Version("");
+        }*/
+        return MLibVersion.getInstance().getVersion();
     }
 
     @Deprecated
