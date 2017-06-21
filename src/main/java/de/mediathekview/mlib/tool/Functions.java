@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import com.jidesoft.utils.SystemInfo;
 
 import de.mediathekview.mlib.Const;
-import de.mediathekview.mlib.daten.Film;
 
 public class Functions
 {
@@ -195,9 +194,11 @@ public class Functions
         return msg;
     }
 
+    @Deprecated
     public static Version getProgVersion()
     {
         String TOKEN_VERSION = "VERSION";
+
         try
         {
             ResourceBundle.clearCache();

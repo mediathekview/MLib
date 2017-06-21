@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>de.mediathekview</groupId>
+  <artifactId>MLib</artifactId>
+  <version>3.0.2-SNAPSHOT</version>
+  <name>MLib</name>
+  <description>MLib ist eine Bibliothek für MServer und MediathekView</description>
+  <organization>
+    <name>MedaithekView</name>
+    <url>https://mediathekview.de</url>
+  </organization>
+  
+  <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+  
+  <distributionManagement>
+    <repository>
+     <id>deployment-mvrepo</id>
+     <name>Releases</name>
+     <url>https://repo.mediathekview.de/repository/maven-releases/</url>
+    </repository>
+    <snapshotRepository>
+     <id>deployment-mvrepo</id>
+     <name>Snapshot Releases</name>
+     <url>https://repo.mediathekview.de/repository/maven-snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
+  
+  <repositories>
+    <repository>
+      <id>mediathekview</id>
+      <name>MediathekView Repo</name>
+      <url>https://repo.mediathekview.de/repository/maven-public/</url>
+    </repository>
+  </repositories>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>                   
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries><!-- Um die Version per Java API auszulesen -->
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>  <!-- Um die Version per Java API auszulesen -->
+            </manifest>
+          </archive>
+        </configuration>
+        
+      </plugin>
+    </plugins>
+  </build>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.5</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.7.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.jidesoft</groupId>
+      <artifactId>jide-oss</artifactId>
+      <version>3.6.16</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.tukaani</groupId>
+      <artifactId>xz</artifactId>
+      <version>1.5</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>3.6.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.7</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>fm.void.jetm</groupId>
+      <artifactId>jetm</artifactId>
+      <version>1.2.3</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.8.0</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>1.3.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-junit</artifactId>
+      <version>2.0.0.0</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
