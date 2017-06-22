@@ -45,6 +45,13 @@ public class Version {
     }
 
     public Version(String versionsstring) {
+    	if(versionsstring == null) {
+    		major = 0;
+    		minor = 0;
+    		patch = 0;
+    		istSnapshot = false;
+    		return;
+    	}
         String[] versions = versionsstring.replaceAll(STR_SNAPSHOT, "").split("\\.");
         if (versions.length == 3) {
             try {

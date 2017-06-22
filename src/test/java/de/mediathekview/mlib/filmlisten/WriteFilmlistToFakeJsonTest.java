@@ -1,22 +1,17 @@
 package de.mediathekview.mlib.filmlisten;
 
-import de.mediathekview.mlib.daten.*;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.UUID;
+import de.mediathekview.mlib.daten.ListeFilme;
+
 
 /**
  * Tests the class {@link WriteFilmlistJson}

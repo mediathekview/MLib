@@ -21,7 +21,6 @@ package de.mediathekview.mlib.tool;
 
 import java.io.File;
 import java.security.CodeSource;
-import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -161,7 +160,8 @@ public class Functions
 
     public static String getProgVersionString()
     {
-        return " [Vers.: " + getProgVersion().toString() + ']';
+        //return " [Vers.: " + getProgVersion().toString() + ']';
+    	return " [Vers.: " + MLibVersion.getInstance().getVersion().toString() + ']';
     }
 
     public static String[] getJavaVersion()
@@ -174,63 +174,19 @@ public class Functions
         ret[i++] = "Runtimeversion: " + System.getProperty("java.runtime.version");
         return ret;
     }
-
-    public static String getCompileDate()
-    {
-        String propToken = "DATE";
-        String msg = "";
-        try
-        {
-            ResourceBundle.clearCache();
-            ResourceBundle rb = ResourceBundle.getBundle(RBVERSION);
-            if (rb.containsKey(propToken))
-            {
-                msg = rb.getString(propToken);
-            }
-        } catch (Exception e)
-        {
-            Log.errorLog(807293847, e);
-        }
-        return msg;
+    @Deprecated
+    public static String getCompileDate() {
+        return MLibVersion.getInstance().getBuildDate();
     }
 
     @Deprecated
-    public static Version getProgVersion()
-    {
-        /*String TOKEN_VERSION = "VERSION";
-
-        try
-        {
-            ResourceBundle.clearCache();
-            ResourceBundle rb = ResourceBundle.getBundle(RBVERSION);
-            if (rb.containsKey(TOKEN_VERSION))
-            {
-                return new Version(rb.getString(TOKEN_VERSION));
-            }
-        } catch (Exception e)
-        {
-            Log.errorLog(134679898, e);
-        }*/
+    public static Version getProgVersion() {
         return MLibVersion.getInstance().getVersion();
     }
 
     @Deprecated
-    public static String getBuildNr()
-    {
-        String TOKEN_VERSION = "VERSION";
-        try
-        {
-            ResourceBundle.clearCache();
-            ResourceBundle rb = ResourceBundle.getBundle(RBVERSION);
-            if (rb.containsKey(TOKEN_VERSION))
-            {
-                return new Version(rb.getString(TOKEN_VERSION)).toString();
-            }
-        } catch (Exception e)
-        {
-            Log.errorLog(134679898, e);
-        }
-        return new Version("").toString();
+    public static String getBuildNr() {
+        return "";
     }
 
     public static String unescape(String aText)

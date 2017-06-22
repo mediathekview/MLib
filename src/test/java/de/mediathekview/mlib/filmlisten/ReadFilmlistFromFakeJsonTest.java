@@ -1,16 +1,17 @@
 package de.mediathekview.mlib.filmlisten;
 
-import de.mediathekview.mlib.daten.Film;
-import de.mediathekview.mlib.daten.ListeFilme;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import de.mediathekview.mlib.daten.Film;
+import de.mediathekview.mlib.daten.ListeFilme;
 
 /**
  * Tests the class {@link FilmlisteLesen}

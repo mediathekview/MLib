@@ -22,9 +22,14 @@ package de.mediathekview.mlib.tool;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class MLibVersion {
 	
-	private static MLibVersion instanz;
+	private static MLibVersion instanz=null;
+	
+	private static final Logger LOG = LogManager.getLogger(Version.class);
 	
 	private MLibVersion() {
 		// Singleton
@@ -47,9 +52,11 @@ public class MLibVersion {
 	        if (is != null) {
 	            p.load(is);
 	            version = new Version(p.getProperty("version", ""));
+	        } else {
+	        	LOG.debug("MLib-Version konnte nicht aus der pom.properties geladen werden. Fallback zur Java API.");
 	        }
 	    } catch (Exception e) {
-	        // ignore
+	    	LOG.debug("MLib-Version konnte nicht aus der pom.properties geladen werden. Fallback zur Java API.", e);
 	    }
 
 	    // fallback to using Java API
@@ -62,13 +69,23 @@ public class MLibVersion {
 	            }
 	        }
 	    }
-
-	    if (version == null) {
-	        // we could not compute the version so use a blank
-	        version = new Version();
-	    }
-
+	 // we could not compute the version so use a blank
+	    if (version == null) version = new Version();
 	    return version;
-	} 
+	}
+	
+	public synchronized String getBuildDate() {
+		try {
+	        Properties p = new Properties();
+	        InputStream is = getClass().getResourceAsStream("version.properties");
+	        if (is != null) {
+	            p.load(is);
+	            return p.getProperty("DATE", "");
+	        }
+	    } catch (Exception e) {
+	    	LOG.debug("MLib-Builddate konnte nicht aus der version.properties geladen werden.", e);
+	    }
+		return "";
+	}
 
 }
