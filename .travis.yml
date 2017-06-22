@@ -35,7 +35,6 @@ after_success:
 #Cache
 cache:
   directories:
-  - "$HOME/.m2/"
   - "$HOME/.sonar/cache/"
   
 #Deploy
