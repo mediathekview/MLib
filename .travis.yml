@@ -28,7 +28,7 @@ script:
   - if [ "$TRAVIS_BRANCH" == "develop" ]; then
       openssl aes-256-cbc -K $encrypted_4865309f0dd8_key -iv $encrypted_4865309f0dd8_iv 
         -in scripte/deploy/settings.xml.enc -out $HOME/.m2/settings.xml -d;
-      mvn deploy
+      mvn deploy;
     fi
 after_success:
   - sonar-scanner
