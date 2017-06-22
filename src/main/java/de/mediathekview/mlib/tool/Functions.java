@@ -31,8 +31,6 @@ import de.mediathekview.mlib.Const;
 public class Functions
 {
 
-    private static final String RBVERSION = "version";
-
     public static String textLaenge(int max, String text, boolean mitte, boolean addVorne)
     {
         if (text.length() > max)
@@ -67,20 +65,17 @@ public class Functions
         return text;
     }
 
-    public enum OperatingSystemType
-    {
+    public enum OperatingSystemType {
 
         UNKNOWN(""), WIN32("Windows"), WIN64("Windows"), LINUX("Linux"), MAC("Mac");
         private final String name;
 
-        OperatingSystemType(String name)
-        {
+        OperatingSystemType(String name) {
             this.name = name;
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return name;
         }
     }
@@ -90,38 +85,24 @@ public class Functions
      *
      * @return The enum for supported Operating Systems.
      */
-    public static OperatingSystemType getOs()
-    {
+    public static OperatingSystemType getOs() {
         OperatingSystemType os = OperatingSystemType.UNKNOWN;
 
-        if (System.getProperty("os.name").toLowerCase().contains("windows"))
-        {
-            if (System.getenv("ProgramFiles(x86)") != null)
-            {
-                // win 64Bit
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            if (System.getenv("ProgramFiles(x86)") != null) {	// win 64Bit
                 os = OperatingSystemType.WIN64;
-            } else if (System.getenv("ProgramFiles") != null)
-            {
-                // win 32Bit
+            } else if (System.getenv("ProgramFiles") != null) {	// win 32Bit
                 os = OperatingSystemType.WIN32;
             }
-
-        } else if (SystemInfo.isLinux())
-        {
+        } else if (SystemInfo.isLinux() || System.getProperty("os.name").toLowerCase().contains("freebsd")) {
             os = OperatingSystemType.LINUX;
-        } else if (System.getProperty("os.name").toLowerCase().contains("freebsd"))
-        {
-            os = OperatingSystemType.LINUX;
-
-        } else if (SystemInfo.isMacOSX())
-        {
+        } else if (SystemInfo.isMacOSX()) {
             os = OperatingSystemType.MAC;
         }
         return os;
     }
 
-    public static String getOsString()
-    {
+    public static String getOsString() {
         return getOs().toString();
     }
 
@@ -158,14 +139,11 @@ public class Functions
         return s;
     }
 
-    public static String getProgVersionString()
-    {
-        //return " [Vers.: " + getProgVersion().toString() + ']';
+    public static String getProgVersionString() {
     	return " [Vers.: " + MLibVersion.getInstance().getVersion().toString() + ']';
     }
 
-    public static String[] getJavaVersion()
-    {
+    public static String[] getJavaVersion() {
         String[] ret = new String[4];
         int i = 0;
         ret[i++] = "Vendor: " + System.getProperty("java.vendor");
@@ -176,7 +154,7 @@ public class Functions
     }
     @Deprecated
     public static String getCompileDate() {
-        return MLibVersion.getInstance().getBuildDate();
+        return "";
     }
 
     @Deprecated

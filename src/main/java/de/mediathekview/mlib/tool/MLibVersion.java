@@ -28,11 +28,13 @@ import org.apache.logging.log4j.Logger;
 public class MLibVersion {
 	
 	private static MLibVersion instanz=null;
-	
 	private static final Logger LOG = LogManager.getLogger(Version.class);
+	
+	private Version version;
 	
 	private MLibVersion() {
 		// Singleton
+		this.version = this.getVersionIntern();
 	}
 	
 	public static MLibVersion getInstance() {
@@ -42,7 +44,7 @@ public class MLibVersion {
 		return instanz;
 	}
 	
-	public synchronized Version getVersion() {
+	private synchronized Version getVersionIntern() {
 	    Version version = null;
 
 	    // try to load from maven properties first
@@ -74,18 +76,12 @@ public class MLibVersion {
 	    return version;
 	}
 	
-	public synchronized String getBuildDate() {
-		try {
-	        Properties p = new Properties();
-	        InputStream is = getClass().getResourceAsStream("version.properties");
-	        if (is != null) {
-	            p.load(is);
-	            return p.getProperty("DATE", "");
-	        }
-	    } catch (Exception e) {
-	    	LOG.debug("MLib-Builddate konnte nicht aus der version.properties geladen werden.", e);
-	    }
-		return "";
+	public Version getVersion() {
+		return version;
+	}
+	
+	public String getVersionStringFormated() {
+		return 	" [Vers.: " + this.version.toString() + ']';
 	}
 
 }

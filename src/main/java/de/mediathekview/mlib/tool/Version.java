@@ -45,7 +45,7 @@ public class Version {
     }
 
     public Version(String versionsstring) {
-    	if(versionsstring == null) {
+    	if (versionsstring == null) {
     		major = 0;
     		minor = 0;
     		patch = 0;
@@ -126,7 +126,7 @@ public class Version {
     @Override
     public String toString() {
     	if(istSnapshot) {
-    		return String.format("%d.%d.%d"+STR_SNAPSHOT, major, minor, patch);
+    		return String.format("%d.%d.%d", major, minor, patch)+STR_SNAPSHOT;
     	} else {
     		return String.format("%d.%d.%d", major, minor, patch);
     	}
