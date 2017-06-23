@@ -19,6 +19,7 @@
  */
 package de.mediathekview.mlib.tool;
 
+
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -29,6 +30,8 @@ public class MLibVersion {
 	
 	private static MLibVersion instanz=null;
 	private static final Logger LOG = LogManager.getLogger(Version.class);
+	
+	private static final Version MLIBVERSION = new Version(3,0,2, true); // Fallbackwert
 	
 	private Version version;
 	
@@ -46,11 +49,10 @@ public class MLibVersion {
 	
 	private synchronized Version getVersionIntern() {
 	    Version version = null;
-
 	    // try to load from maven properties first
 	    try {
 	        Properties p = new Properties();
-	        InputStream is = getClass().getResourceAsStream("/META-INF/maven/de.mediathekviewer/MLib/pom.properties");
+	        InputStream is = getClass().getResourceAsStream("/META-INF/maven/de.mediathekview/MLib/pom.properties");
 	        if (is != null) {
 	            p.load(is);
 	            version = new Version(p.getProperty("version", ""));
@@ -72,7 +74,7 @@ public class MLibVersion {
 	        }
 	    }
 	 // we could not compute the version so use a blank
-	    if (version == null) version = new Version();
+	    if (version == null) version = MLIBVERSION;
 	    return version;
 	}
 	
