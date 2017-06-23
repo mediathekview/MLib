@@ -65,6 +65,7 @@ public class Functions
         return text;
     }
 
+    @Deprecated
     public enum OperatingSystemType {
 
         UNKNOWN(""), WIN32("Windows"), WIN64("Windows"), LINUX("Linux"), MAC("Mac");
@@ -85,6 +86,7 @@ public class Functions
      *
      * @return The enum for supported Operating Systems.
      */
+    @Deprecated
     public static OperatingSystemType getOs() {
         OperatingSystemType os = OperatingSystemType.UNKNOWN;
 
@@ -102,10 +104,12 @@ public class Functions
         return os;
     }
 
+    @Deprecated
     public static String getOsString() {
         return getOs().toString();
     }
 
+    @Deprecated
     public static String getPathJar()
     {
         // liefert den Pfad der Programmdatei mit File.separator am Schluss
@@ -143,6 +147,7 @@ public class Functions
     	return " [Vers.: " + MLibVersion.getInstance().getVersion().toString() + ']';
     }
 
+    @Deprecated
     public static String[] getJavaVersion() {
         String[] ret = new String[4];
         int i = 0;

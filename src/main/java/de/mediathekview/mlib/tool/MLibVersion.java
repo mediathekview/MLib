@@ -31,22 +31,24 @@ public class MLibVersion {
 	private static MLibVersion instanz=null;
 	private static final Logger LOG = LogManager.getLogger(Version.class);
 	
-	private static final Version MLIBVERSION = new Version(3,0,2, true); // Fallbackwert
+	private static final Version MLIBVERSION = new Version(3,0,2, true); // Fallbackwert (Major, Minor, Patch, Snapshot)
 	
 	private Version version;
 	
-	private MLibVersion() {
-		// Singleton
+	private MLibVersion() { // Singleton
 		this.version = this.getVersionIntern();
 	}
 	
 	public static MLibVersion getInstance() {
-		if(instanz == null) {
-			instanz = new MLibVersion();
-		}
+		if(instanz == null) instanz = new MLibVersion();
 		return instanz;
 	}
 	
+	/**
+	 * Ermittelt die MLib-Version anhand der von Maven erzeugten pom.properties in der jar oder versucht es mit der Java API. 
+	 * Schlägt beides fehl fällt er zurück auf den festen Wert.
+	 * @return Version Die MLib-Version als Version Objekt.
+	 */
 	private synchronized Version getVersionIntern() {
 	    Version version = null;
 	    // try to load from maven properties first
@@ -82,6 +84,11 @@ public class MLibVersion {
 		return version;
 	}
 	
+	/**
+	 * Gibt die MLib-Version als formatierten String zurück.
+	 * Format:  [Vers.: major.minor.patch-snapshot]
+	 * @return String Versionsstring
+	 */
 	public String getVersionStringFormated() {
 		return 	" [Vers.: " + this.version.toString() + ']';
 	}

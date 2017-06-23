@@ -1,13 +1,16 @@
 package de.mediathekview.mlib.daten;
 
-import de.mediathekview.mlib.tool.Functions;
-import de.mediathekview.mlib.Const;
-
 import java.net.URI;
-import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import de.mediathekview.mlib.Const;
+import de.mediathekview.mlib.tool.Functions;
 
 /**
  * Represents a found film.
@@ -57,7 +60,8 @@ public class Film
         beschreibung = "";
     }
 
-    public UUID getUuid()
+
+	public UUID getUuid()
     {
         return uuid;
     }
