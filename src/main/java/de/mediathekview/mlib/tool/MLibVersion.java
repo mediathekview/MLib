@@ -26,6 +26,8 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.mediathekview.dto.Version;
+
 public class MLibVersion {
 	
 	private static MLibVersion instanz=null;

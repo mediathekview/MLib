@@ -6,6 +6,10 @@ import java.nio.file.Paths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.mediathekview.dto.JavaVersion;
+import de.mediathekview.dto.Ram;
+import de.mediathekview.dto.Version;
+
 public class SystemInfo {
 	
 	private static SystemInfo instanz = null;

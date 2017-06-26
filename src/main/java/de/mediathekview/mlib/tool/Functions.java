@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.jidesoft.utils.SystemInfo;
 
+import de.mediathekview.dto.Version;
 import de.mediathekview.mlib.Const;
 
 public class Functions

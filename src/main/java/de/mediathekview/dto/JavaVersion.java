@@ -1,4 +1,4 @@
-package de.mediathekview.mlib.tool;
+package de.mediathekview.dto;
 
 public class JavaVersion {
 	
