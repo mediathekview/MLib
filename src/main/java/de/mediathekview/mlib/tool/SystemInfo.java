@@ -15,11 +15,13 @@ public class SystemInfo {
 	private OperatingSystemType os;
 	private JavaVersion javaversion;
 	private Path jarpath;
-	
+	private Ram raminfo;
+
 	private SystemInfo() {
 		os = readOs();
 		javaversion = readJavaVersion();
 		jarpath = readJarPath();
+		raminfo = readRamInfo();
 	}
 	
 	public static SystemInfo getInstance() {
@@ -66,6 +68,13 @@ public class SystemInfo {
         return OperatingSystemType.UNKNOWN;
     }
     
+    private Ram readRamInfo() {
+    	return new Ram(
+    			Runtime.getRuntime().totalMemory(),
+    			Runtime.getRuntime().maxMemory(),
+    			Runtime.getRuntime().freeMemory());
+    }
+    
     /**
      * Ermittelt den Jar Pfad
      * @return Path Den Jar Pfad als Path
@@ -105,6 +114,10 @@ public class SystemInfo {
 
 	public Path getJarpath() {
 		return jarpath;
+	}
+	
+	public Ram getRaminfo() {
+		return raminfo;
 	}
 
 }

@@ -25,7 +25,7 @@ public class ProgrammVersion {
 	 * Schlägt beides fehl fällt er zurück auf eine leere Version.
 	 * @return Version Die Programm-Version als Version Objekt.
 	 */
-	public synchronized Version getVersion(Class klasse, String progname) {
+	public synchronized Version getVersion(Class<?> klasse, String progname) {
 	    Version version = null;
 	    // try to load from maven properties first
 	    try {
@@ -63,7 +63,7 @@ public class ProgrammVersion {
 	 * @param fallback Die Fallbackversion, welche verwendet wird, wenn die Version nicht ausgelesen werden konnte.
 	 * @return Version die Programmversion als Version Objekt
 	 */
-	public synchronized Version getVersion(Class klasse, String progname, Version fallback) {
+	public synchronized Version getVersion(Class<?> klasse, String progname, Version fallback) {
 		Version progversion = getVersion(klasse, progname);
 		if (progversion.toNumber() == 0) return fallback;
 		return progversion;
@@ -74,7 +74,7 @@ public class ProgrammVersion {
 	 * Format:  [Vers.: major.minor.patch-snapshot]
 	 * @return String Versionsstring
 	 */
-	public String getVersionStringFormated(Class klasse, String progname) {
+	public String getVersionStringFormated(Class<?> klasse, String progname) {
 		return 	" [Vers.: " + getVersion(klasse, progname) + ']';
 	}
 	
@@ -83,7 +83,7 @@ public class ProgrammVersion {
 	 * Format:  [Vers.: major.minor.patch-snapshot]
 	 * @return String Versionsstring
 	 */
-	public String getVersionStringFormated(Class klasse, String progname, Version fallback) {
+	public String getVersionStringFormated(Class<?> klasse, String progname, Version fallback) {
 		Version progversion = getVersion(klasse, progname);
 		if (progversion.toNumber() == 0) return " [Vers.: " + fallback + ']';
 		return " [Vers.: " + progversion + ']';
