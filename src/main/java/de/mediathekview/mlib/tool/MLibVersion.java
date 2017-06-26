@@ -31,12 +31,12 @@ public class MLibVersion {
 	private static MLibVersion instanz=null;
 	private static final Logger LOG = LogManager.getLogger(Version.class);
 	
-	private static final Version MLIBVERSION = new Version(3,0,2, true); // Fallbackwert (Major, Minor, Patch, Snapshot)
+	private static final Version MLIB_VERSION = new Version(3,0,2, true); // Fallbackwert (Major, Minor, Patch, Snapshot)
 	
 	private Version version;
 	
 	private MLibVersion() { // Singleton
-		this.version = this.getVersionIntern();
+		version = readVersion();
 	}
 	
 	public static MLibVersion getInstance() {
@@ -49,7 +49,7 @@ public class MLibVersion {
 	 * Schlägt beides fehl fällt er zurück auf den festen Wert.
 	 * @return Version Die MLib-Version als Version Objekt.
 	 */
-	private synchronized Version getVersionIntern() {
+	private synchronized Version readVersion() {
 	    Version version = null;
 	    // try to load from maven properties first
 	    try {
@@ -76,7 +76,7 @@ public class MLibVersion {
 	        }
 	    }
 	 // we could not compute the version so use a blank
-	    if (version == null) version = MLIBVERSION;
+	    if (version == null) version = MLIB_VERSION;
 	    return version;
 	}
 	
@@ -90,7 +90,7 @@ public class MLibVersion {
 	 * @return String Versionsstring
 	 */
 	public String getVersionStringFormated() {
-		return 	" [Vers.: " + this.version.toString() + ']';
+		return 	" [Vers.: " + version.toString() + ']';
 	}
 
 }
