@@ -283,7 +283,7 @@ public class FilenameUtils {
     public static String removeIllegalCharacters(final String input, boolean isPath) {
         String ret = input;
 
-        switch (Functions.getOs()) {
+        switch (de.mediathekview.mlib.tool.SystemInfo.getInstance().getOs()) {
             case MAC:
             case LINUX:
                 //On OSX the VFS take care of writing correct filenames to FAT filesystems...

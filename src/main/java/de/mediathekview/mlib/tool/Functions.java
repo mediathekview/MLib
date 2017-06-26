@@ -143,6 +143,7 @@ public class Functions
         return s;
     }
 
+    @Deprecated
     public static String getProgVersionString() {
     	return " [Vers.: " + MLibVersion.getInstance().getVersion().toString() + ']';
     }

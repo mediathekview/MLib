@@ -1,8 +1,7 @@
 package de.mediathekview.mlib.filmlisten;
 
-import de.mediathekview.mlib.daten.Film;
-import de.mediathekview.mlib.daten.GeoLocations;
-import de.mediathekview.mlib.daten.Qualities;
+import static java.time.format.FormatStyle.MEDIUM;
+import static java.time.format.FormatStyle.SHORT;
 
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -12,7 +11,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
-import static java.time.format.FormatStyle.*;
+import de.mediathekview.mlib.daten.Film;
+import de.mediathekview.mlib.daten.GeoLocations;
+import de.mediathekview.mlib.daten.Qualities;
 
 /**
  * A helper class to generate the old fake json format for a {@link de.mediathekview.mlib.daten.Film}.
@@ -66,7 +67,7 @@ public class FilmToFakeJsonConverter
 
         String thema = setThema(film);
 
-        String url = url = film.getUrl(Qualities.NORMAL).toString();
+        String url = film.getUrl(Qualities.NORMAL).toString();
         String urlKlein = "";
         String urlHd = "";
 

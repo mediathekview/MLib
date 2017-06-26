@@ -77,6 +77,7 @@ public class Log {
 
     private static final long TO_MEGABYTE = 1000L * 1000L;
 
+    @Deprecated
     public static void versionMsg(String progName) {
         if (!SystemInfo.isMacOSX()) {
             sysLog("");

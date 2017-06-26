@@ -83,6 +83,10 @@ public class SystemInfo {
     	return null;
     }
 
+    /**
+     * Liest die Java Version und zusätzliche Informationen aus.
+     * @return JavaVersion Die Javaversion als JavaVersion Objekt.
+     */
     private JavaVersion readJavaVersion() {
     	return new JavaVersion(
     			System.getProperty("java.vendor"),

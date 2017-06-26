@@ -2,7 +2,6 @@ package de.mediathekview.mlib.daten;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Created by nicklas on 29.12.16.

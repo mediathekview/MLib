@@ -22,7 +22,17 @@ package de.mediathekview.mlib.daten;
 import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Optional;
+import java.util.SimpleTimeZone;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -30,8 +40,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import de.mediathekview.mlib.Const;
 import de.mediathekview.mlib.tool.Duration;
 import de.mediathekview.mlib.tool.FileSize;
-import de.mediathekview.mlib.tool.Functions;
 import de.mediathekview.mlib.tool.Log;
+import de.mediathekview.mlib.tool.MLibVersion;
 
 @SuppressWarnings("serial")
 public class ListeFilme extends ArrayList<Film>
@@ -423,7 +433,7 @@ public class ListeFilme extends ArrayList<Film>
         metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = getJetzt_ddMMyyyy_HHmm_gmt();
         metaDaten[ListeFilme.FILMLISTE_ID_NR] = createChecksum(metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR]);
         metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = Const.VERSION_FILMLISTE;
-        metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = Const.PROGRAMMNAME + Functions.getProgVersionString(); //  + " - Compiled: " + Functions.getCompileDate();
+        metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = Const.PROGRAMMNAME + MLibVersion.getInstance().getVersion();
     }
 
     /**
@@ -511,13 +521,9 @@ public class ListeFilme extends ArrayList<Film>
             }
             for (int i = 1; i < senderLength; ++i)
             {
-                if (filmSender.equals(sender[i]))
-                {
-                    if (!hashSet[i].contains(filmThema))
-                    {
-                        hashSet[i].add(filmThema);
-                        tree[i].add(filmThema);
-                    }
+                if (filmSender.equals(sender[i]) && !hashSet[i].contains(filmThema)) {
+                	hashSet[i].add(filmThema);
+                	tree[i].add(filmThema);
                 }
             }
         }
