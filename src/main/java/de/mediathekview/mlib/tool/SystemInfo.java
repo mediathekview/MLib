@@ -72,7 +72,11 @@ public class SystemInfo {
      */
     private Path readJarPath() {
     	try {
-			return Paths.get(SystemInfo.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
+    		String ermittelterPfad = SystemInfo.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+    		if(ermittelterPfad.contains("/lib")) { //Mlib liegt im lib Ordner
+    			return Paths.get(ermittelterPfad).getParent().getParent();
+    		}
+			return Paths.get(ermittelterPfad).getParent();
 		} catch (Exception e) {
 			LOG.warn("Konnte Jar Pfad nicht ermitteln.", e);
 		}
