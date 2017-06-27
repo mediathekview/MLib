@@ -23,9 +23,9 @@ public class SystemInfo {
 
 	private SystemInfo() {
 		os = readOs();
-		javaversion = readJavaVersion();
-		jarpath = readJarPath();
-		raminfo = readRamInfo();
+		readJavaVersion();
+		readJarPath();
+		readRamInfo();
 	}
 	
 	public static SystemInfo getInstance() {
@@ -72,8 +72,8 @@ public class SystemInfo {
         return OperatingSystemType.UNKNOWN;
     }
     
-    private Ram readRamInfo() {
-    	return new Ram(
+    private void readRamInfo() {
+    	raminfo = new Ram(
     			Runtime.getRuntime().totalMemory(),
     			Runtime.getRuntime().maxMemory(),
     			Runtime.getRuntime().freeMemory());
@@ -83,25 +83,25 @@ public class SystemInfo {
      * Ermittelt den Jar Pfad
      * @return Path Den Jar Pfad als Path
      */
-    private Path readJarPath() {
+    private void readJarPath() {
     	try {
     		String ermittelterPfad = SystemInfo.class.getProtectionDomain().getCodeSource().getLocation().getPath();
     		if(ermittelterPfad.contains("/lib")) { //Mlib liegt im lib Ordner
-    			return Paths.get(ermittelterPfad).getParent().getParent();
+    			jarpath = Paths.get(ermittelterPfad).getParent().getParent();
     		}
-			return Paths.get(ermittelterPfad).getParent();
+    		jarpath = Paths.get(ermittelterPfad).getParent();
 		} catch (Exception e) {
 			LOG.warn("Konnte Jar Pfad nicht ermitteln.", e);
 		}
-    	return null;
+    	jarpath = null;
     }
 
     /**
      * Liest die Java Version und zusätzliche Informationen aus.
      * @return JavaVersion Die Javaversion als JavaVersion Objekt.
      */
-    private JavaVersion readJavaVersion() {
-    	return new JavaVersion(
+    private void readJavaVersion() {
+    	javaversion =  new JavaVersion(
     			System.getProperty("java.vendor"),
     			System.getProperty("java.vm.name"),
     			System.getProperty("java.version"),
@@ -118,6 +118,11 @@ public class SystemInfo {
 
 	public Path getJarpath() {
 		return jarpath;
+	}
+	
+	public SystemInfo refreshRamInfo() {
+		readRamInfo();
+		return instanz;
 	}
 	
 	public Ram getRaminfo() {
