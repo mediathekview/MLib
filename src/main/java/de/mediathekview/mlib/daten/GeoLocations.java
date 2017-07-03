@@ -30,7 +30,7 @@ public enum GeoLocations
     {
         for (GeoLocations geoLoc : GeoLocations.values())
         {
-            if (geoLoc.getDescription().equals(aDescription))
+            if (geoLoc.getDescription().equalsIgnoreCase(aDescription))
             {
                 return geoLoc;
             }

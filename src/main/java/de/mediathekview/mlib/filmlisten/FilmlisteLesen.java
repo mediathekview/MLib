@@ -81,7 +81,7 @@ public class FilmlisteLesen
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(MEDIUM).withLocale(Locale.GERMANY);
     private static final int PROGRESS_MAX = 100;
     private static final String ENTRY_PATTERN = "\"\\w*\"\\s?:\\s*\\[\\s?(\"([^\"]|\\\\\")*\",?\\s?)*\\]";
-    private static final String ENTRY_SPLIT_PATTERN = "[\"'](\\\\[\"']|\\w'\\w|[^\"'])*[\"']";
+    private static final String ENTRY_SPLIT_PATTERN = "\"(\\\\\"|[^\"])*\"";
     private static final String FILM_ENTRY_ID = "X";
     private static final char GEO_SPLITTERATOR = '-';
     private static final String EXCEPTION_TEXT_CANT_BUILD_FILM = "Can't build a Film from splits.";
@@ -134,7 +134,7 @@ public class FilmlisteLesen
             Film filmEntryBefore = null;
             while (entryMatcher.find())
             {
-                String entry = Functions.unescape(entryMatcher.group());
+                String entry = entryMatcher.group();
                 List<String> splittedEntry = splittEntry(entry);
 
                 if (!splittedEntry.isEmpty())
@@ -148,6 +148,11 @@ public class FilmlisteLesen
                         try
                         {
                             final Film newEntry = entrySplitsToFilm(splittedEntry, filmEntryBefore);
+                            /*
+                             * TODO Move the entrySplitsToFilm Part to a extra class
+                             *
+                             * and work with Future objects and Executor service
+                             */
                             listeFilme.add(newEntry);
                             filmEntryBefore = newEntry;
                         } catch (Exception exception)
@@ -345,7 +350,7 @@ public class FilmlisteLesen
         Matcher entrySplitMatcher = Pattern.compile(ENTRY_SPLIT_PATTERN).matcher(aEntry);
         while (entrySplitMatcher.find())
         {
-            entrySplits.add(entrySplitMatcher.group().replaceAll("'", "").replaceAll("\"", ""));
+            entrySplits.add(Functions.unescape(entrySplitMatcher.group().replaceFirst("\"","").replaceAll("\"$","")));
         }
 
         return entrySplits;
