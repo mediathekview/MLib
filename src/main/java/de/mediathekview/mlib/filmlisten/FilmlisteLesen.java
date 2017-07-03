@@ -80,8 +80,8 @@ public class FilmlisteLesen
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(MEDIUM).withLocale(Locale.GERMANY);
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(MEDIUM).withLocale(Locale.GERMANY);
     private static final int PROGRESS_MAX = 100;
-    private static final String ENTRY_PATTERN = "\"\\w*\":\\s*\\[(\"([^\"]|\\\\\")*\",?)*\\]";
-    private static final String ENTRY_SPLIT_PATTERN = "'(\\\\'|[^'])*'";
+    private static final String ENTRY_PATTERN = "\"\\w*\"\\s?:\\s*\\[\\s?(\"([^\"]|\\\\\")*\",?\\s?)*\\]";
+    private static final String ENTRY_SPLIT_PATTERN = "[\"'](\\\\[\"']|\\w'\\w|[^\"'])*[\"']";
     private static final String FILM_ENTRY_ID = "X";
     private static final char GEO_SPLITTERATOR = '-';
     private static final String EXCEPTION_TEXT_CANT_BUILD_FILM = "Can't build a Film from splits.";
@@ -153,6 +153,7 @@ public class FilmlisteLesen
                         } catch (Exception exception)
                         {
                             LOG.fatal(EXCEPTION_TEXT_CANT_BUILD_FILM, exception);
+                            LOG.debug(String.format("Error on converting the following text to a film:\n %s ",entry));
                         }
                     }
                 }
@@ -344,7 +345,7 @@ public class FilmlisteLesen
         Matcher entrySplitMatcher = Pattern.compile(ENTRY_SPLIT_PATTERN).matcher(aEntry);
         while (entrySplitMatcher.find())
         {
-            entrySplits.add(entrySplitMatcher.group().replaceAll("'", ""));
+            entrySplits.add(entrySplitMatcher.group().replaceAll("'", "").replaceAll("\"", ""));
         }
 
         return entrySplits;
