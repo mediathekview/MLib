@@ -96,14 +96,12 @@ public class Listener implements EventListener {
     public static synchronized void notify(int ereignis, String klasse) {
         for (Listener l : listeners.getListeners(Listener.class)) {
             for (int er : l.mvEreignis) {
-                if (er == ereignis) {
-                    if (!l.klasse.equals(klasse)) {
-                        // um einen Kreislauf zu verhindern
-                        try {
-                            l.pingen();
-                        } catch (Exception ex) {
-                            DbgMsg.print("ListenerMediathekView.notifyMediathekListener: " + ex.getMessage());
-                        }
+                if (er == ereignis && !l.klasse.equals(klasse)) {
+                    // um einen Kreislauf zu verhindern
+                    try {
+                        l.pingen();
+                    } catch (Exception ex) {
+                        DbgMsg.print("ListenerMediathekView.notifyMediathekListener: " + ex.getMessage());
                     }
                 }
             }
