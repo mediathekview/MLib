@@ -32,8 +32,8 @@ public class Film
     private final Map<Qualities, FilmUrl> urls;
     private final Collection<GeoLocations> geoLocations;
     private final Sender sender;
-    private final String titel;
-    private final String thema;
+    private String titel;
+    private String thema;
     private final LocalDateTime time;
     private final Duration duration;
     private boolean neu;
@@ -50,8 +50,8 @@ public class Film
 
         uuid = aUuid;
         sender = aSender;
-        titel = Functions.unescape(Functions.removeHtml(aTitel));
-        thema = Functions.unescape(Functions.removeHtml(aThema));
+        setTitel(aTitel);
+        setThema(aThema);
         time = aTime;
         duration = aDuration;
         website = aWebsite;
@@ -75,6 +75,11 @@ public class Film
         return sender;
     }
 
+    public void setTitel(String aTitel)
+    {
+        titel = Functions.unescape(Functions.removeHtml(aTitel));
+    }
+    
     public String getTitel()
     {
         return titel;
@@ -83,6 +88,11 @@ public class Film
     public String getThema()
     {
         return thema;
+    }
+    
+    public void setThema(String aThema)
+    {
+        thema = Functions.unescape(Functions.removeHtml(aThema));
     }
 
     public Collection<GeoLocations> getGeoLocations()
