@@ -247,8 +247,8 @@ public class FilmlisteLesen
             String beschreibung = aEntrySplits.get(8);
 
 
-            URI urlNormal = new URI(convertStringUTF8ToRealUTF8Char(aEntrySplits.get(9).trim()));
-            URI urlWebseite = new URI(convertStringUTF8ToRealUTF8Char(aEntrySplits.get(10).trim()));
+            URI urlNormal = new URI(Functions.convertStringUTF8ToRealUTF8Char(aEntrySplits.get(9).trim()));
+            URI urlWebseite = new URI(Functions.convertStringUTF8ToRealUTF8Char(aEntrySplits.get(10).trim()));
 
             String urlTextUntertitel = aEntrySplits.get(11);
 
@@ -304,24 +304,7 @@ public class FilmlisteLesen
         }
     }
 
-    //TODO: Alex Auslagerung in Functions.java oder ähnliches
-    private String convertStringUTF8ToRealUTF8Char(String string) {
-      if(string.contains("\\u003d")) {
-        char[] charArray = string.toCharArray();
-        StringBuilder strb = new StringBuilder();
-        for(int i = 0; i < charArray.length; i++) {
-          if(charArray[i] == '\\' && charArray[i+1] == 'u') {
-            charArray[i] = '=';
-            strb.append('=');
-            i = i+5;
-          } else {
-            strb.append(charArray[i]);
-          }
-        }
-        return strb.toString();
-      }
-      return string;
-    }
+    
 
     private FilmUrl urlTextToUri(final URI aUrlNormal, final long aGroesse, final String aUrlText) throws URISyntaxException
     {
