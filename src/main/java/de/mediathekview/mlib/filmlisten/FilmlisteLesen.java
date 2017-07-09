@@ -42,9 +42,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Spliterators;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.StreamSupport;
 import java.util.zip.ZipInputStream;
 
 import javax.swing.event.EventListenerList;
@@ -132,9 +134,18 @@ public class FilmlisteLesen
 
             boolean isFirst = true;
             Film filmEntryBefore = null;
+            
+            List<String> entries = new ArrayList<>();
             while (entryMatcher.find())
             {
-                String entry = entryMatcher.group();
+            	entries.add(entryMatcher.group());
+            }
+            
+            notifyStart("", entries.size()); // für die Progressanzeige
+            int count = 0;
+            for(String entry : entries)
+            {
+            	count++;
                 List<String> splittedEntry = splittEntry(entry);
 
                 if (!splittedEntry.isEmpty())
@@ -155,15 +166,16 @@ public class FilmlisteLesen
                              */
                             listeFilme.add(newEntry);
                             filmEntryBefore = newEntry;
+                            notifyProgress(newEntry.getUrl(Qualities.NORMAL).toString(),count*100/entries.size(), count,false);
                         } catch (Exception exception)
                         {
                             LOG.fatal(EXCEPTION_TEXT_CANT_BUILD_FILM, exception);
                             LOG.debug(String.format("Error on converting the following text to a film:\n %s ",entry));
+                            notifyProgress("",count*100/entries.size(), count,true);
                         }
                     }
                 }
             }
-
             return listeFilme;
         }
     }
@@ -373,7 +385,6 @@ public class FilmlisteLesen
      */
     private ListeFilme processFromFile(String aSource)
     {
-        notifyProgress(aSource, PROGRESS_MAX);
         try (InputStream in = selectDecompressor(aSource, Files.newInputStream(Paths.get(aSource))))
         {
             return readData(in);
@@ -393,7 +404,6 @@ public class FilmlisteLesen
         try
         {
             Log.sysLog("Liste Filme lesen von: " + source);
-            this.notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
 
             if (!source.startsWith("http"))
             {
@@ -439,7 +449,7 @@ public class FilmlisteLesen
                 if (iProgress != oldProgress)
                 {
                     oldProgress = iProgress;
-                    notifyProgress(source.toString(), iProgress);
+                    notifyProgress(source.toString(), iProgress,0,false);
                 }
             }
         };
@@ -474,7 +484,8 @@ public class FilmlisteLesen
         }
     }
 
-    private void notifyProgress(String url, int iProgress)
+    
+    private void notifyProgress(String url, int iProgress, int aCount, boolean aFehler)
     {
         progress = iProgress;
         if (progress > max)
@@ -483,7 +494,7 @@ public class FilmlisteLesen
         }
         for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class))
         {
-            l.progress(new ListenerFilmeLadenEvent(url, "Download", max, progress, 0, false));
+            l.progress(new ListenerFilmeLadenEvent(url, "Download", max, progress, aCount, aFehler));
         }
     }
 
