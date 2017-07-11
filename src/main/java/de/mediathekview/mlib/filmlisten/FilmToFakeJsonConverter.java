@@ -6,6 +6,7 @@ import de.mediathekview.mlib.daten.Qualities;
 
 import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
@@ -27,7 +28,7 @@ public class FilmToFakeJsonConverter
     private static final char FAKE_JSON_BEGIN = '{';
     private static final char FAKE_JSON_END = '}';
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(MEDIUM).withLocale(Locale.GERMANY);
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(SHORT).withLocale(Locale.GERMANY);
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(MEDIUM).withLocale(Locale.GERMANY);
     private static final String RTMP = "rtmp";
     private static final char GEO_SPLITTERATOR = '-';
     private static final String URL_INTERSECTION_REDUCE_PATTERN = "%d|";
@@ -99,7 +100,7 @@ public class FilmToFakeJsonConverter
                 "",
                 urlHd,
                 "",
-                Timestamp.valueOf(film.getTime()).toString(),
+                Timestamp.valueOf(film.getTime() == null ? LocalDateTime.now() : film.getTime()).toString(),
                 "", //History
                 geolocationsToStirng(film.getGeoLocations()),
                 film.isNeu()
