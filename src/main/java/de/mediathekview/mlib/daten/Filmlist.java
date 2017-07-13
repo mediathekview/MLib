@@ -36,6 +36,11 @@ public class Filmlist
     {
         return creationDate;
     }
+    
+    public void addAll(Collection<Film> aFilms)
+    {
+        aFilms.stream().forEach(f -> films.put(f.getUuid(),f));
+    }
 
     public ConcurrentHashMap<UUID, Film> getFilms()
     {

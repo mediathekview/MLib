@@ -254,7 +254,6 @@ public class Film
         if (getSender() != film.getSender()) return false;
         if (!getTitel().equals(film.getTitel())) return false;
         if (!getThema().equals(film.getThema())) return false;
-        if (getTime() != null ? !getTime().equals(film.getTime()) : film.getTime() != null) return false;
         if (getDuration() != null ? !getDuration().equals(film.getDuration()) : film.getDuration() != null)
             return false;
         return getSubtitles() != null ? getSubtitles().equals(film.getSubtitles()) : film.getSubtitles() == null;
@@ -268,7 +267,6 @@ public class Film
         result = 31 * result + getSender().hashCode();
         result = 31 * result + getTitel().hashCode();
         result = 31 * result + getThema().hashCode();
-        result = 31 * result + (getTime() != null ? getTime().hashCode() : 0);
         result = 31 * result + (getDuration() != null ? getDuration().hashCode() : 0);
         result = 31 * result + (getSubtitles() != null ? getSubtitles().hashCode() : 0);
         return result;
