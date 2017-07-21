@@ -44,10 +44,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Spliterators;
 import java.util.UUID;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipInputStream;
+import java.util.Scanner;
 
 import javax.swing.event.EventListenerList;
 
@@ -82,7 +83,7 @@ public class FilmlisteLesen
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(MEDIUM).withLocale(Locale.GERMANY);
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(MEDIUM).withLocale(Locale.GERMANY);
     private static final int PROGRESS_MAX = 100;
-    private static final String ENTRY_PATTERN = "\"\\w*\"\\s?:\\s*\\[\\s?(\"([^\"]|\\\\\")*\",?\\s?)*\\]";
+    private static final String ENTRY_PATTERN = "\"\\w*\"\\s?:\\s*\\[\\s?(\"([^\"]|\\\\\")*\",?\\s?)*";
     private static final String ENTRY_SPLIT_PATTERN = "\"(\\\\\"|[^\"])*\"";
     private static final String FILM_ENTRY_ID = "X";
     private static final char GEO_SPLITTERATOR = '-';
@@ -125,20 +126,25 @@ public class FilmlisteLesen
 
     public ListeFilme readData(InputStream aInputStream) throws IOException
     {
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(aInputStream)))
+        try (Scanner entryScanner = new Scanner(aInputStream).useDelimiter("\\],"))
         {
             ListeFilme listeFilme = new ListeFilme();
-
-            String fileAsText = allLinesToOneText(bufferedReader);
-            Matcher entryMatcher = Pattern.compile(ENTRY_PATTERN).matcher(fileAsText);
+            
 
             boolean isFirst = true;
             Film filmEntryBefore = null;
             
             List<String> entries = new ArrayList<>();
-            while (entryMatcher.find())
+            
+            while (entryScanner.hasNext())
             {
-            	entries.add(entryMatcher.group());
+                String entry = entryScanner.next();
+                Matcher entryMatcher = Pattern.compile(ENTRY_PATTERN).matcher(entry);
+                if(entryMatcher.find())
+                {
+                	entries.add(entryMatcher.group());
+        	    }
+
             }
             
             notifyStart("", entries.size()); // für die Progressanzeige

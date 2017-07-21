@@ -11,6 +11,7 @@ public enum GeoLocations
     GEO_CH("CH"),
     GEO_EU("EU"),
     GEO_WELT("WELT"),
+    GEO_DE_FR("DE-FR"),
     GEO_DE_AT_CH("DE-AT-CH"),
     GEO_DE_AT_CH_EU("DE-AT-CH-EU");
 
