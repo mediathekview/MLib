@@ -19,7 +19,7 @@ public abstract class ConfigManager<T extends ConfigDTO>
     protected abstract String getConfigName();
     protected abstract Class<T> getConfigClass();
 
-    ConfigManager()
+    protected ConfigManager()
     {
         ConfigurationSource configurationSource = new FilesConfigurationSource(() -> getConfigFilePath());
         final ConfigurationProvider configurationProvider = new ConfigurationProviderBuilder()
