@@ -15,9 +15,9 @@ public abstract class ConfigManager<T extends ConfigDTO>
 {
     private T config;
 
-    abstract Path getConfigFilePath();
-    abstract String getConfigName();
-    abstract Class<T> getConfigClass();
+    protected abstract Path getConfigFilePath();
+    protected abstract String getConfigName();
+    protected abstract Class<T> getConfigClass();
 
     ConfigManager()
     {
