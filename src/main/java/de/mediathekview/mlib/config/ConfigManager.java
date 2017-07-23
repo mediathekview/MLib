@@ -1,12 +1,7 @@
 package de.mediathekview.mlib.config;
 
-import org.cfg4j.provider.ConfigurationProvider;
-import org.cfg4j.provider.ConfigurationProviderBuilder;
-import org.cfg4j.source.ConfigurationSource;
-import org.cfg4j.source.context.filesprovider.ConfigFilesProvider;
-import org.cfg4j.source.files.FilesConfigurationSource;
 
-import java.nio.file.Path;
+import com.yacl4j.core.ConfigurationBuilder;
 
 /**
  * A manager to load configurations.
@@ -15,17 +10,15 @@ public abstract class ConfigManager<T extends ConfigDTO>
 {
     private T config;
 
-    protected abstract Path getConfigFilePath();
-    protected abstract String getConfigName();
+    protected abstract String getConfigFileName();
+
     protected abstract Class<T> getConfigClass();
 
     protected ConfigManager()
     {
-        ConfigurationSource configurationSource = new FilesConfigurationSource(() -> getConfigFilePath());
-        final ConfigurationProvider configurationProvider = new ConfigurationProviderBuilder()
-                .withConfigurationSource(configurationSource)
-                .build();
-        config = configurationProvider.bind(getConfigName(),getConfigClass());
+        config = ConfigurationBuilder.newBuilder()
+                .source().fromFileOnClasspath(getConfigFileName())
+                .build(getConfigClass());
     }
 
     public T getConfig()
