@@ -46,6 +46,11 @@ public class FilmComperatorFactory
                 return createDefaultComperator();
         }
     }
+    
+    public Comparator<Film> getDefault()
+    {
+        return getFilmComperator(FilmComperatorTypes.DEFAULT_COMPERATOR);
+    }
 
     private Comparator<Film> createDefaultComperator()
     {

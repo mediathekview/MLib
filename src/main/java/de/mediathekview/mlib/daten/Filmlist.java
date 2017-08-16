@@ -53,4 +53,9 @@ public class Filmlist
         sortedFilms.sort(aFilmComperator);
         return sortedFilms;
     }
+    
+    public void merge(Filmlist aFilmlist)
+    {
+        aFilmlist.films.forEach(films::putIfAbsent);
+    }
 }
