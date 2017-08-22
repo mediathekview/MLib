@@ -24,7 +24,7 @@ public class ReadFilmlistFromFakeJsonTest
     @Before
     public void setUp() throws URISyntaxException
     {
-        testData = FilmlistTestData.getInstance().getTestData();
+        testData = FilmlistTestData.getInstance().createTestdataOldFormat();
     }
 
     @Test

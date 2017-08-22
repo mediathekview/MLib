@@ -1,8 +1,10 @@
 package de.mediathekview.mlib.messages;
 
-public enum LibMessages  implements Message
+public enum LibMessages implements Message
 {
-    FILMLIST_WRITE_ERROR("filmlistWritieError",MessageTypes.FATAL_ERROR);
+    FILMLIST_WRITE_ERROR("filmlistWriteError", MessageTypes.FATAL_ERROR),
+    FILMLIST_COMPRESS_ERROR("filmlistCompressError", MessageTypes.FATAL_ERROR),
+    FILMLIST_DECOMPRESS_ERROR("filmlistDecompressError", MessageTypes.FATAL_ERROR);
 
     private String messageKey;
     private MessageTypes messageType;

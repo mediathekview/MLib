@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
 
 /**
@@ -15,29 +16,41 @@ import java.util.UUID;
  */
 public class FilmlistTestData
 {
-    private static FilmlistTestData instance=null;
+    private static FilmlistTestData instance = null;
 
     public static FilmlistTestData getInstance() throws URISyntaxException
     {
-        if(instance==null)
+        if (instance == null)
         {
             instance = new FilmlistTestData();
         }
         return instance;
     }
 
-    private ListeFilme testData;
 
     private FilmlistTestData() throws URISyntaxException
     {
         super();
-        createTestdata();
     }
 
-    private void createTestdata() throws URISyntaxException
+    public ListeFilme createTestdataOldFormat() throws URISyntaxException
     {
-        testData = new ListeFilme();
+        ListeFilme testData = new ListeFilme();
         testData.writeMetaData();
+        testData.addAll(createFilme());
+        return testData;
+    }
+
+    public Filmlist createTestdataNewFormat() throws URISyntaxException
+    {
+        Filmlist testData = new Filmlist();
+        testData.addAll(createFilme());
+        return testData;
+    }
+
+    public Collection<Film> createFilme() throws URISyntaxException
+    {
+        Collection<Film> films = new ArrayList<>();
 
         Film testFilm1 = new Film(UUID.randomUUID(),
                 new ArrayList<>(),
@@ -79,13 +92,10 @@ public class FilmlistTestData
         testFilm3.addUrl(Qualities.NORMAL, new FilmUrl(new URI("http://example.org/Test.mp4"), 42l));
         testFilm3.addUrl(Qualities.HD, new FilmUrl(new URI("http://example.org/hd.mp4"), 42l));
 
-        testData.add(testFilm1);
-        testData.add(testFilm2);
-        testData.add(testFilm3);
+        films.add(testFilm1);
+        films.add(testFilm2);
+        films.add(testFilm3);
+        return films;
     }
 
-    public ListeFilme getTestData()
-    {
-        return testData;
-    }
 }

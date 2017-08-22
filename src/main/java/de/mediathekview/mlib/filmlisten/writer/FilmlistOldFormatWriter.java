@@ -21,7 +21,8 @@ import de.mediathekview.mlib.filmlisten.FilmToFakeJsonConverter;
 import de.mediathekview.mlib.messages.LibMessages;
 import de.mediathekview.mlib.tool.Functions;
 
-public class FilmlistOldFormatWriter extends FilmlistWriter {
+public class FilmlistOldFormatWriter extends AbstractFilmlistWriter
+{
     private static final Logger LOG = LogManager.getLogger(FilmlistOldFormatWriter.class);
     private static final String LINE_BREAK = "\\n";
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofLocalizedDateTime(MEDIUM).withLocale(Locale.GERMANY);
