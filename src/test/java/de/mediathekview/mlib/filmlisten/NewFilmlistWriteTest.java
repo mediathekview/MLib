@@ -28,7 +28,7 @@ public class NewFilmlistWriteTest
 
     private static final FilmlistManager filmlistManager = FilmlistManager.getInstance();
     private final String jsonName;
-    private final FilmlistOutputFormats format;
+    private final FilmlistFormats format;
 
     @BeforeClass
     public static void initTestData() throws URISyntaxException, IOException
@@ -41,15 +41,15 @@ public class NewFilmlistWriteTest
     public static Collection<Object[]> data()
     {
         return Arrays.asList(new Object[][]{
-                {formatWithDate("TestWriteNewJson_%d.json"), FilmlistOutputFormats.JSON},
-                {formatWithDate("TestWriteNewJsonCompressed_%d.json"), FilmlistOutputFormats.JSON_COMPRESSED},
-                {formatWithDate("TestWriteOldJson_%d.json"), FilmlistOutputFormats.OLD_JSON},
-                {formatWithDate("TestWriteOldJsonCompressed_%d.json"), FilmlistOutputFormats.OLD_JSON_COMPRESSED},
+                {formatWithDate("TestWriteNewJson_%d.json"), FilmlistFormats.JSON},
+                {formatWithDate("TestWriteNewJsonCompressed_%d.json"), FilmlistFormats.JSON_COMPRESSED},
+                {formatWithDate("TestWriteOldJson_%d.json"), FilmlistFormats.OLD_JSON},
+                {formatWithDate("TestWriteOldJsonCompressed_%d.json"), FilmlistFormats.OLD_JSON_COMPRESSED},
         });
     }
 
 
-    public NewFilmlistWriteTest(String aJsonName, FilmlistOutputFormats aFormat)
+    public NewFilmlistWriteTest(String aJsonName, FilmlistFormats aFormat)
     {
         jsonName = aJsonName;
         format = aFormat;

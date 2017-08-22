@@ -1,6 +1,6 @@
 package de.mediathekview.mlib.filmlisten;
 
-public enum FilmlistOutputFormats {
+public enum FilmlistFormats {
     
     JSON("Json","json"),
     OLD_JSON("Old Json","json"),
@@ -10,7 +10,7 @@ public enum FilmlistOutputFormats {
     private String description;
     private String fileExtension;
     
-    FilmlistOutputFormats(String aDescription, String aFileExtension)
+    FilmlistFormats(String aDescription, String aFileExtension)
     {
       description=aDescription;
       fileExtension=aFileExtension;

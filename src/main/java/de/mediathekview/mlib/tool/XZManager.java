@@ -92,6 +92,17 @@ public class XZManager
             fastChannelCopy(Channels.newChannel(input), Channels.newChannel(output));
         }
     }
+    
+    /**
+     * Uncompresses a {@link InputStream}.
+     *
+     * @param aInputStream The {@link InputStream} to uncompress.
+     * @return A uncompressed {@link InputStream}.
+     */
+    public InputStream decompress(InputStream aInputStream) throws IOException
+    {
+        return new XZInputStream(aInputStream);
+    }
 
     private void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException
     {

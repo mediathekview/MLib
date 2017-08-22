@@ -29,7 +29,6 @@ public class FilmToFakeJsonConverter
     private static final char FAKE_JSON_END = '}';
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(MEDIUM).withLocale(Locale.GERMANY);
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(MEDIUM).withLocale(Locale.GERMANY);
-    private static final String RTMP = "rtmp";
     private static final char GEO_SPLITTERATOR = '-';
     private static final String URL_INTERSECTION_REDUCE_PATTERN = "%d|";
     private static final String DURATION_FORMAT = "HH:mm:ss";
