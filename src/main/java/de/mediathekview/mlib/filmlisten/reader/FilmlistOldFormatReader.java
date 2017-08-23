@@ -2,35 +2,28 @@ package de.mediathekview.mlib.filmlisten.reader;
 
 import static java.time.format.FormatStyle.MEDIUM;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.mediathekview.mlib.daten.Film;
-import de.mediathekview.mlib.daten.FilmUrl;
 import de.mediathekview.mlib.daten.Filmlist;
-import de.mediathekview.mlib.daten.GeoLocations;
-import de.mediathekview.mlib.daten.ListeFilme;
-import de.mediathekview.mlib.daten.Qualities;
-import de.mediathekview.mlib.daten.Sender;
 import de.mediathekview.mlib.tool.Functions;
 
 public class FilmlistOldFormatReader extends AbstractFilmlistReader {
@@ -38,61 +31,58 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
 	private static final Logger LOG = LogManager.getLogger(FilmlistOldFormatReader.class);
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(MEDIUM)
 			.withLocale(Locale.GERMANY);
-	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(MEDIUM)
-			.withLocale(Locale.GERMANY);
-	private static final int PROGRESS_MAX = 100;
 	private static final String ENTRY_PATTERN = "\"\\w*\"\\s?:\\s*\\[\\s?(\"([^\"]|\\\\\")*\",?\\s?)*";
 	private static final String ENTRY_SPLIT_PATTERN = "\"(\\\\\"|[^\"])*\"";
 	private static final String FILM_ENTRY_ID = "X";
-	private static final String EXCEPTION_TEXT_CANT_BUILD_FILM = "Can't build a Film from splits.";
-	private static final String URL_SPLITTERATOR = "\\|";
 
 	@Override
 	public Optional<Filmlist> read(InputStream aInputStream) {
-		try (Scanner entryScanner = new Scanner(aInputStream).useDelimiter(ENTRY_DELIMETER))
-        {
-            Filmlist filmlist = new Filmlist();
-            
+		try (Scanner scanner = new Scanner(aInputStream);
+				Scanner entryScanner = scanner.useDelimiter(ENTRY_DELIMETER)) {
+			Filmlist filmlist = new Filmlist();
 
-            boolean isFirst = true;
-            Film filmEntryBefore = null;
-            
-            List<String> entries = findEntries(entryScanner);
-            
-            for(String entry : entries)
-            {
-                List<String> splittedEntry = splittEntry(entry);
+			boolean isFirst = true;
+			Future<Film> filmEntryBefore = null;
 
-                if (!splittedEntry.isEmpty())
-                {
-                    if (isFirst)
-                    {
-                        setMetaInfo(filmlist, splittedEntry);
-                        isFirst = false;
-                    } else if (splittedEntry.size() == 21 && FILM_ENTRY_ID.equals(splittedEntry.get(0)))
-                    {
-                        try
-                        {
-                            final Film newEntry = entrySplitsToFilm(splittedEntry, filmEntryBefore);
-                            /*
-                             * TODO Move the entrySplitsToFilm Part to a extra class
-                             *
-                             * and work with Future objects and Executor service
-                             */
-                            listeFilme.add(newEntry);
-                            filmEntryBefore = newEntry;
-                            notifyProgress(newEntry.getUrl(Qualities.NORMAL).toString(),count*100/entries.size(), count,false);
-                        } catch (Exception exception)
-                        {
-                            LOG.fatal(EXCEPTION_TEXT_CANT_BUILD_FILM, exception);
-                            LOG.debug(String.format("Error on converting the following text to a film:\n %s ",entry));
-                            notifyProgress("",count*100/entries.size(), count,true);
-                        }
-                    }
-                }
-            }
-            return listeFilme;
-        }
+			List<String> entries = findEntries(entryScanner);
+
+			ExecutorService executorService = Executors.newCachedThreadPool();
+			List<Future<Film>> futureFilms = new ArrayList<>();
+			for (String entry : entries) {
+				List<String> splittedEntry = splittEntry(entry);
+
+				if (!splittedEntry.isEmpty()) {
+					if (isFirst) {
+						setMetaInfo(filmlist, splittedEntry);
+						isFirst = false;
+					} else if (splittedEntry.size() == 21 && FILM_ENTRY_ID.equals(splittedEntry.get(0))) {
+						try {
+							final Future<Film> newEntry = executorService
+									.submit(new OldFilmlistEntryToFilmTask(splittedEntry, filmEntryBefore));
+							futureFilms.add(newEntry);
+							filmEntryBefore = newEntry;
+						} catch (Exception exception) {
+							LOG.debug(String.format("Error on converting the following text to a film:\n %s ", entry));
+						}
+					}
+				}
+			}
+			futureFilms.forEach(f -> {
+				try {
+					filmlist.add(f.get());
+				} catch (InterruptedException | ExecutionException exception) {
+					LOG.debug("Some error occured during converting a old film list entry to an film.", exception);
+				}
+			});
+			return Optional.of(filmlist);
+		} finally {
+			try {
+				aInputStream.close();
+			} catch (IOException exception) {
+				LOG.debug("Can't close the ioStream", exception);
+			}
+		}
+	}
 
 	private List<String> findEntries(Scanner entryScanner) {
 		List<String> entries = new ArrayList<>();
@@ -108,43 +98,13 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
 		return entries;
 	}
 
-	private void setMetaInfo(final Filmlist aListeFilme, final List<String> aSplittedEntry) {
-		// TODO
-	}
-
-	private FilmUrl urlTextToUri(final URI aUrlNormal, final long aGroesse, final String aUrlText)
-			throws URISyntaxException {
-		FilmUrl filmUrl = null;
-
-		String[] splittedUrlText = aUrlText.split(URL_SPLITTERATOR);
-		if (splittedUrlText.length == 2) {
-			int lengthOfOld = Integer.parseInt(splittedUrlText[0]);
-
-			StringBuilder newUrlBuilder = new StringBuilder();
-			newUrlBuilder.append(aUrlNormal.toString().substring(0, lengthOfOld));
-			newUrlBuilder.append(splittedUrlText[1]);
-
-			filmUrl = new FilmUrl(new URI(newUrlBuilder.toString()), aGroesse);
+	private void setMetaInfo(final Filmlist aFilmlist, final List<String> aSplittedEntry) {
+		try {
+			aFilmlist.setCreationDate(LocalDateTime.parse(aSplittedEntry.get(0), DATE_FORMATTER));
+			aFilmlist.setListId(UUID.fromString(aSplittedEntry.get(4)));
+		} catch (Exception exception) {
+			LOG.debug("Somethin went wrong on setting the meta data of filmlist.", exception);
 		}
-		return filmUrl;
-	}
-
-	private Collection<GeoLocations> readGeoLocations(final String aGeoText) {
-		Collection<GeoLocations> geoLocations = new ArrayList<>();
-
-		GeoLocations singleGeoLocation = GeoLocations.getFromDescription(aGeoText);
-		if (singleGeoLocation == null) {
-			for (String geoText : aGeoText.split(String.valueOf(GEO_SPLITTERATOR))) {
-				GeoLocations geoLocation = GeoLocations.getFromDescription(geoText);
-				if (geoLocation != null) {
-					geoLocations.add(geoLocation);
-				}
-			}
-		} else {
-			geoLocations.add(singleGeoLocation);
-		}
-
-		return geoLocations;
 	}
 
 	private List<String> splittEntry(final String aEntry) {

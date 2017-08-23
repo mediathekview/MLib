@@ -11,10 +11,18 @@ import java.util.concurrent.ConcurrentSkipListMap;
 public class Filmlist
 {
     private final ConcurrentHashMap<UUID,Film> films;
-    private final LocalDateTime creationDate;
-    private final UUID listId;
+    private LocalDateTime creationDate;
+    private UUID listId;
 
-    public Filmlist(UUID aListId, LocalDateTime aCreationDate)
+    public void setCreationDate(LocalDateTime creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	public void setListId(UUID listId) {
+		this.listId = listId;
+	}
+
+	public Filmlist(UUID aListId, LocalDateTime aCreationDate)
     {
         super();
         films = new ConcurrentHashMap<>();
@@ -37,9 +45,14 @@ public class Filmlist
         return creationDate;
     }
     
+    public void add(Film aFilm)
+    {
+        films.put(aFilm.getUuid(),aFilm);
+    }
+    
     public void addAll(Collection<Film> aFilms)
     {
-        aFilms.stream().forEach(f -> films.put(f.getUuid(),f));
+        aFilms.stream().forEach(this::add);
     }
 
     public ConcurrentHashMap<UUID, Film> getFilms()
