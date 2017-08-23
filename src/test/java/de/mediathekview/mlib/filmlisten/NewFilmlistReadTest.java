@@ -19,7 +19,7 @@ import de.mediathekview.mlib.daten.Filmlist;
 
 @RunWith(Parameterized.class)
 public class NewFilmlistReadTest {
-	private static final String BASE_FOLDER = "/";
+	private static final String BASE_FOLDER = "";
 	private static Filmlist testData;
 	private static Path testFileFolderPath;
 
@@ -30,7 +30,7 @@ public class NewFilmlistReadTest {
 	@BeforeClass
 	public static void initTestData() throws URISyntaxException, IOException {
 		testData = FilmlistTestData.getInstance().createTestdataNewFormat();
-		testFileFolderPath = Paths.get(NewFilmlistReadTest.class.getResource(BASE_FOLDER).toURI());
+		testFileFolderPath = Paths.get(NewFilmlistReadTest.class.getClassLoader().getResource(BASE_FOLDER).toURI());
 	}
 
 	@Parameterized.Parameters(name = "Test {index} Filmlist for {0} with {1}")
