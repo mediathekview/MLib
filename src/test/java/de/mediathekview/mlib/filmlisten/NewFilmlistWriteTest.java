@@ -1,14 +1,5 @@
 package de.mediathekview.mlib.filmlisten;
 
-import de.mediathekview.mlib.daten.Filmlist;
-import org.hamcrest.CoreMatchers;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -18,6 +9,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+
+import org.hamcrest.CoreMatchers;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import de.mediathekview.mlib.daten.Filmlist;
 
 @RunWith(Parameterized.class)
 public class NewFilmlistWriteTest
@@ -41,10 +42,10 @@ public class NewFilmlistWriteTest
     public static Collection<Object[]> data()
     {
         return Arrays.asList(new Object[][]{
-                {formatWithDate("TestWriteNewJson_%d.json"), FilmlistFormats.JSON},
-                {formatWithDate("TestWriteNewJsonCompressed_%d.json"), FilmlistFormats.JSON_COMPRESSED},
-                {formatWithDate("TestWriteOldJson_%d.json"), FilmlistFormats.OLD_JSON},
-                {formatWithDate("TestWriteOldJsonCompressed_%d.json"), FilmlistFormats.OLD_JSON_COMPRESSED},
+                {"TestWriteNewJson_%d.json", FilmlistFormats.JSON},
+                {"TestWriteNewJsonCompressed_%d.json", FilmlistFormats.JSON_COMPRESSED},
+                {"TestWriteOldJson_%d.json", FilmlistFormats.OLD_JSON},
+                {"TestWriteOldJsonCompressed_%d.json", FilmlistFormats.OLD_JSON_COMPRESSED},
         });
     }
 
