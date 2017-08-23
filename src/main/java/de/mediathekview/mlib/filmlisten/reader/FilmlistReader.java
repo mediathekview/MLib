@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 public class FilmlistReader extends AbstractFilmlistReader {
 	private static final Logger LOG = LogManager.getLogger(FilmlistReader.class);
@@ -33,15 +34,14 @@ public class FilmlistReader extends AbstractFilmlistReader {
 	}
 
 	@Override
-	public Filmlist read(InputStream aInputStream) {
+	public Optional<Filmlist> read(InputStream aInputStream) {
 		Gson gson = new Gson();
 		try (JsonReader jsonReader = new JsonReader(new BufferedReader(new InputStreamReader(aInputStream)))) {
-			return gson.fromJson(jsonReader, Filmlist.class);
-		}catch (IOException ioException)
-        {
-            LOG.debug("Something went wrong on writing the film list.", ioException);
-            publishMessage(LibMessages.FILMLIST_READ_ERROR);
-            throw ioException;
-        }
+			return Optional.of(gson.fromJson(jsonReader, Filmlist.class));
+		} catch (IOException ioException) {
+			LOG.debug("Something went wrong on writing the film list.", ioException);
+			publishMessage(LibMessages.FILMLIST_READ_ERROR);
+			return Optional.empty();
+		}
 	}
 }

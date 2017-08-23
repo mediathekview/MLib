@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import de.mediathekview.mlib.daten.Filmlist;
 import de.mediathekview.mlib.filmlisten.reader.FilmlistOldFormatReader;
@@ -70,13 +71,13 @@ public class FilmlistManager extends MessageCreator {
 		}
 	}
 
-	public Filmlist importList(final FilmlistFormats aFormat, final Path aFilePath) throws IOException {
+	public Optional<Filmlist> importList(final FilmlistFormats aFormat, final Path aFilePath) throws IOException {
 		try (InputStream fileInputStream = Files.newInputStream(aFilePath)) {
 			return importList(aFormat, fileInputStream);
 		}
 	}
 
-	public Filmlist importList(final FilmlistFormats aFormat, final URL aUrl) throws IOException {
+	public Optional<Filmlist> importList(final FilmlistFormats aFormat, final URL aUrl) throws IOException {
 		final Request request = new Request.Builder().url(aUrl).build();
 		OkHttpClient httpClient = MVHttpClient.getInstance().getHttpClient();
 		try (InputStream fileInputStream = httpClient.newCall(request).execute().body().byteStream()) {
@@ -84,7 +85,7 @@ public class FilmlistManager extends MessageCreator {
 		}
 	}
 
-	public Filmlist importList(final FilmlistFormats aFormat, final InputStream aInputStream) throws IOException {
+	public Optional<Filmlist> importList(final FilmlistFormats aFormat, final InputStream aInputStream) throws IOException {
 		InputStream input;
 		if (FilmlistFormats.JSON_COMPRESSED.equals(aFormat) || FilmlistFormats.OLD_JSON_COMPRESSED.equals(aFormat)) {
 			input = XZManager.getInstance().decompress(aInputStream);
