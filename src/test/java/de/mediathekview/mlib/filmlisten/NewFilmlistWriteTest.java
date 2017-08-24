@@ -23,7 +23,7 @@ import de.mediathekview.mlib.daten.Filmlist;
 @RunWith(Parameterized.class)
 public class NewFilmlistWriteTest
 {
-    private static final String TEMPF_FOLDER_NAME_PATTERN = "MLIB_TEST_%d";
+    private static final String TEMP_FOLDER_NAME_PATTERN = "MLIB_TEST_%d";
     private static Filmlist testData;
     private static Path testFileFolderPath;
 
@@ -35,7 +35,7 @@ public class NewFilmlistWriteTest
     public static void initTestData() throws URISyntaxException, IOException
     {
         testData = FilmlistTestData.getInstance().createTestdataNewFormat();
-        testFileFolderPath = Files.createTempDirectory(formatWithDate(TEMPF_FOLDER_NAME_PATTERN));
+        testFileFolderPath = Files.createTempDirectory(formatWithDate(TEMP_FOLDER_NAME_PATTERN));
     }
 
     @Parameterized.Parameters(name = "Test {index} Filmlist for {0} with {1}")

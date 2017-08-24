@@ -1,50 +1,50 @@
 package de.mediathekview.mlib.messages;
 
-import de.mediathekview.mlib.messages.listener.MessageListener;
-
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ConcurrentHashMap;
+
+import de.mediathekview.mlib.messages.listener.MessageListener;
 
 public abstract class MessageCreator
 {
-    private Collection<MessageListener> messageListeners;
+    private final Collection<MessageListener> messageListeners;
 
     public MessageCreator()
     {
         super();
-        messageListeners = new ConcurrentSkipListSet<>();
+        messageListeners = ConcurrentHashMap.newKeySet();
     }
 
-    public MessageCreator(MessageListener... aListeners)
+    public MessageCreator(final MessageListener... aListeners)
     {
         this();
         messageListeners.addAll(Arrays.asList(aListeners));
     }
 
-    public boolean addMessageListener(MessageListener aMessageListener)
+    public boolean addMessageListener(final MessageListener aMessageListener)
     {
         return messageListeners.add(aMessageListener);
     }
 
-    public boolean removeMessageListener(MessageListener aMessageListener)
+    public boolean removeMessageListener(final MessageListener aMessageListener)
     {
         return messageListeners.remove(aMessageListener);
     }
 
-    public boolean addAllMessageListener(Collection<MessageListener> aMessageListeners)
+    public boolean addAllMessageListener(final Collection<MessageListener> aMessageListeners)
     {
         return messageListeners.addAll(aMessageListeners);
     }
 
-    public boolean removeAllMessageListener(Collection<MessageListener> aMessageListeners)
+    public boolean removeAllMessageListener(final Collection<MessageListener> aMessageListeners)
     {
         return messageListeners.removeAll(aMessageListeners);
     }
 
-    protected void publishMessage(Message aMessage, Object... aParams)
+    protected void publishMessage(final Message aMessage, final Object... aParams)
     {
-        messageListeners.parallelStream().forEach(l -> l.consumeMessage(aMessage,aParams));
+        messageListeners.parallelStream().forEach(l -> l.consumeMessage(aMessage, aParams));
     }
 
 }
