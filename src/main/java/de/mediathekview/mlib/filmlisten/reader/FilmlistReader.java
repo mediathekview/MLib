@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
@@ -30,7 +31,8 @@ public class FilmlistReader extends AbstractFilmlistReader {
 	@Override
 	public Optional<Filmlist> read(InputStream aInputStream) {
 		Gson gson = new Gson();
-		try (JsonReader jsonReader = new JsonReader(new BufferedReader(new InputStreamReader(aInputStream)))) {
+		try (JsonReader jsonReader = new JsonReader(
+				new BufferedReader(new InputStreamReader(aInputStream, StandardCharsets.UTF_8.name())))) {
 			return Optional.of(gson.fromJson(jsonReader, Filmlist.class));
 		} catch (IOException ioException) {
 			LOG.debug("Something went wrong on writing the film list.", ioException);

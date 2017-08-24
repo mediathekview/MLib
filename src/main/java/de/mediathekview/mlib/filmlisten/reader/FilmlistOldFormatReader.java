@@ -4,6 +4,7 @@ import static java.time.format.FormatStyle.MEDIUM;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
 
 	@Override
 	public Optional<Filmlist> read(InputStream aInputStream) {
-		try (Scanner scanner = new Scanner(aInputStream);
+		try (Scanner scanner = new Scanner(aInputStream,StandardCharsets.UTF_8.name());
 				Scanner entryScanner = scanner.useDelimiter(ENTRY_DELIMETER)) {
 			Filmlist filmlist = new Filmlist();
 
