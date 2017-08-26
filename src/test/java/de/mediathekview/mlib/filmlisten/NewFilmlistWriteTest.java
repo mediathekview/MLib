@@ -41,32 +41,32 @@ public class NewFilmlistWriteTest
     @Parameterized.Parameters(name = "Test {index} Filmlist for {0} with {1}")
     public static Collection<Object[]> data()
     {
-        return Arrays.asList(new Object[][]{
-                {"TestWriteNewJson_%d.json", FilmlistFormats.JSON},
-                {"TestWriteNewJsonCompressed_%d.json", FilmlistFormats.JSON_COMPRESSED},
-                {"TestWriteOldJson_%d.json", FilmlistFormats.OLD_JSON},
-                {"TestWriteOldJsonCompressed_%d.json", FilmlistFormats.OLD_JSON_COMPRESSED},
-        });
+        return Arrays.asList(new Object[][]
+        {
+                { "TestWriteNewJson_%d.json", FilmlistFormats.JSON },
+                { "TestWriteNewJsonCompressed_%d.json.xz", FilmlistFormats.JSON_COMPRESSED },
+                { "TestWriteOldJson_%d.json", FilmlistFormats.OLD_JSON },
+                { "TestWriteOldJsonCompressed_%d.json.xz", FilmlistFormats.OLD_JSON_COMPRESSED }, });
     }
 
-
-    public NewFilmlistWriteTest(String aJsonName, FilmlistFormats aFormat)
+    public NewFilmlistWriteTest(final String aJsonName, final FilmlistFormats aFormat)
     {
         jsonName = aJsonName;
         format = aFormat;
     }
 
-
     @Test
     public void testWrite()
     {
-        Path testFilePath = testFileFolderPath.resolve(formatWithDate(jsonName));
+        final Path testFilePath = testFileFolderPath.resolve(formatWithDate(jsonName));
         filmlistManager.save(format, testData, testFilePath);
 
         if (format.getFileExtension().contains("xz"))
         {
-            Assert.assertThat(Files.exists(testFilePath.resolveSibling(testFilePath.getFileName().toString() + ".xz")), CoreMatchers.is(true));
-        } else
+            Assert.assertThat(Files.exists(testFilePath.resolveSibling(testFilePath.getFileName().toString())),
+                    CoreMatchers.is(true));
+        }
+        else
         {
             Assert.assertThat(Files.exists(testFilePath), CoreMatchers.is(true));
         }
@@ -80,10 +80,7 @@ public class NewFilmlistWriteTest
     @AfterClass
     public static void deleteTempFiles() throws IOException
     {
-        Files.walk(testFileFolderPath)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+        Files.walk(testFileFolderPath).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
     }
 
 }

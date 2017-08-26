@@ -2,7 +2,6 @@ package de.mediathekview.mlib.daten;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Created by nicklas on 29.12.16.
@@ -16,7 +15,7 @@ public enum Sender
     ZDF_TIVI("ZDF Tivi"),
     DREISAT("3sat"),
     ORF("ORF"),
-    SRF_PODCAST("SRF Podcast"),
+    SRF_PODCAST("SRF.Podcast"),
     NDR("NDR"),
     KIKA("KIKA"),
     ARD("ARD"),
@@ -27,12 +26,13 @@ public enum Sender
     PHOENIX("Phönix"),
     RBB("RBB"),
     SR("SR"),
+    SF("SF"),
     SRF("SRF"),
     WDR("WDR");
 
     private String name;
 
-    Sender(String aName)
+    Sender(final String aName)
     {
         name = aName;
     }
@@ -42,9 +42,9 @@ public enum Sender
         return name;
     }
 
-    public static Sender getSenderByName(String aName)
+    public static Sender getSenderByName(final String aName)
     {
-        for (Sender sender : Sender.values())
+        for (final Sender sender : Sender.values())
         {
             if (sender.getName().equalsIgnoreCase(aName) || sender.toString().equalsIgnoreCase(aName))
             {
@@ -57,9 +57,9 @@ public enum Sender
 
     public static Collection<String> getSenderNamen()
     {
-        Collection<String> senderNamen = new ArrayList<>();
+        final Collection<String> senderNamen = new ArrayList<>();
 
-        for (Sender sender : Sender.values())
+        for (final Sender sender : Sender.values())
         {
             senderNamen.add(sender.getName());
         }

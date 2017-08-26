@@ -11,7 +11,7 @@ public class FilmComperatorFactory
 
     public static FilmComperatorFactory getInstance()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = new FilmComperatorFactory();
         }
@@ -21,7 +21,8 @@ public class FilmComperatorFactory
     /**
      * The aviable comperator types for {@link Film}.
      */
-    public enum FilmComperatorTypes {
+    public enum FilmComperatorTypes
+    {
         SENDER_COMPERAOR, TITEL_COMPERATOR, THEMA_COMPERATOR, DATE_COMPERATOR, DEFAULT_COMPERATOR
     }
 
@@ -30,23 +31,23 @@ public class FilmComperatorFactory
         super();
     }
 
-    public Comparator<Film> getFilmComperator(FilmComperatorTypes aFilmComperatorType)
+    public Comparator<Film> getFilmComperator(final FilmComperatorTypes aFilmComperatorType)
     {
         switch (aFilmComperatorType)
         {
-            case DATE_COMPERATOR:
-                return Comparator.comparing(Film::getTime);
-            case SENDER_COMPERAOR:
-                return Comparator.comparing(Film::getSender);
-            case THEMA_COMPERATOR:
-                return Comparator.comparing(Film::getThema);
-            case TITEL_COMPERATOR:
-                return Comparator.comparing(Film::getTitel);
-            default:
-                return createDefaultComperator();
+        case DATE_COMPERATOR:
+            return Comparator.comparing(Film::getTime);
+        case SENDER_COMPERAOR:
+            return Comparator.comparing(Film::getSender);
+        case THEMA_COMPERATOR:
+            return Comparator.comparing(Film::getThema);
+        case TITEL_COMPERATOR:
+            return Comparator.comparing(Film::getTitel);
+        default:
+            return createDefaultComperator();
         }
     }
-    
+
     public Comparator<Film> getDefault()
     {
         return getFilmComperator(FilmComperatorTypes.DEFAULT_COMPERATOR);
@@ -54,8 +55,9 @@ public class FilmComperatorFactory
 
     private Comparator<Film> createDefaultComperator()
     {
-        return Comparator.comparing(Film::getSender).thenComparing(Film::getThema).thenComparing(Film::getTime);
+        return Comparator.comparing(Film::getSender, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(Film::getThema, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(Film::getTime, Comparator.nullsLast(Comparator.naturalOrder()));
     }
-
 
 }

@@ -1,42 +1,49 @@
 package de.mediathekview.mlib.filmlisten.writer;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonWriter;
-import de.mediathekview.mlib.daten.Filmlist;
-import de.mediathekview.mlib.messages.LibMessages;
-import de.mediathekview.mlib.messages.MessageCreator;
-import de.mediathekview.mlib.messages.listener.MessageListener;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class FilmlistWriter extends AbstractFilmlistWriter {
-	private static final Logger LOG = LogManager.getLogger(FilmlistWriter.class);
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-	public FilmlistWriter() {
-		super();
-	}
+import com.google.gson.Gson;
 
-	public FilmlistWriter(final MessageListener... aListeners) {
-		super(aListeners);
-	}
+import de.mediathekview.mlib.daten.Filmlist;
+import de.mediathekview.mlib.messages.LibMessages;
+import de.mediathekview.mlib.messages.listener.MessageListener;
 
-	public boolean write(Filmlist aFilmlist, Path aSavePath) {
-		Gson gson = new Gson();
-		try (BufferedWriter fileWriter = Files.newBufferedWriter(aSavePath, StandardCharsets.UTF_8)) {
-			gson.toJson(aFilmlist, fileWriter);
-		} catch (IOException ioException) {
-			LOG.debug("Something went wrong on writing the film list.", ioException);
-			publishMessage(LibMessages.FILMLIST_WRITE_ERROR, aSavePath.toAbsolutePath().toString());
-			return false;
-		}
+public class FilmlistWriter extends AbstractFilmlistWriter
+{
+    private static final Logger LOG = LogManager.getLogger(FilmlistWriter.class);
 
-		return true;
-	}
+    public FilmlistWriter()
+    {
+        super();
+    }
+
+    public FilmlistWriter(final MessageListener... aListeners)
+    {
+        super(aListeners);
+    }
+
+    @Override
+    public boolean write(final Filmlist aFilmlist, final Path aSavePath)
+    {
+        final Gson gson = new Gson();
+        try (BufferedWriter fileWriter = Files.newBufferedWriter(aSavePath, StandardCharsets.UTF_8))
+        {
+            gson.toJson(aFilmlist, fileWriter);
+        }
+        catch (final IOException ioException)
+        {
+            LOG.debug("Something went wrong on writing the film list.", ioException);
+            publishMessage(LibMessages.FILMLIST_WRITE_ERROR, aSavePath.toAbsolutePath().toString());
+            return false;
+        }
+
+        return true;
+    }
 }

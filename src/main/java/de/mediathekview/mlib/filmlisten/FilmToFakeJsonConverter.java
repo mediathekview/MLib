@@ -1,8 +1,6 @@
 package de.mediathekview.mlib.filmlisten;
 
-import de.mediathekview.mlib.daten.Film;
-import de.mediathekview.mlib.daten.GeoLocations;
-import de.mediathekview.mlib.daten.Qualities;
+import static java.time.format.FormatStyle.MEDIUM;
 
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -12,99 +10,129 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static java.time.format.FormatStyle.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import de.mediathekview.mlib.daten.Film;
+import de.mediathekview.mlib.daten.GeoLocations;
+import de.mediathekview.mlib.daten.Qualities;
 
 /**
- * A helper class to generate the old fake json format for a {@link de.mediathekview.mlib.daten.Film}.
+ * A helper class to generate the old fake json format for a
+ * {@link de.mediathekview.mlib.daten.Film}.
  */
 public class FilmToFakeJsonConverter
 {
-    private static final String[] COLUMNNAMES = new String[]{"Sender", "Thema", "Titel", "Datum", "Zeit", "Dauer", "Größe [MB]", "Beschreibung", "Url", "Website", "Url Untertitel", "Url RTMP", "Url Klein", "Url RTMP Klein", "Url HD", "Url RTMP HD", "DatumL", "Url History", "Geo", "neu"};
-    private static final String OUTPUT_PATTERN = "\"X\": [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
+
+    private static final Logger LOG = LogManager.getLogger(FilmToFakeJsonConverter.class);
+    private static final String[] COLUMNNAMES = new String[]
+    { "Sender", "Thema", "Titel", "Datum", "Zeit", "Dauer", "Größe [MB]", "Beschreibung", "Url", "Website",
+            "Url Untertitel", "Url RTMP", "Url Klein", "Url RTMP Klein", "Url HD", "Url RTMP HD", "DatumL",
+            "Url History", "Geo", "neu" };
+    private static final String OUTPUT_PATTERN =
+            "\"X\": [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
     private static final String META_INFORMATION_PATTERN = "\"Filmliste\": [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
-    private static final String COLUMNNAMES_PATTERN = "\"Filmliste\": [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
+    private static final String COLUMNNAMES_PATTERN =
+            "\"Filmliste\": [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
     private static final char SPLITTERATOR = ',';
     private static final char FAKE_JSON_BEGIN = '{';
     private static final char FAKE_JSON_END = '}';
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(MEDIUM).withLocale(Locale.GERMANY);
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(MEDIUM).withLocale(Locale.GERMANY);
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofLocalizedDate(MEDIUM).withLocale(Locale.GERMANY);
+    private static final DateTimeFormatter TIME_FORMATTER =
+            DateTimeFormatter.ofLocalizedTime(MEDIUM).withLocale(Locale.GERMANY);
     private static final char GEO_SPLITTERATOR = '-';
     private static final String URL_INTERSECTION_REDUCE_PATTERN = "%d|";
     private static final String DURATION_FORMAT = "HH:mm:ss";
     private String lastSender;
     private String lastThema;
 
-
-    public String toFakeJson(List<Film> aFilme, String aFilmlisteDatum, String aFilmlisteDatumGmt, String aFilmlisteVersion, String aFilmlisteProgramm, String aFilmlisteId)
+    public String toFakeJson(final List<Film> aFilme, final String aFilmlisteDatum, final String aFilmlisteDatumGmt,
+            final String aFilmlisteVersion, final String aFilmlisteProgramm, final String aFilmlisteId)
     {
-        StringBuilder fakeJsonBuilder = new StringBuilder();
+        final StringBuilder fakeJsonBuilder = new StringBuilder();
         fakeJsonBuilder.append(FAKE_JSON_BEGIN);
         fakeJsonBuilder.append(System.lineSeparator());
 
-        fakeJsonBuilder.append(String.format(META_INFORMATION_PATTERN, aFilmlisteDatum, aFilmlisteDatumGmt, aFilmlisteVersion, aFilmlisteProgramm, aFilmlisteId));
-        appendEnd(fakeJsonBuilder,false);
+        fakeJsonBuilder.append(String.format(META_INFORMATION_PATTERN, aFilmlisteDatum, aFilmlisteDatumGmt,
+                aFilmlisteVersion, aFilmlisteProgramm, aFilmlisteId));
+        appendEnd(fakeJsonBuilder, false);
 
-        fakeJsonBuilder.append(String.format(COLUMNNAMES_PATTERN, COLUMNNAMES));
-        appendEnd(fakeJsonBuilder,false);
+        fakeJsonBuilder.append(String.format(COLUMNNAMES_PATTERN, (Object[]) COLUMNNAMES));
+        appendEnd(fakeJsonBuilder, false);
 
         lastSender = "";
         lastThema = "";
-        for (Film film : aFilme)
+        for (final Film film : aFilme.stream().filter(Objects::nonNull).collect(Collectors.toList()))
         {
-            filmToFakeJson(fakeJsonBuilder, film, film.equals(aFilme.get(aFilme.size()-1)));
+            try
+            {
+                filmToFakeJson(fakeJsonBuilder, film, film.equals(aFilme.get(aFilme.size() - 1)));
+            }
+            catch (final Exception exception)
+            {
+                LOG.error("A film can't be converted to old json format.", exception);
+                LOG.debug(String.format("The film which can't be converted: %s", film.toString()));
+            }
         }
-
 
         fakeJsonBuilder.append(FAKE_JSON_END);
         return fakeJsonBuilder.toString();
     }
 
-    private void filmToFakeJson(final StringBuilder fakeJsonBuilder, final Film film, boolean aIsLastFilm)
+    private void filmToFakeJson(final StringBuilder fakeJsonBuilder, final Film aFilm, final boolean aIsLastFilm)
     {
-        String sender = setSender(film);
+        final String sender = setSender(aFilm);
 
-        String thema = setThema(film);
+        final String thema = setThema(aFilm);
 
-        String url = url = film.getUrl(Qualities.NORMAL).toString();
+        final String url = aFilm.getUrl(getDefaultQuality(aFilm)).toString();
         String urlKlein = "";
         String urlHd = "";
 
-        if (film.getUrls().containsKey(Qualities.SMALL))
+        if (aFilm.getUrls().containsKey(Qualities.SMALL))
         {
-                urlKlein = film.getUrl(Qualities.SMALL).toString();
+            urlKlein = aFilm.getUrl(Qualities.SMALL).toString();
         }
 
-        if (film.getUrls().containsKey(Qualities.HD))
+        if (aFilm.getUrls().containsKey(Qualities.HD))
         {
-                urlHd = film.getUrl(Qualities.HD).toString();
+            urlHd = aFilm.getUrl(Qualities.HD).toString();
         }
 
         urlKlein = reduceUrl(url, urlKlein);
         urlHd = reduceUrl(url, urlHd);
 
-        fakeJsonBuilder.append(String.format(OUTPUT_PATTERN, sender,
-                thema,
-                film.getTitel(),
-                film.getTime() == null ? "" :DATE_FORMATTER.format(film.getTime().toLocalDate()),
-                film.getTime() == null ? "" :TIME_FORMATTER.format(film.getTime().toLocalTime()),
-                durationToString(film.getDuration()),
-                film.getFileSize(Qualities.NORMAL),
-                film.getBeschreibung(),
-                url,
-                film.getWebsite(),
-                film.getSubtitles().isEmpty() ? "" : film.getSubtitles().iterator().next().toString(),
-                "",
-                urlKlein,
-                "",
-                urlHd,
-                "",
-                Timestamp.valueOf(film.getTime() == null ? LocalDateTime.now() : film.getTime()).toString(),
-                "", //History
-                geolocationsToStirng(film.getGeoLocations()),
-                film.isNeu()
-        ));
-        appendEnd(fakeJsonBuilder,aIsLastFilm);
+        fakeJsonBuilder.append(String.format(OUTPUT_PATTERN, sender, thema, aFilm.getTitel(),
+                aFilm.getTime() == null ? "" : DATE_FORMATTER.format(aFilm.getTime().toLocalDate()),
+                aFilm.getTime() == null ? "" : TIME_FORMATTER.format(aFilm.getTime().toLocalTime()),
+                durationToString(aFilm.getDuration()), aFilm.getFileSize(getDefaultQuality(aFilm)),
+                aFilm.getBeschreibung(), url, aFilm.getWebsite(),
+                aFilm.getSubtitles().isEmpty() ? "" : aFilm.getSubtitles().iterator().next().toString(), "", urlKlein,
+                "", urlHd, "",
+                Timestamp.valueOf(aFilm.getTime() == null ? LocalDateTime.now() : aFilm.getTime()).toString(), "", // History
+                geolocationsToStirng(aFilm.getGeoLocations()), aFilm.isNeu()));
+        appendEnd(fakeJsonBuilder, aIsLastFilm);
+    }
+
+    private Qualities getDefaultQuality(final Film aFilm)
+    {
+        if (aFilm.getUrls().containsKey(Qualities.NORMAL))
+        {
+            return Qualities.NORMAL;
+        }
+
+        for (final Qualities quality : Qualities.getFromBestToLowest())
+        {
+            if (aFilm.getUrls().containsKey(quality))
+            {
+                return quality;
+            }
+        }
+        return Qualities.VERY_SMALL;
     }
 
     private String setThema(final Film film)
@@ -113,7 +141,8 @@ public class FilmToFakeJsonConverter
         if (lastThema.equals(thema))
         {
             thema = "";
-        } else
+        }
+        else
         {
             lastThema = thema;
         }
@@ -126,44 +155,49 @@ public class FilmToFakeJsonConverter
         if (lastSender.equals(sender))
         {
             sender = "";
-        } else
+        }
+        else
         {
             lastSender = sender;
         }
         return sender;
     }
 
-    private String reduceUrl(String aBaseUrl, String aUrlToReduce)
+    private String reduceUrl(final String aBaseUrl, final String aUrlToReduce)
     {
-        StringBuilder urlIntersectionBuilder = new StringBuilder();
-        for (int i = 0; i < aBaseUrl.length() && i < aUrlToReduce.length() && aBaseUrl.charAt(i) == aUrlToReduce.charAt(i); i++)
+        final StringBuilder urlIntersectionBuilder = new StringBuilder();
+        for (int i = 0; i < aBaseUrl.length() && i < aUrlToReduce.length()
+                && aBaseUrl.charAt(i) == aUrlToReduce.charAt(i); i++)
         {
             urlIntersectionBuilder.append(aBaseUrl.charAt(i));
         }
 
-        String urlIntersection = urlIntersectionBuilder.toString();
+        final String urlIntersection = urlIntersectionBuilder.toString();
         String result;
         if (urlIntersection.isEmpty())
         {
             result = aUrlToReduce;
-        } else
+        }
+        else
         {
-            result = aUrlToReduce.replace(urlIntersection, String.format(URL_INTERSECTION_REDUCE_PATTERN, urlIntersection.length()));
+            result = aUrlToReduce.replace(urlIntersection,
+                    String.format(URL_INTERSECTION_REDUCE_PATTERN, urlIntersection.length()));
         }
         return result;
     }
 
-    private String geolocationsToStirng(Collection<GeoLocations> aGeoLocations)
+    private String geolocationsToStirng(final Collection<GeoLocations> aGeoLocations)
     {
-        StringBuilder geolocationsStringBuilder = new StringBuilder();
+        final StringBuilder geolocationsStringBuilder = new StringBuilder();
         if (!aGeoLocations.isEmpty())
         {
-            for (GeoLocations geoLocation : aGeoLocations)
+            for (final GeoLocations geoLocation : aGeoLocations)
             {
                 geolocationsStringBuilder.append(geoLocation.getDescription());
                 geolocationsStringBuilder.append(GEO_SPLITTERATOR);
             }
-            geolocationsStringBuilder.deleteCharAt(geolocationsStringBuilder.lastIndexOf(String.valueOf(GEO_SPLITTERATOR)));
+            geolocationsStringBuilder
+                    .deleteCharAt(geolocationsStringBuilder.lastIndexOf(String.valueOf(GEO_SPLITTERATOR)));
         }
         return geolocationsStringBuilder.toString();
     }
@@ -173,9 +207,9 @@ public class FilmToFakeJsonConverter
         return LocalTime.MIDNIGHT.plus(aDuration).format(DateTimeFormatter.ofPattern(DURATION_FORMAT));
     }
 
-    private void appendEnd(final StringBuilder fakeJsonBuilder, boolean aIsLastFilm)
+    private void appendEnd(final StringBuilder fakeJsonBuilder, final boolean aIsLastFilm)
     {
-        if(!aIsLastFilm)
+        if (!aIsLastFilm)
         {
             fakeJsonBuilder.append(SPLITTERATOR);
         }

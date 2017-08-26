@@ -25,29 +25,33 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter
 {
     private static final Logger LOG = LogManager.getLogger(FilmlistOldFormatWriter.class);
     private static final String LINE_BREAK = "\\n";
-    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofLocalizedDateTime(MEDIUM).withLocale(Locale.GERMANY);
-     
-     public boolean write(Filmlist aFilmlist, Path aSavePath)
-     {
-         FilmToFakeJsonConverter filmToFakeJsonConverter = new FilmToFakeJsonConverter();
-         String filmlistAsFakeJson = filmToFakeJsonConverter.toFakeJson(aFilmlist.getFilmsSorted(FilmComperatorFactory.getInstance().getDefault()), 
-         DATE_TIME_FORMAT.format(aFilmlist.getCreationDate()), 
-         DATE_TIME_FORMAT.format(aFilmlist.getCreationDate().atZone(ZoneOffset.UTC)),
-         Functions.getProgVersion().toString(),
-         Functions.getProgVersionString(), 
-         aFilmlist.getListId().toString());
-         
-         Collection<String> linesToWrite = Arrays.asList(filmlistAsFakeJson.split(LINE_BREAK));
-         try{
+    private static final DateTimeFormatter DATE_TIME_FORMAT =
+            DateTimeFormatter.ofLocalizedDateTime(MEDIUM).withLocale(Locale.GERMANY);
+
+    @Override
+    public boolean write(final Filmlist aFilmlist, final Path aSavePath)
+    {
+        final FilmToFakeJsonConverter filmToFakeJsonConverter = new FilmToFakeJsonConverter();
+        final String filmlistAsFakeJson = filmToFakeJsonConverter.toFakeJson(
+                aFilmlist.getFilmsSorted(FilmComperatorFactory.getInstance().getDefault()),
+                DATE_TIME_FORMAT.format(aFilmlist.getCreationDate()),
+                DATE_TIME_FORMAT.format(aFilmlist.getCreationDate().atZone(ZoneOffset.UTC)),
+                Functions.getProgVersion().toString(), Functions.getProgVersionString(),
+                aFilmlist.getListId().toString());
+
+        final Collection<String> linesToWrite = Arrays.asList(filmlistAsFakeJson.split(LINE_BREAK));
+        try
+        {
             Files.write(aSavePath, linesToWrite, StandardCharsets.UTF_8);
-         }catch(IOException ioException)
-         {
-             LOG.debug("Something went wrong on writing the film list.", ioException);
-             publishMessage(LibMessages.FILMLIST_WRITE_ERROR, aSavePath.toAbsolutePath().toString());
-             return false;
-         }
-         
-         return true;
-     }
-     
+        }
+        catch (final IOException ioException)
+        {
+            LOG.debug("Something went wrong on writing the film list.", ioException);
+            publishMessage(LibMessages.FILMLIST_WRITE_ERROR, aSavePath.toAbsolutePath().toString());
+            return false;
+        }
+
+        return true;
+    }
+
 }
