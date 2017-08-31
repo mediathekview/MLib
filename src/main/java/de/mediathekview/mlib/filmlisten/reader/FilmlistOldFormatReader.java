@@ -1,11 +1,14 @@
 package de.mediathekview.mlib.filmlisten.reader;
 
 import static java.time.format.FormatStyle.MEDIUM;
+import static java.time.format.FormatStyle.SHORT;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +35,15 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
 	private static final Logger LOG = LogManager.getLogger(FilmlistOldFormatReader.class);
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(MEDIUM)
 			.withLocale(Locale.GERMANY);
+	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofLocalizedTime(SHORT)
+			.withLocale(Locale.GERMANY);
 	private static final String ENTRY_PATTERN = "\"\\w*\"\\s?:\\s*\\[\\s?(\"([^\"]|\\\\\")*\",?\\s?)*";
 	private static final String ENTRY_SPLIT_PATTERN = "\"(\\\\\"|[^\"])*\"";
 	private static final String FILM_ENTRY_ID = "X";
 
 	@Override
 	public Optional<Filmlist> read(InputStream aInputStream) {
-		try (Scanner scanner = new Scanner(aInputStream,StandardCharsets.UTF_8.name());
+		try (Scanner scanner = new Scanner(aInputStream, StandardCharsets.UTF_8.name());
 				Scanner entryScanner = scanner.useDelimiter(ENTRY_DELIMETER)) {
 			Filmlist filmlist = new Filmlist();
 
@@ -101,8 +106,15 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
 
 	private void setMetaInfo(final Filmlist aFilmlist, final List<String> aSplittedEntry) {
 		try {
-			aFilmlist.setCreationDate(LocalDateTime.parse(aSplittedEntry.get(0), DATE_FORMATTER));
-			aFilmlist.setListId(UUID.fromString(aSplittedEntry.get(4)));
+			String[] dateTimeSplitted = aSplittedEntry.get(1).split(",?\\s+");
+			aFilmlist.setCreationDate(LocalDateTime.of(LocalDate.parse(dateTimeSplitted[0], DATE_FORMATTER),
+					LocalTime.parse(dateTimeSplitted[1], TIME_FORMATTER)));
+			try {
+				aFilmlist.setListId(UUID.fromString(aSplittedEntry.get(4)));
+			} catch (IllegalArgumentException illegalArgumentException) {
+				LOG.debug("Can't parse the film list id. Setting a random uuid.", illegalArgumentException);
+				aFilmlist.setListId(UUID.randomUUID());
+			}
 		} catch (Exception exception) {
 			LOG.debug("Somethin went wrong on setting the meta data of filmlist.", exception);
 		}

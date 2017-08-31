@@ -1,6 +1,7 @@
 package de.mediathekview.mlib.filmlisten.writer;
 
 import static java.time.format.FormatStyle.MEDIUM;
+import static java.time.format.FormatStyle.SHORT;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +27,7 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter
     private static final Logger LOG = LogManager.getLogger(FilmlistOldFormatWriter.class);
     private static final String LINE_BREAK = "\\n";
     private static final DateTimeFormatter DATE_TIME_FORMAT =
-            DateTimeFormatter.ofLocalizedDateTime(MEDIUM).withLocale(Locale.GERMANY);
+            DateTimeFormatter.ofLocalizedDateTime(MEDIUM,SHORT).withLocale(Locale.GERMANY);
 
     @Override
     public boolean write(final Filmlist aFilmlist, final Path aSavePath)
