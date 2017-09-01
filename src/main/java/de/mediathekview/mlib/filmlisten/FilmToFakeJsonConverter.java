@@ -151,7 +151,7 @@ public class FilmToFakeJsonConverter
 
     private String setSender(final Film film)
     {
-        String sender = film.getSender().getName();
+        String sender = film.getSenderName();
         if (lastSender.equals(sender))
         {
             sender = "";

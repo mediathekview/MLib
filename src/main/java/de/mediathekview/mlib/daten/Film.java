@@ -74,6 +74,11 @@ public class Film
     {
         return sender;
     }
+    
+    public String getSenderName() {
+        return sender.getName();
+    }
+    
 
     public void setTitel(String aTitel)
     {
