@@ -8,27 +8,30 @@ import java.util.Collection;
  */
 public enum Sender
 {
-    BR("BR"),
-    MDR("MDR"),
-    SWR("SWR"),
-    ZDF("ZDF"),
-    ZDF_TIVI("ZDF Tivi"),
-    DREISAT("3sat"),
-    ORF("ORF"),
-    SRF_PODCAST("SRF.Podcast"),
-    NDR("NDR"),
-    KIKA("KIKA"),
     ARD("ARD"),
     ARTE_DE("ARTE.DE"),
     ARTE_FR("ARTE.FR"),
+    BR("BR"),
+    DREISAT("3sat"),
     DW("DW"),
     HR("HR"),
+    KIKA("KIKA"),
+    MDR("MDR"),
+    NDR("NDR"),
+    ORF("ORF"),
     PHOENIX("Phönix"),
     RBB("RBB"),
-    SR("SR"),
     SF("SF"),
+    SR("SR"),
     SRF("SRF"),
-    WDR("WDR");
+    SRF_PODCAST("SRF.Podcast"),
+    SWR("SWR"),
+    WDR("WDR"),
+    ZDF("ZDF"),
+    ZDF_TIVI("ZDF Tivi")
+    ;
+
+    static final String EXCEPTIONTEXT_NULL_SENDERNAME = "Gesuchter Sendername ist Null!";
 
     private String name;
 
@@ -42,11 +45,15 @@ public enum Sender
         return name;
     }
 
-    public static Sender getSenderByName(final String aName)
+    public static Sender getSenderByName(final String searchedSenderName) throws IllegalArgumentException
     {
+        if(null==searchedSenderName) {
+            throw new IllegalArgumentException(EXCEPTIONTEXT_NULL_SENDERNAME);
+        }
+        
         for (final Sender sender : Sender.values())
         {
-            if (sender.getName().equalsIgnoreCase(aName) || sender.toString().equalsIgnoreCase(aName))
+            if (sender.getName().equalsIgnoreCase(searchedSenderName) || sender.toString().equalsIgnoreCase(searchedSenderName))
             {
                 return sender;
             }
