@@ -22,7 +22,17 @@ package de.mediathekview.mlib.daten;
 import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Optional;
+import java.util.SimpleTimeZone;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -101,7 +111,7 @@ public class ListeFilme extends ArrayList<Film>
 
         if (ersetzen)
         {
-            listeEinsortieren.forEach((Film f) -> addHash(f, hash, index));
+            listeEinsortieren.forEach((Film aktuellerFilm) -> addHash(aktuellerFilm, hash, index));
 
             Iterator<Film> it = this.iterator();
             while (it.hasNext())
@@ -227,7 +237,7 @@ public class ListeFilme extends ArrayList<Film>
      */
     public synchronized void deleteAllFilms(String sender)
     {
-        removeIf(film -> film.getSender().getName().equalsIgnoreCase(sender));
+        removeIf(film -> film.getSenderName().equalsIgnoreCase(sender));
     }
 
 
@@ -239,7 +249,7 @@ public class ListeFilme extends ArrayList<Film>
 
     public synchronized void getThema(String sender, LinkedList<String> liste)
     {
-        this.stream().filter(film -> film.getSender().getName().equals(sender))
+        this.stream().filter(film -> film.getSenderName().equals(sender))
                 .filter(film -> !liste.contains(film.getThema()))
                 .forEach(film -> liste.add(film.getThema()));
     }
@@ -480,7 +490,7 @@ public class ListeFilme extends ArrayList<Film>
 
         for (Film film : this)
         {
-            senderSet.add(film.getSender().getName());
+            senderSet.add(film.getSenderName());
         }
         sender = senderSet.toArray(new String[senderSet.size()]);
         senderSet.clear();
@@ -501,7 +511,7 @@ public class ListeFilme extends ArrayList<Film>
         String filmThema, filmSender;
         for (Film film : this)
         {
-            filmSender = film.getSender().getName();
+            filmSender = film.getSenderName();
             filmThema = film.getThema();
             //hinzufügen
             if (!hashSet[0].contains(filmThema))
