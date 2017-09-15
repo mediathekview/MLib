@@ -55,7 +55,7 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
 			if (StringUtils.isBlank(senderText) && entryBefore != null) {
 				sender = entryBefore.get().getSender();
 			} else {
-				sender = Sender.getSenderByName(senderText);
+				sender = Sender.getSenderByName(senderText).orElse((Sender)null);
 			}
 
 			String thema = entrySplits.get(2);

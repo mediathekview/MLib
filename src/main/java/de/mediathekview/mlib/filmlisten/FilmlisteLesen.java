@@ -216,7 +216,7 @@ public class FilmlisteLesen
             }
             else
             {
-                sender = Sender.getSenderByName(senderText);
+                sender = Sender.getSenderByName(senderText).orElse((Sender)null );
             }
 
             String thema = aEntrySplits.get(2);

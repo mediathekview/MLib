@@ -2,6 +2,7 @@ package de.mediathekview.mlib.daten;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Created by nicklas on 29.12.16.
@@ -45,7 +46,7 @@ public enum Sender
         return name;
     }
 
-    public static Sender getSenderByName(final String searchedSenderName) throws IllegalArgumentException
+    public static Optional<Sender> getSenderByName(final String searchedSenderName) throws IllegalArgumentException
     {
         if(null==searchedSenderName) {
             throw new IllegalArgumentException(EXCEPTIONTEXT_NULL_SENDERNAME);
@@ -53,13 +54,14 @@ public enum Sender
         
         for (final Sender sender : Sender.values())
         {
-            if (sender.getName().equalsIgnoreCase(searchedSenderName) || sender.toString().equalsIgnoreCase(searchedSenderName))
+            if (sender.getName().equalsIgnoreCase(searchedSenderName))
+                
             {
-                return sender;
+                return Optional.of(sender);
             }
         }
 
-        return null;
+        return Optional.empty();
     }
 
     public static Collection<String> getSenderNamen()
