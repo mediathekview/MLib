@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public enum Qualities
+public enum Quality
 {
     HD(3, "HD"), NORMAL(2, "Normal"), SMALL(1, "Klein"), VERY_SMALL(0, "Sehr klein");
 
@@ -15,7 +15,7 @@ public enum Qualities
     private final int index;
     private final String description;
 
-    Qualities(final int aIndex, final String aDescription)
+    Quality(final int aIndex, final String aDescription)
     {
         index = aIndex;
         description = aDescription;
@@ -26,14 +26,14 @@ public enum Qualities
         return description;
     }
 
-    public int getIndex()
+    private int getIndex()
     {
         return index;
     }
 
-    public static List<Qualities> getFromBestToLowest()
+    public static List<Quality> getFromBestToLowest()
     {
-        return Arrays.asList(Qualities.values()).stream().sorted(Comparator.comparing(Qualities::getIndex).reversed())
+        return Arrays.asList(Quality.values()).stream().sorted(Comparator.comparing(Quality::getIndex).reversed())
                 .collect(Collectors.toList());
     }
 }

@@ -28,7 +28,7 @@ public class Film
             "+++ Aus rechtlichen Gründen kann das Video nur in Deutschland abgerufen werden. +++" };
 
     private final UUID uuid;// Old: filmNr
-    private final Map<Qualities, FilmUrl> urls;
+    private final Map<Quality, FilmUrl> urls;
     private final Collection<GeoLocations> geoLocations;
     private final Sender sender;
     private String titel;
@@ -66,7 +66,7 @@ public class Film
         return uuid;
     }
 
-    public Map<Qualities, FilmUrl> getUrls()
+    public Map<Quality, FilmUrl> getUrls()
     {
         return new HashMap<>(urls);
     }
@@ -205,7 +205,7 @@ public class Film
         return website;
     }
 
-    public void addUrl(final Qualities aQuality, final FilmUrl aUrl)
+    public void addUrl(final Quality aQuality, final FilmUrl aUrl)
     {
         if (aQuality != null && aUrl != null)
         {
@@ -222,12 +222,12 @@ public class Film
         }
     }
 
-    public URL getUrl(final Qualities aQuality)
+    public URL getUrl(final Quality aQuality)
     {
         return urls.get(aQuality).getUrl();
     }
 
-    public Long getFileSize(final Qualities aQuality)
+    public Long getFileSize(final Quality aQuality)
     {
         if (urls.containsKey(aQuality))
         {
@@ -242,12 +242,12 @@ public class Film
     public String getIndexName()
     {
         return new StringBuilder(titel == null ? "" : titel).append(thema == null ? "" : thema)
-                .append(urls.isEmpty() ? "" : urls.get(Qualities.NORMAL)).toString();
+                .append(urls.isEmpty() ? "" : urls.get(Quality.NORMAL)).toString();
     }
 
     public boolean hasHD()
     {
-        return urls.containsKey(Qualities.HD);
+        return urls.containsKey(Quality.HD);
     }
 
     public boolean hasUT()

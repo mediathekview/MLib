@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.mediathekview.mlib.daten.Film;
 import de.mediathekview.mlib.daten.GeoLocations;
-import de.mediathekview.mlib.daten.Qualities;
+import de.mediathekview.mlib.daten.Quality;
 
 /**
  * A helper class to generate the old fake json format for a
@@ -93,14 +93,14 @@ public class FilmToFakeJsonConverter
         String urlKlein = "";
         String urlHd = "";
 
-        if (aFilm.getUrls().containsKey(Qualities.SMALL))
+        if (aFilm.getUrls().containsKey(Quality.SMALL))
         {
-            urlKlein = aFilm.getUrl(Qualities.SMALL).toString();
+            urlKlein = aFilm.getUrl(Quality.SMALL).toString();
         }
 
-        if (aFilm.getUrls().containsKey(Qualities.HD))
+        if (aFilm.getUrls().containsKey(Quality.HD))
         {
-            urlHd = aFilm.getUrl(Qualities.HD).toString();
+            urlHd = aFilm.getUrl(Quality.HD).toString();
         }
 
         urlKlein = reduceUrl(url, urlKlein);
@@ -118,21 +118,21 @@ public class FilmToFakeJsonConverter
         appendEnd(fakeJsonBuilder, aIsLastFilm);
     }
 
-    private Qualities getDefaultQuality(final Film aFilm)
+    private Quality getDefaultQuality(final Film aFilm)
     {
-        if (aFilm.getUrls().containsKey(Qualities.NORMAL))
+        if (aFilm.getUrls().containsKey(Quality.NORMAL))
         {
-            return Qualities.NORMAL;
+            return Quality.NORMAL;
         }
 
-        for (final Qualities quality : Qualities.getFromBestToLowest())
+        for (final Quality quality : Quality.getFromBestToLowest())
         {
             if (aFilm.getUrls().containsKey(quality))
             {
                 return quality;
             }
         }
-        return Qualities.VERY_SMALL;
+        return Quality.VERY_SMALL;
     }
 
     private String setThema(final Film film)

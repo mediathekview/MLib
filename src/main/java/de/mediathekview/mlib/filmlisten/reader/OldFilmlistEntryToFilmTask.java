@@ -24,7 +24,7 @@ import org.apache.logging.log4j.Logger;
 import de.mediathekview.mlib.daten.Film;
 import de.mediathekview.mlib.daten.FilmUrl;
 import de.mediathekview.mlib.daten.GeoLocations;
-import de.mediathekview.mlib.daten.Qualities;
+import de.mediathekview.mlib.daten.Quality;
 import de.mediathekview.mlib.daten.Sender;
 import de.mediathekview.mlib.tool.Functions;
 
@@ -151,7 +151,7 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film>
                 film.setNeu(Boolean.parseBoolean(neu));
             }
 
-            film.addUrl(Qualities.NORMAL, new FilmUrl(urlNormal, groesse));
+            film.addUrl(Quality.NORMAL, new FilmUrl(urlNormal, groesse));
             film.setBeschreibung(beschreibung);
 
             if (!urlTextUntertitel.isEmpty())
@@ -164,7 +164,7 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film>
                 final FilmUrl urlKlein = urlTextToUri(urlNormal, groesse, urlTextKlein);
                 if (urlKlein != null)
                 {
-                    film.addUrl(Qualities.SMALL, urlKlein);
+                    film.addUrl(Quality.SMALL, urlKlein);
                 }
             }
 
@@ -173,7 +173,7 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film>
                 final FilmUrl urlHD = urlTextToUri(urlNormal, groesse, urlTextHD);
                 if (urlHD != null)
                 {
-                    film.addUrl(Qualities.HD, urlHD);
+                    film.addUrl(Quality.HD, urlHD);
                 }
             }
 

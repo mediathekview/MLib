@@ -98,7 +98,7 @@ public class ListeFilme extends ArrayList<Film>
             hash.add(String.valueOf(f.hashCode()));
         } else
         {
-            hash.add(f.getUrl(Qualities.NORMAL).toString());
+            hash.add(f.getUrl(Quality.NORMAL).toString());
         }
     }
 
@@ -123,7 +123,7 @@ public class ListeFilme extends ArrayList<Film>
                     {
                         it.remove();
                     }
-                } else if (hash.contains(f.getUrl(Qualities.NORMAL)))
+                } else if (hash.contains(f.getUrl(Quality.NORMAL)))
                 {
                     it.remove();
                 }
@@ -143,7 +143,7 @@ public class ListeFilme extends ArrayList<Film>
                     {
                         addInit(f);
                     }
-                } else if (!hash.contains(f.getUrl(Qualities.NORMAL).toString()))
+                } else if (!hash.contains(f.getUrl(Quality.NORMAL).toString()))
                 {
                     addInit(f);
                 }
@@ -219,11 +219,11 @@ public class ListeFilme extends ArrayList<Film>
         String res;
 
         Optional<Film> opt = this.parallelStream()
-                .filter(f -> f.getUrl(Qualities.NORMAL).equals(url)).findAny();
+                .filter(f -> f.getUrl(Quality.NORMAL).equals(url)).findAny();
         if (opt.isPresent())
         {
             Film film = opt.get();
-            res = String.valueOf(film.getFileSize(Qualities.NORMAL));
+            res = String.valueOf(film.getFileSize(Quality.NORMAL));
         } else
             res = FileSize.laengeString(url);
 
@@ -243,7 +243,7 @@ public class ListeFilme extends ArrayList<Film>
 
     public synchronized Film getFilmByUrl(final String url)
     {
-        Optional<Film> opt = this.parallelStream().filter(f -> f.getUrl(Qualities.NORMAL).toString().equalsIgnoreCase(url)).findAny();
+        Optional<Film> opt = this.parallelStream().filter(f -> f.getUrl(Quality.NORMAL).toString().equalsIgnoreCase(url)).findAny();
         return opt.orElse(null);
     }
 
@@ -261,19 +261,19 @@ public class ListeFilme extends ArrayList<Film>
         Film ret = null;
         for (Film f : this)
         {
-            if (f.getUrl(Qualities.NORMAL).toString().equals(url))
+            if (f.getUrl(Quality.NORMAL).toString().equals(url))
             {
                 ret = f;
                 break;
-            } else if (f.getUrl(Qualities.HD).equals(url))
+            } else if (f.getUrl(Quality.HD).equals(url))
             {
                 ret = f;
                 break;
-            } else if (f.getUrl(Qualities.SMALL).equals(url))
+            } else if (f.getUrl(Quality.SMALL).equals(url))
             {
                 ret = f;
                 break;
-            } else if (f.getUrl(Qualities.VERY_SMALL).equals(url))
+            } else if (f.getUrl(Quality.VERY_SMALL).equals(url))
             {
                 ret = f;
                 break;
