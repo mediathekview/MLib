@@ -1,10 +1,10 @@
 package de.mediathekview.mlib.daten;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 public class FilmUrl
 {
@@ -13,21 +13,21 @@ public class FilmUrl
     private static final String URL_START_RODL = "//rodl";
     private static final String URL_HTTPS = "https";
     private static final String URL_HTTP = "http";
-    private URI url;
+    private URL url;
     private Long fileSize;
 
-    public FilmUrl(final URI url, final Long fileSize)
+    public FilmUrl(final URL url, final Long fileSize)
     {
         this.url = url;
         this.fileSize = fileSize;
     }
 
-    public URI getUrl()
+    public URL getUrl()
     {
         return url;
     }
 
-    public void setUrl(final URI url)
+    public void setUrl(final URL url)
     {
         this.url = url;
     }
@@ -45,34 +45,42 @@ public class FilmUrl
     @Override
     public boolean equals(final Object o)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
 
         final FilmUrl filmUrl = (FilmUrl) o;
 
-        if (!makeUrlComparable(getUrl()).equals(makeUrlComparable(filmUrl.getUrl()))) return false;
+        if (!makeUrlComparable(getUrl()).equals(makeUrlComparable(filmUrl.getUrl())))
+        {
+            return false;
+        }
         return getFileSize().equals(filmUrl.getFileSize());
 
     }
 
-    private URI makeUrlComparable(final URI aUrl)
+    private URL makeUrlComparable(final URL aUrl)
     {
-        URI newUrl;
+        URL newUrl;
         if (aUrl == null)
         {
             newUrl = aUrl;
-        } else
+        }
+        else
         {
-            String urlAsText = aUrl.toString();
+            final String urlAsText = aUrl.toString();
             try
             {
-                newUrl = new URI(
-                        urlAsText.replaceAll(URL_START_NRODL, URL_START_RODL)
-                                .replaceAll(URL_HTTPS, URL_HTTP)
-                );
-            } catch (URISyntaxException aURISyntaxException)
+                newUrl = new URL(urlAsText.replaceAll(URL_START_NRODL, URL_START_RODL).replaceAll(URL_HTTPS, URL_HTTP));
+            }
+            catch (final MalformedURLException aMalformedURLException)
             {
-                LOG.fatal("Can'T replace the nrodl in these URL: " + aUrl.toString(), aURISyntaxException);
+                LOG.fatal("Can't replace the nrodl in these URL: " + aUrl.toString(), aMalformedURLException);
                 newUrl = aUrl;
             }
         }

@@ -1,6 +1,6 @@
 package de.mediathekview.mlib.daten;
 
-import java.net.URI;
+import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,18 +17,17 @@ import de.mediathekview.mlib.tool.Functions;
  */
 public class Film
 {
-    private static final String[] GERMAN_GEOBLOCKING_TEXTS = {
-            "+++ Aus rechtlichen Gründen ist der Film nur innerhalb von Deutschland abrufbar. +++",
+    private static final String[] GERMAN_GEOBLOCKING_TEXTS =
+    { "+++ Aus rechtlichen Gründen ist der Film nur innerhalb von Deutschland abrufbar. +++",
             "+++ Aus rechtlichen Gründen ist diese Sendung nur innerhalb von Deutschland abrufbar. +++",
             "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland abrufbar. +++",
             "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland verfügbar. +++",
             "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++ Due to legal reasons the video is only available in Germany.+++",
             "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++",
             "+++ Due to legal reasons the video is only available in Germany.+++",
-            "+++ Aus rechtlichen Gründen kann das Video nur in Deutschland abgerufen werden. +++"
-    };
+            "+++ Aus rechtlichen Gründen kann das Video nur in Deutschland abgerufen werden. +++" };
 
-    private final UUID uuid;//Old: filmNr
+    private final UUID uuid;// Old: filmNr
     private final Map<Qualities, FilmUrl> urls;
     private final Collection<GeoLocations> geoLocations;
     private final Sender sender;
@@ -38,11 +37,13 @@ public class Film
     private final Duration duration;
     private boolean neu;
 
-    private final Collection<URI> subtitles;
+    private final Collection<URL> subtitles;
     private String beschreibung;
-    private final URI website;
+    private final URL website;
 
-    public Film(UUID aUuid, Collection<GeoLocations> aGeoLocations, Sender aSender, String aTitel, String aThema, LocalDateTime aTime, Duration aDuration, URI aWebsite)
+    public Film(final UUID aUuid, final Collection<GeoLocations> aGeoLocations, final Sender aSender,
+            final String aTitel, final String aThema, final LocalDateTime aTime, final Duration aDuration,
+            final URL aWebsite)
     {
         urls = new HashMap<>();
         subtitles = new ArrayList<>();
@@ -74,17 +75,17 @@ public class Film
     {
         return sender;
     }
-    
-    public String getSenderName() {
+
+    public String getSenderName()
+    {
         return sender.getName();
     }
-    
 
-    public void setTitel(String aTitel)
+    public void setTitel(final String aTitel)
     {
         titel = Functions.unescape(Functions.removeHtml(aTitel));
     }
-    
+
     public String getTitel()
     {
         return titel;
@@ -94,8 +95,8 @@ public class Film
     {
         return thema;
     }
-    
-    public void setThema(String aThema)
+
+    public void setThema(final String aThema)
     {
         thema = Functions.unescape(Functions.removeHtml(aThema));
     }
@@ -115,7 +116,7 @@ public class Film
         return duration;
     }
 
-    public Collection<URI> getSubtitles()
+    public Collection<URL> getSubtitles()
     {
         return new ArrayList<>(subtitles);
     }
@@ -129,13 +130,30 @@ public class Film
     {
         // die Beschreibung auf x Zeichen beschränken
         String beschreibung = aBeschreibung;
-        beschreibung = Functions.unescape(Functions.removeHtml(beschreibung)); // damit die Beschreibung nicht unnötig kurz wird wenn es erst später gemacht wird
+        beschreibung = Functions.unescape(Functions.removeHtml(beschreibung)); // damit
+                                                                               // die
+                                                                               // Beschreibung
+                                                                               // nicht
+                                                                               // unnötig
+                                                                               // kurz
+                                                                               // wird
+                                                                               // wenn
+                                                                               // es
+                                                                               // erst
+                                                                               // später
+                                                                               // gemacht
+                                                                               // wird
 
-        for (String geoBlockingText : GERMAN_GEOBLOCKING_TEXTS)
+        for (final String geoBlockingText : GERMAN_GEOBLOCKING_TEXTS)
         {
             if (beschreibung.contains(geoBlockingText))
             {
-                beschreibung = beschreibung.replace(geoBlockingText, ""); // steht auch mal in der Mitte
+                beschreibung = beschreibung.replace(geoBlockingText, ""); // steht
+                                                                          // auch
+                                                                          // mal
+                                                                          // in
+                                                                          // der
+                                                                          // Mitte
             }
         }
         if (beschreibung.startsWith(titel))
@@ -182,12 +200,12 @@ public class Film
         this.beschreibung = beschreibung;
     }
 
-    public URI getWebsite()
+    public URL getWebsite()
     {
         return website;
     }
 
-    public void addUrl(Qualities aQuality, FilmUrl aUrl)
+    public void addUrl(final Qualities aQuality, final FilmUrl aUrl)
     {
         if (aQuality != null && aUrl != null)
         {
@@ -196,7 +214,7 @@ public class Film
         }
     }
 
-    public void addSubtitle(URI aSubtitleUrl)
+    public void addSubtitle(final URL aSubtitleUrl)
     {
         if (aSubtitleUrl != null)
         {
@@ -204,25 +222,27 @@ public class Film
         }
     }
 
-    public URI getUrl(Qualities aQuality)
+    public URL getUrl(final Qualities aQuality)
     {
         return urls.get(aQuality).getUrl();
     }
 
-    public Long getFileSize(Qualities aQuality)
+    public Long getFileSize(final Qualities aQuality)
     {
-        if(urls.containsKey(aQuality))
+        if (urls.containsKey(aQuality))
         {
             return urls.get(aQuality).getFileSize();
         }
-        else {
+        else
+        {
             return 0l;
         }
     }
 
     public String getIndexName()
     {
-        return new StringBuilder(titel == null ? "" : titel).append(thema == null ? "" : thema).append(urls.isEmpty() ? "" : urls.get(0)).toString();
+        return new StringBuilder(titel == null ? "" : titel).append(thema == null ? "" : thema)
+                .append(urls.isEmpty() ? "" : urls.get(Qualities.NORMAL)).toString();
     }
 
     public boolean hasHD()
@@ -248,19 +268,42 @@ public class Film
     @Override
     public boolean equals(final Object o)
     {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
 
         final Film film = (Film) o;
 
-        if (!getUrls().equals(film.getUrls())) return false;
-        if (getGeoLocations() != null ? !getGeoLocations().equals(film.getGeoLocations()) : film.getGeoLocations() != null)
+        if (!getUrls().equals(film.getUrls()))
+        {
             return false;
-        if (getSender() != film.getSender()) return false;
-        if (!getTitel().equals(film.getTitel())) return false;
-        if (!getThema().equals(film.getThema())) return false;
+        }
+        if (getGeoLocations() != null ? !getGeoLocations().equals(film.getGeoLocations())
+                : film.getGeoLocations() != null)
+        {
+            return false;
+        }
+        if (getSender() != film.getSender())
+        {
+            return false;
+        }
+        if (!getTitel().equals(film.getTitel()))
+        {
+            return false;
+        }
+        if (!getThema().equals(film.getThema()))
+        {
+            return false;
+        }
         if (getDuration() != null ? !getDuration().equals(film.getDuration()) : film.getDuration() != null)
+        {
             return false;
+        }
         return getSubtitles() != null ? getSubtitles().equals(film.getSubtitles()) : film.getSubtitles() == null;
     }
 
@@ -280,19 +323,9 @@ public class Film
     @Override
     public String toString()
     {
-        return "Film{" +
-                "uuid=" + uuid +
-                ", urls=" + urls +
-                ", geoLocation=" + geoLocations +
-                ", sender=" + sender +
-                ", titel='" + titel + '\'' +
-                ", thema='" + thema + '\'' +
-                ", time=" + time +
-                ", duration=" + duration +
-                ", subtitles=" + subtitles +
-                ", beschreibung='" + beschreibung + '\'' +
-                ", website=" + website +
-                ", neu=" + neu +
-                '}';
+        return "Film{" + "uuid=" + uuid + ", urls=" + urls + ", geoLocation=" + geoLocations + ", sender=" + sender
+                + ", titel='" + titel + '\'' + ", thema='" + thema + '\'' + ", time=" + time + ", duration=" + duration
+                + ", subtitles=" + subtitles + ", beschreibung='" + beschreibung + '\'' + ", website=" + website
+                + ", neu=" + neu + '}';
     }
 }

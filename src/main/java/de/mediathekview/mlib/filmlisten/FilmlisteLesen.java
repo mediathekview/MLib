@@ -25,8 +25,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -216,7 +214,7 @@ public class FilmlisteLesen
             }
             else
             {
-                sender = Sender.getSenderByName(senderText).orElse((Sender)null );
+                sender = Sender.getSenderByName(senderText).orElse((Sender) null);
             }
 
             String thema = aEntrySplits.get(2);
@@ -281,8 +279,8 @@ public class FilmlisteLesen
 
             final String beschreibung = aEntrySplits.get(8);
 
-            final URI urlNormal = new URI(Functions.convertStringUTF8ToRealUTF8Char(aEntrySplits.get(9).trim()));
-            final URI urlWebseite = new URI(Functions.convertStringUTF8ToRealUTF8Char(aEntrySplits.get(10).trim()));
+            final URL urlNormal = new URL(Functions.convertStringUTF8ToRealUTF8Char(aEntrySplits.get(9).trim()));
+            final URL urlWebseite = new URL(Functions.convertStringUTF8ToRealUTF8Char(aEntrySplits.get(10).trim()));
 
             final String urlTextUntertitel = aEntrySplits.get(11);
 
@@ -310,12 +308,12 @@ public class FilmlisteLesen
 
             if (!urlTextUntertitel.isEmpty())
             {
-                film.addSubtitle(new URI(urlTextUntertitel));
+                film.addSubtitle(new URL(urlTextUntertitel));
             }
 
             if (!urlTextKlein.isEmpty())
             {
-                final FilmUrl urlKlein = urlTextToUri(urlNormal, groesse, urlTextKlein);
+                final FilmUrl urlKlein = urlTextToUrl(urlNormal, groesse, urlTextKlein);
                 if (urlKlein != null)
                 {
                     film.addUrl(Qualities.SMALL, urlKlein);
@@ -324,7 +322,7 @@ public class FilmlisteLesen
 
             if (!urlTextHD.isEmpty())
             {
-                final FilmUrl urlHD = urlTextToUri(urlNormal, groesse, urlTextHD);
+                final FilmUrl urlHD = urlTextToUrl(urlNormal, groesse, urlTextHD);
                 if (urlHD != null)
                 {
                     film.addUrl(Qualities.HD, urlHD);
@@ -339,8 +337,8 @@ public class FilmlisteLesen
         }
     }
 
-    private FilmUrl urlTextToUri(final URI aUrlNormal, final long aGroesse, final String aUrlText)
-            throws URISyntaxException
+    private FilmUrl urlTextToUrl(final URL aUrlNormal, final long aGroesse, final String aUrlText)
+            throws MalformedURLException
     {
         FilmUrl filmUrl = null;
 
@@ -353,7 +351,7 @@ public class FilmlisteLesen
             newUrlBuilder.append(aUrlNormal.toString().substring(0, lengthOfOld));
             newUrlBuilder.append(splittedUrlText[1]);
 
-            filmUrl = new FilmUrl(new URI(newUrlBuilder.toString()), aGroesse);
+            filmUrl = new FilmUrl(new URL(newUrlBuilder.toString()), aGroesse);
         }
         return filmUrl;
     }
@@ -392,13 +390,6 @@ public class FilmlisteLesen
         }
 
         return entrySplits;
-    }
-
-    private String allLinesToOneText(final BufferedReader bufferedReader)
-    {
-        final StringBuilder textBuilder = new StringBuilder();
-        bufferedReader.lines().forEach(textBuilder::append);
-        return textBuilder.toString();
     }
 
     /**
