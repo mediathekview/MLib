@@ -59,7 +59,7 @@ import de.mediathekview.mlib.daten.Film;
 import de.mediathekview.mlib.daten.FilmUrl;
 import de.mediathekview.mlib.daten.GeoLocations;
 import de.mediathekview.mlib.daten.ListeFilme;
-import de.mediathekview.mlib.daten.Quality;
+import de.mediathekview.mlib.daten.Resolution;
 import de.mediathekview.mlib.daten.Sender;
 import de.mediathekview.mlib.filmesuchen.ListenerFilmeLaden;
 import de.mediathekview.mlib.filmesuchen.ListenerFilmeLadenEvent;
@@ -177,7 +177,7 @@ public class FilmlisteLesen
                              */
                             listeFilme.add(newEntry);
                             filmEntryBefore = newEntry;
-                            notifyProgress(newEntry.getUrl(Quality.NORMAL).toString(), count * 100 / entries.size(),
+                            notifyProgress(newEntry.getUrl(Resolution.NORMAL).toString(), count * 100 / entries.size(),
                                     count, false);
                         }
                         catch (final Exception exception)
@@ -303,7 +303,7 @@ public class FilmlisteLesen
                 film.setNeu(Boolean.parseBoolean(neu));
             }
 
-            film.addUrl(Quality.NORMAL, new FilmUrl(urlNormal, groesse));
+            film.addUrl(Resolution.NORMAL, new FilmUrl(urlNormal, groesse));
             film.setBeschreibung(beschreibung);
 
             if (!urlTextUntertitel.isEmpty())
@@ -316,7 +316,7 @@ public class FilmlisteLesen
                 final FilmUrl urlKlein = urlTextToUrl(urlNormal, groesse, urlTextKlein);
                 if (urlKlein != null)
                 {
-                    film.addUrl(Quality.SMALL, urlKlein);
+                    film.addUrl(Resolution.SMALL, urlKlein);
                 }
             }
 
@@ -325,7 +325,7 @@ public class FilmlisteLesen
                 final FilmUrl urlHD = urlTextToUrl(urlNormal, groesse, urlTextHD);
                 if (urlHD != null)
                 {
-                    film.addUrl(Quality.HD, urlHD);
+                    film.addUrl(Resolution.HD, urlHD);
                 }
             }
 

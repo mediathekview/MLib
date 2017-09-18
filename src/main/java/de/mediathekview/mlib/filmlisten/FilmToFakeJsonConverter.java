@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.mediathekview.mlib.daten.Film;
 import de.mediathekview.mlib.daten.GeoLocations;
-import de.mediathekview.mlib.daten.Quality;
+import de.mediathekview.mlib.daten.Resolution;
 
 /**
  * A helper class to generate the old fake json format for a
@@ -89,18 +89,18 @@ public class FilmToFakeJsonConverter
 
         final String thema = setThema(aFilm);
 
-        final String url = aFilm.getUrl(getDefaultQuality(aFilm)).toString();
+        final String url = aFilm.getUrl(getDefaultResolution(aFilm)).toString();
         String urlKlein = "";
         String urlHd = "";
 
-        if (aFilm.getUrls().containsKey(Quality.SMALL))
+        if (aFilm.getUrls().containsKey(Resolution.SMALL))
         {
-            urlKlein = aFilm.getUrl(Quality.SMALL).toString();
+            urlKlein = aFilm.getUrl(Resolution.SMALL).toString();
         }
 
-        if (aFilm.getUrls().containsKey(Quality.HD))
+        if (aFilm.getUrls().containsKey(Resolution.HD))
         {
-            urlHd = aFilm.getUrl(Quality.HD).toString();
+            urlHd = aFilm.getUrl(Resolution.HD).toString();
         }
 
         urlKlein = reduceUrl(url, urlKlein);
@@ -109,7 +109,7 @@ public class FilmToFakeJsonConverter
         fakeJsonBuilder.append(String.format(OUTPUT_PATTERN, sender, thema, aFilm.getTitel(),
                 aFilm.getTime() == null ? "" : DATE_FORMATTER.format(aFilm.getTime().toLocalDate()),
                 aFilm.getTime() == null ? "" : TIME_FORMATTER.format(aFilm.getTime().toLocalTime()),
-                durationToString(aFilm.getDuration()), aFilm.getFileSize(getDefaultQuality(aFilm)),
+                durationToString(aFilm.getDuration()), aFilm.getFileSize(getDefaultResolution(aFilm)),
                 aFilm.getBeschreibung(), url, aFilm.getWebsite(),
                 aFilm.getSubtitles().isEmpty() ? "" : aFilm.getSubtitles().iterator().next().toString(), "", urlKlein,
                 "", urlHd, "",
@@ -118,21 +118,28 @@ public class FilmToFakeJsonConverter
         appendEnd(fakeJsonBuilder, aIsLastFilm);
     }
 
-    private Quality getDefaultQuality(final Film aFilm)
+    private Resolution getDefaultResolution(final Film aFilm)
     {
-        if (aFilm.getUrls().containsKey(Quality.NORMAL))
+        if (aFilm.getUrls().containsKey(Resolution.NORMAL))
         {
-            return Quality.NORMAL;
+            return Resolution.NORMAL;
         }
 
-        for (final Quality quality : Quality.getFromBestToLowest())
-        {
-            if (aFilm.getUrls().containsKey(quality))
-            {
-                return quality;
+        Resolution besteMoeglicheAufloesung = Resolution.HD;
+        
+        while (true) {
+            if (aFilm.getUrls().containsKey(besteMoeglicheAufloesung)) {
+                return besteMoeglicheAufloesung;
+            } else {
+                if(!besteMoeglicheAufloesung.equals(Resolution.VERY_SMALL)) {
+                    besteMoeglicheAufloesung = Resolution.getNextLowerResolution(besteMoeglicheAufloesung);
+                } else
+                    return Resolution.VERY_SMALL; 
             }
+               
+            
         }
-        return Quality.VERY_SMALL;
+        
     }
 
     private String setThema(final Film film)

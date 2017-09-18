@@ -21,7 +21,7 @@ package de.mediathekview.mlib.tool;
 
 
 import de.mediathekview.mlib.daten.Film;
-import de.mediathekview.mlib.daten.Quality;
+import de.mediathekview.mlib.daten.Resolution;
 
 public class MSLong implements Comparable<MSLong>
 {
@@ -41,8 +41,8 @@ public class MSLong implements Comparable<MSLong>
 
     public MSLong(Film film)
     {
-        l = film.getFileSize(Quality.NORMAL);
-        s = String.valueOf(film.getFileSize(Quality.NORMAL));
+        l = film.getFileSize(Resolution.NORMAL);
+        s = String.valueOf(film.getFileSize(Resolution.NORMAL));
     }
 
     @Override
