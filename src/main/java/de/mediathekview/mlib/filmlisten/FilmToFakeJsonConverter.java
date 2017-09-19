@@ -125,21 +125,14 @@ public class FilmToFakeJsonConverter
             return Resolution.NORMAL;
         }
 
-        Resolution besteMoeglicheAufloesung = Resolution.HD;
-        
-        while (true) {
-            if (aFilm.getUrls().containsKey(besteMoeglicheAufloesung)) {
-                return besteMoeglicheAufloesung;
-            } else {
-                if(!besteMoeglicheAufloesung.equals(Resolution.VERY_SMALL)) {
-                    besteMoeglicheAufloesung = Resolution.getNextLowerResolution(besteMoeglicheAufloesung);
-                } else
-                    return Resolution.VERY_SMALL; 
+        for (final Resolution quality : Resolution.getFromBestToLowest())
+        {
+            if (aFilm.getUrls().containsKey(quality))
+            {
+                return quality;
             }
-               
-            
         }
-        
+        return Resolution.VERY_SMALL;
     }
 
     private String setThema(final Film film)
