@@ -8,7 +8,7 @@ targetCompatibility = 1.8
 
 
 group = 'de.mediathekview'
-version = '3.0.2'
+version = '4.0.2'
 
 ext {
     propsFile = file('src/main/resources/version.properties').absoluteFile
