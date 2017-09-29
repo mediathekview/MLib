@@ -29,7 +29,7 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
   public boolean write(final Filmlist aFilmlist, final Path aSavePath) {
     final FilmToFakeJsonConverter filmToFakeJsonConverter = new FilmToFakeJsonConverter();
     final String filmlistAsFakeJson = filmToFakeJsonConverter.toFakeJson(
-        aFilmlist.getFilmsSorted(MediaResourceComperatorFactory.getInstance().getDefault()),
+        aFilmlist.getSorted(MediaResourceComperatorFactory.getInstance().getDefault()),
         DATE_TIME_FORMAT.format(aFilmlist.getCreationDate()),
         DATE_TIME_FORMAT.format(aFilmlist.getCreationDate().atZone(ZoneOffset.UTC)),
         Functions.getProgVersion().toString(), Functions.getProgVersionString(),
