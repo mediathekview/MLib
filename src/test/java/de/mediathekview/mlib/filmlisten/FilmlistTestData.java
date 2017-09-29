@@ -48,7 +48,7 @@ public class FilmlistTestData
     public Filmlist createTestdataNewFormat() throws MalformedURLException
     {
         final Filmlist testData = new Filmlist();
-        testData.addAll(createFilme());
+        testData.addAllFilms(createFilme());
         return testData;
     }
 
