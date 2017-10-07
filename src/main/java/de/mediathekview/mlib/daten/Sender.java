@@ -5,74 +5,50 @@ import java.util.Collection;
 import java.util.Optional;
 
 /**
- * Created by nicklas on 29.12.16.
+ * A enum of the possible sender.
+ *
+ * @author Nicklas Wiegandt (Nicklas2751)<br/>
+ *         <b>Mail:</b> nicklas@wiegandt.eu<br/>
+ *         <b>Jabber:</b> nicklas2751@elaon.de<br/>
+ *         <b>Skype:</b> Nicklas2751<br/>
+ *
  */
-public enum Sender
-{
-    ARD("ARD"),
-    ARTE_DE("ARTE.DE"),
-    ARTE_FR("ARTE.FR"),
-    BR("BR"),
-    DREISAT("3sat"),
-    DW("DW"),
-    HR("HR"),
-    KIKA("KIKA"),
-    MDR("MDR"),
-    NDR("NDR"),
-    ORF("ORF"),
-    PHOENIX("Phönix"),
-    RBB("RBB"),
-    SF("SF"),
-    SR("SR"),
-    SRF("SRF"),
-    SRF_PODCAST("SRF.Podcast"),
-    SWR("SWR"),
-    WDR("WDR"),
-    ZDF("ZDF"),
-    ZDF_TIVI("ZDF Tivi")
-    ;
+public enum Sender {
+  ARD("ARD"), ARTE_DE("ARTE.DE"), ARTE_FR("ARTE.FR"), BR("BR"), DREISAT("3sat"), DW("DW"), HR(
+      "HR"), KIKA("KIKA"), MDR("MDR"), NDR("NDR"), ORF("ORF"), PHOENIX("Phönix"), RBB("RBB"), SF(
+          "SF"), SR("SR"), SRF("SRF"), SRF_PODCAST(
+              "SRF.Podcast"), SWR("SWR"), WDR("WDR"), ZDF("ZDF"), ZDF_TIVI("ZDF Tivi");
 
-    static final String EXCEPTIONTEXT_NULL_SENDERNAME = "Gesuchter Sendername ist Null!";
+  private String name;
 
-    private String name;
+  Sender(final String aName) {
+    name = aName;
+  }
 
-    Sender(final String aName)
-    {
-        name = aName;
+  public static Optional<Sender> getSenderByName(final String searchedSenderName) {
+    for (final Sender sender : Sender.values()) {
+      if (sender.getName().equalsIgnoreCase(searchedSenderName)
+          || sender.name().equalsIgnoreCase(searchedSenderName))
+
+      {
+        return Optional.of(sender);
+      }
     }
 
-    public String getName()
-    {
-        return name;
+    return Optional.empty();
+  }
+
+  public static Collection<String> getSenderNamen() {
+    final Collection<String> senderNamen = new ArrayList<>();
+
+    for (final Sender sender : Sender.values()) {
+      senderNamen.add(sender.getName());
     }
 
-    public static Optional<Sender> getSenderByName(final String searchedSenderName) throws IllegalArgumentException
-    {
-        if(null==searchedSenderName) {
-            throw new IllegalArgumentException(EXCEPTIONTEXT_NULL_SENDERNAME);
-        }
-        
-        for (final Sender sender : Sender.values())
-        {
-            if (sender.getName().equalsIgnoreCase(searchedSenderName))
-                
-            {
-                return Optional.of(sender);
-            }
-        }
+    return senderNamen;
+  }
 
-        return Optional.empty();
-    }
-
-    public static Collection<String> getSenderNamen()
-    {
-        final Collection<String> senderNamen = new ArrayList<>();
-
-        for (final Sender sender : Sender.values())
-        {
-            senderNamen.add(sender.getName());
-        }
-
-        return senderNamen;
-    }
+  public String getName() {
+    return name;
+  }
 }

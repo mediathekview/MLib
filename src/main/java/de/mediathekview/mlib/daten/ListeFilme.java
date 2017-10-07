@@ -37,6 +37,7 @@ import de.mediathekview.mlib.tool.FileSize;
 import de.mediathekview.mlib.tool.Functions;
 import de.mediathekview.mlib.tool.Log;
 
+@Deprecated
 @SuppressWarnings("serial")
 public class ListeFilme extends ArrayList<Film> {
   public static final String FILMLISTE = "Filmliste";
