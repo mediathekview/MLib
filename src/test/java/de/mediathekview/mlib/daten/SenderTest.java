@@ -17,7 +17,7 @@ public class SenderTest {
 
   @Test
   public void pruefeAnzahlBekannterSender() {
-    assertEquals(21, Sender.getSenderNamen().size());
+    assertEquals(22, Sender.getSenderNamen().size());
   }
 
   @Test
@@ -35,6 +35,7 @@ public class SenderTest {
     assertTrue(c.contains(Sender.BR.getName()));
     assertTrue(c.contains(Sender.DREISAT.getName()));
     assertTrue(c.contains(Sender.DW.getName()));
+    assertTrue(c.contains(Sender.FUNK.getName()));
     assertTrue(c.contains(Sender.HR.getName()));
     assertTrue(c.contains(Sender.KIKA.getName()));
     assertTrue(c.contains(Sender.MDR.getName()));

@@ -14,9 +14,9 @@ import java.util.Optional;
  *
  */
 public enum Sender {
-  ARD("ARD"), ARTE_DE("ARTE.DE"), ARTE_FR("ARTE.FR"), BR("BR"), DREISAT("3sat"), DW("DW"), HR(
-      "HR"), KIKA("KIKA"), MDR("MDR"), NDR("NDR"), ORF("ORF"), PHOENIX("Phönix"), RBB("RBB"), SF(
-          "SF"), SR("SR"), SRF("SRF"), SRF_PODCAST(
+  ARD("ARD"), ARTE_DE("ARTE.DE"), ARTE_FR("ARTE.FR"), BR("BR"), DREISAT("3sat"), DW("DW"), FUNK(
+      "Funk.net"), HR("HR"), KIKA("KIKA"), MDR("MDR"), NDR("NDR"), ORF("ORF"), PHOENIX(
+          "Phönix"), RBB("RBB"), SF("SF"), SR("SR"), SRF("SRF"), SRF_PODCAST(
               "SRF.Podcast"), SWR("SWR"), WDR("WDR"), ZDF("ZDF"), ZDF_TIVI("ZDF Tivi");
 
   private String name;
