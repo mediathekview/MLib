@@ -41,7 +41,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 public class WriteFilmlistJson {
-
+    
     private void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(64 * 1024);
         while (src.read(buffer) != -1) {
@@ -70,8 +70,9 @@ public class WriteFilmlistJson {
      *
      * @param datei      file path
      * @param listeFilme film data
+     * @return true, if writing the file was successful, else false
      */
-    public void filmlisteSchreibenJsonCompressed(String datei, ListeFilme listeFilme) {
+    public boolean filmlisteSchreibenJsonCompressed(String datei, ListeFilme listeFilme) {
         final String tempFile = datei + "_temp";
         filmlisteSchreibenJson(tempFile, listeFilme);
 
@@ -90,13 +91,16 @@ public class WriteFilmlistJson {
             }
 
             Files.deleteIfExists(Paths.get(tempFile));
+            return true;
         } catch (IOException | InterruptedException ex) {
             Log.errorLog(846930144, ex);
             Log.sysLog("Komprimieren fehlgeschlagen");
         }
+        
+        return false;
     }
 
-    public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
+    public boolean filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
         try {
             Log.sysLog("Filme schreiben (" + listeFilme.size() + " Filme) :");
 
@@ -157,9 +161,12 @@ public class WriteFilmlistJson {
                 jg.writeEndObject();
                 Log.sysLog("   --> geschrieben!");
             }
+            return true;
         } catch (Exception ex) {
             Log.errorLog(846930145, ex, "nach: " + datei);
         }
+
+        return false;
     }
 
     private Path testNativeXz() {
@@ -186,8 +193,6 @@ public class WriteFilmlistJson {
              final WritableByteChannel outputChannel = Channels.newChannel(output)) {
 
             fastChannelCopy(inputChannel, outputChannel);
-        } catch (IOException ex) {
-            throw ex;
         }
     }
 }
