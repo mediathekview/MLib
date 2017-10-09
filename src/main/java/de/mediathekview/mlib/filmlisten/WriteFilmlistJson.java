@@ -73,6 +73,8 @@ public class WriteFilmlistJson {
      * @return true, if writing the file was successful, else false
      */
     public boolean filmlisteSchreibenJsonCompressed(String datei, ListeFilme listeFilme) {
+        boolean result = false;
+        
         final String tempFile = datei + "_temp";
         filmlisteSchreibenJson(tempFile, listeFilme);
 
@@ -85,19 +87,26 @@ public class WriteFilmlistJson {
                     final int exitCode = p.waitFor();
                     if (exitCode == 0) {
                         Files.move(Paths.get(tempFile + ".xz"), Paths.get(datei), StandardCopyOption.REPLACE_EXISTING);
+                        result = true;
+                    } else {
+                        Log.sysLog("Komprimieren mit XZ fehlgeschlagen. ExitCode: " + exitCode);
+                        result = false;
                     }
-                } else
+                } else {
                     compressFile(tempFile, datei);
+                    result = true;
+                }
             }
 
             Files.deleteIfExists(Paths.get(tempFile));
-            return true;
+            
         } catch (IOException | InterruptedException ex) {
             Log.errorLog(846930144, ex);
             Log.sysLog("Komprimieren fehlgeschlagen");
+            result = false;
         }
         
-        return false;
+        return result;
     }
 
     public boolean filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
