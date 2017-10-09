@@ -91,6 +91,7 @@ public class WriteFilmlistJson {
 
             Files.deleteIfExists(Paths.get(tempFile));
         } catch (IOException | InterruptedException ex) {
+            Log.errorLog(846930144, ex);
             Log.sysLog("Komprimieren fehlgeschlagen");
         }
     }
@@ -185,7 +186,8 @@ public class WriteFilmlistJson {
              final WritableByteChannel outputChannel = Channels.newChannel(output)) {
 
             fastChannelCopy(inputChannel, outputChannel);
-        } catch (IOException ignored) {
+        } catch (IOException ex) {
+            throw ex;
         }
     }
 }
