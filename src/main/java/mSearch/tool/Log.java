@@ -19,16 +19,21 @@
  */
 package mSearch.tool;
 
-import com.jidesoft.utils.SystemInfo;
-import mSearch.Config;
-import mSearch.Const;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
+
+import com.jidesoft.utils.SystemInfo;
+
+import mSearch.Config;
+import mSearch.Const;
 
 public class Log {
 
@@ -102,11 +107,11 @@ public class Log {
         sysLog(LILNE);
         sysLog("");
         //Version
-        sysLog(progName + Functions.getProgVersionString());
-        String compile = Functions.getCompileDate();
-        if (!compile.isEmpty()) {
-            sysLog("Compiled: " + compile);
-        }
+        sysLog(progName); /*+ Functions.getProgVersionString()*/ // TODO: Es wird noch die Version von MLib angezeigt anstatt von MV
+//        String compile = Functions.getCompileDate();
+//        if (!compile.isEmpty()) {
+//            sysLog("Compiled: " + compile);
+//        }
         sysLog("");
         sysLog(LILNE);
         sysLog("");

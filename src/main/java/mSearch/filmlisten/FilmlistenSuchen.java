@@ -19,15 +19,6 @@
  */
 package mSearch.filmlisten;
 
-import mSearch.Config;
-import mSearch.Const;
-import mSearch.tool.Functions;
-import mSearch.tool.Log;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -36,6 +27,16 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Random;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.tool.Functions;
+import mSearch.tool.Log;
 
 public class FilmlistenSuchen {
 
@@ -96,14 +97,10 @@ public class FilmlistenSuchen {
      */
     private void insertDefaultActiveServers()
     {
-        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://m.picn.de/f/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://m1.picn.de/f/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://m2.picn.de/f/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://download10.onlinetvrecorder.com/mediathekview/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
-        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://mediathekview.jankal.me/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
         listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://verteiler1.mediathekview.de/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
         listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://verteiler2.mediathekview.de/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
         listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://verteiler3.mediathekview.de/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
+        listeFilmlistenUrls_akt.add(new DatenFilmlisteUrl("http://verteiler4.mediathekview.de/Filmliste-akt.xz", DatenFilmlisteUrl.SERVER_ART_AKT));
     }
 
     /**
@@ -111,14 +108,10 @@ public class FilmlistenSuchen {
      */
     private void insertDefaultDifferentialListServers()
     {
-        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://m.picn.de/f/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://m1.picn.de/f/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://m2.picn.de/f/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://download10.onlinetvrecorder.com/mediathekview/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
-        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://mediathekview.jankal.me/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
         listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://verteiler1.mediathekview.de/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
         listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://verteiler2.mediathekview.de/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
         listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://verteiler3.mediathekview.de/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
+        listeFilmlistenUrls_diff.add(new DatenFilmlisteUrl("http://verteiler4.mediathekview.de/Filmliste-diff.xz", DatenFilmlisteUrl.SERVER_ART_DIFF));
     }
 
     /**
