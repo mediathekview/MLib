@@ -167,8 +167,9 @@ public class WriteFilmlistJson {
         Path xz = null;
 
         for (String path : paths) {
-            xz = Paths.get(path);
-            if (Files.isExecutable(xz)) {
+            Path temp = Paths.get(path);
+            if (Files.isExecutable(temp)) {
+                xz = temp;
                 break;
             }
         }
