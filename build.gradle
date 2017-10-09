@@ -15,21 +15,11 @@ ext {
     if (!propsFile.exists()) {
         Files.createFile(propsFile.toPath())
     }
-    repoZugangFile = file('scripte/deploy/RepoZugang.properties').absoluteFile
-    if (!repoZugangFile.exists()) {
-        Files.createFile(repoZugangFile.toPath())
-    }
 }
 
 def loadVersionProperties() {
     Properties props = new Properties()
     props.load(propsFile.newDataInputStream())
-    return props
-}
-
-def loadRepoZugangProperties() {
-    Properties props = new Properties()
-    props.load(repoZugangFile.newDataInputStream())
     return props
 }
 
@@ -43,24 +33,34 @@ compileTestJava {
     options.compilerArgs = ['-Xlint:all']
 }
 
+configurations {
+    deployerJars
+}
+
 repositories {
     mavenLocal()
+    mavenCentral()
     maven {
-        url "https://repo.mediathekview.de/repository/maven-public/"
+        url "https://packagecloud.io/mediathekview/MediathekView/maven2"
     }
 }
 
 uploadArchives {
     repositories.mavenDeployer {
+        configuration = configurations.deployerJars
         uniqueVersion=false
-        Properties props = loadRepoZugangProperties()
-        def nexusUser = project.hasProperty('nexusUser') ? project.property('nexusUser') : props.getProperty('repoUser')
-        def nexusPw = project.hasProperty('nexusPw') ? project.property('nexusPw') : props.getProperty('repoPw')
-        repository(url: "https://repo.mediathekview.de/repository/maven-releases/") {
-            authentication(userName:  nexusUser, password:  nexusPw)
+        def repoPw;
+        
+        if(project.hasProperty('repoPw'))
+        {
+           repoPw = project.property('repoPw');
+        }else
+        {
+            repoPw = System.getenv('PACKAGECLOUD_TOKEN');
         }
-        snapshotRepository(url: "https://repo.mediathekview.de/repository/maven-snapshots/") {
-            authentication(userName:  nexusUser, password:  nexusPw)
+        
+        repository(url: "packagecloud+https://packagecloud.io/mediathekview/MediathekView/") {
+            authentication(password:  repoPw)
         }
     }
 }
@@ -81,7 +81,8 @@ dependencies {
     testCompile "junit:junit:4.12"
     testCompile "commons-io:commons-io:1.3.1"
     testCompile "org.hamcrest:hamcrest-junit:2.0.0.0"
-
+    
+    deployerJars "io.packagecloud.maven.wagon:maven-packagecloud-wagon:0.0.6"
 }
 
 task copyTestResources(type: Copy) {
@@ -110,7 +111,7 @@ processResources.dependsOn updateVersion
 
 /**
  * <b>You don't have to call this. Travis will do it for you if a new releass (tag) will be build!<b/>
- * Call this so: './gradlew build release -PnexusUser=[NEXUS_USER] -PnexusPw=[NEXUS_PASSWORD]'
+ * Call this so: './gradlew build release -PrepoPw=[PASSWORD]'
  */
 task release(dependsOn: 'uploadArchives') {
     doLast {
@@ -120,7 +121,7 @@ task release(dependsOn: 'uploadArchives') {
 
 /**
  * <b>You don't have to call this. Travis will do it for you if you push to develop!<b/>
- * Call this so: './gradlew build releaseSnapshot -PnexusUser=[NEXUS_USER] -PnexusPw=[NEXUS_PASSWORD]'
+ * Call this so: './gradlew build releaseSnapshot -PrepoPw=[PASSWORD]'
  */
 task releaseSnapshot(dependsOn: 'uploadArchives') {
     doLast {
