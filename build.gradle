@@ -48,7 +48,6 @@ repositories {
 uploadArchives {
     repositories.mavenDeployer {
         configuration = configurations.deployerJars
-        uniqueVersion=false
         def repoPw;
         
         if(project.hasProperty('repoPw'))
