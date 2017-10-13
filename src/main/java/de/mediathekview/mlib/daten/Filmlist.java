@@ -170,10 +170,29 @@ public class Filmlist {
     return result;
   }
 
-  public void merge(final Filmlist aFilmlist) {
-    aFilmlist.films.forEach(films::putIfAbsent);
-    aFilmlist.podcasts.forEach(podcasts::putIfAbsent);
-    aFilmlist.livestreams.forEach(livestreams::putIfAbsent);
+  /**
+   * Merges this film list with the given film list and returns the difference list.
+   *
+   * @param aFilmlist The film list to merge into this.
+   * @return The difference list.
+   */
+  public Filmlist merge(final Filmlist aFilmlist) {
+    final Filmlist differenceList = new Filmlist(UUID.randomUUID(), creationDate);
+
+    aFilmlist.films.entrySet().stream().filter(e -> !films.containsKey(e.getKey()))
+        .forEachOrdered(e -> differenceList.films.put(e.getKey(), e.getValue()));
+
+    aFilmlist.podcasts.entrySet().stream().filter(e -> !podcasts.containsKey(e.getKey()))
+        .forEachOrdered(e -> differenceList.podcasts.put(e.getKey(), e.getValue()));
+
+    aFilmlist.livestreams.entrySet().stream().filter(e -> !livestreams.containsKey(e.getKey()))
+        .forEachOrdered(e -> differenceList.livestreams.put(e.getKey(), e.getValue()));
+
+    films.putAll(differenceList.films);
+    podcasts.putAll(differenceList.podcasts);
+    livestreams.putAll(differenceList.livestreams);
+
+    return differenceList;
   }
 
   public void setCreationDate(final LocalDateTime creationDate) {
