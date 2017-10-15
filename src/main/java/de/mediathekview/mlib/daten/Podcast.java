@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 public class Podcast extends AbstractMediaResource<FilmUrl> {
+  private static final long serialVersionUID = -7161315980975471103L;
   private final Duration duration;
   private boolean neu;
 
