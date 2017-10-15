@@ -1,5 +1,6 @@
 package de.mediathekview.mlib.daten;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,7 +11,8 @@ import java.util.UUID;
 import de.mediathekview.mlib.Const;
 import de.mediathekview.mlib.tool.Functions;
 
-public abstract class AbstractMediaResource<T> {
+public abstract class AbstractMediaResource<T> implements Serializable {
+  private static final long serialVersionUID = -6404888306701549134L;
   private static final String[] GERMAN_GEOBLOCKING_TEXTS = {
       "+++ Aus rechtlichen Gründen ist der Film nur innerhalb von Deutschland abrufbar. +++",
       "+++ Aus rechtlichen Gründen ist diese Sendung nur innerhalb von Deutschland abrufbar. +++",
