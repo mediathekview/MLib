@@ -1,11 +1,14 @@
 package de.mediathekview.mlib.daten;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class FilmUrl {
+public class FilmUrl implements Serializable {
+  private static final long serialVersionUID = 576534421232286643L;
   private static final Logger LOG = LogManager.getLogger(FilmUrl.class);
   private static final String URL_START_NRODL = "//nrodl";
   private static final String URL_START_RODL = "//rodl";
