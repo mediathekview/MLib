@@ -64,13 +64,6 @@ public abstract class AbstractMediaResource<T> {
       return false;
     }
     final AbstractMediaResource other = (AbstractMediaResource) obj;
-    if (beschreibung == null) {
-      if (other.beschreibung != null) {
-        return false;
-      }
-    } else if (!beschreibung.equals(other.beschreibung)) {
-      return false;
-    }
     if (sender != other.sender) {
       return false;
     }
@@ -81,32 +74,11 @@ public abstract class AbstractMediaResource<T> {
     } else if (!thema.equals(other.thema)) {
       return false;
     }
-    if (time == null) {
-      if (other.time != null) {
-        return false;
-      }
-    } else if (!time.equals(other.time)) {
-      return false;
-    }
     if (titel == null) {
       if (other.titel != null) {
         return false;
       }
     } else if (!titel.equals(other.titel)) {
-      return false;
-    }
-    if (urls == null) {
-      if (other.urls != null) {
-        return false;
-      }
-    } else if (!urls.equals(other.urls)) {
-      return false;
-    }
-    if (website == null) {
-      if (other.website != null) {
-        return false;
-      }
-    } else if (!website.equals(other.website)) {
       return false;
     }
     return true;
@@ -170,13 +142,9 @@ public abstract class AbstractMediaResource<T> {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (beschreibung == null ? 0 : beschreibung.hashCode());
     result = prime * result + (sender == null ? 0 : sender.hashCode());
     result = prime * result + (thema == null ? 0 : thema.hashCode());
-    result = prime * result + (time == null ? 0 : time.hashCode());
     result = prime * result + (titel == null ? 0 : titel.hashCode());
-    result = prime * result + (urls == null ? 0 : urls.hashCode());
-    result = prime * result + (website == null ? 0 : website.hashCode());
     return result;
   }
 
