@@ -11,7 +11,7 @@ import java.util.UUID;
  * Represents a found film.
  */
 public class Film extends Podcast {
-  private static final long serialVersionUID = 5765342968912286643L;
+  private static final long serialVersionUID = -7834270191129532291L;
   private final Collection<URL> subtitles;
 
   public Film(final UUID aUuid, final Collection<GeoLocations> aGeoLocations, final Sender aSender,
