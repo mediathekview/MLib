@@ -11,7 +11,7 @@ import java.util.UUID;
  * Represents a found film.
  */
 public class Film extends Podcast {
-  private static final long serialVersionUID = 5765342968912286643L;
+  private static final long serialVersionUID = -7834270191129532291L;
   private final Collection<URL> subtitles;
 
   public Film(final UUID aUuid, final Collection<GeoLocations> aGeoLocations, final Sender aSender,
@@ -28,39 +28,8 @@ public class Film extends Podcast {
     }
   }
 
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!super.equals(obj)) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final Film other = (Film) obj;
-    if (subtitles == null) {
-      if (other.subtitles != null) {
-        return false;
-      }
-    } else if (!subtitles.equals(other.subtitles)) {
-      return false;
-    }
-    return true;
-  }
-
   public Collection<URL> getSubtitles() {
     return new ArrayList<>(subtitles);
-  }
-
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + (subtitles == null ? 0 : subtitles.hashCode());
-    return result;
   }
 
 
