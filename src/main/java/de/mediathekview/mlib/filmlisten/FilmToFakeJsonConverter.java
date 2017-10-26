@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import de.mediathekview.mlib.daten.AbstractMediaResource;
@@ -31,7 +32,7 @@ public class FilmToFakeJsonConverter {
           "Beschreibung", "Url", "Website", "Url Untertitel", "Url RTMP", "Url Klein",
           "Url RTMP Klein", "Url HD", "Url RTMP HD", "DatumL", "Url History", "Geo", "neu"};
   private static final String OUTPUT_PATTERN =
-      "\"X\": [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
+      "\"X\": [\"%s\",%s,%s,\"%s\",\"%s\",\"%s\",\"%s\",%s,\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
   private static final String META_INFORMATION_PATTERN =
       "\"Filmliste\": [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
   private static final String COLUMNNAMES_PATTERN =
@@ -165,8 +166,10 @@ public class FilmToFakeJsonConverter {
 
     urlKlein = reduceUrl(url, urlKlein);
     urlHd = reduceUrl(url, urlHd);
+    
+    Gson gson = new Gson();
 
-    fakeJsonBuilder.append(String.format(OUTPUT_PATTERN, sender, thema, aMediaResource.getTitel(),
+    fakeJsonBuilder.append(String.format(OUTPUT_PATTERN, sender, gson.toJson(thema), gson.toJson(aMediaResource.getTitel()),
         aMediaResource.getTime() == null ? ""
             : DATE_FORMATTER.format(aMediaResource.getTime().toLocalDate()),
         aMediaResource.getTime() == null ? ""
@@ -177,7 +180,7 @@ public class FilmToFakeJsonConverter {
         aMediaResource instanceof Podcast
             ? ((Podcast) aMediaResource).getFileSize(getDefaultResolution(aMediaResource))
             : "",
-        aMediaResource.getBeschreibung(), url, aMediaResource.getWebsite(),
+        gson.toJson(aMediaResource.getBeschreibung()), url, aMediaResource.getWebsite(),
         getSubtitles(aMediaResource), "", urlKlein, "", urlHd, "",
         Timestamp
             .valueOf(
