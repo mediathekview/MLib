@@ -277,6 +277,7 @@ public class Functions {
     unescapedText = StringEscapeUtils.unescapeXml(aText);
     unescapedText = StringEscapeUtils.unescapeHtml4(unescapedText);
     unescapedText = StringEscapeUtils.unescapeJava(unescapedText);
+    unescapedText = unescapedText.replaceAll("\r", " ").trim();
     unescapedText = unescapedText.replaceAll("\n", " ").trim();
     return unescapedText;
   }

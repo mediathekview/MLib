@@ -80,5 +80,9 @@ public class FilmUrl implements Serializable {
     }
     return newUrl;
   }
+  
+  public String toString() {
+      return getUrl().toString();
+  }
 
 }
