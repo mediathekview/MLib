@@ -88,5 +88,33 @@ public enum Resolution {
     return resolutionSize;
   }
 
+  /**
+   * Derzeit sind folgende ARD AudioVideo Ordinals bekannt:
+   * HD       = 1280 width
+   * Premium  =  969 width
+   * Large    =  640 width
+   * Standard =  512 width
+   * Mobile   =  480 width
+   * Mobile_S =  320 width
+   * 
+   * @param profileName 
+   * @return
+   */
+  public static Resolution getResolutionFromArdAudioVideoOrdinalsByProfileName(String profileName) {
+      if(profileName.endsWith("HD"))
+          return Resolution.HD;
+      if(profileName.endsWith("Premium"))
+          return Resolution.HD;
+      if(profileName.endsWith("Large"))
+          return Resolution.NORMAL;
+      if(profileName.endsWith("Standard"))
+          return Resolution.SMALL;
+      if(profileName.endsWith("Mobile"))
+          return Resolution.SMALL;
+      
+      return Resolution.VERY_SMALL;
+      
+  }
+
 
 }
