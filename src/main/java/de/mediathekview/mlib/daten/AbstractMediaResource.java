@@ -47,6 +47,10 @@ public abstract class AbstractMediaResource<T> implements Serializable {
     beschreibung = "";
   }
 
+  public void addAllUrls(final Map<Resolution, T> urlMap) {
+    urls.putAll(urlMap);
+  }
+
   public void addUrl(final Resolution aQuality, final T aUrl) {
     if (aQuality != null && aUrl != null) {
       urls.put(aQuality, aUrl);
