@@ -1,9 +1,7 @@
 package de.mediathekview.mlib.daten;
 
-import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.UUID;
 
 public class Podcast extends AbstractMediaResource<FilmUrl> {
@@ -11,10 +9,9 @@ public class Podcast extends AbstractMediaResource<FilmUrl> {
   private final Duration duration;
   private boolean neu;
 
-  public Podcast(final UUID aUuid, final Collection<GeoLocations> aGeoLocations,
-      final Sender aSender, final String aTitel, final String aThema, final LocalDateTime aTime,
-      final Duration aDauer, final URL aWebsite) {
-    super(aUuid, aGeoLocations, aSender, aTitel, aThema, aTime, aWebsite);
+  public Podcast(final UUID aUuid, final Sender aSender, final String aTitel, final String aThema,
+      final LocalDateTime aTime, final Duration aDauer) {
+    super(aUuid, aSender, aTitel, aThema, aTime);
     duration = aDauer;
     neu = false;
   }

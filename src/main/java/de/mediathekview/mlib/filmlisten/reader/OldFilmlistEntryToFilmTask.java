@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -106,8 +107,17 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
 
       final URL urlNormal =
           new URL(Functions.convertStringUTF8ToRealUTF8Char(entrySplits.get(9).trim()));
-      final URL urlWebseite =
-          new URL(Functions.convertStringUTF8ToRealUTF8Char(entrySplits.get(10).trim()));
+
+      final String websiteUrlText = entrySplits.get(10).trim();
+      Optional<URL> urlWebseite;
+      try {
+        urlWebseite =
+            Optional.of(new URL(Functions.convertStringUTF8ToRealUTF8Char(websiteUrlText)));
+      } catch (final MalformedURLException malformedURLException) {
+        urlWebseite = Optional.empty();
+        LOG.debug(String.format("The website URL \"%s\" can't be prased.", websiteUrlText),
+            malformedURLException);
+      }
 
       final String urlTextUntertitel = entrySplits.get(11);
 
@@ -122,8 +132,10 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
 
       final String neu = entrySplits.get(20);
 
-      final Film film = new Film(UUID.randomUUID(), geoLocations, sender, titel, thema,
-          date == null ? null : LocalDateTime.of(date, time), dauer, urlWebseite);
+      final Film film = new Film(UUID.randomUUID(), sender, titel, thema,
+          date == null ? null : LocalDateTime.of(date, time), dauer);
+      film.addAllGeoLocations(geoLocations);
+      film.setWebsite(urlWebseite);
 
       if (StringUtils.isNotBlank(neu)) {
         film.setNeu(Boolean.parseBoolean(neu));

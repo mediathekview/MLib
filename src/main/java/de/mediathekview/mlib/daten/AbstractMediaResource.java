@@ -6,7 +6,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.UUID;
 import de.mediathekview.mlib.Const;
 import de.mediathekview.mlib.tool.Functions;
@@ -23,32 +26,39 @@ public abstract class AbstractMediaResource<T> implements Serializable {
       "+++ Due to legal reasons the video is only available in Germany.+++",
       "+++ Aus rechtlichen Gründen kann das Video nur in Deutschland abgerufen werden. +++"};
   private final UUID uuid;// Old: filmNr
-  private final Collection<GeoLocations> geoLocations;
+  private Collection<GeoLocations> geoLocations;
   protected final Map<Resolution, T> urls;
   private final Sender sender;
   private String titel;
   private String thema;
   private final LocalDateTime time;
   private String beschreibung;
-  private final URL website;
+  private Optional<URL> website;
 
-  public AbstractMediaResource(final UUID aUuid, final Collection<GeoLocations> aGeoLocations,
-      final Sender aSender, final String aTitel, final String aThema, final LocalDateTime aTime,
-      final URL aWebsite) {
-    geoLocations = new ArrayList<>(aGeoLocations);
+  public AbstractMediaResource(final UUID aUuid, final Sender aSender, final String aTitel,
+      final String aThema, final LocalDateTime aTime) {
+    geoLocations = new ArrayList<>();
     urls = new EnumMap<>(Resolution.class);
     uuid = aUuid;
     sender = aSender;
     setTitel(aTitel);
     setThema(aThema);
     time = aTime;
-    website = aWebsite;
+    website = Optional.empty();
 
     beschreibung = "";
   }
 
+  public void addAllGeoLocations(final Collection<GeoLocations> aGeoLocations) {
+    geoLocations.addAll(aGeoLocations);
+  }
+
   public void addAllUrls(final Map<Resolution, T> urlMap) {
     urls.putAll(urlMap);
+  }
+
+  public void addGeolocation(final GeoLocations aGeoLocation) {
+    geoLocations.add(aGeoLocation);
   }
 
   public void addUrl(final Resolution aQuality, final T aUrl) {
@@ -56,7 +66,6 @@ public abstract class AbstractMediaResource<T> implements Serializable {
       urls.put(aQuality, aUrl);
     }
   }
-
 
   @Override
   public boolean equals(final Object obj) {
@@ -92,6 +101,17 @@ public abstract class AbstractMediaResource<T> implements Serializable {
 
   public String getBeschreibung() {
     return beschreibung;
+  }
+
+  public Optional<T> getDefaultUrl() {
+    if (urls.containsKey(Resolution.NORMAL)) {
+      return Optional.of(getUrl(Resolution.NORMAL));
+    }
+    final Iterator<Entry<Resolution, T>> entryIterator = urls.entrySet().iterator();
+    if (entryIterator.hasNext()) {
+      return Optional.of(entryIterator.next().getValue());
+    }
+    return Optional.empty();
   }
 
   public Collection<GeoLocations> getGeoLocations() {
@@ -139,7 +159,7 @@ public abstract class AbstractMediaResource<T> implements Serializable {
 
 
 
-  public URL getWebsite() {
+  public Optional<URL> getWebsite() {
     return website;
   }
 
@@ -220,12 +240,24 @@ public abstract class AbstractMediaResource<T> implements Serializable {
     beschreibung = unfilteredBeschreibung;
   }
 
+  public void setGeoLocations(final Collection<GeoLocations> aGeoLocations) {
+    geoLocations = aGeoLocations;
+  }
+
   public void setThema(final String aThema) {
     thema = Functions.unescape(Functions.removeHtml(aThema));
   }
 
   public void setTitel(final String aTitel) {
     titel = Functions.unescape(Functions.removeHtml(aTitel));
+  }
+
+  public void setWebsite(final Optional<URL> aWebsite) {
+    website = aWebsite;
+  }
+
+  public void setWebsite(final URL aWebsite) {
+    website = Optional.of(aWebsite);
   }
 
   @Override

@@ -262,8 +262,10 @@ public class FilmlisteLesen {
 
       final String neu = aEntrySplits.get(20);
 
-      final Film film = new Film(UUID.randomUUID(), geoLocations, sender, titel, thema,
-          date == null ? null : LocalDateTime.of(date, time), dauer, urlWebseite);
+      final Film film = new Film(UUID.randomUUID(), sender, titel, thema,
+          date == null ? null : LocalDateTime.of(date, time), dauer);
+      film.setGeoLocations(geoLocations);
+      film.setWebsite(urlWebseite);
 
       if (StringUtils.isNotBlank(neu)) {
         film.setNeu(Boolean.parseBoolean(neu));

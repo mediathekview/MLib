@@ -14,10 +14,9 @@ public class Film extends Podcast {
   private static final long serialVersionUID = -7834270191129532291L;
   private final Collection<URL> subtitles;
 
-  public Film(final UUID aUuid, final Collection<GeoLocations> aGeoLocations, final Sender aSender,
-      final String aTitel, final String aThema, final LocalDateTime aTime, final Duration aDauer,
-      final URL aWebsite) {
-    super(aUuid, aGeoLocations, aSender, aTitel, aThema, aTime, aDauer, aWebsite);
+  public Film(final UUID aUuid, final Sender aSender, final String aTitel, final String aThema,
+      final LocalDateTime aTime, final Duration aDauer) {
+    super(aUuid, aSender, aTitel, aThema, aTime, aDauer);
     subtitles = new ArrayList<>();
   }
 

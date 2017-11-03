@@ -7,7 +7,6 @@ import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.UUID;
 import org.junit.Test;
 
@@ -46,9 +45,9 @@ public class FilmlistTest {
   }
 
   private Film createTestFilm1() throws MalformedURLException {
-    final Film testFilm1 = new Film(UUID.randomUUID(), new ArrayList<>(), Sender.ARD, "TestTitel",
-        "TestThema", LocalDateTime.parse("2017-01-01T23:55:00"),
-        Duration.of(10, ChronoUnit.MINUTES), new URL("http://www.example.org/"));
+    final Film testFilm1 = new Film(UUID.randomUUID(), Sender.ARD, "TestTitel", "TestThema",
+        LocalDateTime.parse("2017-01-01T23:55:00"), Duration.of(10, ChronoUnit.MINUTES));
+    testFilm1.setWebsite(new URL("http://www.example.org/"));
     testFilm1.setBeschreibung("Test beschreibung.");
     testFilm1.addUrl(Resolution.SMALL, new FilmUrl(new URL("http://example.org/klein.mp4"), 42l));
     testFilm1.addUrl(Resolution.NORMAL, new FilmUrl(new URL("http://example.org/Test.mp4"), 42l));
@@ -57,9 +56,9 @@ public class FilmlistTest {
   }
 
   private Film createTestFilm2() throws MalformedURLException {
-    final Film testFilm2 = new Film(UUID.randomUUID(), new ArrayList<>(), Sender.ARD, "TestTitel",
-        "TestThema", LocalDateTime.parse("2017-01-01T23:55:00"),
-        Duration.of(10, ChronoUnit.MINUTES), new URL("http://www.example.org/2"));
+    final Film testFilm2 = new Film(UUID.randomUUID(), Sender.ARD, "TestTitel", "TestThema",
+        LocalDateTime.parse("2017-01-01T23:55:00"), Duration.of(10, ChronoUnit.MINUTES));
+    testFilm2.setWebsite(new URL("http://www.example.org/2"));
     testFilm2.setBeschreibung("Test beschreibung.");
     testFilm2.addUrl(Resolution.SMALL, new FilmUrl(new URL("http://example.org/klein2.mp4"), 42l));
     testFilm2.addUrl(Resolution.NORMAL, new FilmUrl(new URL("http://example.org/Test2.mp4"), 42l));
@@ -68,32 +67,34 @@ public class FilmlistTest {
   }
 
   private Livestream createTestLivestream1() throws MalformedURLException {
-    final Livestream testLivestream1 = new Livestream(UUID.randomUUID(), new ArrayList<>(),
-        Sender.ZDF, "Livestream 1", "Livestream", LocalDateTime.now(), new URL("https://zdf.de"));
+    final Livestream testLivestream1 = new Livestream(UUID.randomUUID(), Sender.ZDF, "Livestream 1",
+        "Livestream", LocalDateTime.now());
+    testLivestream1.setWebsite(new URL("https://zdf.de"));
     testLivestream1.addUrl(Resolution.HD, new URL("http://example.org/hd.mp4"));
     return testLivestream1;
   }
 
   private Livestream createTestLivestream2() throws MalformedURLException {
-    final Livestream testLivestream2 = new Livestream(UUID.randomUUID(), new ArrayList<>(),
-        Sender.ZDF, "Livestream 2", "Livestream", LocalDateTime.now(), new URL("https://zdf.de"));
+    final Livestream testLivestream2 = new Livestream(UUID.randomUUID(), Sender.ZDF, "Livestream 2",
+        "Livestream", LocalDateTime.now());
+    testLivestream2.setWebsite(new URL("https://zdf.de"));
     testLivestream2.addUrl(Resolution.NORMAL, new URL("http://example.org/normal.mp4"));
     return testLivestream2;
   }
 
   private Podcast createTestPodcast1() throws MalformedURLException {
-    final Podcast testPodcast1 = new Podcast(UUID.randomUUID(), new ArrayList<>(), Sender.BR,
-        "Podcast 1", "Thema 1", LocalDateTime.parse("2017-01-01T23:55:00"),
-        Duration.of(10, ChronoUnit.MINUTES), new URL("http://www.example.org/2"));
+    final Podcast testPodcast1 = new Podcast(UUID.randomUUID(), Sender.BR, "Podcast 1", "Thema 1",
+        LocalDateTime.parse("2017-01-01T23:55:00"), Duration.of(10, ChronoUnit.MINUTES));
+    testPodcast1.setWebsite(new URL("http://www.example.org/2"));
     testPodcast1.addUrl(Resolution.NORMAL,
         new FilmUrl(new URL("http://example.org/normal.mp3"), 42l));
     return testPodcast1;
   }
 
   private Podcast createTestPodcast2() throws MalformedURLException {
-    final Podcast testPodcast2 = new Podcast(UUID.randomUUID(), new ArrayList<>(), Sender.BR,
-        "Podcast 2", "Thema 1", LocalDateTime.parse("2017-01-01T23:55:00"),
-        Duration.of(10, ChronoUnit.MINUTES), new URL("http://www.example.org/2"));
+    final Podcast testPodcast2 = new Podcast(UUID.randomUUID(), Sender.BR, "Podcast 2", "Thema 1",
+        LocalDateTime.parse("2017-01-01T23:55:00"), Duration.of(10, ChronoUnit.MINUTES));
+    testPodcast2.setWebsite(new URL("http://www.example.org/2"));
     testPodcast2.addUrl(Resolution.NORMAL,
         new FilmUrl(new URL("http://example.org/normal.mp3"), 42l));
     return testPodcast2;
