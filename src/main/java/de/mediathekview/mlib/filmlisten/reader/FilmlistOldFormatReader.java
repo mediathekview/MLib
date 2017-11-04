@@ -71,9 +71,12 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
           }
         }
       }
-      futureFilms.forEach(f -> {
+      futureFilms.stream().forEach(f -> {
         try {
-          filmlist.add(f.get());
+          // This removes the films without a download URL.
+          if (!f.get().getUrls().isEmpty()) {
+            filmlist.add(f.get());
+          }
         } catch (InterruptedException | ExecutionException exception) {
           LOG.debug("Some error occured during converting a old film list entry to an film.",
               exception);

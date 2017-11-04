@@ -105,19 +105,11 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
 
       final String beschreibung = entrySplits.get(8);
 
-      final URL urlNormal =
-          new URL(Functions.convertStringUTF8ToRealUTF8Char(entrySplits.get(9).trim()));
+      // Here we import also films without a download URL so the next entry can use the Sender,
+      // Thema and Titel. After the import all films without download URLs will be removed.
+      final Optional<URL> urlNormal = gatherNormalUrl();
 
-      final String websiteUrlText = entrySplits.get(10).trim();
-      Optional<URL> urlWebseite;
-      try {
-        urlWebseite =
-            Optional.of(new URL(Functions.convertStringUTF8ToRealUTF8Char(websiteUrlText)));
-      } catch (final MalformedURLException malformedURLException) {
-        urlWebseite = Optional.empty();
-        LOG.debug(String.format("The website URL \"%s\" can't be prased.", websiteUrlText),
-            malformedURLException);
-      }
+      final Optional<URL> urlWebseite = gatherWebsiteUrl();
 
       final String urlTextUntertitel = entrySplits.get(11);
 
@@ -141,30 +133,55 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
         film.setNeu(Boolean.parseBoolean(neu));
       }
 
-      film.addUrl(Resolution.NORMAL, new FilmUrl(urlNormal, groesse));
+
       film.setBeschreibung(beschreibung);
 
       if (!urlTextUntertitel.isEmpty()) {
         film.addSubtitle(new URL(urlTextUntertitel));
       }
 
-      if (!urlTextKlein.isEmpty()) {
-        final FilmUrl urlKlein = urlTextToUri(urlNormal, groesse, urlTextKlein);
-        if (urlKlein != null) {
-          film.addUrl(Resolution.SMALL, urlKlein);
+      if (urlNormal.isPresent()) {
+        film.addUrl(Resolution.NORMAL, new FilmUrl(urlNormal.get(), groesse));
+        if (!urlTextKlein.isEmpty()) {
+          final FilmUrl urlKlein = urlTextToUri(urlNormal.get(), groesse, urlTextKlein);
+          if (urlKlein != null) {
+            film.addUrl(Resolution.SMALL, urlKlein);
+          }
         }
-      }
 
-      if (!urlTextHD.isEmpty()) {
-        final FilmUrl urlHD = urlTextToUri(urlNormal, groesse, urlTextHD);
-        if (urlHD != null) {
-          film.addUrl(Resolution.HD, urlHD);
+        if (!urlTextHD.isEmpty()) {
+          final FilmUrl urlHD = urlTextToUri(urlNormal.get(), groesse, urlTextHD);
+          if (urlHD != null) {
+            film.addUrl(Resolution.HD, urlHD);
+          }
         }
       }
 
       return film;
     } catch (final Exception exception) {
       throw new Exception(EXCEPTION_TEXT_CANT_BUILD_FILM, exception);
+    }
+  }
+
+  private Optional<URL> gatherNormalUrl() {
+    final String urlNormalText = entrySplits.get(9).trim();
+    try {
+      return Optional.of(new URL(Functions.convertStringUTF8ToRealUTF8Char(urlNormalText)));
+    } catch (final MalformedURLException malformedURLException) {
+      LOG.debug(String.format("The normal download URL \"%s\" can't be prased.", urlNormalText),
+          malformedURLException);
+      return Optional.empty();
+    }
+  }
+
+  private Optional<URL> gatherWebsiteUrl() {
+    final String websiteUrlText = entrySplits.get(10).trim();
+    try {
+      return Optional.of(new URL(Functions.convertStringUTF8ToRealUTF8Char(websiteUrlText)));
+    } catch (final MalformedURLException malformedURLException) {
+      LOG.debug(String.format("The website URL \"%s\" can't be prased.", websiteUrlText),
+          malformedURLException);
+      return Optional.empty();
     }
   }
 

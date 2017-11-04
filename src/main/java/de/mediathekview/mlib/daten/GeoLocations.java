@@ -35,7 +35,6 @@ public enum GeoLocations {
     return Optional.empty();
   }
 
-  @Deprecated
   public static GeoLocations getFromDescription(final String aDescription) {
     return find(aDescription).orElse(GEO_NONE);
   }
