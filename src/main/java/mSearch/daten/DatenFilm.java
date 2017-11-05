@@ -210,10 +210,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     public String getUrlFuerAufloesung(String aufloesung) {
         if (aufloesung.equals(AUFLOESUNG_KLEIN)) {
-            return getUrlNormalKlein();
+            return getUrlNormalOrRequested(DatenFilm.FILM_URL_KLEIN);
         }
         if (aufloesung.equals(AUFLOESUNG_HD)) {
-            return getUrlNormalHd();
+            return getUrlNormalOrRequested(DatenFilm.FILM_URL_HD);
         }
         return arr[DatenFilm.FILM_URL];
     }
@@ -432,25 +432,20 @@ public class DatenFilm implements Comparable<DatenFilm> {
         setDatum();
     }
 
-    private String getUrlNormalKlein() {
+    private String getUrlNormalOrRequested(int indexUrl) {
         // liefert die kleine normale URL
-        if (!arr[DatenFilm.FILM_URL_KLEIN].isEmpty()) {
+        if (!arr[indexUrl].isEmpty()) {
             try {
-                final int i = Integer.parseInt(arr[DatenFilm.FILM_URL_KLEIN].substring(0, arr[DatenFilm.FILM_URL_KLEIN].indexOf('|')));
-                return arr[DatenFilm.FILM_URL].substring(0, i) + arr[DatenFilm.FILM_URL_KLEIN].substring(arr[DatenFilm.FILM_URL_KLEIN].indexOf('|') + 1);
-            } catch (NumberFormatException ignored) {
-            }
-        }
-        return arr[DatenFilm.FILM_URL];
-    }
-
-    private String getUrlNormalHd() {
-        // liefert die HD normale URL
-        if (!arr[DatenFilm.FILM_URL_HD].isEmpty()) {
-            try {
-                final int i = Integer.parseInt(arr[DatenFilm.FILM_URL_HD].substring(0, arr[DatenFilm.FILM_URL_HD].indexOf('|')));
-                return arr[DatenFilm.FILM_URL].substring(0, i) + arr[DatenFilm.FILM_URL_HD].substring(arr[DatenFilm.FILM_URL_HD].indexOf('|') + 1);
-            } catch (NumberFormatException ignored) {
+                // Prüfen, ob Pipe auch in URL enthalten ist. Beim ZDF ist das nicht der Fall.
+                final int indexPipe = arr[indexUrl].indexOf('|');
+                if (indexPipe < 0) {
+                  return arr[indexUrl];
+                }
+                
+                final int i = Integer.parseInt(arr[indexUrl].substring(0, indexPipe));
+                return arr[DatenFilm.FILM_URL].substring(0, i) + arr[indexUrl].substring(arr[indexUrl].indexOf('|') + 1);
+            } catch(Exception e) {
+              Log.errorLog(915236703, e, arr[indexUrl]);
             }
         }
         return arr[DatenFilm.FILM_URL];
@@ -485,7 +480,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             ret = arr[DatenFilm.FILM_URL_RTMP];
         } else {
             // dann gibts überhaupt nur die normalen URLs
-            ret = getUrlNormalKlein();
+            ret = getUrlNormalOrRequested(DatenFilm.FILM_URL_KLEIN);
             // und jetzt noch "-r" davorsetzten wenn nötig
             if (ret.startsWith(Const.RTMP_PRTOKOLL)) {
                 ret = Const.RTMP_FLVSTREAMER + ret;
