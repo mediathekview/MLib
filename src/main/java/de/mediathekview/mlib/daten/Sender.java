@@ -2,67 +2,53 @@ package de.mediathekview.mlib.daten;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
- * Created by nicklas on 29.12.16.
+ * A enum of the possible sender.
+ *
+ * @author Nicklas Wiegandt (Nicklas2751)<br>
+ *         <b>Mail:</b> nicklas@wiegandt.eu<br>
+ *         <b>Jabber:</b> nicklas2751@elaon.de<br>
+ *         <b>Riot.im:</b> nicklas2751:matrix.elaon.de<br>
+ *
  */
-public enum Sender
-{
-    BR("BR"),
-    MDR("MDR"),
-    SWR("SWR"),
-    ZDF("ZDF"),
-    ZDF_TIVI("ZDF Tivi"),
-    DREISAT("3sat"),
-    ORF("ORF"),
-    SRF_PODCAST("SRF Podcast"),
-    NDR("NDR"),
-    KIKA("KIKA"),
-    ARD("ARD"),
-    ARTE_DE("ARTE.DE"),
-    ARTE_FR("ARTE.FR"),
-    DW("DW"),
-    HR("HR"),
-    PHOENIX("Phönix"),
-    RBB("RBB"),
-    SR("SR"),
-    SRF("SRF"),
-    WDR("WDR");
+public enum Sender {
+  ARD("ARD"), ARTE_DE("ARTE.DE"), ARTE_FR("ARTE.FR"), BR("BR"), DREISAT("3sat"), DW("DW"), FUNK(
+      "Funk.net"), HR("HR"), KIKA("KIKA"), MDR("MDR"), NDR("NDR"), ORF("ORF"), PHOENIX(
+          "Phönix"), RBB("RBB"), SF("SF"), SR("SR"), SRF("SRF"), SRF_PODCAST(
+              "SRF.Podcast"), SWR("SWR"), WDR("WDR"), ZDF("ZDF"), ZDF_TIVI("ZDF Tivi");
 
-    private String name;
+  private String name;
 
-    Sender(String aName)
-    {
-        name = aName;
+  Sender(final String aName) {
+    name = aName;
+  }
+
+  public static Optional<Sender> getSenderByName(final String searchedSenderName) {
+    for (final Sender sender : Sender.values()) {
+      if (sender.getName().equalsIgnoreCase(searchedSenderName)
+          || sender.name().equalsIgnoreCase(searchedSenderName))
+
+      {
+        return Optional.of(sender);
+      }
     }
 
-    public String getName()
-    {
-        return name;
+    return Optional.empty();
+  }
+
+  public static Collection<String> getSenderNamen() {
+    final Collection<String> senderNamen = new ArrayList<>();
+
+    for (final Sender sender : Sender.values()) {
+      senderNamen.add(sender.getName());
     }
 
-    public static Sender getSenderByName(String aName)
-    {
-        for (Sender sender : Sender.values())
-        {
-            if (sender.getName().equalsIgnoreCase(aName) || sender.toString().equalsIgnoreCase(aName))
-            {
-                return sender;
-            }
-        }
+    return senderNamen;
+  }
 
-        return null;
-    }
-
-    public static Collection<String> getSenderNamen()
-    {
-        Collection<String> senderNamen = new ArrayList<>();
-
-        for (Sender sender : Sender.values())
-        {
-            senderNamen.add(sender.getName());
-        }
-
-        return senderNamen;
-    }
+  public String getName() {
+    return name;
+  }
 }

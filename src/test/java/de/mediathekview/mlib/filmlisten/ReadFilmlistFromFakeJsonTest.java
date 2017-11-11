@@ -1,6 +1,7 @@
 package de.mediathekview.mlib.filmlisten;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -23,19 +24,20 @@ public class ReadFilmlistFromFakeJsonTest
     private ListeFilme testData;
 
     @Before
-    public void setUp() throws URISyntaxException
+    public void setUp() throws MalformedURLException
     {
-        testData = FilmlistTestData.getInstance().getTestData();
+        testData = FilmlistTestData.getInstance().createTestdataOldFormat();
     }
 
     @Test
     public void testReadData() throws IOException, URISyntaxException
     {
-        ClassLoader classLoader = getClass().getClassLoader();
+        final ClassLoader classLoader = getClass().getClassLoader();
 
-        FilmlisteLesen filmlisteLesen = new FilmlisteLesen();
-        ListeFilme readFilme = filmlisteLesen.readData(Files.newInputStream(Paths.get(classLoader.getResource(TEST_FILENAME).toURI())));
-        Assert.assertThat(readFilme,
-                CoreMatchers.hasItems(testData.toArray(new Film[]{})));
+        final FilmlisteLesen filmlisteLesen = new FilmlisteLesen();
+        final ListeFilme readFilme = filmlisteLesen
+                .readData(Files.newInputStream(Paths.get(classLoader.getResource(TEST_FILENAME).toURI())));
+        Assert.assertThat(readFilme, CoreMatchers.hasItems(testData.toArray(new Film[]
+        {})));
     }
 }
