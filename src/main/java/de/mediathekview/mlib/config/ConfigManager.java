@@ -16,11 +16,17 @@ public abstract class ConfigManager<T extends ConfigDTO>
 
     protected ConfigManager()
     {
+        
+    }
+
+    public void readClasspathConfig() {
+        
         config = ConfigurationBuilder.newBuilder()
                 .source().fromFileOnClasspath(getConfigFileName())
                 .build(getConfigClass());
-    }
 
+    }
+    
     public T getConfig()
     {
         return config;
