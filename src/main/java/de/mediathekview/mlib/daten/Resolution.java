@@ -89,7 +89,7 @@ public enum Resolution {
       return Resolution.VERY_SMALL;
     }
     if (profileName.endsWith("Mobile_S")) {
-        return Resolution.VERY_SMALL;
+      return Resolution.VERY_SMALL;
     }
 
     return Resolution.VERY_SMALL;
@@ -105,7 +105,7 @@ public enum Resolution {
    * <li>Very Small = < 640 width</li>
    * </ul>
    *
-   * @param profileName
+   * @param width
    * @return
    */
   public static Resolution getResolutionFromWidth(final int width) {

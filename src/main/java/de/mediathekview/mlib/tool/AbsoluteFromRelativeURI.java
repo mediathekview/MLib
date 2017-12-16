@@ -28,7 +28,6 @@ import java.io.File;
  * TransformerException. Please see code comments for details on how resolution is performed.
  * </p>
  *
- * @xsl.usage internal
  */
 @Deprecated
 public class AbsoluteFromRelativeURI {
