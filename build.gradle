@@ -123,16 +123,18 @@ dependencies {
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc
+}
+    
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
 task copyTestResources(type: Copy) {
     from "${projectDir}/src/test/resources"
     into "${buildDir}/classes/test"
 }
 processTestResources.dependsOn copyTestResources
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
 
 artifacts {
     archives javadocJar, sourcesJar
