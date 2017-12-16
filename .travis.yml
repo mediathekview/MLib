@@ -22,13 +22,11 @@ env:
   - secure: KdvE2X5YLEW3MuVt8pKROyNzC2AX1MyakSUT3OfJpPxREwYKrC1r4YkWDvvR4KEJPdU43HazBE5/HvrIMd66evMjxdd5Q1mS0TGUtghXYsrMv7H/hCnIvUQX75KbDPxcuQMZPMIAa2pUnN3ETewVf1+IUvqIPKvb0J4ElhhOHAJ2eFaOC9yNock78eoeItOM1stg/Uwl8g+mmJbyrTmeprqy6uI7Z1YoqjkiAJavo42mCdI7wrhwu5NIsTbPsYiq+yvGLX9hmCCVzhoRptM/tWQMRgAE4STjTrlSlJTllBlked6yvK2aN85J3kM7CHp8VtRuFEVyfxOdKaxgyTvfML7IMwVn/65nkVamfemfJVEh+yAIrCO8PZu8IaSVMO57ScWnG5pxHnrtI2OzsOY2EKQyf6USd0bvc0sZxkzsUFdzDKEjWgl7XdV6cFLchzk2iT8bNZEYFc7mWV5QI7qbAWj+VW/DBvnnoT8WuAM9fiG//6/77xMyFe1/a5CQ4ZFl5VtZEBcCW8IFDEuQTGRR0kCOnINuAy3ELpB65LT2ZZ4dlvAB1XLijHB/VuW2k2J2P9qbiJEKtaI7B+MWu6f8Yay9FcKK9OLeqamNxbB2/BgtK9xEBYwCM2ffHbTLuoplDYtqVbJpsd3bOENql46OD8TykyXLhsH28AKHSiqF6hI=
   - secure: R4E2UGTLWdzNY7Ue3m3clFhjoqY/YRr4JZ1dqzOlSWcqPZX5zXFdQlEB8hfEzLoxqNuIIYdUFZO0VD9MUcy4yxQhqIFRtM9xa+VMoadnT4CjpTH5joCc0O/GwmJcbTRfWocVIy0IaaXrbUDJEUM+MsCYWhIIeqQpVp/jA/LaG0N060afD79VSWYmo61tR5woIxIPvpgstbiIlXqNcbNjYqyuBJHe5jr7rbXB0r/qd6XghMF35kuqKCM5bBUt2+LKNK5qoiCjFqvjf24lkHE2L2KoeJNaU2X6Pe13NxtGkhUklhty2r3dwCfx7oe5b0CTaiQxlWzJvb37QjUfz2ztsCq1ot4nOeiRoYNHgjca86sB6DuExYG6YxSWMdfpbdemuQGKj0HbZpERTg2wAAFWFU9mrx0SCYk4Kx6y7nK6oc0pXV4OUjnOTx4LBV0FDf5Vev8xjjvTmnzrnAU4ovVUb2D85VzEtUZBVdbaFX4bcs+6ZjP7jTWRXUUKSF999t1SXpnQIw1fexjgmJeT6zofePSRxWKaIKtp1bfcYty1ob80GmD6uS4v4UFz9TmlU4UrJKB1qJKdUIJLb4itJ9FxkOnOAih385JAuB5wIn5qz/tsunaJXfGo+A8YYAig3d21oFIurhFCO4PKoZBL8qXylYxYDU/d+p6aWNwi25CPFAc=
 before_script:
-- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in scripte/deploy/pubring.gpg.enc
-  -out scripte/deploy/pubring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in scripte/deploy/secring.gpg.enc
   -out scripte/deploy/secring.gpg -d
 script:
 - "./gradlew check build"
-- if [ "$TRAVIS_BRANCH" == "develop" ]; then ./gradlew releaseSnapshot; fi
+- if [ "$TRAVIS_BRANCH" == "develop" ]; then ./gradlew releaseSnapshot -PSONATYPE_USERNAME=$SONATYPE_USERNAME -PSONATYPE_PASSWORD=$SONATYPE_PASSWORD -Psigning.keyId=$GPG_KEYNAME -Psigning.password=$GPG_PASSPHRASE -Psigning.secretKeyRingFile=scripte/deploy/secring.gpg; fi
 after_success:
 - sonar-scanner
 before_cache:
@@ -39,11 +37,9 @@ cache:
   - "$HOME/.gradle/wrapper/"
   - "$HOME/.sonar/cache/"
 before_deploy:
-- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in scripte/deploy/pubring.gpg.enc
-  -out scripte/deploy/pubring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in scripte/deploy/secring.gpg.enc
   -out scripte/deploy/secring.gpg -d
-- "./gradlew release"
+- "./gradlew release -PSONATYPE_USERNAME=$SONATYPE_USERNAME -PSONATYPE_PASSWORD=$SONATYPE_PASSWORD -Psigning.keyId=$GPG_KEYNAME -Psigning.password=$GPG_PASSPHRASE -Psigning.secretKeyRingFile=scripte/deploy/secring.gpg"
 deploy:
   provider: releases
   api_key:
