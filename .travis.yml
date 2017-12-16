@@ -1,54 +1,56 @@
 language: java
 jdk:
 - oraclejdk8
-
 addons:
-  sonarqube:
+  sonarcloud:
+    organization: mediathekview
     token:
       secure: 0KaESwMnF1zDoDDQ0PIgBAeAMhpPVym+K/D31GxFzgBjGdMnuj+DnVm1wnFhuynnAKkCApMhXiBrDYTmRzdQHjWpLtdJMiLorf8rWxvlZ4Jjhoh+RQvlsagXh94cchUBvz3ZrNqs4eFKTn3i57atTRygP2gO30iVxBOOt9QFwEeZ7bfsvXqMo4KiaYcyitmNdZAkgTkphsk4VtWqcMKMTxp5adITzFc8AkOifMi7bQivfrogzVAhjWlYi0GiH6CRl0S9Kxqzky/nSlVyMuukMl6FOT2t8DCMNrD42nehEgusTB1XaWe504iO/BcdTk4cmYwgT5UfLdl/usilwi9Az58sMCUSpJvc3M7Jjc4PqKSFmU0vozNW0oY4lGdGG3vLNqOoTd8+TPpW7JpRZpjsa7YEeAoizdivkUxG86DaTGNkCEh4kAXpIFahLNSMO1gREmJHkD2gdz+luhkIMjyMp+cqq+EKhG8T0g0SmIiDiJkL9nCCVc5InS9vWNxINhjr4R0GtVp1p+YINknkO1k5IZ53sNY47yKFZz88zWKy7jyN20abwPIv5qccwa0yTbiLC+al0IyaIeC9AWOgikuFY8Su5aaGIK8ZNdlq0gcNz0iw1igjc+Y0qOuA9JHMGHZkT3qujC7KdLTUUSDNG9ImKmzsycl/Nt+deOPqVq1Hbjw=
     github_token:
       secure: g1ScaT1Ck6osYVnOx6yRCJyS99/1xkB4cQOwBSxMfz8kaj3QCUVPs/HkzP6Em0rXSiKWuUGNviGgthK1gM7JOmkNU3wf0pY5vpcFy5QBYtS9OFRr9tk6XMEL4F1myFtPiulkDsmiveVzoGVIux4CTJJkWTUFEaYl6bmRryb3mm+XYVFMXGHYjoaBhpN4IoNVngBKEWkyBEh4yaf/7Ao1bXWZvgb1ai7v/tnOTyWmEL8a8ZCmLmCkpjwu2hVWtaJ/6J1mwN90d1UbA9ZK6Ci3AYtf2zMdYhudi0n8VHBdZXdO4Pau/k3wR1mwMOW79zfQAaXuabeSQB79XauHjUcGAgA0Gt0Lf9xUKfZv8uAziXhO2aPEjbFMEJiYtX1EIWg5+9C3APrLVXxagZQPVVZsWb8fS1TZP5wkq7VR5vlb3/VVR4q5iwUemGCJVyXvjT+tPKejF2S3OKZli3Dt17paTZkcGRZ86h7NFguzcfBUMIsCuya4Ga9bLMp0dBDrJbSmvhgWWQiXz75tzGd355QAnScfdrVnLSc9eNYaPctLtJgeZ6g8TuaywUPeDjy/aQdPqe0WdwWT6M7OR6DH5fFapQVT/X+b7ouiMs0q2BwCzneD5+k9aE5FQSNw3P9Bunwm8kpv96IH5xrbH//L1GeBCpq3TDl8WnVAOTa9gSSH0ec=
     branches:
-      - master
-      - develop
-      - feature/.*
-      - hotfix/.*
-  
+    - master
+    - develop
+    - feature/.*
+    - hotfix/.*
 env:
   global:
-    - secure: vROFVCc18khzwp59MCvb7NqqhlSM07krRp27hnrYQePTm0YjfNo/fWd2R6/IP9ZrOuWfeFPvZI9ci1Q2MBFm2PUz9OLQg2UiKRk9XHN/u/aQsDaEO4Xlyuj9ONaIzYPjxXVIYw09gDZK34pOKFXmmb4Ef/lliHA91oMprUMB0k4yZRZSeF4o7UCL7UbNGWlg839Tg9hqKebL4vXuNwuoB75TgsqkKu3ayJVq+YD9bA+qzuygf8t8NlcdaHGbmRIPQigJFaUDehp9ntsKQNxazPtiwKB9rmnbtaKkdJNy1f0YAdQxmznSKc18bdGWr9eA69mVkPWrUlSxb304wBHB9CKnQT8yaWlFjMZSjyrIz5Xp7dNcJUHQ7Y19mG1ZmCmQxZd1uP7vA60kSUocCycciV2X0+CjdiYqFhjhiCLkrm3BD9TM7u2g7HjneRyK/5gkyxQo5YW8vfWtVy65vgiAlc0oVRA1YvhRq7v+ppnL3Fhz7osVVc15rZePjQyQ6mSURZ5r94EUU2Jcd6rbxiLnsKycr2dZDfDHhxgQ2L86WsclakoQXitRg2GpabSu/fjIaFAzOVnK5ezXFZaCoWaPJ8IwfMB8U4I0uQDCoWjUXl6c3uAI18xIHF1idvNIiEHiqfUIm0ZiEKLpL2m4EKpx6ig/nYNgNvwI8NDXXAIU56k=
-
-#Build
+  - secure: vROFVCc18khzwp59MCvb7NqqhlSM07krRp27hnrYQePTm0YjfNo/fWd2R6/IP9ZrOuWfeFPvZI9ci1Q2MBFm2PUz9OLQg2UiKRk9XHN/u/aQsDaEO4Xlyuj9ONaIzYPjxXVIYw09gDZK34pOKFXmmb4Ef/lliHA91oMprUMB0k4yZRZSeF4o7UCL7UbNGWlg839Tg9hqKebL4vXuNwuoB75TgsqkKu3ayJVq+YD9bA+qzuygf8t8NlcdaHGbmRIPQigJFaUDehp9ntsKQNxazPtiwKB9rmnbtaKkdJNy1f0YAdQxmznSKc18bdGWr9eA69mVkPWrUlSxb304wBHB9CKnQT8yaWlFjMZSjyrIz5Xp7dNcJUHQ7Y19mG1ZmCmQxZd1uP7vA60kSUocCycciV2X0+CjdiYqFhjhiCLkrm3BD9TM7u2g7HjneRyK/5gkyxQo5YW8vfWtVy65vgiAlc0oVRA1YvhRq7v+ppnL3Fhz7osVVc15rZePjQyQ6mSURZ5r94EUU2Jcd6rbxiLnsKycr2dZDfDHhxgQ2L86WsclakoQXitRg2GpabSu/fjIaFAzOVnK5ezXFZaCoWaPJ8IwfMB8U4I0uQDCoWjUXl6c3uAI18xIHF1idvNIiEHiqfUIm0ZiEKLpL2m4EKpx6ig/nYNgNvwI8NDXXAIU56k=
+  - secure: atpFND5VENw/BxYMdlLmZO4Apx/yfFtJaI+N0CiY6Mpq/0ZKd9EBmQbqQkebpuMNgmdCDVBkN12e4Gl/iN2KGOhOgSKxb9Xx2V2jaDgiMokKY7piv5P/qnWF8YtMqg6bNNyoqOK8E9LEGq+m0bUAe59XwTX7Wa2d9E9LDAOkk8uv8tXfV80E6ySPywcrzPmiPmzWKjpE/eo46m9vos2TPTlecwfr513+iUVQHC07YXglfKYLFUg4pAoo3UjdTmpz9xlLFyjf26cZ8TDwdo4aBqyDTZtAV9YaJsft7BgpwNwNnZfbBriBPD30ndlecX/W0x5XKuuHE300pUdWA3iHxov4MljFomhiqsquwDvjh4mFJS7UsYWXV5MgZtFHnuysOu8r5KPxpXdgtwf551HirAK/UKKJZfLVfVLnOqB4i1H76z3haPcPjeCSXKYsjE2qPawkfoR2JovYvrPVd0ZJ63ztsK3PS8hEprvhq/mhYUUKdlsC4sxGm9JqRjafXgIAf6Y/+itJX2/UzDF6dpcvKl21jic8WAtHuVcSTo8t1vBK+WUIRcbP8Xa1k8MmjLdvwYHqO12OCo4h9QaLG+0ttThU73xwUuDTQK0Cxg6BAXOycAHX4eFQrqs3g+36UilZcO2MqQffWLoZDg7ecW/BwgsJV8Z3Gxy2MrUDLmnkJDw=
+  - secure: JSCiCUNlpwR07B8gYXj9qjY8AuVgO419B3d0xgP3QDYFie/jebDFQ20II5/TvjVgm01bamQiC59NKu/OqtPJT0fmOYNDQeyqN87g36Ob2HOSg+/DtwbB0ItYL7SGHqdNKjbT7Kjs7QIvU/BSVays0lVtAUqF91HL+Rx+ogvrVE2DMgnvu824c4srifbN8dmHcRhzfcw7bmb4H2zM232pWC96CGtf8iF7cwOnYMSLbzzjQY3+T44KQeoXc+ynD58M0TyvrfVwAUCbKVwfjyp+lcGMzY31gp06DPLGudvtHEGUEVvyLgPWLRYrFArul8eLsnKhpksRzvKAInPw0FXVTw4J8CSnPEwgXOO4qkBy9eVwxd40QuzFvw9RbgjB4vNnpcJmqX+ZZD5lpr8AX0ociwz2uRLLP/vS8K61u8cg3DsbTsg/fH8u9lEdnpFt7iqTIhmTED18aTGwd/ZdDttJGIIP3+GiY7ox7WEqQWbrr26fB6IhMzkOTk7Pcr11IPA/++280jxKXzjVwxo9eTxv4mBMYClZYhbBtyiAQ6EiBYhGZIybyAIQtQB+6/cokijC1WkklKuW5fVGElo9lxJbceg1HYsFdxq2qtVgdPH8y22xhliHp+x36QXJ8I28NhlCZhHIg0cDwwMPdAj5GA1VnB2cHe9LQtEsRYS08cJr2Wc=
+  - secure: sPGTldYvDpANqinQxYAoKHngc4aoSaRKOuZU4t+hc3wI5QcQE2vuvq2vMKzeQDMS68o2RSWzshcCYfZIPoSTK48tvwVNWWqq8YLDWPA+Fs8t/VsrpBu74ZAXueYtFmj5KmCOOitHOMBjN6F+BK1fNG/V6tTCx5dpdcB9PSIh+y79OKclPMZN2ZExSoJhvkVm4dBAcS5Ov/6pI3fRCWGSL6R2A9QG8ehnA2uJf7VbADmszhnwXG8O4+UAa9XaBdxWIzZlhRptk+E7DKHzoyV+2zISHZ7kHfpVtQXgdRzgixXOupzFsHzsg3mq3fdWd6m1GrJSvp+9Rgl+UDGhu4GO0qgnpbf3DljKDlUFwRfm+naozZc/ql/9wVmvj+JPGMI6xbcxOGYtAnGDZPSpMvUvUcKIDtWNY0pXO2jH0Nj/6gEihSozzwGkBtO7BOCPYhw1bHpuf40k0o4n6sPO588gYwL8MbrMhBSfYM+eymdevp8gvBzjt4evsrfYp/ZbWfulBKeK57k/W3WoGqKSXkjkx3gFzBUFfSSBcrw/PFilVePkLOUJTl8x9KQsBMVCW3BbcNu0N+kmecvgxCn31Ge3coS5ycfNY65Ogkn9nU5cziaUiTnjAM5aAahQANg+L9+UePAM5VDgSWVY38Appl+KopcR4E8Xrh5ay2B77mW4Daw=
+  - secure: Cqc7V7kolE7jAwGId4NYQxXQ7A78L7tWOPpbF0vJ3iYKqODVoIWlRjwv06xg+I9dGQ0WzMXHTHB6nyGY/GdreY/kagoS1ZomCFTBtU/fgdyfrjoTcpX9Hw1OeHs/up1omHjBHv3coA+AkI/W5mmgEZ/yiMwcZG5QxOVuXTOJ+vEDhHppJgfXQT8OcBhbur+ME5r+ge0rGfVDTghA3abDHLm0Xh54ANlZxIwr1DPdw/lqF6M8XYSfdMkw581Yu5An3tHatENjPmfYW6v2t0H6STp/lb3KQwSUQ1T0Er0SkEYNsWqTryD3sSmhBfSRi8P6kKdIk4Lknv3opQtpp6pvBRYPbiFF1S3j4698svBJlHtFMzdqpz0hbx368hBascv+NsVAna5/RagYmPEN0a3D6Ti7rIj6FHQrZiUhDevjwlNa5H3jlajZcoWbInha7mlDGL+jkQFaC4aBGGLf4vdJ8iCbzJjDuJS7ynyxooHoyAYx5O5miQTdMx+B0QaarW8Tqx7kkgCZ4XChc3evtcP+6VaR9n6e50/7ZwlpTswBKM7UvJkrTswj6jDQfW7tZGFZ6Tq9zU9AcvuVADpKEHiEA5Ivro3TT0xYg9tbLSGcvxmybMwyxZ8crz62MZxaz14zL/s7TxiUY6M195e7fLdYDIA3rKj85A89espespi+cm0=
+  - secure: hTbDIznJ2XGtynBW5cD5RQCYxXD/KJfEfwXeaBjLKhWbEPG4XQ6+wD2BaeEqWtk/jRGV/Ru1Klwu2sLcjnANc+lsXjpLLvLd1oqVU44VfBCkfw0k6esB4Eyu5YYl7lWuFDXyfBVlKARm16AqO9+T4rPLZS9afGPSePHoroEjMAzKWb7Qf7Gv89Y98uwXeY+B4yK7XzWysKgqpbkNKEkFcduZVBdoHxBJnDBdyRZ/FS2f23HIIimULmv8pTTK1CZiGgHz3Z/wKNsqddzoDL6wil0o72lToK/sAar0qfBNfs9QthOdF8B3K+qwZ4mbaa0ABgzIAtGaEbPWVhGhNfST2ufwKhRB9e2wMRe4tfjnriESdU+Fg9s0qw3qBDMK1/RYpTHuQhDPCy9Mey4AORjCjmmrhdmj3xfJMTYgZot3xqLM/ydmDwNGtIG9tmIdFiX2mR59T+KznCXcpAt5iIw4qpuuUiw87ls4LirRMkpT2VLsYm/OjnNqeansNx7rPWWpDNxnHXaCinuTuxWjIfrKafxZdAc58bkjyy+xW4KQUJP8saRqMMA0JatE3q2IockVxMzeKbZwXfck4HZCkRmYMSaxI4ZBlxKkeKJaml1g3MDL6iZT70AY62dwBiWcBj+y2VsKPxJ4z3n4EfAyjBAWHo1WwjDoAFRZq+zNRjVN97I=
+before_script:
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in scripte/deploy/pubring.gpg.enc
+  -out scripte/deploy/pubring.gpg -d
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in scripte/deploy/secring.gpg.enc
+  -out scripte/deploy/secring.gpg -d
 script:
-  - ./gradlew check build
-  - if [ "$TRAVIS_BRANCH" == "develop" ]; then
-      openssl aes-256-cbc -K $encrypted_3b3271a2a39d_key -iv $encrypted_3b3271a2a39d_iv
-        -in scripte/deploy/RepoZugang.properties.enc -out scripte/deploy/RepoZugang.properties -d;
-      ./gradlew releaseSnapshot;
-    fi
+- "./gradlew check build"
+- if [ "$TRAVIS_BRANCH" == "develop" ]; then ./gradlew releaseSnapshot; fi
 after_success:
-  - sonar-scanner
-#Cache
+- sonar-scanner
 before_cache:
-  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
   directories:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
   - "$HOME/.sonar/cache/"
-  
-#Deploy
 before_deploy:
-  - openssl aes-256-cbc -K $encrypted_3b3271a2a39d_key -iv $encrypted_3b3271a2a39d_iv
-    -in scripte/deploy/RepoZugang.properties.enc -out scripte/deploy/RepoZugang.properties -d
-  - ./gradlew release
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in scripte/deploy/pubring.gpg.enc
+  -out scripte/deploy/pubring.gpg -d
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in scripte/deploy/secring.gpg.enc
+  -out scripte/deploy/secring.gpg -d
+- "./gradlew release"
 deploy:
   provider: releases
   api_key:
     secure: g1ScaT1Ck6osYVnOx6yRCJyS99/1xkB4cQOwBSxMfz8kaj3QCUVPs/HkzP6Em0rXSiKWuUGNviGgthK1gM7JOmkNU3wf0pY5vpcFy5QBYtS9OFRr9tk6XMEL4F1myFtPiulkDsmiveVzoGVIux4CTJJkWTUFEaYl6bmRryb3mm+XYVFMXGHYjoaBhpN4IoNVngBKEWkyBEh4yaf/7Ao1bXWZvgb1ai7v/tnOTyWmEL8a8ZCmLmCkpjwu2hVWtaJ/6J1mwN90d1UbA9ZK6Ci3AYtf2zMdYhudi0n8VHBdZXdO4Pau/k3wR1mwMOW79zfQAaXuabeSQB79XauHjUcGAgA0Gt0Lf9xUKfZv8uAziXhO2aPEjbFMEJiYtX1EIWg5+9C3APrLVXxagZQPVVZsWb8fS1TZP5wkq7VR5vlb3/VVR4q5iwUemGCJVyXvjT+tPKejF2S3OKZli3Dt17paTZkcGRZ86h7NFguzcfBUMIsCuya4Ga9bLMp0dBDrJbSmvhgWWQiXz75tzGd355QAnScfdrVnLSc9eNYaPctLtJgeZ6g8TuaywUPeDjy/aQdPqe0WdwWT6M7OR6DH5fFapQVT/X+b7ouiMs0q2BwCzneD5+k9aE5FQSNw3P9Bunwm8kpv96IH5xrbH//L1GeBCpq3TDl8WnVAOTa9gSSH0ec=
   file_glob: true
   file:
-    - build/libs/*
+  - build/libs/*
   skip_cleanup: true
   on:
     tags: true
