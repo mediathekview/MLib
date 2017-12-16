@@ -32,7 +32,6 @@ import java.io.File;
  * fact that it's declared to throw TransformerException. Please
  * see code comments for details on how resolution is performed.</p>
  *
- * @xsl.usage internal
  */
 public class AbsoluteFromRelativeURI {
 
