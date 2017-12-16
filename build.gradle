@@ -1,13 +1,15 @@
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'signing'
 apply from: "${project.rootDir}/gradle/eclipse.gradle"
 import java.nio.file.Files
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-
+name = "MLib"
 group = 'de.mediathekview'
+archivesBaseName = "MLib"
 version = '3.0.1'
 
 ext {
@@ -33,36 +35,69 @@ compileTestJava {
     options.compilerArgs = ['-Xlint:all']
 }
 
-configurations {
-    deployerJars
-}
 
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        url "https://packagecloud.io/mediathekview/MediathekView/maven2"
-    }
 }
 
 uploadArchives {
-    repositories.mavenDeployer {
-        configuration = configurations.deployerJars
-        uniqueVersion=false
-        def repoPw;
-        
-        if(project.hasProperty('repoPw'))
-        {
-           repoPw = project.property('repoPw');
-        }else
-        {
-            repoPw = System.getenv('PACKAGECLOUD_TOKEN');
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: SONATYPE_USERNAME, password: SONATYPE_PASSWORD)
+      }
+
+      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: SONATYPE_USERNAME, password: SONATYPE_PASSWORD)
+      }
+
+      pom.project {
+        name project.name
+        packaging 'jar'
+        description 'The libary for mediathekview/MediathekView and mediathekview/MServer'
+        url 'https://github.com/mediathekview/' + project.name
+
+        scm {
+          connection 'scm:git:git://github.com/mediathekview/MLib.git'
+          developerConnection 'scm:git:ssh://github.com:mediathekview/MLib.git'
+          url 'http://github.com/mediathekview/MLib/tree/master'
         }
-        
-        repository(url: "packagecloud+https://packagecloud.io/mediathekview/MediathekView/") {
-            authentication(password:  repoPw)
+
+        licenses {
+          license {
+            name 'GNU General Public License v3.0'
+            url 'https://www.gnu.org/licenses/gpl.html'
+          }
         }
+
+        developers {
+          developer {
+            id 'Nicklas2751'
+            name 'Nicklas Wiegandt'
+            email 'nicklas@wiegandt.eu'
+          }
+          developer {
+            id 'derreisende77'
+            name 'Christian F.'
+            url 'https://github.com/derreisende77'
+          }
+          developer {
+            id 'pidoubleyou'
+            name 'Peter W.'
+            url 'https://github.com/pidoubleyou'
+          }
+          developer {
+            id 'TheSasch'
+            name 'Sascha Wiegandt'
+            url 'https://github.com/thesasch'
+          }
+        }
+      }
     }
+  }
 }
 build.dependsOn(install)
 
@@ -73,8 +108,24 @@ dependencies {
     compile 'org.tukaani:xz:1.5'
     compile 'com.squareup.okhttp3:okhttp:3.6.0'
     compile 'fm.void.jetm:jetm:1.2.3'
-    deployerJars "io.packagecloud.maven.wagon:maven-packagecloud-wagon:0.0.6"
+}
 
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
 }
 
 task updateVersion {
