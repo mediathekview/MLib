@@ -1,12 +1,15 @@
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'signing'
 apply from: "${project.rootDir}/gradle/eclipse.gradle"
 import java.nio.file.Files
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+name = "MLib"
 group = 'de.mediathekview'
+archivesBaseName = "MLib"
 version = '2.4.3'
 
 ext {
@@ -42,23 +45,69 @@ compileTestJava {
     options.compilerArgs = ['-Xlint:all']
 }
 
+
 repositories {
     mavenLocal()
     mavenCentral()
 }
 
 uploadArchives {
-    repositories.mavenDeployer {
-        Properties props = loadRepoZugangProperties()
-        def nexusUser = props.getProperty('repoUser')
-        def nexusPw = props.getProperty('repoPw')
-        repository(url: "https://repo.mediathekview.de/repository/maven-releases/") {
-            authentication(userName:  nexusUser, password:  nexusPw)
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: SONATYPE_USERNAME, password: SONATYPE_PASSWORD)
+      }
+
+      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: SONATYPE_USERNAME, password: SONATYPE_PASSWORD)
+      }
+
+      pom.project {
+        name project.name
+        packaging 'jar'
+        description 'The libary for mediathekview/MediathekView and mediathekview/MServer'
+        url 'https://github.com/mediathekview/' + project.name
+
+        scm {
+          connection 'scm:git:git://github.com/mediathekview/MLib.git'
+          developerConnection 'scm:git:ssh://github.com:mediathekview/MLib.git'
+          url 'http://github.com/mediathekview/MLib/tree/master'
         }
-        snapshotRepository(url: "https://repo.mediathekview.de/repository/maven-snapshots/") {
-            authentication(userName:  nexusUser, password:  nexusPw)
+
+        licenses {
+          license {
+            name 'GNU General Public License v3.0'
+            url 'https://www.gnu.org/licenses/gpl.html'
+          }
         }
+
+        developers {
+          developer {
+            id 'Nicklas2751'
+            name 'Nicklas Wiegandt'
+            email 'nicklas@wiegandt.eu'
+          }
+          developer {
+            id 'derreisende77'
+            name 'Christian F.'
+            url 'https://github.com/derreisende77'
+          }
+          developer {
+            id 'pidoubleyou'
+            name 'Peter W.'
+            url 'https://github.com/pidoubleyou'
+          }
+          developer {
+            id 'TheSasch'
+            name 'Sascha Wiegandt'
+            url 'https://github.com/thesasch'
+          }
+        }
+      }
     }
+  }
 }
 build.dependsOn(install)
 
@@ -69,7 +118,24 @@ dependencies {
     compile 'org.tukaani:xz:1.6'
     compile 'com.squareup.okhttp3:okhttp:3.9.1'
     compile 'fm.void.jetm:jetm:1.2.3'
+}
 
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
 }
 
 task updateVersion {
