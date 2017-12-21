@@ -22,15 +22,16 @@ package mSearch.filmlisten;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.jidesoft.utils.SystemInfo;
 import mSearch.Const;
 import mSearch.daten.DatenFilm;
 import mSearch.daten.ListeFilme;
+import mSearch.tool.Functions;
 import mSearch.tool.Log;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZOutputStream;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -41,27 +42,9 @@ import java.nio.file.StandardCopyOption;
 
 public class WriteFilmlistJson {
 
-    private void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
-        final ByteBuffer buffer = ByteBuffer.allocateDirect(64 * 1024);
-        while (src.read(buffer) != -1) {
-            buffer.flip();
-            dest.write(buffer);
-            buffer.compact();
-        }
-
-        buffer.flip();
-
-        while (buffer.hasRemaining()) {
-            dest.write(buffer);
-        }
-    }
-
     protected JsonGenerator getJsonGenerator(OutputStream os) throws IOException {
         JsonFactory jsonF = new JsonFactory();
-        JsonGenerator jg = jsonF.createGenerator(os, JsonEncoding.UTF8);
-        //jg.useDefaultPrettyPrinter(); // enable indentation just to make debug/testing easier
-
-        return jg;
+        return jsonF.createGenerator(os, JsonEncoding.UTF8);
     }
 
     /**
@@ -94,6 +77,17 @@ public class WriteFilmlistJson {
         }
     }
 
+    private void checkOsxCacheDirectory() {
+        final Path filePath = Paths.get(System.getProperty("user.home") + File.separator + "Library/Caches/MediathekView");
+        if (Files.notExists(filePath)) {
+            try {
+                Files.createDirectories(filePath);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+    }
+
     public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
         try {
             Log.sysLog("Filme schreiben (" + listeFilme.size() + " Filme) :");
@@ -101,6 +95,10 @@ public class WriteFilmlistJson {
             Log.sysLog("   --> Start Schreiben nach: " + datei);
             String sender = "", thema = "";
 
+            //Check if Cache directory exists on OSX
+            if (SystemInfo.isMacOSX()) {
+                checkOsxCacheDirectory();
+            }
             try (FileOutputStream fos = new FileOutputStream(datei);
                  JsonGenerator jg = getJsonGenerator(fos)) {
 
@@ -167,15 +165,16 @@ public class WriteFilmlistJson {
         return xz;
     }
 
-    private void compressFile(String inputName, String outputName) throws IOException {
+    private void compressFile(String inputName, String outputName) {
         try (InputStream input = new FileInputStream(inputName);
              FileOutputStream fos = new FileOutputStream(outputName);
              final OutputStream output = new XZOutputStream(fos, new LZMA2Options());
              final ReadableByteChannel inputChannel = Channels.newChannel(input);
              final WritableByteChannel outputChannel = Channels.newChannel(output)) {
 
-            fastChannelCopy(inputChannel, outputChannel);
-        } catch (IOException ignored) {
+            Functions.fastChannelCopy(inputChannel, outputChannel);
+        } catch (IOException ex) {
+            Log.errorLog(987654321, ex);
         }
     }
 }

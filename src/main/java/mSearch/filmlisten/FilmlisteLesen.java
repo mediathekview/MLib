@@ -47,7 +47,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.ZipInputStream;
 
 public class FilmlisteLesen {
     private static final int PROGRESS_MAX = 100;
@@ -56,7 +55,10 @@ public class FilmlisteLesen {
     private int max = 0;
     private int progress = 0;
     private long milliseconds = 0;
-
+    /**
+     * Memory limit for the xz decompressor. No limit by default.
+     */
+    private static int DECOMPRESSOR_MEMORY_LIMIT = -1;
     /**
      * Set the specific work mode for reading film list.
      * In FASTAUTO mode, no film descriptions will be read into memory.
@@ -65,6 +67,15 @@ public class FilmlisteLesen {
      */
     public static void setWorkMode(WorkMode mode) {
         workMode = mode;
+        switch (mode) {
+            case NORMAL:
+                DECOMPRESSOR_MEMORY_LIMIT = -1;
+                break;
+
+            case FASTAUTO:
+                DECOMPRESSOR_MEMORY_LIMIT = 24 * 1024 * 1024;
+                break;
+        }
     }
 
     public void addAdListener(ListenerFilmeLaden listener) {
@@ -72,14 +83,22 @@ public class FilmlisteLesen {
     }
 
     private InputStream selectDecompressor(String source, InputStream in) throws Exception {
-        if (source.endsWith(Const.FORMAT_XZ)) {
-            in = new XZInputStream(in);
-        } else if (source.endsWith(Const.FORMAT_ZIP)) {
-            ZipInputStream zipInputStream = new ZipInputStream(in);
-            zipInputStream.getNextEntry();
-            in = zipInputStream;
+        final InputStream is;
+
+        switch (source.substring(source.lastIndexOf('.'))) {
+            case Const.FORMAT_XZ:
+                is = new XZInputStream(in, DECOMPRESSOR_MEMORY_LIMIT, false);
+                break;
+
+            case ".json":
+                is = in;
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unbekanntes Dateiformat entdeckt.");
         }
-        return in;
+
+        return is;
     }
 
     private void readData(JsonParser jp, ListeFilme listeFilme) throws IOException {
@@ -154,6 +173,7 @@ public class FilmlisteLesen {
                 }
 
                 listeFilme.importFilmliste(datenFilm);
+
                 if (milliseconds > 0) {
                     // muss "rückwärts" laufen, da das Datum sonst 2x gebaut werden muss
                     // wenns drin bleibt, kann mans noch ändern
@@ -173,7 +193,8 @@ public class FilmlisteLesen {
      */
     private void processFromFile(String source, ListeFilme listeFilme) {
         notifyProgress(source, PROGRESS_MAX);
-        try (InputStream in = selectDecompressor(source, new FileInputStream(source));
+        try (FileInputStream fis = new FileInputStream(source);
+             InputStream in = selectDecompressor(source, fis);
              JsonParser jp = new JsonFactory().createParser(in)) {
             readData(jp, listeFilme);
         } catch (FileNotFoundException ex) {
@@ -201,11 +222,11 @@ public class FilmlisteLesen {
 
             checkDays(days);
 
-            if (!source.startsWith("http")) {
+            if (source.startsWith("http")) {
+                final URL sourceUrl = new URL(source);
+                processFromWeb(sourceUrl, listeFilme);
+            } else
                 processFromFile(source, listeFilme);
-            } else {
-                processFromWeb(new URL(source), listeFilme);
-            }
 
             if (Config.getStop()) {
                 Log.sysLog("--> Abbruch");
@@ -219,7 +240,7 @@ public class FilmlisteLesen {
     }
 
     /**
-     * Download a process a filmliste from the web.
+     * Download and process a filmliste from the web.
      *
      * @param source     source url as string
      * @param listeFilme the list to read to
@@ -231,25 +252,25 @@ public class FilmlisteLesen {
         //our progress monitor callback
         InputStreamProgressMonitor monitor = new InputStreamProgressMonitor() {
             private int oldProgress = 0;
+            private final String sourceString = source.toString();
 
             @Override
-            public void progress(long bytesRead, long size) {
+            public void progress(final long bytesRead, final long size) {
                 final int iProgress = (int) (bytesRead * 100 / size);
                 if (iProgress != oldProgress) {
                     oldProgress = iProgress;
-                    notifyProgress(source.toString(), iProgress);
+                    notifyProgress(sourceString, iProgress);
                 }
             }
         };
 
-        try (Response response = MVHttpClient.getInstance().getHttpClient().newCall(builder.build()).execute();
-             ResponseBody body = response.body()) {
+        try (Response response = MVHttpClient.getInstance().getHttpClient().newCall(builder.build()).execute()) {
             if (response.isSuccessful()) {
-                try (InputStream input = new ProgressMonitorInputStream(body.byteStream(), body.contentLength(), monitor)) {
-                    try (InputStream is = selectDecompressor(source.toString(), input);
-                         JsonParser jp = new JsonFactory().createParser(is)) {
+                try (ResponseBody body = response.body();
+                     InputStream input = new ProgressMonitorInputStream(body.byteStream(), body.contentLength(), monitor);
+                     InputStream is = new XZInputStream(input);
+                     JsonParser jp = new JsonFactory().createParser(is)) {
                         readData(jp, listeFilme);
-                    }
                 }
             }
         } catch (Exception ex) {
@@ -280,13 +301,18 @@ public class FilmlisteLesen {
         }
     }
 
+    private final ListenerFilmeLadenEvent progressEvent = new ListenerFilmeLadenEvent("", "Download", 0, 0, 0, false);
+
     private void notifyProgress(String url, int iProgress) {
         progress = iProgress;
         if (progress > max) {
             progress = max;
         }
         for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
-            l.progress(new ListenerFilmeLadenEvent(url, "Download", max, progress, 0, false));
+            progressEvent.senderUrl = url;
+            progressEvent.progress = progress;
+            progressEvent.max = max;
+            l.progress(progressEvent);
         }
     }
 
@@ -295,7 +321,11 @@ public class FilmlisteLesen {
         Log.sysLog("  erstellt am: " + liste.genDate());
         Log.sysLog("  Anzahl Filme: " + liste.size());
         for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
-            l.fertig(new ListenerFilmeLadenEvent(url, "", max, progress, 0, false));
+            progressEvent.senderUrl = url;
+            progressEvent.text = "";
+            progressEvent.max = max;
+            progressEvent.progress = progress;
+            l.fertig(progressEvent);
         }
     }
 

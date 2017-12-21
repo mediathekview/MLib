@@ -25,12 +25,31 @@ import mSearch.daten.DatenFilm;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.security.CodeSource;
 import java.util.ResourceBundle;
 
 public class Functions {
 	
 	private static final String RBVERSION = "version";
+
+    public static void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
+        final ByteBuffer buffer = ByteBuffer.allocateDirect(64 * 1024);
+        while (src.read(buffer) != -1) {
+            buffer.flip();
+            dest.write(buffer);
+            buffer.compact();
+        }
+
+        buffer.flip();
+
+        while (buffer.hasRemaining()) {
+            dest.write(buffer);
+        }
+    }
 
     public static String textLaenge(int max, String text, boolean mitte, boolean addVorne) {
         if (text.length() > max) {
