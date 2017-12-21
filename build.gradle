@@ -44,9 +44,7 @@ compileTestJava {
 
 repositories {
     mavenLocal()
-    maven {
-        url "https://repo.mediathekview.de/repository/maven-public/"
-    }
+    mavenCentral()
 }
 
 uploadArchives {
