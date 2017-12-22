@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.google.gson.Gson;
 import de.mediathekview.mlib.daten.AbstractMediaResource;
 import de.mediathekview.mlib.daten.Film;
 import de.mediathekview.mlib.daten.GeoLocations;
@@ -166,10 +166,11 @@ public class FilmToFakeJsonConverter {
 
     urlKlein = reduceUrl(url, urlKlein);
     urlHd = reduceUrl(url, urlHd);
-    
-    Gson gson = new Gson();
 
-    fakeJsonBuilder.append(String.format(OUTPUT_PATTERN, sender, gson.toJson(thema), gson.toJson(aMediaResource.getTitel()),
+    final Gson gson = new Gson();
+
+    fakeJsonBuilder.append(String.format(OUTPUT_PATTERN, sender, gson.toJson(thema),
+        gson.toJson(aMediaResource.getTitel()),
         aMediaResource.getTime() == null ? ""
             : DATE_FORMATTER.format(aMediaResource.getTime().toLocalDate()),
         aMediaResource.getTime() == null ? ""

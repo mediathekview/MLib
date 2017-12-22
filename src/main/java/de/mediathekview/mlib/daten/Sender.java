@@ -1,6 +1,7 @@
 package de.mediathekview.mlib.daten;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -17,20 +18,22 @@ public enum Sender {
   ARD("ARD"), ARTE_DE("ARTE.DE"), ARTE_FR("ARTE.FR"), BR("BR"), DREISAT("3sat"), DW("DW"), FUNK(
       "Funk.net"), HR("HR"), KIKA("KIKA"), MDR("MDR"), NDR("NDR"), ORF("ORF"), PHOENIX(
           "Phönix"), RBB("RBB"), SF("SF"), SR("SR"), SRF("SRF"), SRF_PODCAST(
-              "SRF.Podcast"), SWR("SWR"), WDR("WDR"), ZDF("ZDF"), ZDF_TIVI("ZDF Tivi");
+              "SRF.Podcast"), SWR("SWR"), WDR("WDR"), ZDF("ZDF"), ZDF_TIVI("ZDF Tivi", "ZDF-tivi");
 
   private String name;
+  private String[] nameAlternatives;
 
-  Sender(final String aName) {
+  Sender(final String aName, final String... aNameAlternatives) {
     name = aName;
+    nameAlternatives = aNameAlternatives;
   }
 
   public static Optional<Sender> getSenderByName(final String searchedSenderName) {
     for (final Sender sender : Sender.values()) {
       if (sender.getName().equalsIgnoreCase(searchedSenderName)
-          || sender.name().equalsIgnoreCase(searchedSenderName))
-
-      {
+          || sender.name().equalsIgnoreCase(searchedSenderName)
+          || Arrays.stream(sender.nameAlternatives)
+              .anyMatch(n -> n.equalsIgnoreCase(searchedSenderName))) {
         return Optional.of(sender);
       }
     }
