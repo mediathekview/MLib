@@ -57,6 +57,7 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
         sender = Sender.getSenderByName(senderText).orElse((Sender) null);
       }
 
+
       String thema = entrySplits.get(2);
       if (StringUtils.isBlank(thema) && entryBefore != null) {
         thema = entryBefore.get().getThema();
@@ -65,6 +66,11 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
       String titel = entrySplits.get(3);
       if (StringUtils.isBlank(titel) && entryBefore != null) {
         titel = entryBefore.get().getTitel();
+      }
+
+      if (sender == null) {
+        throw new CantReadFilmException(
+            String.format("Can't gather a Sender for the film \"%s\" - \"%s\".", thema, titel));
       }
 
       final String dateText = entrySplits.get(4);

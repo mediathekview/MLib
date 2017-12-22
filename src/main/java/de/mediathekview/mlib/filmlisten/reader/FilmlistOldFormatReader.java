@@ -66,7 +66,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
               filmEntryBefore = newEntry;
             } catch (final Exception exception) {
               LOG.debug(
-                  String.format("Error on converting the following text to a film:\n %s ", entry));
+                  String.format("Error on converting the following text to a film:%n %s ", entry));
             }
           }
         }

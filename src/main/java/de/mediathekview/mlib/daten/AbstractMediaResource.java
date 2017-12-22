@@ -40,6 +40,9 @@ public abstract class AbstractMediaResource<T> implements Serializable {
     geoLocations = new ArrayList<>();
     urls = new EnumMap<>(Resolution.class);
     uuid = aUuid;
+    if (aSender == null) {
+      throw new IllegalArgumentException("The sender can't be null!");
+    }
     sender = aSender;
     setTitel(aTitel);
     setThema(aThema);
