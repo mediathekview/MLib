@@ -19,6 +19,7 @@
  */
 package mSearch.daten;
 
+import com.jidesoft.utils.SystemInfo;
 import mSearch.Const;
 import mSearch.tool.*;
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -40,23 +41,39 @@ public class DatenFilm implements Comparable<DatenFilm> {
     private final static AtomicInteger FILM_COUNTER = new AtomicInteger(0);
     //private final static AtomicInteger WEBSITE_COUNTER = new AtomicInteger(0);
     //private final static ConcurrentMap<Integer, URL> map;
+    /**
+     * Handle to the MAPDB database instance we are using here.
+     */
+    private final static DB DATABASE_HANDLE;
 
     static {
         //FIXME refactor directory location function from Daten...
         //FIXME refactor Konstanten.VERZEICHNIS...
         final String cachePath = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar + "cache.db";
-        DB db = DBMaker.fileDB(cachePath)
-                .fileMmapEnableIfSupported()
-                .fileMmapPreclearDisable()
-                .cleanerHackEnable()
-                .closeOnJvmShutdown()
-                .fileDeleteAfterClose()
-                .make();
+        if (SystemInfo.isUnix() || SystemInfo.isMacOSX()) {
+            //enable memory-mapped file support for performance increase
+            DATABASE_HANDLE = DBMaker.fileDB(cachePath)
+                    .fileMmapEnableIfSupported()
+                    .fileMmapPreclearDisable()
+                    .cleanerHackEnable()
+                    .closeOnJvmShutdown()
+                    .fileDeleteAfterClose()
+                    .make();
+        } else {
+            //windows really hates memory-mapped files...disable it.
+            //this really increases performance on Windows.
+            DATABASE_HANDLE = DBMaker.fileDB(cachePath)
+                    .fileChannelEnable()
+                    .cleanerHackEnable()
+                    .closeOnJvmShutdown()
+                    .fileDeleteAfterClose()
+                    .make();
+        }
 
-        DESCRIPTION_DATABASE = db.hashMap("description_database", Serializer.INTEGER, Serializer.STRING).createOrOpen();
+        DESCRIPTION_DATABASE = DATABASE_HANDLE.hashMap("description_database", Serializer.INTEGER, Serializer.STRING).createOrOpen();
         DESCRIPTION_DATABASE.clear();
 
-        /*map = db.hashMap("website_links", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+        /*map = DATABASE_HANDLE.hashMap("website_links", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
         try {
             map.put(WEBSITE_COUNTER.getAndIncrement(), new URL("http://www.heise.de"));
             map.put(WEBSITE_COUNTER.getAndIncrement(), new URL("http://www.spiegel.de"));
