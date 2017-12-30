@@ -20,18 +20,14 @@
 package mSearch.tool;
 
 import mSearch.daten.DatenFilm;
+import org.jetbrains.annotations.NotNull;
 
 public class MSLong implements Comparable<MSLong> {
 
-    public Long l = 0L;
-    public String s = "";
+    private long l = 0;
 
-    public MSLong() {
-    }
-
-    public MSLong(long ll) {
-        l = ll;
-        s = l.toString();
+    public MSLong(final long l) {
+        this.l = l;
     }
 
     public MSLong(DatenFilm film) {
@@ -41,22 +37,20 @@ public class MSLong implements Comparable<MSLong> {
         try {
             if (!film.arr[DatenFilm.FILM_GROESSE].isEmpty()) {
                 l = Long.valueOf(film.arr[DatenFilm.FILM_GROESSE]);
-                s = film.arr[DatenFilm.FILM_GROESSE];
             }
-        } catch (Exception ex) {
+        } catch (NumberFormatException ex) {
             Log.errorLog(649891025,  ex, "String: " + film.arr[DatenFilm.FILM_GROESSE]);
-            l = 0L;
-            s = "";
+            l = 0;
         }
     }
 
     @Override
     public String toString() {
-        return s;
+        return (l == 0) ? "" : Long.toString(l);
     }
 
     @Override
-    public int compareTo(MSLong ll) {
-        return (l.compareTo(ll.l));
+    public int compareTo(@NotNull MSLong other) {
+        return (Long.compare(l, other.l));
     }
 }
