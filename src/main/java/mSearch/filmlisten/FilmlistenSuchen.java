@@ -19,24 +19,26 @@
  */
 package mSearch.filmlisten;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Random;
+import mSearch.Config;
+import mSearch.Const;
+import mSearch.tool.Functions;
+import mSearch.tool.Log;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
-import mSearch.Config;
-import mSearch.Const;
-import mSearch.tool.Functions;
-import mSearch.tool.Log;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class FilmlistenSuchen {
 
@@ -46,7 +48,7 @@ public class FilmlistenSuchen {
     public ListeFilmlistenUrls listeFilmlistenUrls_diff = new ListeFilmlistenUrls();
     private static boolean firstSearchAkt = true;
     private static boolean firstSearchDiff = true;
-    private final int UPDATE_LISTE_MAX = 10; // die Downloadliste für die Filmlisten nur jeden 10. Programmstart aktualisieren
+    private static final int UPDATE_LISTE_MAX = 10; // die Downloadliste für die Filmlisten nur jeden 10. Programmstart aktualisieren
 
     public String suchenAkt(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Filmliste suchen
@@ -146,13 +148,15 @@ public class FilmlistenSuchen {
 
     public void getDownloadUrlsFilmlisten(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String userAgent, String art) {
         //String[] ret = new String[]{""/* version */, ""/* release */, ""/* updateUrl */};
+        InputStreamReader inReader = null;
+        InputStream is = null;
         try {
             int event;
             XMLInputFactory inFactory = XMLInputFactory.newInstance();
             inFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
             XMLStreamReader parser;
-            InputStreamReader inReader;
             if (Functions.istUrl(dateiUrl)) {
+                //FIXME replace with okhttp
                 // eine URL verarbeiten
                 int timeout = 20000; //ms
                 URLConnection conn;
@@ -160,14 +164,16 @@ public class FilmlistenSuchen {
                 conn.setRequestProperty("User-Agent", userAgent);
                 conn.setReadTimeout(timeout);
                 conn.setConnectTimeout(timeout);
-                inReader = new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8);
+                is = conn.getInputStream();
+                inReader = new InputStreamReader(is, StandardCharsets.UTF_8);
             } else {
                 // eine Datei verarbeiten
-                File f = new File(dateiUrl);
-                if (!f.exists()) {
+                final Path filePath = Paths.get(dateiUrl);
+                if (!Files.exists(filePath))
                     return;
-                }
-                inReader = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8);
+
+                is = Files.newInputStream(filePath);
+                inReader = new InputStreamReader(is, StandardCharsets.UTF_8);
             }
             parser = inFactory.createXMLStreamReader(inReader);
             while (parser.hasNext()) {
@@ -182,6 +188,19 @@ public class FilmlistenSuchen {
             }
         } catch (Exception ex) {
             Log.errorLog(821069874, ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
+        } finally {
+            if (inReader != null) {
+                try {
+                    inReader.close();
+                } catch (IOException ignored) {
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ignored) {
+                }
+            }
         }
     }
 

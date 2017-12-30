@@ -19,17 +19,18 @@
  */
 package mSearch.filmlisten;
 
+import mSearch.tool.Log;
+import org.jetbrains.annotations.NotNull;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.SimpleTimeZone;
-import mSearch.tool.Log;
 
 public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
 
     public static final String SERVER_ART_AKT = "akt";
-    public static final String SERVER_ART_OLD = "old";
+    //public static final String SERVER_ART_OLD = "old";
     public static final String SERVER_ART_DIFF = "diff";
 
     public static final String FILM_UPDATE_SERVER_PRIO_1 = "1";
@@ -53,7 +54,7 @@ public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
     public static final String[] FILM_UPDATE_SERVER_COLUMN_NAMES_ANZEIGE = {"Nr", "Update-Url", "Datum", "Zeit", "Prio", "Art"};
 
     public String[] arr;
-    private SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     public DatenFilmlisteUrl() {
         sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
@@ -81,7 +82,7 @@ public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
     }
 
     public Date getDate() {
-        String date = arr[FILM_UPDATE_SERVER_DATUM_NR] + " " + arr[FILM_UPDATE_SERVER_ZEIT_NR];
+        String date = arr[FILM_UPDATE_SERVER_DATUM_NR] + ' ' + arr[FILM_UPDATE_SERVER_ZEIT_NR];
         Date d;
         try {
             d = sdf.parse(date);
@@ -116,12 +117,12 @@ public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
     }
 
     @Override
-    public int compareTo(DatenFilmlisteUrl arg0) {
+    public int compareTo(@NotNull DatenFilmlisteUrl arg0) {
         int ret = 0;
         try {
             //31.10.2010	16:54:17
-            String ich = arr[FILM_UPDATE_SERVER_DATUM_NR] + " " + arr[FILM_UPDATE_SERVER_ZEIT_NR];
-            String du = arg0.arr[FILM_UPDATE_SERVER_DATUM_NR] + " " + arg0.arr[FILM_UPDATE_SERVER_ZEIT_NR];
+            String ich = arr[FILM_UPDATE_SERVER_DATUM_NR] + ' ' + arr[FILM_UPDATE_SERVER_ZEIT_NR];
+            String du = arg0.arr[FILM_UPDATE_SERVER_DATUM_NR] + ' ' + arg0.arr[FILM_UPDATE_SERVER_ZEIT_NR];
             if (ich.equals(du)) {
                 return 0;
             }
@@ -130,22 +131,6 @@ public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
             ret = d_du.compareTo(d_ich);
         } catch (ParseException ex) {
             Log.errorLog(936542876,   ex);
-        }
-        return ret;
-    }
-
-    public boolean aelterAls(int tage) {
-        boolean ret = false;
-        try {
-            //31.10.2010	16:54:17
-            String ich = arr[FILM_UPDATE_SERVER_DATUM_NR] + " " + arr[FILM_UPDATE_SERVER_ZEIT_NR];
-            Date d_ich = sdf.parse(ich);
-            Calendar cal = Calendar.getInstance();
-            // tage vom calendar abziehen
-            cal.add(Calendar.DATE, -tage);
-            ret = d_ich.before(cal.getTime());
-        } catch (ParseException ex) {
-            Log.errorLog(915468973,   ex);
         }
         return ret;
     }
