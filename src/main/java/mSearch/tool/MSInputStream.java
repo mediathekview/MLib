@@ -23,9 +23,10 @@
  */
 package mSearch.tool;
 
+import mSearch.Config;
+
 import java.io.IOException;
 import java.io.InputStream;
-import mSearch.Config;
 
 public class MSInputStream extends InputStream {
 
@@ -64,7 +65,7 @@ public class MSInputStream extends InputStream {
         return anzByte;
     }
 
-    private synchronized void pause() throws IOException {
+    private synchronized void pause() {
         if (maxBytePerSec == 0) {
             return;
         }

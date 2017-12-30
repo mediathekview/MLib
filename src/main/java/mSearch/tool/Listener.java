@@ -19,9 +19,9 @@
  */
 package mSearch.tool;
 
-import java.util.EventListener;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.EventListenerList;
+import java.util.EventListener;
 
 public class Listener implements EventListener {
 
@@ -30,7 +30,7 @@ public class Listener implements EventListener {
 
     public static final int EREIGNIS_ANZAHL_DOWNLOADS = 6;
     public static final int EREIGNIS_LISTE_URL_FILMLISTEN = 7;
-    public static final int EREIGNIS_LISTE_FILMLISTEN_SERVER = 8;
+    //public static final int EREIGNIS_LISTE_FILMLISTEN_SERVER = 8;
     public static final int EREIGNIS_LISTE_DOWNLOADS = 9;
     public static final int EREIGNIS_LISTE_ABOS = 10;
     public static final int EREIGNIS_LISTE_ERLEDIGTE_ABOS = 11;
@@ -73,7 +73,7 @@ public class Listener implements EventListener {
 
     public int[] mvEreignis = {-1};
     public String klasse = "";
-    private static EventListenerList listeners = new EventListenerList();
+    private static final EventListenerList listeners = new EventListenerList();
 
     public Listener(int eereignis, String kklasse) {
         mvEreignis = new int[]{eereignis};

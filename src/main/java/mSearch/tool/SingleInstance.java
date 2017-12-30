@@ -19,9 +19,11 @@
 package mSearch.tool;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.Files;
 
 /**
  * Prevents startup of multiple instances
@@ -45,13 +47,14 @@ final public class SingleInstance {
             }
 
             //delete the lockfile when VM gets shut down
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    closeLock();
-                    final boolean deleted = file.delete();
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                closeLock();
+                try {
+                    Files.deleteIfExists(file.toPath());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
-            });
+            }));
             return false;
         } catch (Exception e) {
             //if there is any sort of error, pretend we are already running...
