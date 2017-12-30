@@ -140,23 +140,28 @@ public class FilmlisteLesen {
                     //if we are in FASTAUTO mode, we don´t need film descriptions.
                     //this should speed up loading on low end devices...
                     if (workMode == WorkMode.FASTAUTO) {
-                        if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_BESCHREIBUNG
-                                || DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_WEBSEITE
+                        if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_WEBSEITE
                                 || DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_GEO) {
                             jp.nextToken();
                             continue;
                         }
                     }
+
                     if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_NEU) {
                         final String value = jp.nextTextValue();
                         //This value is unused...
                         //datenFilm.arr[DatenFilm.FILM_NEU_NR] = value;
                         datenFilm.setNew(Boolean.parseBoolean(value));
+                    } else if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_BESCHREIBUNG) {
+                        final String value = jp.nextTextValue();
+                        if (value != null && !value.isEmpty())
+                            datenFilm.setDescription(value);
                     } else {
                         datenFilm.arr[DatenFilm.JSON_NAMES[i]] = jp.nextTextValue();
                     }
 
                     /// für die Entwicklungszeit
+                    //FIXME Removal causes crashes
                     if (datenFilm.arr[DatenFilm.JSON_NAMES[i]] == null) {
                         datenFilm.arr[DatenFilm.JSON_NAMES[i]] = "";
                     }

@@ -26,11 +26,9 @@ import mSearch.tool.Functions;
 import mSearch.tool.Log;
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import java.security.MessageDigest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 @SuppressWarnings("serial")
 public class ListeFilme extends ArrayList<DatenFilm> {
@@ -41,9 +39,9 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public static final String FILMLISTE_DATUM_GMT = "Filmliste-Datum-GMT";
     public static final int FILMLISTE_DATUM_GMT_NR = 1;
     public static final String FILMLISTE_VERSION = "Filmliste-Version";
-    public static final int FILMLISTE_VERSION_NR = 2;
+    //public static final int FILMLISTE_VERSION_NR = 2;
     public static final String FILMLISTE_PROGRAMM = "Filmliste-Programm";
-    public static final int FILMLISTE_PRGRAMM_NR = 3;
+    //public static final int FILMLISTE_PRGRAMM_NR = 3;
     public static final String FILMLISTE_ID = "Filmliste-Id";
     public static final int FILMLISTE_ID_NR = 4;
     public static final int MAX_ELEM = 5;
@@ -56,29 +54,11 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public String[][] themenPerSender = {{""}};
     public boolean neueFilme = false;
 
-    private final Collection<String> indexes;
-
-    public ListeFilme()
-    {
-        super();
-        indexes = new ConcurrentSkipListSet<>();
-    }
-
-
-    public synchronized boolean importFilmliste(DatenFilm film) {
+    public synchronized void importFilmliste(DatenFilm film) {
         // hier nur beim Laden aus einer fertigen Filmliste mit der GUI
         // die Filme sind schon sortiert, nur die Nummer muss noch ergänzt werden
         film.nr = nr++;
-        return addInit(film);
-    }
-
-    public synchronized boolean addFilmVomSender(DatenFilm film) {
-        // Filme die beim Sender gesucht wurden (und nur die) hier eintragen, nur für die MediathekReader!!
-        // ist: "Sender-Thema-URL" schon vorhanden, wird sie verworfen
-
-        Functions.unescape(film);
-
-        return !indexes.contains(film.getIndex()) && addInit(film);
+        addInit(film);
     }
 
     private void addHash(DatenFilm f, HashSet<String> hash, boolean index) {
@@ -148,7 +128,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     @Override
     public boolean add(DatenFilm aFilm)
     {
-        indexes.add(aFilm.getIndex());
         return super.add(aFilm);
     }
 
@@ -156,7 +135,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized void clear() {
         nr = 1;
         neueFilme = false;
-        indexes.clear();
+
         super.clear();
     }
 
@@ -203,31 +182,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         System.arraycopy(listeFilme.metaDaten, 0, metaDaten, 0, MAX_ELEM);
     }
 
-    public synchronized ListeFilme neueFilme(ListeFilme orgListe) {
-        // Funktion liefert eine Liste mit Filmen
-        // die im Vergleich zur Liste "orgListe"
-        // neu sind, also ein Diff mit nur den neuen Filmen in DIESER Liste
-        ListeFilme ret = new ListeFilme();
-        final HashSet<String> hashSet = new HashSet<>(orgListe.size() + 1, 1);
-
-        for (DatenFilm film : orgListe) {
-            final String s = film.arr[DatenFilm.FILM_SENDER] + film.arr[DatenFilm.FILM_THEMA] + film.arr[DatenFilm.FILM_TITEL] + film.arr[DatenFilm.FILM_URL];
-            hashSet.add(s);
-        }
-
-        for (DatenFilm film : this) {
-            final String s = film.arr[DatenFilm.FILM_SENDER] + film.arr[DatenFilm.FILM_THEMA] + film.arr[DatenFilm.FILM_TITEL] + film.arr[DatenFilm.FILM_URL];
-            if (!hashSet.contains(s)) {
-                ret.add(film);
-            }
-        }
-
-        hashSet.clear();
-
-        ret.metaDaten = metaDaten;
-        return ret;
-    }
-
     /**
      * @param url the URL as String.
      * @return the determined size or -1.
@@ -265,19 +219,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized DatenFilm getFilmByUrl(final String url) {
         Optional<DatenFilm> opt = this.parallelStream().filter(f -> f.arr[DatenFilm.FILM_URL].equalsIgnoreCase(url)).findAny();
         return opt.orElse(null);
-    }
-
-    public synchronized void checkThema(String sender, LinkedList<String> liste, String thema) {
-        this.stream().filter(film -> film.arr[DatenFilm.FILM_SENDER].equals(sender))
-                .filter(film -> !film.arr[DatenFilm.FILM_THEMA].equals(ListeFilme.THEMA_LIVE)
-                        && !liste.contains(film.arr[DatenFilm.FILM_THEMA]))
-                .forEach(film -> film.arr[DatenFilm.FILM_THEMA] = thema);
-    }
-
-    public synchronized void getThema(String sender, LinkedList<String> liste) {
-        this.stream().filter(film -> film.arr[DatenFilm.FILM_SENDER].equals(sender))
-                .filter(film -> !liste.contains(film.arr[DatenFilm.FILM_THEMA]))
-                .forEach(film -> liste.add(film.arr[DatenFilm.FILM_THEMA]));
     }
 
     public synchronized DatenFilm getFilmByUrl_klein_hoch_hd(String url) {
@@ -414,49 +355,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             Log.sysLog("Die Filmliste ist " + ret / 60 + " Minuten alt");
         }
         return ret > sekunden;
-    }
-
-    public synchronized void writeMetaData() {
-        for (int i = 0; i < metaDaten.length; ++i) {
-            metaDaten[i] = "";
-        }
-        metaDaten[ListeFilme.FILMLISTE_DATUM_NR] = getJetzt_ddMMyyyy_HHmm();
-        metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR] = getJetzt_ddMMyyyy_HHmm_gmt();
-        metaDaten[ListeFilme.FILMLISTE_ID_NR] = createChecksum(metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR]);
-        metaDaten[ListeFilme.FILMLISTE_VERSION_NR] = Const.VERSION_FILMLISTE;
-        metaDaten[ListeFilme.FILMLISTE_PRGRAMM_NR] = Const.PROGRAMMNAME + Functions.getProgVersionString(); //  + " - Compiled: " + Functions.getCompileDate();
-    }
-
-    /**
-     * Create a checksum string as a unique identifier.
-     *
-     * @param input The base string for the checksum.
-     * @return MD5-hashed checksum string.
-     */
-    private String createChecksum(String input) {
-        StringBuilder sb = new StringBuilder();
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(input.getBytes());
-            byte[] digest = md.digest();
-            for (byte b : digest) {
-                sb.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
-            }
-        } catch (Exception ignored) {
-        }
-        return sb.toString();
-    }
-
-
-    private String getJetzt_ddMMyyyy_HHmm() {
-        FastDateFormat formatter = FastDateFormat.getInstance(DATUM_ZEIT_FORMAT);
-        return formatter.format(new Date());
-    }
-
-    private String getJetzt_ddMMyyyy_HHmm_gmt() {
-        SimpleDateFormat formatter = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
-        formatter.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
-        return formatter.format(new Date());
     }
 
     public synchronized long countNewFilms() {

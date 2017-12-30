@@ -136,6 +136,9 @@ public class WriteFilmlistJson {
                                 thema = datenFilm.arr[m];
                                 jg.writeString(datenFilm.arr[m]);
                             }
+                        } else if (m == DatenFilm.FILM_BESCHREIBUNG) {
+                            final String desc = datenFilm.getDescription();
+                            jg.writeString(desc);
                         } else {
                             jg.writeString(datenFilm.arr[m]);
                         }

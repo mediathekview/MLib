@@ -31,6 +31,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.security.CodeSource;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 
 public class Functions {
 	
@@ -59,20 +60,15 @@ public class Functions {
                 text = text.substring(0, max - 1);
             }
         }
-        while (text.length() < max) {
+        StringBuilder textBuilder = new StringBuilder(text);
+        while (textBuilder.length() < max) {
             if (addVorne) {
-                text = ' ' + text;
+                textBuilder.insert(0, ' ');
             } else {
-                text = text + ' ';
+                textBuilder.append(' ');
             }
         }
-        return text;
-    }
-
-    public static String minTextLaenge(int max, String text) {
-        while (text.length() < max) {
-            text = text + ' ';
-        }
+        text = textBuilder.toString();
         return text;
     }
 
@@ -99,7 +95,7 @@ public class Functions {
     public static OperatingSystemType getOs() {
         OperatingSystemType os = OperatingSystemType.UNKNOWN;
 
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+        if (SystemInfo.isWindows()) {
             if (System.getenv("ProgramFiles(x86)") != null) {
                 // win 64Bit
                 os = OperatingSystemType.WIN64;
@@ -108,11 +104,8 @@ public class Functions {
                 os = OperatingSystemType.WIN32;
             }
 
-        } else if (SystemInfo.isLinux()) {
+        } else if (SystemInfo.isLinux() || System.getProperty("os.name").toLowerCase().contains("freebsd")) {
             os = OperatingSystemType.LINUX;
-        } else if (System.getProperty("os.name").toLowerCase().contains("freebsd")) {
-            os = OperatingSystemType.LINUX;
-
         } else if (SystemInfo.isMacOSX()) {
             os = OperatingSystemType.MAC;
         }
@@ -155,11 +148,10 @@ public class Functions {
 
     public static String[] getJavaVersion() {
         String[] ret = new String[4];
-        int i = 0;
-        ret[i++] = "Vendor: " + System.getProperty("java.vendor");
-        ret[i++] = "VMname: " + System.getProperty("java.vm.name");
-        ret[i++] = "Version: " + System.getProperty("java.version");
-        ret[i++] = "Runtimeversion: " + System.getProperty("java.runtime.version");
+        ret[0] = "Vendor: " + System.getProperty("java.vendor");
+        ret[1] = "VMname: " + System.getProperty("java.vm.name");
+        ret[2] = "Version: " + System.getProperty("java.version");
+        ret[3] = "Runtimeversion: " + System.getProperty("java.runtime.version");
         return ret;
     }
 
@@ -243,95 +235,19 @@ public class Functions {
         replaceText(film);
     }
 
-//    public static String utf8(String ret) {
-//        ret = ret.replace("\\u0026", "&");
-//        ret = ret.replace("\\u003C", "<");
-//        ret = ret.replace("\\u003c", "<");
-//        ret = ret.replace("\\u003E", ">");
-//        ret = ret.replace("\\u003e", ">");
-//        ret = ret.replace("\\u00E4", "ä");
-//        ret = ret.replace("\\u00e4", "ä");
-//        ret = ret.replace("\\u00C4", "Ä");
-//        ret = ret.replace("\\u00c4", "Ä");
-//        ret = ret.replace("\\u00F6", "ö");
-//        ret = ret.replace("\\u00f6", "ö");
-//        ret = ret.replace("\\u00D6", "Ö");
-//        ret = ret.replace("\\u00d6", "Ö");
-//        ret = ret.replace("\\u00FC", "ü");
-//        ret = ret.replace("\\u00fc", "ü");
-//        ret = ret.replace("\\u00DC", "Ü");
-//        ret = ret.replace("\\u00dc", "Ü");
-//        ret = ret.replace("\\u00DF", "ß");
-//        ret = ret.replace("\\u00df", "ß");
-//        ret = ret.replace("\\u20AC", "€");
-//        ret = ret.replace("\\u20ac", "€");
-//        ret = ret.replace("\\u0024", "$");
-//        ret = ret.replace("\\u00A3", "£");
-//        ret = ret.replace("\\u00a3", "£");
-//        ret = ret.replace("\\u00F3", "\u00f3");
-//        ret = ret.replace("\\u00f3", "\u00f3");
-//        return ret;
-//    }
-    public static String addsPfad(String pfad1, String pfad2) {
-        String ret = "";
-        if (pfad1 != null && pfad2 != null) {
-            if (pfad1.isEmpty()) {
-                ret = pfad2;
-            } else if (pfad2.isEmpty()) {
-                ret = pfad1;
-            } else if (!pfad1.isEmpty() && !pfad2.isEmpty()) {
-                if (pfad1.endsWith(File.separator)) {
-                    ret = pfad1.substring(0, pfad1.length() - 1);
-                } else {
-                    ret = pfad1;
-                }
-                if (pfad2.charAt(0) == File.separatorChar) {
-                    ret += pfad2;
-                } else {
-                    ret += File.separator + pfad2;
-                }
-            }
-        }
-        if (ret.isEmpty()) {
-            Log.errorLog(283946015, pfad1 + " - " + pfad2);
-        }
-        return ret;
-    }
 
-    public static String addUrl(String u1, String u2) {
-        if (u1.endsWith("/")) {
-            return u1 + u2;
-        } else {
-            return u1 + '/' + u2;
-        }
-    }
 
     public static boolean istUrl(String dateiUrl) {
-        //return dateiUrl.startsWith("http") ? true : false || dateiUrl.startsWith("www") ? true : false;
         return dateiUrl.startsWith("http") || dateiUrl.startsWith("www");
     }
 
-    public static String getDateiName(String pfad) {
-        //Dateinamen einer URL extrahieren
-        String ret = "";
-        if (pfad != null) {
-            if (!pfad.isEmpty()) {
-                ret = pfad.substring(pfad.lastIndexOf('/') + 1);
-            }
-        }
-        if (ret.contains("?")) {
-            ret = ret.substring(0, ret.indexOf('?'));
-        }
-        if (ret.contains("&")) {
-            ret = ret.substring(0, ret.indexOf('&'));
-        }
-        if (ret.isEmpty()) {
-            Log.errorLog(395019631, pfad);
-        }
-        return ret;
+    private static final Pattern PATTERN;
+
+    static {
+        PATTERN = Pattern.compile("\\<.*?>");
     }
 
-    public static String removeHtml(String in) {
-        return in.replaceAll("\\<.*?>", "");
+    public static String removeHtml(final String in) {
+        return PATTERN.matcher(in).replaceAll("");
     }
 }

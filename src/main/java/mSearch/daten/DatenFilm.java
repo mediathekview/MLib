@@ -22,10 +22,74 @@ package mSearch.daten;
 import mSearch.Const;
 import mSearch.tool.*;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.jetbrains.annotations.NotNull;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
 
+import java.io.File;
 import java.util.Date;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DatenFilm implements Comparable<DatenFilm> {
+    /**
+     * The database instance for all descriptions.
+     */
+    private final static ConcurrentMap<Integer, String> DESCRIPTION_DATABASE;
+    private final static AtomicInteger FILM_COUNTER = new AtomicInteger(0);
+    //private final static AtomicInteger WEBSITE_COUNTER = new AtomicInteger(0);
+    //private final static ConcurrentMap<Integer, URL> map;
+
+    static {
+        //FIXME refactor directory location function from Daten...
+        //FIXME refactor Konstanten.VERZEICHNIS...
+        final String cachePath = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar + "cache.db";
+        DB db = DBMaker.fileDB(cachePath)
+                .fileMmapEnableIfSupported()
+                .fileMmapPreclearDisable()
+                .cleanerHackEnable()
+                .closeOnJvmShutdown()
+                .fileDeleteAfterClose()
+                .make();
+
+        DESCRIPTION_DATABASE = db.hashMap("description_database", Serializer.INTEGER, Serializer.STRING).createOrOpen();
+        DESCRIPTION_DATABASE.clear();
+
+        /*map = db.hashMap("website_links", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
+        try {
+            map.put(WEBSITE_COUNTER.getAndIncrement(), new URL("http://www.heise.de"));
+            map.put(WEBSITE_COUNTER.getAndIncrement(), new URL("http://www.spiegel.de"));
+
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        System.out.println("WEBSITE CONTENT:");
+        map.forEach((key,value) -> System.out.println(key + "," + value));*/
+    }
+
+    /**
+     * Get the film description from database.
+     *
+     * @return the film description.
+     */
+    public String getDescription() {
+        return DESCRIPTION_DATABASE.getOrDefault(filmNr, "");
+    }
+
+    /**
+     * Store description in database.
+     *
+     * @param desc String to be stored.
+     */
+    public void setDescription(final String desc) {
+        if (desc != null && !desc.isEmpty()) {
+            String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
+            cleanedDesc = cleanedDesc.replace("\n", "<br />");
+            DESCRIPTION_DATABASE.put(filmNr, cleanedDesc);
+        }
+    }
 
     public static final String AUFLOESUNG_NORMAL = "normal";
     public static final String AUFLOESUNG_HD = "hd";
@@ -73,29 +137,29 @@ public class DatenFilm implements Comparable<DatenFilm> {
             "Url Untertitel", "Url RTMP", "Url Auth", "Url Klein", "Url RTMP Klein", "Url HD", "Url RTMP HD", "Url History", "neu",
             "DatumL", "Ref"};
     // neue Felder werden HINTEN angefügt!!!!!
-    public static final int[] JSON_NAMES = {FILM_SENDER, FILM_THEMA, FILM_TITEL,
-            FILM_DATUM, FILM_ZEIT, FILM_DAUER, FILM_GROESSE,
-            FILM_BESCHREIBUNG, FILM_URL, FILM_WEBSEITE,
-            FILM_URL_SUBTITLE, FILM_URL_RTMP, FILM_URL_KLEIN, FILM_URL_RTMP_KLEIN, FILM_URL_HD, FILM_URL_RTMP_HD, FILM_DATUM_LONG,
-            FILM_URL_HISTORY, FILM_GEO, FILM_NEU};
+    public static final int[] JSON_NAMES = {FILM_SENDER,
+            FILM_THEMA,
+            FILM_TITEL,
+            FILM_DATUM,
+            FILM_ZEIT,
+            FILM_DAUER,
+            FILM_GROESSE,
+            FILM_BESCHREIBUNG,
+            FILM_URL,
+            FILM_WEBSEITE,
+            FILM_URL_SUBTITLE,
+            FILM_URL_RTMP,
+            FILM_URL_KLEIN,
+            FILM_URL_RTMP_KLEIN,
+            FILM_URL_HD,
+            FILM_URL_RTMP_HD,
+            FILM_DATUM_LONG,
+            FILM_URL_HISTORY,
+            FILM_GEO,
+            FILM_NEU};
     private static final GermanStringSorter sorter = GermanStringSorter.getInstance();
     private static final FastDateFormat sdf_datum_zeit = FastDateFormat.getInstance("dd.MM.yyyyHH:mm:ss");
     private static final FastDateFormat sdf_datum = FastDateFormat.getInstance("dd.MM.yyyy");
-    private static final String[] GERMAN_ONLY = {
-            "+++ Aus rechtlichen Gründen ist der Film nur innerhalb von Deutschland abrufbar. +++",
-            "+++ Aus rechtlichen Gründen ist diese Sendung nur innerhalb von Deutschland abrufbar. +++",
-            "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland abrufbar. +++",
-            "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland verfügbar. +++",
-            "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++ Due to legal reasons the video is only available in Germany.+++",
-            "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++",
-            "+++ Due to legal reasons the video is only available in Germany.+++",
-            "+++ Aus rechtlichen Gründen kann das Video nur in Deutschland abgerufen werden. +++",
-            "[Aus rechtlichen Günden können wir die Partie nicht als Einzelclip anbieten.]",
-            "+++ Aus rechtlichen Gründen ist das Video nur innerhalb von Deutschland abrufbar. +++",
-            "+++Aus rechtlichen Gründen kann die Sendung nur innerhalb von Deutschland abgerufen werden. +++",
-            "+++ Aus rechtlichen Gründen dürfen wir dieses Video nur innerhalb von Deutschland anbieten. +++",
-            "+++Aus rechtlichen Gründen kann dieses Video nur innerhalb von Deutschland abgerufen werden.+++"
-    };
     public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
     public final String[] arr = new String[]{
             "", "", "", "", "", "", "", "", "", "",
@@ -105,18 +169,25 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public long dauerL = 0; // Sekunden
     public Object abo = null;
     public MSLong dateigroesseL = new MSLong(0); // Dateigröße in MByte
+    /**
+     * Die Filmnr
+     */
     public int nr;
+    /**
+     * Internal film number, used for storage in cache map
+     */
+    private int filmNr;
     private boolean neuerFilm = false;
-    private Hash hashValueIndexAddOld = null;
-    private Hash hashValueUrl = null;
 
     public DatenFilm() {
         dateigroesseL = new MSLong(0); // Dateigröße in MByte
+        filmNr = FILM_COUNTER.getAndIncrement();
     }
 
     public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
                      String datum, String zeit,
                      long dauerSekunden, String description) {
+        super();
         // da werden die gefundenen Filme beim Absuchen der Senderwebsites erstellt, und nur die!!
         arr[FILM_SENDER] = ssender;
         arr[FILM_THEMA] = tthema.isEmpty() ? ssender : tthema.trim();
@@ -132,24 +203,11 @@ public class DatenFilm implements Comparable<DatenFilm> {
         checkFilmDauer(dauerSekunden);
     }
 
-    /**
-     * Determine file size from remote location.
-     */
-    public void setFileSize() {
-        if (arr[DatenFilm.FILM_GROESSE].isEmpty())
-            arr[DatenFilm.FILM_GROESSE] = FileSize.laengeString(arr[DatenFilm.FILM_URL]);
-    }
-
-    public static String cleanDescription(String s, String thema, String titel) {
+    public String cleanDescription(String s, String thema, String titel) {
         // die Beschreibung auf x Zeichen beschränken
 
         s = Functions.removeHtml(s); // damit die Beschreibung nicht unnötig kurz wird wenn es erst später gemacht wird
 
-        for (String g : GERMAN_ONLY) {
-            if (s.contains(g)) {
-                s = s.replace(g, ""); // steht auch mal in der Mitte
-            }
-        }
         if (s.startsWith(titel)) {
             s = s.substring(titel.length()).trim();
         }
@@ -172,11 +230,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         if (s.contains("\\\"")) { // wegen " in json-Files
             s = s.replace("\\\"", "\"");
         }
-        if (s.length() > Const.MAX_BESCHREIBUNG) {
-            return s.substring(0, Const.MAX_BESCHREIBUNG) + "\n.....";
-        } else {
-            return s;
-        }
+
+        return s;
     }
 
     public boolean isNew() {
@@ -195,7 +250,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
             dauerSekunden = dauerSekunden % 3600;
             String min = String.valueOf(dauerSekunden / 60);
             String seconds = String.valueOf(dauerSekunden % 60);
-            arr[FILM_DAUER] = fuellen(2, hours) + ':' + fuellen(2, min) + ':' + fuellen(2, seconds);
+            arr[FILM_DAUER] = performStringPadding(hours) + ':' + performStringPadding(min) + ':' + performStringPadding(seconds);
         }
     }
 
@@ -236,15 +291,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
-    public void setUrlHistory() {
-        String u = getUrl();
-        if (u.equals(arr[DatenFilm.FILM_URL])) {
-            arr[DatenFilm.FILM_URL_HISTORY] = "";
-        } else {
-            arr[DatenFilm.FILM_URL_HISTORY] = u;
-        }
-    }
-
     public String getUrlHistory() {
         if (arr[DatenFilm.FILM_URL_HISTORY].isEmpty()) {
             return arr[DatenFilm.FILM_URL];
@@ -266,20 +312,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     private String repl(String s) {
         return s.replace("-", "").replace("_", "").replace(".", "").replace(" ", "").replace(",", "").toLowerCase();
-    }
-
-    public Hash getHashValueIndexAddOld() {
-        if (hashValueIndexAddOld == null)
-            hashValueIndexAddOld = new Hash(getIndexAddOld());
-
-        return hashValueIndexAddOld;
-    }
-
-    public Hash getHashValueUrl() {
-        if (hashValueUrl == null)
-            hashValueUrl = new Hash(getUrl());
-
-        return hashValueUrl;
     }
 
     public String getUrl() {
@@ -319,12 +351,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return !arr[DatenFilm.FILM_URL_HD].isEmpty() || !arr[DatenFilm.FILM_URL_RTMP_HD].isEmpty();
     }
 
-//    public void clean() {
-//        // vor dem Speichern nicht benötigte Felder löschen
-//        arr[FILM_NR] = "";
-//        arr[FILM_ABO_NAME] = "";
-//    }
-
     public DatenFilm getCopy() {
         DatenFilm ret = new DatenFilm();
         System.arraycopy(this.arr, 0, ret.arr, 0, arr.length);
@@ -337,10 +363,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     @Override
-    public int compareTo(DatenFilm arg0) {
+    public int compareTo(@NotNull DatenFilm other) {
         int ret;
-        if ((ret = sorter.compare(arr[FILM_SENDER], arg0.arr[FILM_SENDER])) == 0) {
-            return sorter.compare(arr[FILM_THEMA], arg0.arr[FILM_THEMA]);
+        if ((ret = sorter.compare(arr[FILM_SENDER], other.arr[FILM_SENDER])) == 0) {
+            return sorter.compare(arr[FILM_THEMA], other.arr[FILM_THEMA]);
         }
         return ret;
     }
@@ -371,7 +397,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
                     long min = l / 60;
                     l = l - (min * 60);
                     long seconds = l;
-                    this.arr[DatenFilm.FILM_DAUER] = fuellen(2, String.valueOf(hours)) + ':' + fuellen(2, String.valueOf(min)) + ':' + fuellen(2, String.valueOf(seconds));
+                    this.arr[DatenFilm.FILM_DAUER] = performStringPadding(String.valueOf(hours)) + ':' + performStringPadding(String.valueOf(min)) + ':' + performStringPadding(String.valueOf(seconds));
                 } else {
                     this.arr[DatenFilm.FILM_DAUER] = "";
                 }
@@ -537,11 +563,13 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
     }
 
-    private String fuellen(int anz, String s) {
-        while (s.length() < anz) {
-            s = '0' + s;
+    private String performStringPadding(String s) {
+        StringBuilder sBuilder = new StringBuilder(s);
+        while (sBuilder.length() < 2) {
+            sBuilder.insert(0, '0');
         }
-        return s;
+
+        return sBuilder.toString();
     }
 
 }
