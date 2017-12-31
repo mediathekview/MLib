@@ -55,18 +55,17 @@ public class DatenFilm implements Comparable<DatenFilm> {
             DATABASE_HANDLE = DBMaker.fileDB(cachePath)
                     .fileMmapEnableIfSupported()
                     .fileMmapPreclearDisable()
+                    .executorEnable()
                     .cleanerHackEnable()
                     .closeOnJvmShutdown()
                     .fileDeleteAfterClose()
                     .make();
         } else {
-            //windows really hates memory-mapped files...disable it.
-            //this really increases performance on Windows.
-            DATABASE_HANDLE = DBMaker.fileDB(cachePath)
-                    .fileChannelEnable()
+            //there is a bug with windows which results in really slow insert performance
+            //revert to externally stored direct memory cache
+            DATABASE_HANDLE = DBMaker.memoryDirectDB()
                     .cleanerHackEnable()
-                    .closeOnJvmShutdown()
-                    .fileDeleteAfterClose()
+                    .executorEnable()
                     .make();
         }
 
