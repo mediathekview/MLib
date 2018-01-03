@@ -167,6 +167,11 @@ public class FilmToFakeJsonConverter {
     urlKlein = reduceUrl(url, urlKlein);
     urlHd = reduceUrl(url, urlHd);
 
+    String website = "";
+    if (aMediaResource.getWebsite().isPresent()) {
+      website = aMediaResource.getWebsite().get().toString();
+    }
+    
     final Gson gson = new Gson();
 
     fakeJsonBuilder.append(String.format(OUTPUT_PATTERN, sender, gson.toJson(thema),
@@ -181,7 +186,7 @@ public class FilmToFakeJsonConverter {
         aMediaResource instanceof Podcast
             ? ((Podcast) aMediaResource).getFileSize(getDefaultResolution(aMediaResource))
             : "",
-        gson.toJson(aMediaResource.getBeschreibung()), url, aMediaResource.getWebsite(),
+        gson.toJson(aMediaResource.getBeschreibung()), url, website,
         getSubtitles(aMediaResource), "", urlKlein, "", urlHd, "",
         Timestamp
             .valueOf(
