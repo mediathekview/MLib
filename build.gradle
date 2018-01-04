@@ -9,7 +9,7 @@ targetCompatibility = 1.8
 
 group = 'de.mediathekview'
 archivesBaseName = "MLib"
-version = '2.4.3'
+version = '2.4.4'
 
 ext {
     propsFile = file('src/main/resources/version.properties').absoluteFile
