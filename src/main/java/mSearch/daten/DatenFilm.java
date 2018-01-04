@@ -280,23 +280,41 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     public String getUrlFuerAufloesung(String aufloesung) {
-        if (aufloesung.equals(AUFLOESUNG_KLEIN)) {
-            return getUrlNormalOrRequested(DatenFilm.FILM_URL_KLEIN);
+        final String ret;
+        switch (aufloesung) {
+            case AUFLOESUNG_KLEIN:
+                ret = getUrlNormalOrRequested(DatenFilm.FILM_URL_KLEIN);
+                break;
+
+            case AUFLOESUNG_HD:
+                ret = getUrlNormalOrRequested(DatenFilm.FILM_URL_HD);
+                break;
+
+            default://AUFLOESUNG_NORMAL
+                ret = arr[DatenFilm.FILM_URL];
+                break;
         }
-        if (aufloesung.equals(AUFLOESUNG_HD)) {
-            return getUrlNormalOrRequested(DatenFilm.FILM_URL_HD);
-        }
-        return arr[DatenFilm.FILM_URL];
+
+        return ret;
     }
 
     public String getUrlRtmpFuerAufloesung(String aufloesung) {
-        if (aufloesung.equals(AUFLOESUNG_KLEIN)) {
-            return getUrlFlvstreamerKlein();
+        final String ret;
+        switch (aufloesung) {
+            case AUFLOESUNG_KLEIN:
+                ret = getUrlFlvstreamerKlein();
+                break;
+
+            case AUFLOESUNG_HD:
+                ret = getUrlFlvstreamerHd();
+                break;
+
+            default:
+                ret = getUrlFlvstreamer();
+                break;
         }
-        if (aufloesung.equals(AUFLOESUNG_HD)) {
-            return getUrlFlvstreamerHd();
-        }
-        return getUrlFlvstreamer();
+
+        return ret;
     }
 
     public String getDateigroesse(String url) {
@@ -319,15 +337,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         // liefert einen eindeutigen Index für die Filmliste
         // URL beim KiKa und ORF ändern sich laufend!
         return (arr[FILM_SENDER] + arr[FILM_THEMA]).toLowerCase() + getUrl();
-    }
-
-    public String getIndexAddOld() {
-        // liefert einen eindeutigen Index zum Anhängen einer alten Liste
-        return arr[FILM_SENDER] + repl(arr[FILM_THEMA]) + repl(arr[FILM_TITEL]);
-    }
-
-    private String repl(String s) {
-        return s.replace("-", "").replace("_", "").replace(".", "").replace(" ", "").replace(",", "").toLowerCase();
     }
 
     public String getUrl() {

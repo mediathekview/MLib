@@ -22,9 +22,6 @@ package mSearch.filmeSuchen;
 import java.util.EventListener;
 
 public class ListenerFilmeLaden implements EventListener {
-
-    ListenerFilmeLadenEvent event;
-
     public void start(ListenerFilmeLadenEvent e) {
     }
 

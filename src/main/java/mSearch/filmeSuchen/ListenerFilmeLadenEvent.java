@@ -21,12 +21,12 @@ package mSearch.filmeSuchen;
 
 public class ListenerFilmeLadenEvent {
 
-    public String senderUrl = "";
-    public String text = "";
-    public int max = 0;
-    public int progress = 0;
-    public boolean fehler = false;
-    public int count = 0;
+    public String senderUrl;
+    public String text;
+    public int max;
+    public int progress;
+    public boolean fehler;
+    public int count;
 
     public ListenerFilmeLadenEvent(String ssender, String ttext, int mmax, int pprogress, int ccount, boolean ffehler) {
         senderUrl = ssender;
