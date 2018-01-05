@@ -23,58 +23,23 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.jidesoft.utils.SystemInfo;
-import mSearch.Const;
 import mSearch.daten.DatenFilm;
 import mSearch.daten.ListeFilme;
-import mSearch.tool.Functions;
 import mSearch.tool.Log;
-import org.tukaani.xz.LZMA2Options;
-import org.tukaani.xz.XZOutputStream;
 
-import java.io.*;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 public class WriteFilmlistJson {
 
     protected JsonGenerator getJsonGenerator(OutputStream os) throws IOException {
         JsonFactory jsonF = new JsonFactory();
         return jsonF.createGenerator(os, JsonEncoding.UTF8);
-    }
-
-    /**
-     * Write film data and compress with LZMA2.
-     *
-     * @param datei      file path
-     * @param listeFilme film data
-     */
-    public void filmlisteSchreibenJsonCompressed(String datei, ListeFilme listeFilme) {
-        final String tempFile = datei + "_temp";
-        filmlisteSchreibenJson(tempFile, listeFilme);
-
-        try {
-            Log.sysLog("Komprimiere Datei: " + datei);
-            if (datei.endsWith(Const.FORMAT_XZ)) {
-                final Path xz = testNativeXz();
-                if (xz != null) {
-                    Process p = new ProcessBuilder(xz.toString(), "-9", tempFile).start();
-                    final int exitCode = p.waitFor();
-                    if (exitCode == 0) {
-                        Files.move(Paths.get(tempFile + ".xz"), Paths.get(datei), StandardCopyOption.REPLACE_EXISTING);
-                    }
-                } else
-                    compressFile(tempFile, datei);
-            }
-
-            Files.deleteIfExists(Paths.get(tempFile));
-        } catch (IOException | InterruptedException ex) {
-            Log.sysLog("Komprimieren fehlgeschlagen");
-        }
     }
 
     private void checkOsxCacheDirectory() {
@@ -153,22 +118,7 @@ public class WriteFilmlistJson {
         }
     }
 
-    private Path testNativeXz() {
-        final String[] paths = {"/usr/bin/xz", "/opt/local/bin/xz", "/usr/local/bin/xz"};
-
-        Path xz = null;
-
-        for (String path : paths) {
-            xz = Paths.get(path);
-            if (Files.isExecutable(xz)) {
-                break;
-            }
-        }
-
-        return xz;
-    }
-
-    private void compressFile(String inputName, String outputName) {
+    /*private void compressFile(String inputName, String outputName) {
         try (InputStream input = new FileInputStream(inputName);
              FileOutputStream fos = new FileOutputStream(outputName);
              final OutputStream output = new XZOutputStream(fos, new LZMA2Options());
@@ -179,5 +129,5 @@ public class WriteFilmlistJson {
         } catch (IOException ex) {
             Log.errorLog(987654321, ex);
         }
-    }
+    }*/
 }

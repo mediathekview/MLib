@@ -24,21 +24,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Config {
 
     public static int bandbreite = 0; // maxBandbreite in Byte
-    private static String userAgent = null;
     public static boolean debug = false; // Debugmodus
     private static final AtomicBoolean stop = new AtomicBoolean(false); // damit kannn das Laden gestoppt werden
 
-    public static void setUserAgent(String ua) {
-        // Useragent den der Benutzer vorgegeben hat
-        userAgent = ua;
-    }
-
     public static String getUserAgent() {
-        if (userAgent == null) {
-            return Const.USER_AGENT_DEFAULT;
-        } else {
-            return userAgent;
-        }
+        return Const.USER_AGENT_DEFAULT;
     }
 
     /**

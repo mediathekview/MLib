@@ -30,7 +30,6 @@ import java.util.SimpleTimeZone;
 public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
 
     public static final String SERVER_ART_AKT = "akt";
-    //public static final String SERVER_ART_OLD = "old";
     public static final String SERVER_ART_DIFF = "diff";
 
     public static final String FILM_UPDATE_SERVER_PRIO_1 = "1";
@@ -51,18 +50,17 @@ public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
     public static final String[] FILM_UPDATE_SERVER_COLUMN_NAMES = {FILM_UPDATE_SERVER_NR, FILM_UPDATE_SERVER_URL,
         FILM_UPDATE_SERVER_DATUM, FILM_UPDATE_SERVER_ZEIT, FILM_UPDATE_SERVER_PRIO, FILM_UPDATE_SERVER_ART};
 
-    public static final String[] FILM_UPDATE_SERVER_COLUMN_NAMES_ANZEIGE = {"Nr", "Update-Url", "Datum", "Zeit", "Prio", "Art"};
-
     public String[] arr;
+    private final SimpleTimeZone SIMPLE_TIME_ZONE = new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC");
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     public DatenFilmlisteUrl() {
-        sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+        sdf.setTimeZone(SIMPLE_TIME_ZONE);
         makeArr();
     }
 
     public DatenFilmlisteUrl(String url, String prio, String art) {
-        sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+        sdf.setTimeZone(SIMPLE_TIME_ZONE);
         makeArr();
         arr[FILM_UPDATE_SERVER_URL_NR] = url;
         arr[FILM_UPDATE_SERVER_PRIO_NR] = prio;
@@ -72,7 +70,7 @@ public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
     }
 
     public DatenFilmlisteUrl(String url, String art) {
-        sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+        sdf.setTimeZone(SIMPLE_TIME_ZONE);
         makeArr();
         arr[FILM_UPDATE_SERVER_URL_NR] = url;
         arr[FILM_UPDATE_SERVER_PRIO_NR] = DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_1;
@@ -88,30 +86,6 @@ public class DatenFilmlisteUrl implements Comparable<DatenFilmlisteUrl> {
             d = sdf.parse(date);
         } catch (Exception ex) {
             d = new Date();
-        }
-        return d;
-    }
-
-    public String getDateStr() {
-        SimpleDateFormat sdf_ = new SimpleDateFormat("dd.MM.yyyy");
-        sdf_.setTimeZone(SimpleTimeZone.getDefault());
-        String d;
-        try {
-            d = sdf_.format(getDate());
-        } catch (Exception ex) {
-            d = sdf_.format(new Date());
-        }
-        return d;
-    }
-
-    public String getTimeStr() {
-        SimpleDateFormat sdf_ = new SimpleDateFormat("HH:mm:ss");
-        sdf_.setTimeZone(SimpleTimeZone.getDefault());
-        String d;
-        try {
-            d = sdf_.format(getDate());
-        } catch (Exception ex) {
-            d = sdf_.format(new Date());
         }
         return d;
     }

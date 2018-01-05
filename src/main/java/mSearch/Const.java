@@ -24,21 +24,21 @@ import mSearch.tool.Functions;
 public class Const {
 
     @Deprecated public static final String VERSION = "13";
-    public static final String VERSION_FILMLISTE = "3";
+    //public static final String VERSION_FILMLISTE = "3";
     public static final String PROGRAMMNAME = "MSearch";
     public static final String USER_AGENT_DEFAULT = Const.PROGRAMMNAME + Functions.getProgVersionString();
     // MediathekView URLs
     public static final String ADRESSE_FILMLISTEN_SERVER_DIFF = "http://res.mediathekview.de/diff.xml";
     public static final String ADRESSE_FILMLISTEN_SERVER_AKT = "http://res.mediathekview.de/akt.xml";
     // Dateien/Verzeichnisse
-    public static final int STRING_BUFFER_START_BUFFER = 8 * 1024 * 8; // 8 KiB
+    //public static final int STRING_BUFFER_START_BUFFER = 8 * 1024 * 8; // 8 KiB
     public static final String FORMAT_ZIP = ".zip";
     public static final String FORMAT_XZ = ".xz";
     public static final String RTMP_PRTOKOLL = "rtmp";
     public static final String RTMP_FLVSTREAMER = "-r ";
     public static final int ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE = 3 * 60 * 60; // beim Start des Programms wir die Liste geladen wenn sie älter ist als ..
     public static final String TIME_MAX_AGE_FOR_DIFF = "09"; // Uhrzeit ab der die Diffliste alle Änderungen abdeckt, die Filmliste darf also nicht vor xx erstellt worden sein
-    public static final int MAX_BESCHREIBUNG = 400; // max länge der Beschreibung in Zeichen -> mehr gibts aber jetzt nicht mehr!
+    //public static final int MAX_BESCHREIBUNG = 400; // max länge der Beschreibung in Zeichen -> mehr gibts aber jetzt nicht mehr!
 
     public static final String DREISAT = "3Sat";
     public static final String ARD = "ARD";

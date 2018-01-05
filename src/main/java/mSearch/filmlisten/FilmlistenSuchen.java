@@ -123,7 +123,7 @@ public class FilmlistenSuchen {
     public void updateURLsFilmlisten(final boolean updateFullList) {
         ListeFilmlistenUrls tmp = new ListeFilmlistenUrls();
         if (updateFullList) {
-            getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_AKT, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_AKT);
+            getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_AKT, tmp, DatenFilmlisteUrl.SERVER_ART_AKT);
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_akt = tmp;
             } else if (listeFilmlistenUrls_akt.isEmpty()) {
@@ -131,7 +131,7 @@ public class FilmlistenSuchen {
             }
             listeFilmlistenUrls_akt.sort();
         } else {
-            getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, Config.getUserAgent(), DatenFilmlisteUrl.SERVER_ART_DIFF);
+            getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, DatenFilmlisteUrl.SERVER_ART_DIFF);
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_diff = tmp;
             } else if (listeFilmlistenUrls_diff.isEmpty()) {
@@ -146,8 +146,9 @@ public class FilmlistenSuchen {
         }
     }
 
-    public void getDownloadUrlsFilmlisten(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String userAgent, String art) {
+    private void getDownloadUrlsFilmlisten(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
         //String[] ret = new String[]{""/* version */, ""/* release */, ""/* updateUrl */};
+        final String userAgent = Config.getUserAgent();
         InputStreamReader inReader = null;
         InputStream is = null;
         try {
@@ -206,9 +207,6 @@ public class FilmlistenSuchen {
 
     /**
      * Parse the server XML file.
-     * @param parser
-     * @param listeFilmlistenUrls
-     * @param art
      */
     private void parseServerEntry(XMLStreamReader parser, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
         String serverUrl = "";
@@ -232,7 +230,6 @@ public class FilmlistenSuchen {
                     //parsername = parser.getLocalName();
                     if (parser.getLocalName().equals("Server")) {
                         if (!serverUrl.equals("")) {
-                            //public DatenFilmUpdate(String url, String prio, String zeit, String datum, String anzahl) {
                             if (prio.equals("")) {
                                 prio = DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_1;
                             }

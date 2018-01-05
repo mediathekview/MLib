@@ -19,57 +19,33 @@
  */
 package mSearch.filmlisten;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Random;
 
 @SuppressWarnings("serial")
-public class ListeFilmlistenUrls extends LinkedList<DatenFilmlisteUrl> {
+public class ListeFilmlistenUrls extends ArrayList<DatenFilmlisteUrl> {
     // ist die Liste mit den URLs zum Download einer Filmliste
-    public boolean addWithCheck(DatenFilmlisteUrl filmliste) {
+    public void addWithCheck(DatenFilmlisteUrl filmliste) {
         for (DatenFilmlisteUrl datenUrlFilmliste : this) {
             if (datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR].equals(filmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR])) {
-                return false;
+                return;
             }
         }
-        return add(filmliste);
+        add(filmliste);
     }
 
     public void sort() {
         int nr = 0;
         Collections.sort(this);
         for (DatenFilmlisteUrl datenUrlFilmliste : this) {
-            String str = String.valueOf(nr++);
+            StringBuilder str = new StringBuilder(String.valueOf(nr++));
             while (str.length() < 3) {
-                str = "0" + str;
+                str.insert(0, '0');
             }
-            datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_NR_NR] = str;
+            datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_NR_NR] = str.toString();
         }
-    }
-
-    public String[][] getTableObjectData() {
-        DatenFilmlisteUrl filmUpdate;
-        String[][] object;
-        Iterator<DatenFilmlisteUrl> iterator = this.iterator();
-        object = new String[this.size()][DatenFilmlisteUrl.FILM_UPDATE_SERVER_MAX_ELEM];
-        int i = 0;
-        while (iterator.hasNext()) {
-            filmUpdate = iterator.next();
-            System.arraycopy(filmUpdate.arr, 0, object[i], 0, DatenFilmlisteUrl.FILM_UPDATE_SERVER_MAX_ELEM);
-            object[i][DatenFilmlisteUrl.FILM_UPDATE_SERVER_DATUM_NR] = filmUpdate.getDateStr(); // lokale Zeit anzeigen
-            object[i][DatenFilmlisteUrl.FILM_UPDATE_SERVER_ZEIT_NR] = filmUpdate.getTimeStr(); // lokale Zeit anzeigen
-            ++i;
-        }
-        return object;
-    }
-
-    public DatenFilmlisteUrl getDatenUrlFilmliste(String url) {
-        DatenFilmlisteUrl update;
-        for (DatenFilmlisteUrl datenUrlFilmliste : this) {
-            update = datenUrlFilmliste;
-            if (update.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR].equals(url)) {
-                return update;
-            }
-        }
-        return null;
     }
 
     public String getRand(ArrayList<String> bereitsGebraucht) {
@@ -109,73 +85,4 @@ public class ListeFilmlistenUrls extends LinkedList<DatenFilmlisteUrl> {
         }
         return datenFilmlisteUrl.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR];
     }
-
-//    public String getRand(ArrayList<String> bereitsGebraucht, int errcount) {
-//        final int MAXMINUTEN = 50;
-//        int minCount = 3;
-//        if (errcount > 0) {
-//            minCount = 3 + 2 * errcount;
-//        }
-//        String ret = "";
-//        if (!this.isEmpty()) {
-//            DatenFilmlisteUrl datenUrlFilmliste;
-//            LinkedList<DatenFilmlisteUrl> listeZeit = new LinkedList<>();
-//            LinkedList<DatenFilmlisteUrl> listePrio = new LinkedList<>();
-//            //aktuellsten auswählen
-//            Iterator<DatenFilmlisteUrl> it = this.iterator();
-//            Date today = new Date(System.currentTimeMillis());
-//            Date d;
-//            int minuten = 200;
-//            int count = 0;
-//            while (it.hasNext()) {
-//                datenUrlFilmliste = it.next();
-//                if (bereitsGebraucht != null) {
-//                    if (bereitsGebraucht.contains(datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR])) {
-//                        // wurde schon versucht
-//                        continue;
-//                    }
-//                }
-//                try {
-//                    d = datenUrlFilmliste.getDate();
-//                    // debug
-//                    //SimpleDateFormat sdf_datum_zeit = new SimpleDateFormat("dd.MM.yyyy  HH:mm:ss");
-//                    //String s = sdf_datum_zeit.format(d);
-//                    long m = today.getTime() - d.getTime();
-//                    if (m < 0) {
-//                        m = 0;
-//                    }
-//                    minuten = Math.round(m / (1000 * 60));
-//                } catch (Exception ignored) {
-//                }
-//                if (minuten < MAXMINUTEN) {
-//                    listeZeit.add(datenUrlFilmliste);
-//                    ++count;
-//                } else if (count < minCount) {
-//                    listeZeit.add(datenUrlFilmliste);
-//                    ++count;
-//                }
-//            }
-//            //nach prio gewichten
-//            it = listeZeit.iterator();
-//            while (it.hasNext()) {
-//                datenUrlFilmliste = it.next();
-//                if (datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_NR].equals(DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_1)) {
-//                    listePrio.add(datenUrlFilmliste);
-//                } else {
-//                    listePrio.add(datenUrlFilmliste);
-//                    listePrio.add(datenUrlFilmliste);
-//                }
-//            }
-//            if (listePrio.size() > 0) {
-//                int nr = new Random().nextInt(listePrio.size());
-//                datenUrlFilmliste = listePrio.get(nr);
-//            } else {
-//                // dann wird irgendeine Versucht
-//                int nr = new Random().nextInt(this.size());
-//                datenUrlFilmliste = this.get(nr);
-//            }
-//            ret = datenUrlFilmliste.arr[DatenFilmlisteUrl.FILM_UPDATE_SERVER_URL_NR];
-//        }
-//        return ret;
-//    }
 }
