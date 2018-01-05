@@ -28,9 +28,9 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -146,62 +146,82 @@ public class FilmlistenSuchen {
         }
     }
 
-    private void getDownloadUrlsFilmlisten(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
-        //String[] ret = new String[]{""/* version */, ""/* release */, ""/* updateUrl */};
-        final String userAgent = Config.getUserAgent();
-        InputStreamReader inReader = null;
-        InputStream is = null;
-        try {
-            int event;
-            XMLInputFactory inFactory = XMLInputFactory.newInstance();
-            inFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
-            XMLStreamReader parser;
-            if (Functions.istUrl(dateiUrl)) {
-                //FIXME replace with okhttp
-                // eine URL verarbeiten
-                int timeout = 20000; //ms
-                URLConnection conn;
-                conn = new URL(dateiUrl).openConnection();
-                conn.setRequestProperty("User-Agent", userAgent);
-                conn.setReadTimeout(timeout);
-                conn.setConnectTimeout(timeout);
-                is = conn.getInputStream();
-                inReader = new InputStreamReader(is, StandardCharsets.UTF_8);
-            } else {
-                // eine Datei verarbeiten
-                final Path filePath = Paths.get(dateiUrl);
-                if (!Files.exists(filePath))
-                    return;
+    /**
+     * Read server urls from file.
+     */
+    private void readFile(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
+        final Path filePath = Paths.get(dateiUrl);
+        if (!Files.exists(filePath))
+            return;
 
-                is = Files.newInputStream(filePath);
-                inReader = new InputStreamReader(is, StandardCharsets.UTF_8);
-            }
+        XMLInputFactory inFactory = XMLInputFactory.newInstance();
+        inFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+
+        XMLStreamReader parser = null;
+        try (InputStream is = Files.newInputStream(filePath);
+             InputStreamReader inReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
             parser = inFactory.createXMLStreamReader(inReader);
-            while (parser.hasNext()) {
-                event = parser.next();
-                if (event == XMLStreamConstants.START_ELEMENT) {
-                    String parsername = parser.getLocalName();
-                    if (parsername.equals("Server")) {
-                        //wieder ein neuer Server, toll
-                        parseServerEntry(parser, listeFilmlistenUrls, art);
-                    }
+            parseData(parser, listeFilmlistenUrls, art);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            if (parser != null) {
+                try {
+                    parser.close();
+                } catch (XMLStreamException ignored) {
+                }
+            }
+        }
+    }
+
+    private void parseData(XMLStreamReader parser, ListeFilmlistenUrls listeFilmlistenUrls, String art) throws XMLStreamException {
+        while (parser.hasNext()) {
+            final int event = parser.next();
+            if (event == XMLStreamConstants.START_ELEMENT) {
+                String parsername = parser.getLocalName();
+                if (parsername.equals("Server")) {
+                    parseServerEntry(parser, listeFilmlistenUrls, art);
+                }
+            }
+        }
+    }
+
+    /**
+     * Read server urls from web location.
+     */
+    private void readWebLocation(URL dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
+        XMLInputFactory inFactory = XMLInputFactory.newInstance();
+        inFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+        XMLStreamReader parser = null;
+        //FIXME replace with okhttp
+        try {
+            URLConnection conn = dateiUrl.openConnection();
+            conn.setRequestProperty("User-Agent", Config.getUserAgent());
+            conn.setReadTimeout(20_000);
+            conn.setConnectTimeout(20_000);
+            try (InputStream is = conn.getInputStream();
+                 InputStreamReader inReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+                parser = inFactory.createXMLStreamReader(inReader);
+                parseData(parser, listeFilmlistenUrls, art);
+            } finally {
+                if (parser != null) {
+                    parser.close();
                 }
             }
         } catch (Exception ex) {
             Log.errorLog(821069874, ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
-        } finally {
-            if (inReader != null) {
-                try {
-                    inReader.close();
-                } catch (IOException ignored) {
-                }
-            }
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException ignored) {
-                }
-            }
+        }
+    }
+
+    private void getDownloadUrlsFilmlisten(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
+        //String[] ret = new String[]{""/* version */, ""/* release */, ""/* updateUrl */};
+        try {
+            if (Functions.istUrl(dateiUrl))
+                readWebLocation(new URL(dateiUrl), listeFilmlistenUrls, art);
+            else
+                readFile(dateiUrl, listeFilmlistenUrls, art);
+        } catch (MalformedURLException ex) {
+            Log.sysLog("Fehlerhafte Update-Server-URL gelesen: " + dateiUrl);
         }
     }
 
@@ -211,12 +231,10 @@ public class FilmlistenSuchen {
     private void parseServerEntry(XMLStreamReader parser, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
         String serverUrl = "";
         String prio = "";
-        int event;
         try {
             while (parser.hasNext()) {
-                event = parser.next();
+                final int event = parser.next();
                 if (event == XMLStreamConstants.START_ELEMENT) {
-                    //parsername = parser.getLocalName();
                     switch (parser.getLocalName()) {
                         case "URL":
                             serverUrl = parser.getElementText();
@@ -227,10 +245,9 @@ public class FilmlistenSuchen {
                     }
                 }
                 if (event == XMLStreamConstants.END_ELEMENT) {
-                    //parsername = parser.getLocalName();
                     if (parser.getLocalName().equals("Server")) {
-                        if (!serverUrl.equals("")) {
-                            if (prio.equals("")) {
+                        if (!serverUrl.isEmpty()) {
+                            if (prio.isEmpty()) {
                                 prio = DatenFilmlisteUrl.FILM_UPDATE_SERVER_PRIO_1;
                             }
                             listeFilmlistenUrls.addWithCheck(new DatenFilmlisteUrl(serverUrl, prio, art));
