@@ -21,8 +21,6 @@ package mSearch.tool;
 
 import com.jidesoft.utils.SystemInfo;
 import mSearch.Const;
-import mSearch.daten.DatenFilm;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -198,44 +196,6 @@ public class Functions {
         }
         return new Version("").toString();
     }
-
-    private static void unescapeThema(DatenFilm film) {
-        // Thema
-        film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_THEMA]);
-        film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_THEMA]);
-        film.arr[DatenFilm.FILM_THEMA] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_THEMA]);
-    }
-
-    private static void unescapeTitel(DatenFilm film) {
-        // Titel
-        film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_TITEL]);
-        film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_TITEL]);
-        film.arr[DatenFilm.FILM_TITEL] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_TITEL]);
-    }
-
-    private static void unescapeDescription(DatenFilm film) {
-        // Beschreibung
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeXml(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeHtml4(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = StringEscapeUtils.unescapeJava(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = removeHtml(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-    }
-
-    private static void replaceText(DatenFilm film) {
-        film.arr[DatenFilm.FILM_THEMA] = film.arr[DatenFilm.FILM_THEMA].replace("\\", "/").trim();
-        film.arr[DatenFilm.FILM_TITEL] = film.arr[DatenFilm.FILM_TITEL].replace("\\", "/").trim();
-        film.arr[DatenFilm.FILM_BESCHREIBUNG] = film.arr[DatenFilm.FILM_BESCHREIBUNG].replace("\\", "/").trim();
-    }
-
-    public static void unescape(DatenFilm film) {
-        unescapeThema(film);
-        unescapeTitel(film);
-        unescapeDescription(film);
-
-        replaceText(film);
-    }
-
-
 
     public static boolean istUrl(String dateiUrl) {
         return dateiUrl.startsWith("http") || dateiUrl.startsWith("www");

@@ -22,7 +22,6 @@ package mSearch.daten;
 import mSearch.Const;
 import mSearch.tool.Duration;
 import mSearch.tool.FileSize;
-import mSearch.tool.Functions;
 import mSearch.tool.Log;
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -39,9 +38,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public static final String FILMLISTE_DATUM_GMT = "Filmliste-Datum-GMT";
     public static final int FILMLISTE_DATUM_GMT_NR = 1;
     public static final String FILMLISTE_VERSION = "Filmliste-Version";
-    //public static final int FILMLISTE_VERSION_NR = 2;
     public static final String FILMLISTE_PROGRAMM = "Filmliste-Programm";
-    //public static final int FILMLISTE_PRGRAMM_NR = 3;
     public static final String FILMLISTE_ID = "Filmliste-Id";
     public static final int FILMLISTE_ID_NR = 4;
     public static final int MAX_ELEM = 5;
@@ -139,36 +136,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         super.clear();
     }
 
-    public synchronized void check() {
-        // zum Debuggen
-        for (DatenFilm film : this) {
-            String s = film.arr[DatenFilm.FILM_BESCHREIBUNG];
-            film.arr[DatenFilm.FILM_BESCHREIBUNG] = Functions.removeHtml(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-            if (!s.equals(film.arr[DatenFilm.FILM_BESCHREIBUNG])) {
-                System.out.println("---------------------");
-                System.out.println(s);
-                System.out.println(film.arr[DatenFilm.FILM_BESCHREIBUNG]);
-            }
-            s = film.arr[DatenFilm.FILM_THEMA];
-            film.arr[DatenFilm.FILM_THEMA] = Functions.removeHtml(film.arr[DatenFilm.FILM_THEMA]);
-            if (!s.equals(film.arr[DatenFilm.FILM_THEMA])) {
-                System.out.println("---------------------");
-                System.out.println(s);
-                System.out.println(film.arr[DatenFilm.FILM_THEMA]);
-            }
-            s = film.arr[DatenFilm.FILM_TITEL];
-            film.arr[DatenFilm.FILM_TITEL] = Functions.removeHtml(film.arr[DatenFilm.FILM_TITEL]);
-            if (!s.equals(film.arr[DatenFilm.FILM_TITEL])) {
-                System.out.println("---------------------");
-                System.out.println(s);
-                System.out.println(film.arr[DatenFilm.FILM_TITEL]);
-            }
-            if (film.arr[DatenFilm.FILM_URL].contains(" ")) {
-                System.out.println(film.arr[DatenFilm.FILM_URL]);
-            }
-        }
-    }
-
     public synchronized void sort() {
         Collections.sort(this);
         // und jetzt noch die Nummerierung in Ordnung bringen
@@ -205,16 +172,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
         return res;
     }
-
-    /**
-     * Delete all films from specified sender.
-     *
-     * @param sender Sender which films are to be deleted.
-     */
-    public synchronized void deleteAllFilms(String sender) {
-        removeIf(film -> film.arr[DatenFilm.FILM_SENDER].equalsIgnoreCase(sender));
-    }
-
 
     public synchronized DatenFilm getFilmByUrl(final String url) {
         Optional<DatenFilm> opt = this.parallelStream().filter(f -> f.arr[DatenFilm.FILM_URL].equalsIgnoreCase(url)).findAny();

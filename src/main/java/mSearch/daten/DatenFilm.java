@@ -212,7 +212,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static final String[] COLUMN_NAMES = {"Nr", "Sender", "Thema", "Titel",
             "", "", "Datum", "Zeit", "Dauer", "Größe [MB]", "HD", "UT",
             "Beschreibung", "Geo", "Url", "Website", "Abo",
-            "Url Untertitel", "Url RTMP", "Url Auth", "Url Klein", "Url RTMP Klein", "Url HD", "Url RTMP HD", "Url History", "neu",
+            "URL Untertitel", "URL RTMP", "URL Auth", "URL Klein",
+            "URL RTMP Klein", "URL HD", "URL RTMP HD", "URL History", "Neu",
             "DatumL", "Ref"};
     // neue Felder werden HINTEN angefügt!!!!!
     public static final int[] JSON_NAMES = {FILM_SENDER,
