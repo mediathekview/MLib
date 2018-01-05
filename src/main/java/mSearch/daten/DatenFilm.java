@@ -30,22 +30,31 @@ import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DatenFilm implements Comparable<DatenFilm> {
-    /**
-     * The database instance for all descriptions.
-     */
-    private final static AtomicInteger FILM_COUNTER = new AtomicInteger(0);
+    public static class Database {
+        static {
+            //FIXME refactor directory location function from Daten...refactor Konstanten.VERZEICHNIS...
+            final String CACHE_PATH = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar + "cache.db";
+            try {
+                DATABASE_HANDLE = DriverManager.getConnection("jdbc:sqlite:" + CACHE_PATH);
+            } catch (SQLException ignored) {
+                DATABASE_HANDLE = null;
+            }
+        }
 
-    public static Connection DATABASE_HANDLE = null;
-    private static PreparedStatement DESCRIPTION_INSERT_STATEMENT;
-    private static PreparedStatement DESCRIPTION_QUERY_STATEMENT;
+        private static Connection DATABASE_HANDLE;
+        private static PreparedStatement DESCRIPTION_INSERT_STATEMENT;
+        private static PreparedStatement DESCRIPTION_QUERY_STATEMENT;
 
-    static {
-        try {
-            //FIXME refactor directory location function from Daten...
-            //FIXME refactor Konstanten.VERZEICHNIS...
-            final String cachePath = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar + "cache.db";
-            DATABASE_HANDLE = DriverManager.getConnection("jdbc:sqlite:" + cachePath);
-            try (Statement statement = DATABASE_HANDLE.createStatement()) {
+        public static void commitAllChanges() {
+            try {
+                DATABASE_HANDLE.commit();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private static void initializeDatabase() throws SQLException {
+            try (Statement statement = Database.DATABASE_HANDLE.createStatement()) {
                 statement.setQueryTimeout(30);  // set timeout to 30 sec.
                 statement.executeUpdate("PRAGMA journal_mode=TRUNCATE");
                 statement.executeUpdate("PRAGMA synchronous=OFF");
@@ -55,14 +64,27 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 statement.executeUpdate("CREATE TABLE IF NOT EXISTS description (id INTEGER NOT NULL PRIMARY KEY, desc STRING)");
 
             }
+        }
 
-            DESCRIPTION_INSERT_STATEMENT = DATABASE_HANDLE.prepareStatement("INSERT INTO description VALUES (?,?)");
-            DESCRIPTION_QUERY_STATEMENT = DATABASE_HANDLE.prepareStatement("SELECT desc FROM description WHERE id = ?");
+        private static void createPreparedStatements() throws SQLException {
+            Database.DESCRIPTION_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("INSERT INTO description VALUES (?,?)");
+            Database.DESCRIPTION_QUERY_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("SELECT desc FROM description WHERE id = ?");
+        }
+    }
 
-            DATABASE_HANDLE.setAutoCommit(false);
+    /**
+     * The database instance for all descriptions.
+     */
+    private final static AtomicInteger FILM_COUNTER = new AtomicInteger(0);
+
+    static {
+        try {
+            Database.initializeDatabase();
+            Database.createPreparedStatements();
+
+            Database.DATABASE_HANDLE.setAutoCommit(false);
         } catch (SQLException ex) {
             ex.printStackTrace();
-            System.exit(1);
         }
     }
 
@@ -74,8 +96,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public String getDescription() {
         String sqlStr;
         try {
-            DESCRIPTION_QUERY_STATEMENT.setInt(1, filmNr);
-            try (ResultSet rs = DESCRIPTION_QUERY_STATEMENT.executeQuery()) {
+            Database.DESCRIPTION_QUERY_STATEMENT.setInt(1, filmNr);
+            try (ResultSet rs = Database.DESCRIPTION_QUERY_STATEMENT.executeQuery()) {
                 if (rs.next()) {
                     sqlStr = rs.getString(1);
                 } else
@@ -100,9 +122,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
                 cleanedDesc = cleanedDesc.replace("\n", "<br />");
 
-                DESCRIPTION_INSERT_STATEMENT.setInt(1, filmNr);
-                DESCRIPTION_INSERT_STATEMENT.setString(2, cleanedDesc);
-                DESCRIPTION_INSERT_STATEMENT.executeUpdate();
+                Database.DESCRIPTION_INSERT_STATEMENT.setInt(1, filmNr);
+                Database.DESCRIPTION_INSERT_STATEMENT.setString(2, cleanedDesc);
+                Database.DESCRIPTION_INSERT_STATEMENT.executeUpdate();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }

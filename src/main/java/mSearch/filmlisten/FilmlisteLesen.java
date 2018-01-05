@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -203,11 +202,7 @@ public class FilmlisteLesen {
         }
 
         //finally commit all data to database cache...
-        try {
-            DatenFilm.DATABASE_HANDLE.commit();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        DatenFilm.Database.commitAllChanges();
     }
 
     /**
