@@ -71,7 +71,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
 
         private static void createPreparedStatements() throws SQLException {
-            Database.DESCRIPTION_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("INSERT INTO description VALUES (?,?)");
+            Database.DESCRIPTION_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("REPLACE INTO description VALUES (?,?)");
             Database.DESCRIPTION_QUERY_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("SELECT desc FROM description WHERE id = ?");
 
             Database.WEBSITE_LINK_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("INSERT INTO website_links VALUES (?,?)");
