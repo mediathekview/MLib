@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -149,13 +150,17 @@ public class FilmlisteLesen {
 
                     if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_NEU) {
                         final String value = jp.nextTextValue();
-                        //This value is unused...
-                        //datenFilm.arr[DatenFilm.FILM_NEU_NR] = value;
                         datenFilm.setNew(Boolean.parseBoolean(value));
-                    } else if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_BESCHREIBUNG) {
+
+                        datenFilm.arr[DatenFilm.FILM_NEU] = null;
+                    } /*else if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_WEBSEITE) {
+                        datenFilm.arr[DatenFilm.FILM_WEBSEITE] = "DEADBEEF";
+                    } */ else if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_BESCHREIBUNG) {
                         final String value = jp.nextTextValue();
                         if (value != null && !value.isEmpty())
                             datenFilm.setDescription(value);
+
+                        datenFilm.arr[DatenFilm.FILM_BESCHREIBUNG] = null;
                     } else {
                         datenFilm.arr[DatenFilm.JSON_NAMES[i]] = jp.nextTextValue();
                     }
@@ -163,7 +168,15 @@ public class FilmlisteLesen {
                     /// für die Entwicklungszeit
                     //FIXME Removal causes crashes
                     if (datenFilm.arr[DatenFilm.JSON_NAMES[i]] == null) {
-                        datenFilm.arr[DatenFilm.JSON_NAMES[i]] = "";
+                        switch (DatenFilm.JSON_NAMES[i]) {
+                            case DatenFilm.FILM_NEU:
+                            case DatenFilm.FILM_BESCHREIBUNG:
+                                //don´t change null value
+                                break;
+                            default:
+                                datenFilm.arr[DatenFilm.JSON_NAMES[i]] = "";
+                                break;
+                        }
                     }
                 }
                 if (datenFilm.arr[DatenFilm.FILM_SENDER].isEmpty()) {
@@ -187,6 +200,13 @@ public class FilmlisteLesen {
                     }
                 }
             }
+        }
+
+        //finally commit all data to database cache...
+        try {
+            DatenFilm.DATABASE_HANDLE.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

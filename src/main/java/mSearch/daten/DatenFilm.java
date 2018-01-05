@@ -19,70 +19,51 @@
  */
 package mSearch.daten;
 
-import com.jidesoft.utils.SystemInfo;
 import mSearch.Const;
 import mSearch.tool.*;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.jetbrains.annotations.NotNull;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
 
 import java.io.File;
+import java.sql.*;
 import java.util.Date;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DatenFilm implements Comparable<DatenFilm> {
     /**
      * The database instance for all descriptions.
      */
-    private final static ConcurrentMap<Integer, String> DESCRIPTION_DATABASE;
     private final static AtomicInteger FILM_COUNTER = new AtomicInteger(0);
-    //private final static AtomicInteger WEBSITE_COUNTER = new AtomicInteger(0);
-    //private final static ConcurrentMap<Integer, URL> map;
-    /**
-     * Handle to the MAPDB database instance we are using here.
-     */
-    private final static DB DATABASE_HANDLE;
+
+    public static Connection DATABASE_HANDLE = null;
+    private static PreparedStatement DESCRIPTION_INSERT_STATEMENT;
+    private static PreparedStatement DESCRIPTION_QUERY_STATEMENT;
 
     static {
-        //FIXME refactor directory location function from Daten...
-        //FIXME refactor Konstanten.VERZEICHNIS...
-        final String cachePath = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar + "cache.db";
-        if (SystemInfo.isUnix() || SystemInfo.isMacOSX()) {
-            //enable memory-mapped file support for performance increase
-            DATABASE_HANDLE = DBMaker.fileDB(cachePath)
-                    .fileMmapEnableIfSupported()
-                    .fileMmapPreclearDisable()
-                    .executorEnable()
-                    .cleanerHackEnable()
-                    .closeOnJvmShutdown()
-                    .fileDeleteAfterClose()
-                    .make();
-        } else {
-            //there is a bug with windows which results in really slow insert performance
-            //revert to externally stored direct memory cache
-            DATABASE_HANDLE = DBMaker.memoryDirectDB()
-                    .cleanerHackEnable()
-                    .executorEnable()
-                    .make();
-        }
-
-        DESCRIPTION_DATABASE = DATABASE_HANDLE.hashMap("description_database", Serializer.INTEGER, Serializer.STRING).createOrOpen();
-        DESCRIPTION_DATABASE.clear();
-
-        /*map = DATABASE_HANDLE.hashMap("website_links", Serializer.INTEGER, Serializer.JAVA).createOrOpen();
         try {
-            map.put(WEBSITE_COUNTER.getAndIncrement(), new URL("http://www.heise.de"));
-            map.put(WEBSITE_COUNTER.getAndIncrement(), new URL("http://www.spiegel.de"));
+            //FIXME refactor directory location function from Daten...
+            //FIXME refactor Konstanten.VERZEICHNIS...
+            final String cachePath = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar + "cache.db";
+            DATABASE_HANDLE = DriverManager.getConnection("jdbc:sqlite:" + cachePath);
+            try (Statement statement = DATABASE_HANDLE.createStatement()) {
+                statement.setQueryTimeout(30);  // set timeout to 30 sec.
+                statement.executeUpdate("PRAGMA journal_mode=TRUNCATE");
+                statement.executeUpdate("PRAGMA synchronous=OFF");
+                final int cores = Runtime.getRuntime().availableProcessors();
+                statement.executeUpdate("PRAGMA threads=" + cores);
+                statement.executeUpdate("DROP TABLE IF EXISTS description");
+                statement.executeUpdate("CREATE TABLE IF NOT EXISTS description (id INTEGER NOT NULL PRIMARY KEY, desc STRING)");
 
-        }
-        catch (Exception ex) {
+            }
+
+            DESCRIPTION_INSERT_STATEMENT = DATABASE_HANDLE.prepareStatement("INSERT INTO description VALUES (?,?)");
+            DESCRIPTION_QUERY_STATEMENT = DATABASE_HANDLE.prepareStatement("SELECT desc FROM description WHERE id = ?");
+
+            DATABASE_HANDLE.setAutoCommit(false);
+        } catch (SQLException ex) {
             ex.printStackTrace();
+            System.exit(1);
         }
-        System.out.println("WEBSITE CONTENT:");
-        map.forEach((key,value) -> System.out.println(key + "," + value));*/
     }
 
     /**
@@ -91,7 +72,21 @@ public class DatenFilm implements Comparable<DatenFilm> {
      * @return the film description.
      */
     public String getDescription() {
-        return DESCRIPTION_DATABASE.getOrDefault(filmNr, "");
+        String sqlStr;
+        try {
+            DESCRIPTION_QUERY_STATEMENT.setInt(1, filmNr);
+            try (ResultSet rs = DESCRIPTION_QUERY_STATEMENT.executeQuery()) {
+                if (rs.next()) {
+                    sqlStr = rs.getString(1);
+                } else
+                    sqlStr = "";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            sqlStr = "";
+        }
+
+        return sqlStr;
     }
 
     /**
@@ -101,9 +96,17 @@ public class DatenFilm implements Comparable<DatenFilm> {
      */
     public void setDescription(final String desc) {
         if (desc != null && !desc.isEmpty()) {
-            String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
-            cleanedDesc = cleanedDesc.replace("\n", "<br />");
-            DESCRIPTION_DATABASE.put(filmNr, cleanedDesc);
+            try {
+                String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
+                cleanedDesc = cleanedDesc.replace("\n", "<br />");
+
+                DESCRIPTION_INSERT_STATEMENT.setInt(1, filmNr);
+                DESCRIPTION_INSERT_STATEMENT.setString(2, cleanedDesc);
+                DESCRIPTION_INSERT_STATEMENT.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
         }
     }
 
@@ -179,8 +182,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
     public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
     public final String[] arr = new String[]{
             "", "", "", "", "", "", "", "", "", "",
-            "", "", "", "", "", "", "", "", "", "", "", "",
-            "", "", "", "", "", ""}; //ist einen Tick schneller, hoffentlich :)
+            "", "", "", "", "", "", "", "", "", "",
+            "", "", "", "", "", "", "", ""}; //ist einen Tick schneller, hoffentlich :)
     public DatumFilm datumFilm = new DatumFilm(0);
     public long dauerL = 0; // Sekunden
     public Object abo = null;
@@ -219,7 +222,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         checkFilmDauer(dauerSekunden);
     }
 
-    public String cleanDescription(String s, String thema, String titel) {
+    private String cleanDescription(String s, String thema, String titel) {
         // die Beschreibung auf x Zeichen beschränken
 
         s = Functions.removeHtml(s); // damit die Beschreibung nicht unnötig kurz wird wenn es erst später gemacht wird
