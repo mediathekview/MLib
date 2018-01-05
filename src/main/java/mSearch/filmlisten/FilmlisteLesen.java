@@ -51,14 +51,16 @@ import java.util.concurrent.TimeUnit;
 public class FilmlisteLesen {
     private static final int PROGRESS_MAX = 100;
     private static WorkMode workMode = WorkMode.NORMAL; // die Klasse wird an verschiedenen Stellen benutzt, klappt sonst nicht immer, zB. FilmListe zu alt und neu laden
-    private final EventListenerList listeners = new EventListenerList();
-    private int max = 0;
-    private int progress = 0;
-    private long milliseconds = 0;
     /**
      * Memory limit for the xz decompressor. No limit by default.
      */
     private static int DECOMPRESSOR_MEMORY_LIMIT = -1;
+    private final EventListenerList listeners = new EventListenerList();
+    private final ListenerFilmeLadenEvent progressEvent = new ListenerFilmeLadenEvent("", "Download", 0, 0, 0, false);
+    private int max = 0;
+    private int progress = 0;
+    private long milliseconds = 0;
+
     /**
      * Set the specific work mode for reading film list.
      * In FASTAUTO mode, no film descriptions will be read into memory.
@@ -152,9 +154,14 @@ public class FilmlisteLesen {
                         datenFilm.setNew(Boolean.parseBoolean(value));
 
                         datenFilm.arr[DatenFilm.FILM_NEU] = null;
-                    } /*else if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_WEBSEITE) {
-                        datenFilm.arr[DatenFilm.FILM_WEBSEITE] = "DEADBEEF";
-                    } */ else if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_BESCHREIBUNG) {
+                    } else if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_WEBSEITE) {
+                        final String value = jp.nextTextValue();
+                        if (value != null && !value.isEmpty()) {
+                            datenFilm.setWebsiteLink(value);
+                        }
+
+                        datenFilm.arr[DatenFilm.FILM_WEBSEITE] = null;
+                    } else if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_BESCHREIBUNG) {
                         final String value = jp.nextTextValue();
                         if (value != null && !value.isEmpty())
                             datenFilm.setDescription(value);
@@ -170,6 +177,7 @@ public class FilmlisteLesen {
                         switch (DatenFilm.JSON_NAMES[i]) {
                             case DatenFilm.FILM_NEU:
                             case DatenFilm.FILM_BESCHREIBUNG:
+                            case DatenFilm.FILM_WEBSEITE:
                                 //don´t change null value
                                 break;
                             default:
@@ -271,8 +279,8 @@ public class FilmlisteLesen {
 
         //our progress monitor callback
         InputStreamProgressMonitor monitor = new InputStreamProgressMonitor() {
-            private int oldProgress = 0;
             private final String sourceString = source.toString();
+            private int oldProgress = 0;
 
             @Override
             public void progress(final long bytesRead, final long size) {
@@ -290,7 +298,7 @@ public class FilmlisteLesen {
                      InputStream input = new ProgressMonitorInputStream(body.byteStream(), body.contentLength(), monitor);
                      InputStream is = new XZInputStream(input);
                      JsonParser jp = new JsonFactory().createParser(is)) {
-                        readData(jp, listeFilme);
+                    readData(jp, listeFilme);
                 }
             }
         } catch (Exception ex) {
@@ -320,8 +328,6 @@ public class FilmlisteLesen {
             l.start(new ListenerFilmeLadenEvent(url, "", max, 0, 0, false));
         }
     }
-
-    private final ListenerFilmeLadenEvent progressEvent = new ListenerFilmeLadenEvent("", "Download", 0, 0, 0, false);
 
     private void notifyProgress(String url, int iProgress) {
         progress = iProgress;

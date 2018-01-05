@@ -102,8 +102,9 @@ public class WriteFilmlistJson {
                                 jg.writeString(datenFilm.arr[m]);
                             }
                         } else if (m == DatenFilm.FILM_BESCHREIBUNG) {
-                            final String desc = datenFilm.getDescription();
-                            jg.writeString(desc);
+                            jg.writeString(datenFilm.getDescription());
+                        } else if (m == DatenFilm.FILM_WEBSEITE) {
+                            jg.writeString(datenFilm.getWebsiteLink());
                         } else {
                             jg.writeString(datenFilm.arr[m]);
                         }

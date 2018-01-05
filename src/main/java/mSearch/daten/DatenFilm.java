@@ -44,6 +44,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         private static Connection DATABASE_HANDLE;
         private static PreparedStatement DESCRIPTION_INSERT_STATEMENT;
         private static PreparedStatement DESCRIPTION_QUERY_STATEMENT;
+        private static PreparedStatement WEBSITE_LINK_INSERT_STATEMENT;
+        private static PreparedStatement WEBSITE_LINK_QUERY_STATEMENT;
 
         public static void commitAllChanges() {
             try {
@@ -62,6 +64,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 statement.executeUpdate("PRAGMA threads=" + cores);
                 statement.executeUpdate("DROP TABLE IF EXISTS description");
                 statement.executeUpdate("CREATE TABLE IF NOT EXISTS description (id INTEGER NOT NULL PRIMARY KEY, desc STRING)");
+                statement.executeUpdate("DROP TABLE IF EXISTS website_links");
+                statement.executeUpdate("CREATE TABLE IF NOT EXISTS website_links (id INTEGER NOT NULL PRIMARY KEY, link STRING)");
 
             }
         }
@@ -69,6 +73,9 @@ public class DatenFilm implements Comparable<DatenFilm> {
         private static void createPreparedStatements() throws SQLException {
             Database.DESCRIPTION_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("INSERT INTO description VALUES (?,?)");
             Database.DESCRIPTION_QUERY_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("SELECT desc FROM description WHERE id = ?");
+
+            Database.WEBSITE_LINK_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("INSERT INTO website_links VALUES (?,?)");
+            Database.WEBSITE_LINK_QUERY_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("SELECT link FROM website_links WHERE id = ?");
         }
     }
 
@@ -111,6 +118,24 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return sqlStr;
     }
 
+    public String getWebsiteLink() {
+        String res;
+        try {
+            Database.WEBSITE_LINK_QUERY_STATEMENT.setInt(1, filmNr);
+            try (ResultSet rs = Database.WEBSITE_LINK_QUERY_STATEMENT.executeQuery()) {
+                if (rs.next()) {
+                    res = rs.getString(1);
+                } else
+                    res = "";
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            res = "";
+        }
+
+        return res;
+    }
+
     /**
      * Store description in database.
      *
@@ -129,6 +154,18 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 ex.printStackTrace();
             }
 
+        }
+    }
+
+    public void setWebsiteLink(String link) {
+        if (link != null && !link.isEmpty()) {
+            try {
+                Database.WEBSITE_LINK_INSERT_STATEMENT.setInt(1, filmNr);
+                Database.WEBSITE_LINK_INSERT_STATEMENT.setString(2, link);
+                Database.WEBSITE_LINK_INSERT_STATEMENT.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -235,7 +272,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
         arr[FILM_TITEL] = ttitel.isEmpty() ? tthema : ttitel.trim();
         arr[FILM_URL] = uurl;
         arr[FILM_URL_RTMP] = uurlRtmp;
-        arr[FILM_WEBSEITE] = filmWebsite;
+        //arr[FILM_WEBSEITE] = filmWebsite;
+        setWebsiteLink(filmWebsite);
         checkDatum(datum, arr[FILM_SENDER] + ' ' + arr[FILM_THEMA] + ' ' + arr[FILM_TITEL]);
         checkZeit(arr[FILM_DATUM], zeit, arr[FILM_SENDER] + ' ' + arr[FILM_THEMA] + ' ' + arr[FILM_TITEL]);
         arr[FILM_BESCHREIBUNG] = cleanDescription(description, tthema, ttitel);
