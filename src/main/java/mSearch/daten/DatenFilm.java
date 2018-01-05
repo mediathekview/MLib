@@ -273,11 +273,13 @@ public class DatenFilm implements Comparable<DatenFilm> {
         arr[FILM_TITEL] = ttitel.isEmpty() ? tthema : ttitel.trim();
         arr[FILM_URL] = uurl;
         arr[FILM_URL_RTMP] = uurlRtmp;
-        //arr[FILM_WEBSEITE] = filmWebsite;
+
         setWebsiteLink(filmWebsite);
+
         checkDatum(datum, arr[FILM_SENDER] + ' ' + arr[FILM_THEMA] + ' ' + arr[FILM_TITEL]);
         checkZeit(arr[FILM_DATUM], zeit, arr[FILM_SENDER] + ' ' + arr[FILM_THEMA] + ' ' + arr[FILM_TITEL]);
-        arr[FILM_BESCHREIBUNG] = cleanDescription(description, tthema, ttitel);
+
+        setDescription(cleanDescription(description, tthema, ttitel));
 
         // Filmlänge
         checkFilmDauer(dauerSekunden);
