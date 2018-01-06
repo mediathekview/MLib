@@ -19,156 +19,21 @@
  */
 package mSearch.daten;
 
+import com.jidesoft.utils.SystemInfo;
 import mSearch.Const;
 import mSearch.tool.*;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DatenFilm implements Comparable<DatenFilm> {
-    public static class Database {
-        static {
-            //FIXME refactor directory location function from Daten...refactor Konstanten.VERZEICHNIS...
-            final String CACHE_PATH = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar + "cache.db";
-            try {
-                DATABASE_HANDLE = DriverManager.getConnection("jdbc:sqlite:" + CACHE_PATH);
-            } catch (SQLException ignored) {
-                DATABASE_HANDLE = null;
-            }
-        }
-
-        private static Connection DATABASE_HANDLE;
-        private static PreparedStatement DESCRIPTION_INSERT_STATEMENT;
-        private static PreparedStatement DESCRIPTION_QUERY_STATEMENT;
-        private static PreparedStatement WEBSITE_LINK_INSERT_STATEMENT;
-        private static PreparedStatement WEBSITE_LINK_QUERY_STATEMENT;
-
-        public static void commitAllChanges() {
-            try {
-                DATABASE_HANDLE.commit();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private static void initializeDatabase() throws SQLException {
-            try (Statement statement = Database.DATABASE_HANDLE.createStatement()) {
-                statement.setQueryTimeout(30);  // set timeout to 30 sec.
-                statement.executeUpdate("PRAGMA journal_mode=TRUNCATE");
-                statement.executeUpdate("PRAGMA synchronous=OFF");
-                final int cores = Runtime.getRuntime().availableProcessors();
-                statement.executeUpdate("PRAGMA threads=" + cores);
-                statement.executeUpdate("DROP TABLE IF EXISTS description");
-                statement.executeUpdate("CREATE TABLE IF NOT EXISTS description (id INTEGER NOT NULL PRIMARY KEY, desc STRING)");
-                statement.executeUpdate("DROP TABLE IF EXISTS website_links");
-                statement.executeUpdate("CREATE TABLE IF NOT EXISTS website_links (id INTEGER NOT NULL PRIMARY KEY, link STRING)");
-
-            }
-        }
-
-        private static void createPreparedStatements() throws SQLException {
-            Database.DESCRIPTION_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("REPLACE INTO description VALUES (?,?)");
-            Database.DESCRIPTION_QUERY_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("SELECT desc FROM description WHERE id = ?");
-
-            Database.WEBSITE_LINK_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("INSERT INTO website_links VALUES (?,?)");
-            Database.WEBSITE_LINK_QUERY_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("SELECT link FROM website_links WHERE id = ?");
-        }
-    }
-
-    /**
-     * The database instance for all descriptions.
-     */
-    private final static AtomicInteger FILM_COUNTER = new AtomicInteger(0);
-
-    static {
-        try {
-            Database.initializeDatabase();
-            Database.createPreparedStatements();
-
-            Database.DATABASE_HANDLE.setAutoCommit(false);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    /**
-     * Get the film description from database.
-     *
-     * @return the film description.
-     */
-    public String getDescription() {
-        String sqlStr;
-        try {
-            Database.DESCRIPTION_QUERY_STATEMENT.setInt(1, filmNr);
-            try (ResultSet rs = Database.DESCRIPTION_QUERY_STATEMENT.executeQuery()) {
-                if (rs.next()) {
-                    sqlStr = rs.getString(1);
-                } else
-                    sqlStr = "";
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            sqlStr = "";
-        }
-
-        return sqlStr;
-    }
-
-    public String getWebsiteLink() {
-        String res;
-        try {
-            Database.WEBSITE_LINK_QUERY_STATEMENT.setInt(1, filmNr);
-            try (ResultSet rs = Database.WEBSITE_LINK_QUERY_STATEMENT.executeQuery()) {
-                if (rs.next()) {
-                    res = rs.getString(1);
-                } else
-                    res = "";
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            res = "";
-        }
-
-        return res;
-    }
-
-    /**
-     * Store description in database.
-     *
-     * @param desc String to be stored.
-     */
-    public void setDescription(final String desc) {
-        if (desc != null && !desc.isEmpty()) {
-            try {
-                String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
-                cleanedDesc = cleanedDesc.replace("\n", "<br />");
-
-                Database.DESCRIPTION_INSERT_STATEMENT.setInt(1, filmNr);
-                Database.DESCRIPTION_INSERT_STATEMENT.setString(2, cleanedDesc);
-                Database.DESCRIPTION_INSERT_STATEMENT.executeUpdate();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-
-        }
-    }
-
-    public void setWebsiteLink(String link) {
-        if (link != null && !link.isEmpty()) {
-            try {
-                Database.WEBSITE_LINK_INSERT_STATEMENT.setInt(1, filmNr);
-                Database.WEBSITE_LINK_INSERT_STATEMENT.setString(2, link);
-                Database.WEBSITE_LINK_INSERT_STATEMENT.executeUpdate();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
-
     public static final String AUFLOESUNG_NORMAL = "normal";
     public static final String AUFLOESUNG_HD = "hd";
     public static final String AUFLOESUNG_KLEIN = "klein";
@@ -236,10 +101,26 @@ public class DatenFilm implements Comparable<DatenFilm> {
             FILM_URL_HISTORY,
             FILM_GEO,
             FILM_NEU};
+    /**
+     * The database instance for all descriptions.
+     */
+    private final static AtomicInteger FILM_COUNTER = new AtomicInteger(0);
     private static final GermanStringSorter sorter = GermanStringSorter.getInstance();
     private static final FastDateFormat sdf_datum_zeit = FastDateFormat.getInstance("dd.MM.yyyyHH:mm:ss");
     private static final FastDateFormat sdf_datum = FastDateFormat.getInstance("dd.MM.yyyy");
     public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
+
+    static {
+        try {
+            Database.initializeDatabase();
+            Database.createPreparedStatements();
+
+            Database.DATABASE_HANDLE.setAutoCommit(false);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public final String[] arr = new String[]{
             "", "", "", "", "", "", "", "", "", "",
             "", "", "", "", "", "", "", "", "", "",
@@ -257,12 +138,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
      */
     private int filmNr;
     private boolean neuerFilm = false;
-
     public DatenFilm() {
         dateigroesseL = new MSLong(0); // Dateigröße in MByte
         filmNr = FILM_COUNTER.getAndIncrement();
     }
-
     public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
                      String datum, String zeit,
                      long dauerSekunden, String description) {
@@ -283,6 +162,89 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
         // Filmlänge
         checkFilmDauer(dauerSekunden);
+    }
+
+    /**
+     * Hack to try to release at least some database ressources when a film entry is deleted.
+     */
+    @Override
+    public void finalize() {
+        //System.out.println("DatenFilm object " + filmNr + " is being destroyed.");
+        Database.deleteFromCache(filmNr);
+    }
+
+    /**
+     * Get the film description from database.
+     *
+     * @return the film description.
+     */
+    public String getDescription() {
+        String sqlStr;
+        try {
+            Database.DESCRIPTION_QUERY_STATEMENT.setInt(1, filmNr);
+            try (ResultSet rs = Database.DESCRIPTION_QUERY_STATEMENT.executeQuery()) {
+                if (rs.next()) {
+                    sqlStr = rs.getString(1);
+                } else
+                    sqlStr = "";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            sqlStr = "";
+        }
+
+        return sqlStr;
+    }
+
+    /**
+     * Store description in database.
+     *
+     * @param desc String to be stored.
+     */
+    public void setDescription(final String desc) {
+        if (desc != null && !desc.isEmpty()) {
+            try {
+                String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
+                cleanedDesc = cleanedDesc.replace("\n", "<br />");
+
+                Database.DESCRIPTION_INSERT_STATEMENT.setInt(1, filmNr);
+                Database.DESCRIPTION_INSERT_STATEMENT.setString(2, cleanedDesc);
+                Database.DESCRIPTION_INSERT_STATEMENT.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
+        }
+    }
+
+    public String getWebsiteLink() {
+        String res;
+        try {
+            Database.WEBSITE_LINK_QUERY_STATEMENT.setInt(1, filmNr);
+            try (ResultSet rs = Database.WEBSITE_LINK_QUERY_STATEMENT.executeQuery()) {
+                if (rs.next()) {
+                    res = rs.getString(1);
+                } else
+                    res = "";
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            res = "";
+        }
+
+        return res;
+    }
+
+    public void setWebsiteLink(String link) {
+        if (link != null && !link.isEmpty()) {
+            try {
+                Database.WEBSITE_LINK_INSERT_STATEMENT.setInt(1, filmNr);
+                Database.WEBSITE_LINK_INSERT_STATEMENT.setString(2, link);
+                Database.WEBSITE_LINK_INSERT_STATEMENT.executeUpdate();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     private String cleanDescription(String s, String thema, String titel) {
@@ -556,13 +518,13 @@ public class DatenFilm implements Comparable<DatenFilm> {
                 // Prüfen, ob Pipe auch in URL enthalten ist. Beim ZDF ist das nicht der Fall.
                 final int indexPipe = arr[indexUrl].indexOf('|');
                 if (indexPipe < 0) {
-                  return arr[indexUrl];
+                    return arr[indexUrl];
                 }
-                
+
                 final int i = Integer.parseInt(arr[indexUrl].substring(0, indexPipe));
                 return arr[DatenFilm.FILM_URL].substring(0, i) + arr[indexUrl].substring(arr[indexUrl].indexOf('|') + 1);
-            } catch(Exception e) {
-              Log.errorLog(915236703, e, arr[indexUrl]);
+            } catch (Exception e) {
+                Log.errorLog(915236703, e, arr[indexUrl]);
             }
         }
         return arr[DatenFilm.FILM_URL];
@@ -661,6 +623,83 @@ public class DatenFilm implements Comparable<DatenFilm> {
         }
 
         return sBuilder.toString();
+    }
+
+    public static class Database {
+        private static Connection DATABASE_HANDLE;
+        private static PreparedStatement DESCRIPTION_INSERT_STATEMENT;
+        private static PreparedStatement DESCRIPTION_QUERY_STATEMENT;
+        private static PreparedStatement WEBSITE_LINK_INSERT_STATEMENT;
+        private static PreparedStatement WEBSITE_LINK_QUERY_STATEMENT;
+        private static PreparedStatement WEBSITE_LINK_DELETE_STATEMENT;
+        private static PreparedStatement DESCRIPTION_DELETE_STATEMENT;
+
+        static {
+            final String CACHE_PATH;
+            if (SystemInfo.isMacOSX()) {
+                CACHE_PATH = System.getProperty("user.home") + "/Library/Caches/MediathekView/" + "cache.db";
+            } else
+                CACHE_PATH = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar + "cache.db";
+
+            try {
+                Files.deleteIfExists(Paths.get(CACHE_PATH));
+            } catch (IOException ignored) {
+            }
+
+            try {
+                DATABASE_HANDLE = DriverManager.getConnection("jdbc:sqlite:" + CACHE_PATH);
+            } catch (SQLException ignored) {
+                DATABASE_HANDLE = null;
+            }
+        }
+
+        public static void commitAllChanges() {
+            try {
+                DATABASE_HANDLE.commit();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private static void initializeDatabase() throws SQLException {
+            try (Statement statement = Database.DATABASE_HANDLE.createStatement()) {
+                statement.setQueryTimeout(30);  // set timeout to 30 sec.
+                statement.executeUpdate("PRAGMA auto_vacuum = 2");
+                statement.executeUpdate("PRAGMA incremental_vacuum(5)");
+                statement.executeUpdate("PRAGMA synchronous=OFF");
+                final int cores = Runtime.getRuntime().availableProcessors();
+                statement.executeUpdate("PRAGMA threads=" + cores);
+                statement.executeUpdate("DROP TABLE IF EXISTS description");
+                statement.executeUpdate("CREATE TABLE IF NOT EXISTS description (id INTEGER NOT NULL PRIMARY KEY, desc STRING)");
+                statement.executeUpdate("DROP TABLE IF EXISTS website_links");
+                statement.executeUpdate("CREATE TABLE IF NOT EXISTS website_links (id INTEGER NOT NULL PRIMARY KEY, link STRING)");
+
+            }
+        }
+
+        public static void deleteFromCache(int filmNr) {
+            try {
+                WEBSITE_LINK_DELETE_STATEMENT.setInt(1, filmNr);
+                WEBSITE_LINK_DELETE_STATEMENT.executeUpdate();
+                DESCRIPTION_DELETE_STATEMENT.setInt(1, filmNr);
+                DESCRIPTION_DELETE_STATEMENT.executeUpdate();
+
+                DATABASE_HANDLE.commit();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        private static void createPreparedStatements() throws SQLException {
+            Database.DESCRIPTION_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("REPLACE INTO description VALUES (?,?)");
+            Database.DESCRIPTION_QUERY_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("SELECT desc FROM description WHERE id = ?");
+
+            Database.WEBSITE_LINK_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("INSERT INTO website_links VALUES (?,?)");
+            Database.WEBSITE_LINK_QUERY_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("SELECT link FROM website_links WHERE id = ?");
+
+            WEBSITE_LINK_DELETE_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("DELETE FROM website_links WHERE id = ?");
+            DESCRIPTION_DELETE_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("DELETE FROM description WHERE id = ?");
+        }
     }
 
 }

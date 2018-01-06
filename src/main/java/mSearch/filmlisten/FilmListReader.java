@@ -48,40 +48,32 @@ import java.net.URL;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class FilmlisteLesen {
+public class FilmListReader implements AutoCloseable {
     private static final int PROGRESS_MAX = 100;
-    private static WorkMode workMode = WorkMode.NORMAL; // die Klasse wird an verschiedenen Stellen benutzt, klappt sonst nicht immer, zB. FilmListe zu alt und neu laden
     /**
      * Memory limit for the xz decompressor. No limit by default.
      */
-    private static int DECOMPRESSOR_MEMORY_LIMIT = -1;
+    protected int DECOMPRESSOR_MEMORY_LIMIT = -1;
     private final EventListenerList listeners = new EventListenerList();
     private final ListenerFilmeLadenEvent progressEvent = new ListenerFilmeLadenEvent("", "Download", 0, 0, 0, false);
     private int max = 0;
     private int progress = 0;
     private long milliseconds = 0;
-
-    /**
-     * Set the specific work mode for reading film list.
-     * In FASTAUTO mode, no film descriptions will be read into memory.
-     *
-     * @param mode The mode in which to operate when reading film list.
-     */
-    public static void setWorkMode(WorkMode mode) {
-        workMode = mode;
-        switch (mode) {
-            case NORMAL:
-                DECOMPRESSOR_MEMORY_LIMIT = -1;
-                break;
-
-            case FASTAUTO:
-                DECOMPRESSOR_MEMORY_LIMIT = 24 * 1024 * 1024;
-                break;
-        }
-    }
+    private String sender = "";
+    private String thema = "";
 
     public void addAdListener(ListenerFilmeLaden listener) {
         listeners.add(ListenerFilmeLaden.class, listener);
+    }
+
+    /**
+     * Remove all registered listeners when we do not need them anymore.
+     */
+    private void removeRegisteredListeners() {
+        ListenerFilmeLaden list[] = listeners.getListeners(ListenerFilmeLaden.class);
+        for (ListenerFilmeLaden lst : list) {
+            listeners.remove(ListenerFilmeLaden.class, lst);
+        }
     }
 
     private InputStream selectDecompressor(String source, InputStream in) throws Exception {
@@ -103,14 +95,66 @@ public class FilmlisteLesen {
         return is;
     }
 
-    private void readData(JsonParser jp, ListeFilme listeFilme) throws IOException {
-        JsonToken jsonToken;
-        String sender = "", thema = "";
+    private void parseNeu(JsonParser jp, DatenFilm datenFilm) throws IOException {
+        final String value = jp.nextTextValue();
+        datenFilm.setNew(Boolean.parseBoolean(value));
 
-        if (jp.nextToken() != JsonToken.START_OBJECT) {
-            throw new IllegalStateException("Expected data to start with an Object");
+        datenFilm.arr[DatenFilm.FILM_NEU] = null;
+    }
+
+    protected void parseWebsiteLink(JsonParser jp, DatenFilm datenFilm) throws IOException {
+        final String value = jp.nextTextValue();
+        if (value != null && !value.isEmpty()) {
+            datenFilm.setWebsiteLink(value);
         }
 
+        datenFilm.arr[DatenFilm.FILM_WEBSEITE] = null;
+    }
+
+    private void parseDescription(JsonParser jp, DatenFilm datenFilm) throws IOException {
+        final String value = jp.nextTextValue();
+        if (value != null && !value.isEmpty())
+            datenFilm.setDescription(value);
+
+        datenFilm.arr[DatenFilm.FILM_BESCHREIBUNG] = null;
+    }
+
+    protected void parseGeo(JsonParser jp, DatenFilm datenFilm) throws IOException {
+        datenFilm.arr[DatenFilm.FILM_GEO] = checkedString(jp);
+    }
+
+    private void parseSender(JsonParser jp, DatenFilm datenFilm) throws IOException {
+        String value = checkedString(jp);
+        if (value.isEmpty())
+            datenFilm.arr[DatenFilm.FILM_SENDER] = sender;
+        else {
+            datenFilm.arr[DatenFilm.FILM_SENDER] = value;
+            //store for future reads
+            sender = datenFilm.arr[DatenFilm.FILM_SENDER];
+        }
+    }
+
+    private void parseThema(JsonParser jp, DatenFilm datenFilm) throws IOException {
+        String value = checkedString(jp);
+        if (value.isEmpty())
+            datenFilm.arr[DatenFilm.FILM_THEMA] = thema;
+        else {
+            datenFilm.arr[DatenFilm.FILM_THEMA] = value;
+            thema = datenFilm.arr[DatenFilm.FILM_THEMA];
+        }
+    }
+
+    private String checkedString(JsonParser jp) throws IOException {
+        String value = jp.nextTextValue();
+        //only check for null and replace for the default rows...
+        if (value == null)
+            value = "";
+
+        return value;
+    }
+
+    private void parseMetaData(JsonParser jp, ListeFilme listeFilme) throws IOException {
+        JsonToken jsonToken;
         while ((jsonToken = jp.nextToken()) != null) {
             if (jsonToken == JsonToken.END_OBJECT) {
                 break;
@@ -122,6 +166,10 @@ public class FilmlisteLesen {
                 break;
             }
         }
+    }
+
+    private void skipFieldDescriptions(JsonParser jp) throws IOException {
+        JsonToken jsonToken;
         while ((jsonToken = jp.nextToken()) != null) {
             if (jsonToken == JsonToken.END_OBJECT) {
                 break;
@@ -132,70 +180,50 @@ public class FilmlisteLesen {
                 break;
             }
         }
+    }
+
+    private void parseDefault(JsonParser jp, DatenFilm datenFilm, final int TAG) throws IOException {
+        datenFilm.arr[TAG] = checkedString(jp);
+    }
+
+    private void readData(JsonParser jp, ListeFilme listeFilme) throws IOException {
+        JsonToken jsonToken;
+
+        if (jp.nextToken() != JsonToken.START_OBJECT) {
+            throw new IllegalStateException("Expected data to start with an Object");
+        }
+
+        parseMetaData(jp, listeFilme);
+
+        skipFieldDescriptions(jp);
+
         while (!Config.getStop() && (jsonToken = jp.nextToken()) != null) {
             if (jsonToken == JsonToken.END_OBJECT) {
                 break;
             }
             if (jp.isExpectedStartArrayToken()) {
                 DatenFilm datenFilm = new DatenFilm();
-                for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
-                    //if we are in FASTAUTO mode, we don´t need film descriptions.
-                    //this should speed up loading on low end devices...
-                    if (workMode == WorkMode.FASTAUTO) {
-                        if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_WEBSEITE
-                                || DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_GEO) {
-                            jp.nextToken();
-                            continue;
-                        }
-                    }
 
-                    if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_NEU) {
-                        final String value = jp.nextTextValue();
-                        datenFilm.setNew(Boolean.parseBoolean(value));
-
-                        datenFilm.arr[DatenFilm.FILM_NEU] = null;
-                    } else if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_WEBSEITE) {
-                        final String value = jp.nextTextValue();
-                        if (value != null && !value.isEmpty()) {
-                            datenFilm.setWebsiteLink(value);
-                        }
-
-                        datenFilm.arr[DatenFilm.FILM_WEBSEITE] = null;
-                    } else if (DatenFilm.JSON_NAMES[i] == DatenFilm.FILM_BESCHREIBUNG) {
-                        final String value = jp.nextTextValue();
-                        if (value != null && !value.isEmpty())
-                            datenFilm.setDescription(value);
-
-                        datenFilm.arr[DatenFilm.FILM_BESCHREIBUNG] = null;
-                    } else {
-                        datenFilm.arr[DatenFilm.JSON_NAMES[i]] = jp.nextTextValue();
-                    }
-
-                    /// für die Entwicklungszeit
-                    //FIXME Removal causes crashes
-                    if (datenFilm.arr[DatenFilm.JSON_NAMES[i]] == null) {
-                        switch (DatenFilm.JSON_NAMES[i]) {
-                            case DatenFilm.FILM_NEU:
-                            case DatenFilm.FILM_BESCHREIBUNG:
-                            case DatenFilm.FILM_WEBSEITE:
-                                //don´t change null value
-                                break;
-                            default:
-                                datenFilm.arr[DatenFilm.JSON_NAMES[i]] = "";
-                                break;
-                        }
-                    }
-                }
-                if (datenFilm.arr[DatenFilm.FILM_SENDER].isEmpty()) {
-                    datenFilm.arr[DatenFilm.FILM_SENDER] = sender;
-                } else {
-                    sender = datenFilm.arr[DatenFilm.FILM_SENDER];
-                }
-                if (datenFilm.arr[DatenFilm.FILM_THEMA].isEmpty()) {
-                    datenFilm.arr[DatenFilm.FILM_THEMA] = thema;
-                } else {
-                    thema = datenFilm.arr[DatenFilm.FILM_THEMA];
-                }
+                parseSender(jp, datenFilm);
+                parseThema(jp, datenFilm);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_TITEL);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_DATUM);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_ZEIT);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_DAUER);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_GROESSE);
+                parseDescription(jp, datenFilm);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_URL);
+                parseWebsiteLink(jp, datenFilm);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_URL_SUBTITLE);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_URL_RTMP);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_URL_KLEIN);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_URL_RTMP_KLEIN);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_URL_HD);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_URL_RTMP_HD);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_DATUM_LONG);
+                parseDefault(jp, datenFilm, DatenFilm.FILM_URL_HISTORY);
+                parseGeo(jp, datenFilm);
+                parseNeu(jp, datenFilm);
 
                 listeFilme.importFilmliste(datenFilm);
 
@@ -355,8 +383,8 @@ public class FilmlisteLesen {
         }
     }
 
-    public enum WorkMode {
-
-        NORMAL, FASTAUTO
+    @Override
+    public void close() {
+        removeRegisteredListeners();
     }
 }
