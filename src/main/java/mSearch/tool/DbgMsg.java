@@ -31,42 +31,6 @@ public class DbgMsg {
         print_(text);
     }
 
-    public static synchronized void printCl(String text) {
-        printCl(new String[]{text});
-    }
-
-    public static synchronized void printCl(String[] text) {
-        printCl_(text);
-    }
-
-    private static void printCl_(String[] texte) {
-        final Throwable t = new Throwable();
-        final StackTraceElement methodCaller = t.getStackTrace()[2];
-        final String klasse = methodCaller.getClassName() + "." + methodCaller.getMethodName();
-        String kl;
-        try {
-            kl = klasse;
-            while (kl.contains(".")) {
-                if (Character.isUpperCase(kl.charAt(0))) {
-                    break;
-                } else {
-                    kl = kl.substring(kl.indexOf(".") + 1);
-                }
-            }
-        } catch (Exception ignored) {
-            kl = klasse;
-        }
-
-        if (Config.debug) {
-            final String z = "||";
-            System.out.println(z + " " + kl);
-            for (String text : texte) {
-                System.out.println(z + "      " + text);
-            }
-            System.out.println("");
-        }
-    }
-
     private static void print_(String[] texte) {
         if (Config.debug) {
             final String z = "||";

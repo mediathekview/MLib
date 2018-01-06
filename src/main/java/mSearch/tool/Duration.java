@@ -62,7 +62,7 @@ public class Duration {
     public static synchronized void counterStop(String text) {
         final Throwable t = new Throwable();
         final StackTraceElement methodCaller = t.getStackTrace()[2];
-        final String klasse = methodCaller.getClassName() + "." + methodCaller.getMethodName();
+        final String klasse = methodCaller.getClassName() + '.' + methodCaller.getMethodName();
         String kl;
         try {
             kl = klasse;
@@ -70,7 +70,7 @@ public class Duration {
                 if (Character.isUpperCase(kl.charAt(0))) {
                     break;
                 } else {
-                    kl = kl.substring(kl.indexOf(".") + 1);
+                    kl = kl.substring(kl.indexOf('.') + 1);
                 }
             }
         } catch (Exception ignored) {
@@ -91,7 +91,7 @@ public class Duration {
                 final long time = Math.round(new Date().getTime() - cc.start.getTime());
                 cc.time += time;
                 extra = cc.text + " Anzahl: " + cc.count + "   Dauer: " + roundDuration(time);
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
 
@@ -108,7 +108,7 @@ public class Duration {
         max++;
         for (Counter c : COUNTER_LIST) {
             while (c.text.length() < max) {
-                c.text = c.text + " ";
+                c.text = c.text + ' ';
             }
         }
 
@@ -125,7 +125,7 @@ public class Duration {
     public synchronized static void staticPing(String text) {
         final Throwable t = new Throwable();
         final StackTraceElement methodCaller = t.getStackTrace()[2];
-        final String klasse = methodCaller.getClassName() + "." + methodCaller.getMethodName();
+        final String klasse = methodCaller.getClassName() + '.' + methodCaller.getMethodName();
         String kl;
         try {
             kl = klasse;
@@ -133,7 +133,7 @@ public class Duration {
                 if (Character.isUpperCase(kl.charAt(0))) {
                     break;
                 } else {
-                    kl = kl.substring(kl.indexOf(".") + 1);
+                    kl = kl.substring(kl.indexOf('.') + 1);
                 }
             }
         } catch (Exception ignored) {
@@ -152,7 +152,7 @@ public class Duration {
         }
         System.out.println("");
         System.out.println("========== ========== ========== ========== ==========");
-        System.out.println("DURATION " + sum++ + ":  " + text + "  [" + roundDuration(sekunden) + "]");
+        System.out.println("DURATION " + sum++ + ":  " + text + "  [" + roundDuration(sekunden) + ']');
         System.out.println("   Klasse:  " + klasse);
         if (!extra.isEmpty()) {
             System.out.println("   " + extra);
