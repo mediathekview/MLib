@@ -424,20 +424,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return ret;
     }
 
-    private void preserveMemory() {
-//================================
-        // Speicher sparen
-        if (arr[DatenFilm.FILM_GROESSE].length() < 3) {
-            arr[DatenFilm.FILM_GROESSE] = arr[DatenFilm.FILM_GROESSE].intern();
-        }
-        if (arr[DatenFilm.FILM_URL_KLEIN].length() < 15) {
-            arr[DatenFilm.FILM_URL_KLEIN] = arr[DatenFilm.FILM_URL_KLEIN].intern();
-        }
-
-        arr[DatenFilm.FILM_DATUM] = arr[DatenFilm.FILM_DATUM].intern();
-        arr[DatenFilm.FILM_ZEIT] = arr[DatenFilm.FILM_ZEIT].intern();
-    }
-
     private void setFilmdauer() {
         try {
             if (!this.arr[DatenFilm.FILM_DAUER].contains(":") && !this.arr[DatenFilm.FILM_DAUER].isEmpty()) {
@@ -496,8 +482,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
 
     public void init() {
-        preserveMemory();
-
         //================================
         // Dateigröße
         dateigroesseL = new MSLong(this);

@@ -128,7 +128,7 @@ public class FilmListReader implements AutoCloseable {
         if (value.isEmpty())
             datenFilm.arr[DatenFilm.FILM_SENDER] = sender;
         else {
-            datenFilm.arr[DatenFilm.FILM_SENDER] = value;
+            datenFilm.arr[DatenFilm.FILM_SENDER] = value.intern();
             //store for future reads
             sender = datenFilm.arr[DatenFilm.FILM_SENDER];
         }
@@ -186,6 +186,11 @@ public class FilmListReader implements AutoCloseable {
         datenFilm.arr[TAG] = checkedString(jp);
     }
 
+    private void parseGroesse(JsonParser jp, DatenFilm datenFilm) throws IOException {
+        String value = checkedString(jp);
+        datenFilm.arr[DatenFilm.FILM_GROESSE] = value.intern();
+    }
+
     private void readData(JsonParser jp, ListeFilme listeFilme) throws IOException {
         JsonToken jsonToken;
 
@@ -203,14 +208,16 @@ public class FilmListReader implements AutoCloseable {
             }
             if (jp.isExpectedStartArrayToken()) {
                 DatenFilm datenFilm = new DatenFilm();
-
+/*        arr[DatenFilm.FILM_DATUM] = arr[DatenFilm.FILM_DATUM].intern();
+        arr[DatenFilm.FILM_ZEIT] = arr[DatenFilm.FILM_ZEIT].intern();
+*/
                 parseSender(jp, datenFilm);
                 parseThema(jp, datenFilm);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_TITEL);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_DATUM);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_ZEIT);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_DAUER);
-                parseDefault(jp, datenFilm, DatenFilm.FILM_GROESSE);
+                parseGroesse(jp, datenFilm);
                 parseDescription(jp, datenFilm);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_URL);
                 parseWebsiteLink(jp, datenFilm);
