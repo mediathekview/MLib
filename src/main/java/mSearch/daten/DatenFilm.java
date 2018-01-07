@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Date;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DatenFilm implements Comparable<DatenFilm> {
@@ -114,8 +115,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
         try {
             Database.initializeDatabase();
             Database.createPreparedStatements();
-
-            Database.DATABASE_HANDLE.setAutoCommit(false);
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -162,15 +161,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
         // Filmlänge
         checkFilmDauer(dauerSekunden);
-    }
-
-    /**
-     * Hack to try to release at least some database ressources when a film entry is deleted.
-     */
-    @Override
-    public void finalize() {
-        //System.out.println("DatenFilm object " + filmNr + " is being destroyed.");
-        Database.deleteFromCache(filmNr);
     }
 
     /**
@@ -609,32 +599,61 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return sBuilder.toString();
     }
 
+    @Override
+    public void finalize() {
+        Database.deleteFromCache(filmNr);
+    }
+
     public static class Database {
         private static Connection DATABASE_HANDLE;
         private static PreparedStatement DESCRIPTION_INSERT_STATEMENT;
         private static PreparedStatement DESCRIPTION_QUERY_STATEMENT;
         private static PreparedStatement WEBSITE_LINK_INSERT_STATEMENT;
         private static PreparedStatement WEBSITE_LINK_QUERY_STATEMENT;
-        private static PreparedStatement WEBSITE_LINK_DELETE_STATEMENT;
-        private static PreparedStatement DESCRIPTION_DELETE_STATEMENT;
+        private static final LinkedBlockingQueue<Integer> deleteQueue = new LinkedBlockingQueue<>();
+
+        private static class DeleteQueueWorkerThread extends Thread {
+            private DeleteQueueWorkerThread() {
+                setName("DATENFILM DELETE QUEUE WORKER THREAD");
+            }
+
+            @Override
+            public void run() {
+                while (!isInterrupted()) {
+                    try (Statement statement = DATABASE_HANDLE.createStatement()) {
+                        final int filmNr = deleteQueue.take();
+                        statement.setPoolable(true);
+                        statement.addBatch("DELETE FROM website_links WHERE id = " + filmNr);
+                        statement.addBatch("DELETE FROM description WHERE id = " + filmNr);
+                        statement.executeBatch();
+                        DATABASE_HANDLE.commit();
+                    } catch (SQLException | InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        }
 
         static {
             final String CACHE_PATH;
             if (SystemInfo.isMacOSX()) {
-                CACHE_PATH = System.getProperty("user.home") + "/Library/Caches/MediathekView/" + "cache.db";
+                CACHE_PATH = System.getProperty("user.home") + "/Library/Caches/MediathekView/";
             } else
-                CACHE_PATH = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar + "cache.db";
+                CACHE_PATH = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar;
 
             try {
-                Files.deleteIfExists(Paths.get(CACHE_PATH));
+                Files.deleteIfExists(Paths.get(CACHE_PATH + "cache.db"));
+                Files.deleteIfExists(Paths.get(CACHE_PATH + "cache.db-shm"));
+                Files.deleteIfExists(Paths.get(CACHE_PATH + "cache.db-wal"));
             } catch (IOException ignored) {
             }
 
             try {
-                DATABASE_HANDLE = DriverManager.getConnection("jdbc:sqlite:" + CACHE_PATH);
+                DATABASE_HANDLE = DriverManager.getConnection("jdbc:sqlite:" + CACHE_PATH + "cache.db");
             } catch (SQLException ignored) {
                 DATABASE_HANDLE = null;
             }
+
         }
 
         public static void commitAllChanges() {
@@ -645,32 +664,38 @@ public class DatenFilm implements Comparable<DatenFilm> {
             }
         }
 
+        public static void closeDatabase() {
+            try {
+                DATABASE_HANDLE.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         private static void initializeDatabase() throws SQLException {
             try (Statement statement = Database.DATABASE_HANDLE.createStatement()) {
-                statement.setQueryTimeout(30);  // set timeout to 30 sec.
                 statement.executeUpdate("PRAGMA auto_vacuum = 2");
                 statement.executeUpdate("PRAGMA incremental_vacuum(5)");
+                statement.executeUpdate("PRAGMA JOURNAL_MODE = WAL");
                 statement.executeUpdate("PRAGMA synchronous=OFF");
-                final int cores = Runtime.getRuntime().availableProcessors();
-                statement.executeUpdate("PRAGMA threads=" + cores);
+                statement.executeUpdate("PRAGMA threads=" + Runtime.getRuntime().availableProcessors());
                 statement.executeUpdate("DROP TABLE IF EXISTS description");
                 statement.executeUpdate("CREATE TABLE IF NOT EXISTS description (id INTEGER NOT NULL PRIMARY KEY, desc STRING)");
                 statement.executeUpdate("DROP TABLE IF EXISTS website_links");
                 statement.executeUpdate("CREATE TABLE IF NOT EXISTS website_links (id INTEGER NOT NULL PRIMARY KEY, link STRING)");
 
+                DATABASE_HANDLE.setAutoCommit(false);
+
+                DeleteQueueWorkerThread deleteQueueWorkerThread = new DeleteQueueWorkerThread();
+                deleteQueueWorkerThread.start();
+
             }
         }
 
-        public static void deleteFromCache(int filmNr) {
+        public static void deleteFromCache(final int filmNr) {
             try {
-                WEBSITE_LINK_DELETE_STATEMENT.setInt(1, filmNr);
-                WEBSITE_LINK_DELETE_STATEMENT.executeUpdate();
-                DESCRIPTION_DELETE_STATEMENT.setInt(1, filmNr);
-                DESCRIPTION_DELETE_STATEMENT.executeUpdate();
-
-                DATABASE_HANDLE.commit();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
+                deleteQueue.put(filmNr);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
 
@@ -680,9 +705,6 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
             Database.WEBSITE_LINK_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("INSERT INTO website_links VALUES (?,?)");
             Database.WEBSITE_LINK_QUERY_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("SELECT link FROM website_links WHERE id = ?");
-
-            WEBSITE_LINK_DELETE_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("DELETE FROM website_links WHERE id = ?");
-            DESCRIPTION_DELETE_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("DELETE FROM description WHERE id = ?");
         }
     }
 

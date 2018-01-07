@@ -208,9 +208,6 @@ public class FilmListReader implements AutoCloseable {
             }
             if (jp.isExpectedStartArrayToken()) {
                 DatenFilm datenFilm = new DatenFilm();
-/*        arr[DatenFilm.FILM_DATUM] = arr[DatenFilm.FILM_DATUM].intern();
-        arr[DatenFilm.FILM_ZEIT] = arr[DatenFilm.FILM_ZEIT].intern();
-*/
                 parseSender(jp, datenFilm);
                 parseThema(jp, datenFilm);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_TITEL);
