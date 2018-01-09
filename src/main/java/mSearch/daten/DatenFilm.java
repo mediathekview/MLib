@@ -616,13 +616,10 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         public static void closeDatabase() {
             try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
                  Statement statement = connection.createStatement()) {
-                System.out.println("BEFORE SHUTDOWN COMPACT");
                 statement.executeUpdate("DROP TABLE IF EXISTS description");
                 statement.executeUpdate("DROP TABLE IF EXISTS website_links");
                 statement.executeUpdate("SHUTDOWN COMPACT");
-                System.out.println("AFTER SHUTDOWN COMPACT");
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } catch (SQLException ignored) {
             }
             PooledDatabaseConnection.getInstance().close();
         }

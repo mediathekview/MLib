@@ -10,6 +10,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class PooledDatabaseConnection implements Closeable {
     private static PooledDatabaseConnection INSTANCE;
@@ -53,7 +54,12 @@ public class PooledDatabaseConnection implements Closeable {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
         } catch (ClassNotFoundException ignored) {
         }
-        ConnectionFactory connectionFactory = new DriverManagerConnectionFactory("jdbc:hsqldb:file:" + CACHE_PATH + "cache.db;close_result=true;shutdown=true", null);
+
+        Properties props = new Properties();
+        //props.put("defaultAutoCommit","false");
+        props.put("maxTotal", String.valueOf(Runtime.getRuntime().availableProcessors()));
+        props.put("poolPreparedStatements", "true");
+        ConnectionFactory connectionFactory = new DriverManagerConnectionFactory("jdbc:hsqldb:file:" + CACHE_PATH + "cache.db;close_result=true;shutdown=true", props);
 
         PoolableConnectionFactory poolableConnectionFactory =
                 new PoolableConnectionFactory(connectionFactory, null);
