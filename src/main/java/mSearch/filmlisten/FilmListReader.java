@@ -240,9 +240,6 @@ public class FilmListReader implements AutoCloseable {
                 }
             }
         }
-
-        //finally commit all data to database cache...
-        DatenFilm.Database.commitAllChanges();
     }
 
     /**

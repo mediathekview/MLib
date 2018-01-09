@@ -19,22 +19,17 @@
  */
 package mSearch.daten;
 
-import com.jidesoft.utils.SystemInfo;
 import mSearch.Const;
 import mSearch.tool.*;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.jetbrains.annotations.NotNull;
+import sun.misc.Cleaner;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Date;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class DatenFilm implements Comparable<DatenFilm> {
+public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     public static final String AUFLOESUNG_NORMAL = "normal";
     public static final String AUFLOESUNG_HD = "hd";
     public static final String AUFLOESUNG_KLEIN = "klein";
@@ -114,9 +109,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
     static {
         try {
             Database.initializeDatabase();
-            Database.createPreparedStatements();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
+        } catch (SQLException ignored) {
+            ignored.printStackTrace();
         }
     }
 
@@ -137,10 +131,22 @@ public class DatenFilm implements Comparable<DatenFilm> {
      */
     private int filmNr;
     private boolean neuerFilm = false;
+
+    private Cleaner cleaner;
+
     public DatenFilm() {
         dateigroesseL = new MSLong(0); // Dateigröße in MByte
         filmNr = FILM_COUNTER.getAndIncrement();
+
+        DatenFilmCleanupTask task = new DatenFilmCleanupTask(filmNr);
+        cleaner = Cleaner.create(this, task);
     }
+
+    @Override
+    public void close() {
+        cleaner.clean();
+    }
+
     public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
                      String datum, String zeit,
                      long dauerSekunden, String description) {
@@ -170,9 +176,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
      */
     public String getDescription() {
         String sqlStr;
-        try {
-            Database.DESCRIPTION_QUERY_STATEMENT.setInt(1, filmNr);
-            try (ResultSet rs = Database.DESCRIPTION_QUERY_STATEMENT.executeQuery()) {
+        try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT desc FROM description WHERE id = ?")) {
+            statement.setInt(1, filmNr);
+            try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
                     sqlStr = rs.getString(1);
                 } else
@@ -193,13 +200,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
      */
     public void setDescription(final String desc) {
         if (desc != null && !desc.isEmpty()) {
-            try {
+            try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
+                 PreparedStatement statement = connection.prepareStatement("INSERT INTO description VALUES (?,?)")) {
                 String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
                 cleanedDesc = cleanedDesc.replace("\n", "<br />");
 
-                Database.DESCRIPTION_INSERT_STATEMENT.setInt(1, filmNr);
-                Database.DESCRIPTION_INSERT_STATEMENT.setString(2, cleanedDesc);
-                Database.DESCRIPTION_INSERT_STATEMENT.executeUpdate();
+                statement.setInt(1, filmNr);
+                statement.setString(2, cleanedDesc);
+                statement.executeUpdate();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -209,9 +217,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     public String getWebsiteLink() {
         String res;
-        try {
-            Database.WEBSITE_LINK_QUERY_STATEMENT.setInt(1, filmNr);
-            try (ResultSet rs = Database.WEBSITE_LINK_QUERY_STATEMENT.executeQuery()) {
+        try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT link FROM website_links WHERE id = ?")) {
+            statement.setInt(1, filmNr);
+            try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
                     res = rs.getString(1);
                 } else
@@ -227,10 +236,11 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     public void setWebsiteLink(String link) {
         if (link != null && !link.isEmpty()) {
-            try {
-                Database.WEBSITE_LINK_INSERT_STATEMENT.setInt(1, filmNr);
-                Database.WEBSITE_LINK_INSERT_STATEMENT.setString(2, link);
-                Database.WEBSITE_LINK_INSERT_STATEMENT.executeUpdate();
+            try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
+                 PreparedStatement statement = connection.prepareStatement("INSERT INTO website_links VALUES (?,?)")) {
+                statement.setInt(1, filmNr);
+                statement.setString(2, link);
+                statement.executeUpdate();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -599,112 +609,35 @@ public class DatenFilm implements Comparable<DatenFilm> {
         return sBuilder.toString();
     }
 
-    @Override
-    public void finalize() {
-        Database.deleteFromCache(filmNr);
-    }
-
     public static class Database {
-        private static Connection DATABASE_HANDLE;
-        private static PreparedStatement DESCRIPTION_INSERT_STATEMENT;
-        private static PreparedStatement DESCRIPTION_QUERY_STATEMENT;
-        private static PreparedStatement WEBSITE_LINK_INSERT_STATEMENT;
-        private static PreparedStatement WEBSITE_LINK_QUERY_STATEMENT;
-        private static final LinkedBlockingQueue<Integer> deleteQueue = new LinkedBlockingQueue<>();
-
-        private static class DeleteQueueWorkerThread extends Thread {
-            private DeleteQueueWorkerThread() {
-                setName("DATENFILM DELETE QUEUE WORKER THREAD");
-            }
-
-            @Override
-            public void run() {
-                while (!isInterrupted()) {
-                    try (Statement statement = DATABASE_HANDLE.createStatement()) {
-                        final int filmNr = deleteQueue.take();
-                        statement.setPoolable(true);
-                        statement.addBatch("DELETE FROM website_links WHERE id = " + filmNr);
-                        statement.addBatch("DELETE FROM description WHERE id = " + filmNr);
-                        statement.executeBatch();
-                        DATABASE_HANDLE.commit();
-                    } catch (SQLException | InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        }
-
-        static {
-            final String CACHE_PATH;
-            if (SystemInfo.isMacOSX()) {
-                CACHE_PATH = System.getProperty("user.home") + "/Library/Caches/MediathekView/";
-            } else
-                CACHE_PATH = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar;
-
-            try {
-                Files.deleteIfExists(Paths.get(CACHE_PATH + "cache.db"));
-                Files.deleteIfExists(Paths.get(CACHE_PATH + "cache.db-shm"));
-                Files.deleteIfExists(Paths.get(CACHE_PATH + "cache.db-wal"));
-            } catch (IOException ignored) {
-            }
-
-            try {
-                DATABASE_HANDLE = DriverManager.getConnection("jdbc:sqlite:" + CACHE_PATH + "cache.db");
-            } catch (SQLException ignored) {
-                DATABASE_HANDLE = null;
-            }
-
-        }
-
-        public static void commitAllChanges() {
-            try {
-                DATABASE_HANDLE.commit();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        private Database() {
         }
 
         public static void closeDatabase() {
-            try {
-                DATABASE_HANDLE.close();
+            try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
+                 Statement statement = connection.createStatement()) {
+                System.out.println("BEFORE SHUTDOWN COMPACT");
+                statement.executeUpdate("DROP TABLE IF EXISTS description");
+                statement.executeUpdate("DROP TABLE IF EXISTS website_links");
+                statement.executeUpdate("SHUTDOWN COMPACT");
+                System.out.println("AFTER SHUTDOWN COMPACT");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+            PooledDatabaseConnection.getInstance().close();
         }
+
         private static void initializeDatabase() throws SQLException {
-            try (Statement statement = Database.DATABASE_HANDLE.createStatement()) {
-                statement.executeUpdate("PRAGMA auto_vacuum = 2");
-                statement.executeUpdate("PRAGMA incremental_vacuum(5)");
-                statement.executeUpdate("PRAGMA JOURNAL_MODE = WAL");
-                statement.executeUpdate("PRAGMA synchronous=OFF");
-                statement.executeUpdate("PRAGMA threads=" + Runtime.getRuntime().availableProcessors());
+            try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
+                 Statement statement = connection.createStatement()) {
+                statement.executeUpdate("SET DATABASE TRANSACTION CONTROL MVCC");
+                statement.executeUpdate("SET FILES CACHE ROWS 100000");
+                statement.executeUpdate("SET FILES CACHE SIZE 50000");
                 statement.executeUpdate("DROP TABLE IF EXISTS description");
-                statement.executeUpdate("CREATE TABLE IF NOT EXISTS description (id INTEGER NOT NULL PRIMARY KEY, desc STRING)");
+                statement.executeUpdate("CREATE CACHED TABLE IF NOT EXISTS description (id INTEGER NOT NULL PRIMARY KEY, desc VARCHAR(1024))");
                 statement.executeUpdate("DROP TABLE IF EXISTS website_links");
-                statement.executeUpdate("CREATE TABLE IF NOT EXISTS website_links (id INTEGER NOT NULL PRIMARY KEY, link STRING)");
-
-                DATABASE_HANDLE.setAutoCommit(false);
-
-                DeleteQueueWorkerThread deleteQueueWorkerThread = new DeleteQueueWorkerThread();
-                deleteQueueWorkerThread.start();
-
+                statement.executeUpdate("CREATE CACHED TABLE IF NOT EXISTS website_links (id INTEGER NOT NULL PRIMARY KEY, link VARCHAR(1024))");
             }
-        }
-
-        public static void deleteFromCache(final int filmNr) {
-            try {
-                deleteQueue.put(filmNr);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private static void createPreparedStatements() throws SQLException {
-            Database.DESCRIPTION_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("REPLACE INTO description VALUES (?,?)");
-            Database.DESCRIPTION_QUERY_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("SELECT desc FROM description WHERE id = ?");
-
-            Database.WEBSITE_LINK_INSERT_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("INSERT INTO website_links VALUES (?,?)");
-            Database.WEBSITE_LINK_QUERY_STATEMENT = Database.DATABASE_HANDLE.prepareStatement("SELECT link FROM website_links WHERE id = ?");
         }
     }
 
