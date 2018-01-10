@@ -29,8 +29,6 @@ public class Listener implements EventListener {
     public static final int EREIGNIS_LISTE_PSET = 2;
 
     public static final int EREIGNIS_ANZAHL_DOWNLOADS = 6;
-    public static final int EREIGNIS_LISTE_URL_FILMLISTEN = 7;
-    //public static final int EREIGNIS_LISTE_FILMLISTEN_SERVER = 8;
     public static final int EREIGNIS_LISTE_DOWNLOADS = 9;
     public static final int EREIGNIS_LISTE_ABOS = 10;
     public static final int EREIGNIS_LISTE_ERLEDIGTE_ABOS = 11;
@@ -111,11 +109,7 @@ public class Listener implements EventListener {
 
     private void pingen() {
         try {
-//            if (SwingUtilities.isEventDispatchThread()) {
-//                ping();
-//            } else {
             SwingUtilities.invokeLater(this::ping);
-//            }
         } catch (Exception ex) {
             Log.errorLog(698989743, ex);
         }
