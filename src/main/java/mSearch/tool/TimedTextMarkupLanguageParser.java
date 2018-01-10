@@ -38,7 +38,7 @@ import java.util.*;
  * Converter for TTML XML subtitle files into SubRip Text format.
  * Tested with MediathekView downloaded subtitles and TTML format version 1.0.
  */
-public class TimedTextMarkupLanguageParser {
+public class TimedTextMarkupLanguageParser implements AutoCloseable {
 
     private final SimpleDateFormat ttmlFormat = new SimpleDateFormat("HH:mm:ss.SS");
     private final SimpleDateFormat srtFormat = new SimpleDateFormat("HH:mm:ss,SS");
@@ -314,7 +314,8 @@ public class TimedTextMarkupLanguageParser {
         }
     }
 
-    public void cleanup() {
+    @Override
+    public void close() {
         colorMap.clear();
         subtitleList.clear();
     }
