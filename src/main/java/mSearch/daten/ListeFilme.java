@@ -50,6 +50,9 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     private final static String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
     private final SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
     public String[] sender = {""};
+    /**
+     * List of available senders which notifies its users.
+     */
     public ObservableList<String> senderList = FXCollections.observableArrayList();
     public String[][] themenPerSender = {{""}};
     public boolean neueFilme = false;
