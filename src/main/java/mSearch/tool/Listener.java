@@ -41,7 +41,6 @@ public class Listener implements EventListener {
     public static final int EREIGNIS_MEDIATHEKGUI_ORG_TITEL = 17;
     public static final int EREIGNIS_MEDIATHEKGUI_PROGRAMM_AKTUELL = 18;
     public static final int EREIGNIS_MEDIATHEKGUI_UPDATE_VERFUEGBAR = 19;
-    public static final int EREIGNIS_PANEL_FILTER_ANZEIGEN = 20;
     public static final int EREIGNIS_PANEL_DOWNLOAD_FILTER_ANZEIGEN = 21;
     public static final int EREIGNIS_PANEL_ABO_FILTER_ANZEIGEN = 22;
     public static final int EREIGNIS_FILM_BESCHREIBUNG_ANZEIGEN = 23;
@@ -55,7 +54,6 @@ public class Listener implements EventListener {
     public static final int EREIGNIS_GEO = 31;
     public static final int EREIGNIS_BESCHREIBUNG = 32;
     public static final int EREIGNIS_RESET_INTERRUPT = 33;
-    public static final int EREIGNIS_FILTER_ANZAHL = 34;
     public static final int EREIGNIS_TRAYICON = 35;
     public static final int EREIGNIS_FONT = 36;
     public static final int EREIGNIS_DIALOG_MEDIA_DB = 37;
