@@ -49,6 +49,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public String[] metaDaten = new String[]{"", "", "", "", ""};
     private final static String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
     private final SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+    //TODO entferne Sender und nutze Observable list senderList!
     public String[] sender = {""};
     /**
      * List of available senders which notifies its users.
