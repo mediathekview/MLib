@@ -19,6 +19,8 @@
  */
 package mSearch.daten;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import mSearch.Const;
 import mSearch.tool.Duration;
 import mSearch.tool.FileSize;
@@ -48,6 +50,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     private final static String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
     private final SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
     public String[] sender = {""};
+    public ObservableList<String> senderList = FXCollections.observableArrayList();
     public String[][] themenPerSender = {{""}};
     public boolean neueFilme = false;
 
@@ -334,6 +337,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             senderSet.add(film.arr[DatenFilm.FILM_SENDER]);
         }
         sender = senderSet.toArray(new String[senderSet.size()]);
+        senderList.clear();
+        senderList.addAll(senderSet);
         senderSet.clear();
 
         //für den Sender "" sind alle Themen im themenPerSender[0]
