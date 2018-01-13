@@ -34,7 +34,6 @@ public class Listener implements EventListener {
     public static final int EREIGNIS_LISTE_ERLEDIGTE_ABOS = 11;
     public static final int EREIGNIS_ART_IMPORT_FILMLISTE = 12;
     public static final int EREIGNIS_ART_DOWNLOAD_PROZENT = 13;
-    public static final int EREIGNIS_START_EVENT = 14;
     public static final int EREIGNIS_START_EVENT_BUTTON = 15;
 
     public static final int EREIGNIS_PROGRAMM_OEFFNEN = 16;
