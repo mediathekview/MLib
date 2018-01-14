@@ -144,6 +144,8 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
     compile group: "com.github.fabriziocucci", name:"yacl4j-core", version: "0.9.1"
     compile 'org.glassfish.jersey.core:jersey-client:2.25'
+    compile 'org.apache.commons:commons-compress:1.15'
+    
 
 
 

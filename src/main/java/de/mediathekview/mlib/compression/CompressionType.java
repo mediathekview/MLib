@@ -1,7 +1,7 @@
 package de.mediathekview.mlib.compression;
 
 public enum CompressionType {
-  XZ(".xz"), GZIP(".gz");
+  XZ(".xz"), GZIP(".gz"), BZIP(".bz");
 
   private String fileEnding;
 

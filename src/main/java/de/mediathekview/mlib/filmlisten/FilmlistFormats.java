@@ -5,11 +5,14 @@ import de.mediathekview.mlib.compression.CompressionType;
 
 public enum FilmlistFormats {
 
-  JSON("Json", false, "json"), OLD_JSON("Old Json", true, "json"), JSON_COMPRESSED_XZ("Json + XZ",
-      false, CompressionType.XZ), OLD_JSON_COMPRESSED_XZ("Old Json compressed", true,
-          CompressionType.XZ), JSON_COMPRESSED_GZIP("Json + GZIP", false,
-              CompressionType.GZIP), OLD_JSON_COMPRESSED_GZIP("Old Json compressed", true,
-                  CompressionType.GZIP);
+  JSON("Json", false, "json"),
+  OLD_JSON("Old Json", true, "json"),
+  JSON_COMPRESSED_XZ("Json + XZ", false, CompressionType.XZ),
+  OLD_JSON_COMPRESSED_XZ("Old Json compressed", true, CompressionType.XZ),
+  JSON_COMPRESSED_GZIP("Json + GZIP", false, CompressionType.GZIP),
+  OLD_JSON_COMPRESSED_GZIP("Old Json compressed", true, CompressionType.GZIP),
+  JSON_COMPRESSED_BZIP("Json + BZIP", false, CompressionType.BZIP),
+  OLD_JSON_COMPRESSED_BZIP("Old Json compressed", true, CompressionType.BZIP);
 
   private String description;
   private boolean oldFormat;

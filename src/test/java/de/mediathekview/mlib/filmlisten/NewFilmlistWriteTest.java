@@ -38,9 +38,11 @@ public class NewFilmlistWriteTest {
     return Arrays.asList(new Object[][] {{"TestWriteNewJson_%d.json", FilmlistFormats.JSON},
         {"TestWriteNewJsonCompressed_%d.json.xz", FilmlistFormats.JSON_COMPRESSED_XZ},
         {"TestWriteNewJsonCompressed_%d.json.gz", FilmlistFormats.JSON_COMPRESSED_GZIP},
+        {"TestWriteNewJsonCompressed_%d.json.bz", FilmlistFormats.JSON_COMPRESSED_BZIP},
         {"TestWriteOldJson_%d.json", FilmlistFormats.OLD_JSON},
         {"TestWriteOldJsonCompressed_%d.json.xz", FilmlistFormats.OLD_JSON_COMPRESSED_XZ},
-        {"TestWriteOldJsonCompressed_%d.json.gz", FilmlistFormats.OLD_JSON_COMPRESSED_GZIP}});
+        {"TestWriteOldJsonCompressed_%d.json.gz", FilmlistFormats.OLD_JSON_COMPRESSED_GZIP},
+        {"TestWriteOldJsonCompressed_%d.json.bz", FilmlistFormats.OLD_JSON_COMPRESSED_BZIP}});
   }
 
   @AfterClass

@@ -11,8 +11,11 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.tukaani.xz.LZMA2Options;
 import org.tukaani.xz.XZInputStream;
 import org.tukaani.xz.XZOutputStream;
@@ -38,9 +41,16 @@ public class CompressionManager {
       final OutputStream aOutputStream) throws IOException {
     switch (aCompressionType) {
       case XZ:
-        return new XZOutputStream(aOutputStream, new LZMA2Options());
+        return new XZOutputStream(aOutputStream, new LZMA2Options(LZMA2Options.PRESET_MAX));
       case GZIP:
-        return new GZIPOutputStream(aOutputStream);
+        return new GZIPOutputStream(aOutputStream) {
+          {
+            def.setLevel(Deflater.BEST_COMPRESSION);
+          }
+        };
+      case BZIP:
+        // This uses already the best compression.
+        return new BZip2CompressorOutputStream(aOutputStream);
       default:
         throw new IllegalArgumentException(
             String.format("The type \"%s\" isn't supported.", aCompressionType.name()));
@@ -96,6 +106,8 @@ public class CompressionManager {
         return new XZInputStream(aInputStream);
       case GZIP:
         return new GZIPInputStream(aInputStream);
+      case BZIP:
+        return new BZip2CompressorInputStream(aInputStream);
       default:
         throw new IllegalArgumentException(
             String.format("The type \"%s\" isn't supported.", aCompressionType.name()));

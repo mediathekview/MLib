@@ -35,9 +35,11 @@ public class NewFilmlistReadTest {
     return Arrays.asList(new Object[][] {{"TestFilmlistNewJson.json", FilmlistFormats.JSON},
         {"TestFilmlistNewJson.json.xz", FilmlistFormats.JSON_COMPRESSED_XZ},
         {"TestFilmlistNewJson.json.gz", FilmlistFormats.JSON_COMPRESSED_GZIP},
+        {"TestFilmlistNewJson.json.bz", FilmlistFormats.JSON_COMPRESSED_BZIP},
         {"TestFilmlist.json", FilmlistFormats.OLD_JSON},
         {"TestFilmlist.json.xz", FilmlistFormats.OLD_JSON_COMPRESSED_XZ},
-        {"TestFilmlist.json.gz", FilmlistFormats.OLD_JSON_COMPRESSED_GZIP}});
+        {"TestFilmlist.json.gz", FilmlistFormats.OLD_JSON_COMPRESSED_GZIP},
+        {"TestFilmlist.json.bz", FilmlistFormats.OLD_JSON_COMPRESSED_BZIP}});
   }
 
   @BeforeClass
