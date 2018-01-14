@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -36,7 +37,10 @@ public class Film extends Podcast {
     return !subtitles.isEmpty();
   }
 
-
+  public void addAllSubtitleUrls(Set<URL> urlsToAdd) {
+    this.subtitles.addAll(urlsToAdd);
+  }
+  
   @Override
   public String toString() {
     return "Film [subtitles=" + subtitles + "]";
