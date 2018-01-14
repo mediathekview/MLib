@@ -1,43 +1,65 @@
 package de.mediathekview.mlib.filmlisten;
 
 import java.util.Optional;
+import de.mediathekview.mlib.compression.CompressionType;
 
-public enum FilmlistFormats
-{
+public enum FilmlistFormats {
 
-    JSON("Json", "json"),
-    OLD_JSON("Old Json", "json"),
-    JSON_COMPRESSED("Json + XZ", "xz"),
-    OLD_JSON_COMPRESSED("Old Json compressed", "xz");
+  JSON("Json", false, "json"), OLD_JSON("Old Json", true, "json"), JSON_COMPRESSED_XZ("Json + XZ",
+      false, CompressionType.XZ), OLD_JSON_COMPRESSED_XZ("Old Json compressed", true,
+          CompressionType.XZ), JSON_COMPRESSED_GZIP("Json + GZIP", false,
+              CompressionType.GZIP), OLD_JSON_COMPRESSED_GZIP("Old Json compressed", true,
+                  CompressionType.GZIP);
 
-    private String description;
-    private String fileExtension;
+  private String description;
+  private boolean oldFormat;
+  private Optional<String> fileExtension;
+  private Optional<CompressionType> compressionType;
 
-    FilmlistFormats(final String aDescription, final String aFileExtension)
-    {
-        description = aDescription;
-        fileExtension = aFileExtension;
+  FilmlistFormats(final String aDescription, final boolean aOldFormat,
+      final CompressionType aCompressionType) {
+    description = aDescription;
+    oldFormat = aOldFormat;
+    compressionType = Optional.of(aCompressionType);
+    fileExtension = Optional.empty();
+  }
+
+  FilmlistFormats(final String aDescription, final boolean aOldFormat,
+      final String aFileExtension) {
+    description = aDescription;
+    oldFormat = aOldFormat;
+    fileExtension = Optional.of(aFileExtension);
+    compressionType = Optional.empty();
+  }
+
+  public static Optional<FilmlistFormats> getByDescription(final String aDescription) {
+    for (final FilmlistFormats format : values()) {
+      if (format.getDescription().equals(aDescription)) {
+        return Optional.of(format);
+      }
     }
+    return Optional.empty();
+  }
 
-    public String getDescription()
-    {
-        return description;
-    }
+  public Optional<CompressionType> getCompressionType() {
+    return compressionType;
+  }
 
-    public String getFileExtension()
-    {
-        return fileExtension;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public static Optional<FilmlistFormats> getByDescription(final String aDescription)
-    {
-        for (final FilmlistFormats format : values())
-        {
-            if (format.getDescription().equals(aDescription))
-            {
-                return Optional.of(format);
-            }
-        }
-        return Optional.empty();
+  public String getFileExtension() {
+    if (fileExtension.isPresent()) {
+      return fileExtension.get();
     }
+    if (compressionType.isPresent()) {
+      return compressionType.get().getFileEnding();
+    }
+    return "";
+  }
+
+  public boolean isOldFormat() {
+    return oldFormat;
+  }
 }
