@@ -37,6 +37,9 @@ import java.nio.file.Paths;
 
 public class WriteFilmlistJson {
 
+    private String sender = "";
+    private String thema = "";
+
     protected JsonGenerator getJsonGenerator(OutputStream os) throws IOException {
         JsonFactory jsonF = new JsonFactory();
         return jsonF.createGenerator(os, JsonEncoding.UTF8);
@@ -53,12 +56,23 @@ public class WriteFilmlistJson {
         }
     }
 
+    private void writeFormatHeader(JsonGenerator jg, ListeFilme listeFilme) throws IOException {
+// Infos zur Filmliste
+        jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
+        for (int i = 0; i < ListeFilme.MAX_ELEM; ++i) {
+            jg.writeString(listeFilme.metaDaten[i]);
+        }
+        jg.writeEndArray();
+    }
+
     public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
         try {
             Log.sysLog("Filme schreiben (" + listeFilme.size() + " Filme) :");
 
             Log.sysLog("   --> Start Schreiben nach: " + datei);
-            String sender = "", thema = "";
+
+            sender = "";
+            thema = "";
 
             //Check if Cache directory exists on OSX
             if (SystemInfo.isMacOSX()) {
@@ -68,45 +82,49 @@ public class WriteFilmlistJson {
                  JsonGenerator jg = getJsonGenerator(fos)) {
 
                 jg.writeStartObject();
-                // Infos zur Filmliste
-                jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
-                for (int i = 0; i < ListeFilme.MAX_ELEM; ++i) {
-                    jg.writeString(listeFilme.metaDaten[i]);
-                }
-                jg.writeEndArray();
-                // Infos der Felder in der Filmliste
-                jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
-                for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
-                    jg.writeString(DatenFilm.COLUMN_NAMES[DatenFilm.JSON_NAMES[i]]);
-                }
-                jg.writeEndArray();
+
+                writeFormatHeader(jg, listeFilme);
+                writeFormatDescription(jg);
+
                 //Filme schreiben
                 for (DatenFilm datenFilm : listeFilme) {
-                    datenFilm.arr[DatenFilm.FILM_NEU] = Boolean.toString(datenFilm.isNew()); // damit wirs beim nächsten Programmstart noch wissen
-
                     jg.writeArrayFieldStart(DatenFilm.TAG_JSON_LIST);
                     for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
-                        int m = DatenFilm.JSON_NAMES[i];
-                        if (m == DatenFilm.FILM_SENDER) {
-                            if (datenFilm.arr[m].equals(sender)) {
+                        final int m = DatenFilm.JSON_NAMES[i];
+                        switch (m) {
+                            case DatenFilm.FILM_URL_RTMP:
+                            case DatenFilm.FILM_URL_RTMP_KLEIN:
+                            case DatenFilm.FILM_URL_RTMP_HD:
                                 jg.writeString("");
-                            } else {
-                                sender = datenFilm.arr[m];
+                                break;
+
+                            case DatenFilm.FILM_NEU:
+                                jg.writeString(Boolean.toString(datenFilm.isNew()));
+                                break;
+
+                            case DatenFilm.FILM_SENDER:
+                                writeSender(jg, datenFilm);
+                                break;
+
+                            case DatenFilm.FILM_THEMA:
+                                writeThema(jg, datenFilm);
+                                break;
+
+                            case DatenFilm.FILM_BESCHREIBUNG:
+                                jg.writeString(datenFilm.getDescription());
+                                break;
+
+                            case DatenFilm.FILM_WEBSEITE:
+                                jg.writeString(datenFilm.getWebsiteLink());
+                                break;
+
+                            case DatenFilm.FILM_ZEIT:
+                                writeZeit(jg, datenFilm);
+                                break;
+
+                            default:
                                 jg.writeString(datenFilm.arr[m]);
-                            }
-                        } else if (m == DatenFilm.FILM_THEMA) {
-                            if (datenFilm.arr[m].equals(thema)) {
-                                jg.writeString("");
-                            } else {
-                                thema = datenFilm.arr[m];
-                                jg.writeString(datenFilm.arr[m]);
-                            }
-                        } else if (m == DatenFilm.FILM_BESCHREIBUNG) {
-                            jg.writeString(datenFilm.getDescription());
-                        } else if (m == DatenFilm.FILM_WEBSEITE) {
-                            jg.writeString(datenFilm.getWebsiteLink());
-                        } else {
-                            jg.writeString(datenFilm.arr[m]);
+                                break;
                         }
                     }
                     jg.writeEndArray();
@@ -119,16 +137,36 @@ public class WriteFilmlistJson {
         }
     }
 
-    /*private void compressFile(String inputName, String outputName) {
-        try (InputStream input = new FileInputStream(inputName);
-             FileOutputStream fos = new FileOutputStream(outputName);
-             final OutputStream output = new XZOutputStream(fos, new LZMA2Options());
-             final ReadableByteChannel inputChannel = Channels.newChannel(input);
-             final WritableByteChannel outputChannel = Channels.newChannel(output)) {
-
-            Functions.fastChannelCopy(inputChannel, outputChannel);
-        } catch (IOException ex) {
-            Log.errorLog(987654321, ex);
+    private void writeSender(JsonGenerator jg, DatenFilm datenFilm) throws IOException {
+        if (datenFilm.arr[DatenFilm.FILM_SENDER].equals(sender)) {
+            jg.writeString("");
+        } else {
+            sender = datenFilm.arr[DatenFilm.FILM_SENDER];
+            jg.writeString(datenFilm.arr[DatenFilm.FILM_SENDER]);
         }
-    }*/
+    }
+
+    private void writeThema(JsonGenerator jg, DatenFilm datenFilm) throws IOException {
+        if (datenFilm.arr[DatenFilm.FILM_THEMA].equals(thema)) {
+            jg.writeString("");
+        } else {
+            thema = datenFilm.arr[DatenFilm.FILM_THEMA];
+            jg.writeString(datenFilm.arr[DatenFilm.FILM_THEMA]);
+        }
+    }
+
+    private void writeZeit(JsonGenerator jg, DatenFilm datenFilm) throws IOException {
+        String strZeit = datenFilm.arr[DatenFilm.FILM_ZEIT]
+                .substring(0, datenFilm.arr[DatenFilm.FILM_ZEIT].length() - 3);
+        jg.writeString(strZeit);
+    }
+
+    private void writeFormatDescription(JsonGenerator jg) throws IOException {
+// Infos der Felder in der Filmliste
+        jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
+        for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
+            jg.writeString(DatenFilm.COLUMN_NAMES[DatenFilm.JSON_NAMES[i]]);
+        }
+        jg.writeEndArray();
+    }
 }
