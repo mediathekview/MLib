@@ -401,7 +401,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     public boolean isHD() {
         //Film gibts in HD
-        return !arr[DatenFilm.FILM_URL_HD].isEmpty() || !arr[DatenFilm.FILM_URL_RTMP_HD].isEmpty();
+        return !arr[DatenFilm.FILM_URL_HD].isEmpty();
     }
 
     public DatenFilm getCopy() {
@@ -516,7 +516,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     private String getUrlFlvstreamer() {
         String ret;
-        if (!arr[DatenFilm.FILM_URL_RTMP].isEmpty()) {
+        if (arr[DatenFilm.FILM_URL_RTMP] != null && !arr[DatenFilm.FILM_URL_RTMP].isEmpty()) {
             ret = arr[DatenFilm.FILM_URL_RTMP];
         } else if (arr[DatenFilm.FILM_URL].startsWith(Const.RTMP_PRTOKOLL)) {
             ret = Const.RTMP_FLVSTREAMER + arr[DatenFilm.FILM_URL];
@@ -529,7 +529,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     private String getUrlFlvstreamerKlein() {
         // liefert die kleine flvstreamer URL
         String ret;
-        if (!arr[DatenFilm.FILM_URL_RTMP_KLEIN].isEmpty()) {
+        if (arr[DatenFilm.FILM_URL_RTMP_KLEIN] != null && !arr[DatenFilm.FILM_URL_RTMP_KLEIN].isEmpty()) {
             // es gibt eine kleine RTMP
             try {
                 int i = Integer.parseInt(arr[DatenFilm.FILM_URL_RTMP_KLEIN].substring(0, arr[DatenFilm.FILM_URL_RTMP_KLEIN].indexOf('|')));
@@ -538,7 +538,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
             }
         }
         // es gibt keine kleine RTMP
-        if (!arr[DatenFilm.FILM_URL_RTMP].isEmpty()) {
+        if (arr[DatenFilm.FILM_URL_RTMP] != null && !arr[DatenFilm.FILM_URL_RTMP].isEmpty()) {
             // dann gibts keine kleine
             ret = arr[DatenFilm.FILM_URL_RTMP];
         } else {
@@ -554,7 +554,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     private String getUrlFlvstreamerHd() {
         // liefert die HD flvstreamer URL
-        if (!arr[DatenFilm.FILM_URL_RTMP_HD].isEmpty()) {
+        if (arr[DatenFilm.FILM_URL_RTMP_HD] != null && !arr[DatenFilm.FILM_URL_RTMP_HD].isEmpty()) {
             // es gibt eine HD RTMP
             try {
                 final int i = Integer.parseInt(arr[DatenFilm.FILM_URL_RTMP_HD].substring(0, arr[DatenFilm.FILM_URL_RTMP_HD].indexOf('|')));

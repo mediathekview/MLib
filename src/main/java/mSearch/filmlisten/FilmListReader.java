@@ -191,6 +191,19 @@ public class FilmListReader implements AutoCloseable {
         datenFilm.arr[DatenFilm.FILM_GROESSE] = value.intern();
     }
 
+    private void skipToken(JsonParser jp, DatenFilm datenFilm, int TAG) throws IOException {
+        datenFilm.arr[TAG] = null;
+        jp.nextToken();
+    }
+
+    private void parseTime(JsonParser jp, DatenFilm datenFilm) throws IOException {
+        String zeit = checkedString(jp);
+        if (zeit.length() < 8) {
+            zeit += ":00"; // add seconds
+        }
+        datenFilm.arr[DatenFilm.FILM_ZEIT] = zeit;
+    }
+
     private void readData(JsonParser jp, ListeFilme listeFilme) throws IOException {
         JsonToken jsonToken;
 
@@ -212,18 +225,18 @@ public class FilmListReader implements AutoCloseable {
                 parseThema(jp, datenFilm);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_TITEL);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_DATUM);
-                parseDefault(jp, datenFilm, DatenFilm.FILM_ZEIT);
+                parseTime(jp, datenFilm);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_DAUER);
                 parseGroesse(jp, datenFilm);
                 parseDescription(jp, datenFilm);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_URL);
                 parseWebsiteLink(jp, datenFilm);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_URL_SUBTITLE);
-                parseDefault(jp, datenFilm, DatenFilm.FILM_URL_RTMP);
+                skipToken(jp, datenFilm, DatenFilm.FILM_URL_RTMP);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_URL_KLEIN);
-                parseDefault(jp, datenFilm, DatenFilm.FILM_URL_RTMP_KLEIN);
+                skipToken(jp, datenFilm, DatenFilm.FILM_URL_RTMP_KLEIN);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_URL_HD);
-                parseDefault(jp, datenFilm, DatenFilm.FILM_URL_RTMP_HD);
+                skipToken(jp, datenFilm, DatenFilm.FILM_URL_RTMP_HD);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_DATUM_LONG);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_URL_HISTORY);
                 parseGeo(jp, datenFilm);
