@@ -1,7 +1,6 @@
 package de.mediathekview.mlib.filmlisten;
 
 import static java.time.format.FormatStyle.MEDIUM;
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -19,6 +18,8 @@ import de.mediathekview.mlib.daten.Film;
 import de.mediathekview.mlib.daten.GeoLocations;
 import de.mediathekview.mlib.daten.Podcast;
 import de.mediathekview.mlib.daten.Resolution;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 /**
  * A helper class to generate the old fake json format for a
@@ -44,6 +45,7 @@ public class FilmToFakeJsonConverter {
       DateTimeFormatter.ofLocalizedDate(MEDIUM).withLocale(Locale.GERMANY);
   private static final DateTimeFormatter TIME_FORMATTER =
       DateTimeFormatter.ofLocalizedTime(MEDIUM).withLocale(Locale.GERMANY);
+  private static final ZoneId ZONE_ID = ZoneId.of( "Europe/Berlin" );
   private static final char GEO_SPLITTERATOR = '-';
   private static final String URL_INTERSECTION_REDUCE_PATTERN = "%d|";
   private static final String DURATION_FORMAT = "HH:mm:ss";
@@ -145,6 +147,15 @@ public class FilmToFakeJsonConverter {
     }
     return result;
   }
+  
+  private long convertDateTimeToLong(LocalDateTime dateTime) {
+    if (dateTime == null) {
+      return 0;
+    }
+    
+    ZonedDateTime zonedDateTime = dateTime.atZone(ZONE_ID);
+    return zonedDateTime.toEpochSecond();
+  }
 
   private void resourceToFakeJson(final StringBuilder fakeJsonBuilder,
       final AbstractMediaResource<?> aMediaResource, final boolean aIsLastFilm) {
@@ -188,10 +199,7 @@ public class FilmToFakeJsonConverter {
             : "",
         gson.toJson(aMediaResource.getBeschreibung()), url, website,
         getSubtitles(aMediaResource), "", urlKlein, "", urlHd, "",
-        Timestamp
-            .valueOf(
-                aMediaResource.getTime() == null ? LocalDateTime.now() : aMediaResource.getTime())
-            .toString(),
+        convertDateTimeToLong(aMediaResource.getTime()),
         "", // History
         geolocationsToStirng(aMediaResource.getGeoLocations()),
         aMediaResource instanceof Podcast ? ((Podcast) aMediaResource).isNeu() : false));
