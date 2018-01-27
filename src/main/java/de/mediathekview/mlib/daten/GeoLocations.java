@@ -7,9 +7,14 @@ import org.apache.commons.lang3.StringUtils;
  * The available GEO locations.
  */
 public enum GeoLocations {
-  GEO_NONE("", "WELT", "none", "world", ""), // nur in .. zu sehen
-  GEO_DE("DE"), GEO_AT("AT"), GEO_CH("CH"), GEO_EU("EU"), GEO_DE_FR("DE-FR"), GEO_DE_AT_CH(
-      "DE-AT-CH", "dach"), GEO_DE_AT_CH_EU("DE-AT-CH-EU");
+  GEO_NONE("", "WELT", "none", "world", "ALL", ""), // nur in .. zu sehen
+  GEO_DE("DE"),
+  GEO_AT("AT"),
+  GEO_CH("CH"),
+  GEO_EU("EU", "EUR_DE_FR"),
+  GEO_DE_FR("DE-FR", "DE_FR"),
+  GEO_DE_AT_CH("DE-AT-CH", "dach"),
+  GEO_DE_AT_CH_EU("DE-AT-CH-EU", "SAT");
 
   private final String description;
   private String[] alternatives;
