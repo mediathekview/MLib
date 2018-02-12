@@ -15,10 +15,28 @@ import java.util.Optional;
  *
  */
 public enum Sender {
-  ARD("ARD"), ARTE_DE("ARTE.DE"), ARTE_FR("ARTE.FR"), BR("BR"), DREISAT("3sat"), DW("DW"), FUNK(
-      "Funk.net"), HR("HR"), KIKA("KIKA"), MDR("MDR"), NDR("NDR"), ORF("ORF"), PHOENIX(
-          "Phönix"), RBB("RBB"), SF("SF"), SR("SR"), SRF("SRF"), SRF_PODCAST(
-              "SRF.Podcast"), SWR("SWR"), WDR("WDR"), ZDF("ZDF"), ZDF_TIVI("ZDF Tivi", "ZDF-tivi");
+  ARD("ARD"),
+  ARTE_DE("ARTE.DE", "ARTEDE", "ARTE_DE"),
+  ARTE_FR("ARTE.FR", "ARTEFR", "ARTE_FR"),
+  BR("BR"),
+  DREISAT("3sat"),
+  DW("DW"),
+  FUNK("Funk.net"),
+  HR("HR"),
+  KIKA("KIKA"),
+  MDR("MDR"),
+  NDR("NDR"),
+  ORF("ORF"),
+  PHOENIX("Phönix"),
+  RBB("RBB"),
+  SF("SF"),
+  SR("SR"),
+  SRF("SRF"),
+  SRF_PODCAST("SRF.Podcast"),
+  SWR("SWR"),
+  WDR("WDR"),
+  ZDF("ZDF"),
+  ZDF_TIVI("ZDF Tivi", "ZDF-tivi");
 
   private String name;
   private String[] nameAlternatives;
