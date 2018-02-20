@@ -13,15 +13,38 @@ import java.util.UUID;
  */
 public class Film extends Podcast {
   private static final long serialVersionUID = -7834270191129532291L;
+  private final Collection<URL> audioDescriptions;
+  private final Collection<URL> signLanguages;
   private final Collection<URL> subtitles;
 
   public Film(final UUID aUuid, final Sender aSender, final String aTitel, final String aThema,
       final LocalDateTime aTime, final Duration aDauer) {
     super(aUuid, aSender, aTitel, aThema, aTime, aDauer);
+    audioDescriptions = new ArrayList<>();
+    signLanguages = new ArrayList<>();
     subtitles = new ArrayList<>();
   }
 
+  public void addAudioDescription(final URL aAudioDescriptionUrl) {
+    if (aAudioDescriptionUrl != null) {
+      audioDescriptions.add(aAudioDescriptionUrl);
+    }
+  }
 
+  public Collection<URL> getAudioDescriptions() {
+    return new ArrayList<>(audioDescriptions);
+  }
+
+  public void addSignLanguage(final URL aSignLanguageUrl) {
+    if (aSignLanguageUrl != null) {
+      signLanguages.add(aSignLanguageUrl);
+    }
+  }
+
+  public Collection<URL> getSignLanguages() {
+    return new ArrayList<>(signLanguages);
+  }
+  
   public void addSubtitle(final URL aSubtitleUrl) {
     if (aSubtitleUrl != null) {
       subtitles.add(aSubtitleUrl);
