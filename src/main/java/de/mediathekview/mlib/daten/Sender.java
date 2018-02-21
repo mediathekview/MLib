@@ -35,6 +35,13 @@ public enum Sender {
   SRF_PODCAST("SRF.Podcast"),
   SWR("SWR"),
   WDR("WDR"),
+  WDR1_LIVE("WDR 1LIVE"),
+  WDR2("WDR 2"),
+  WDR3("WDR 3"),
+  WDR4("WDR 4"),
+  WDR5("WDR 5"),
+  WDR_COSMO("WDR COSMO"),
+  WDR_KIRAKA("WDR KIRAKA"),
   ZDF("ZDF"),
   ZDF_TIVI("ZDF Tivi", "ZDF-tivi");
 

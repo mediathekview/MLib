@@ -17,7 +17,7 @@ public class SenderTest {
 
   @Test
   public void pruefeAnzahlBekannterSender() {
-    assertEquals(22, Sender.getSenderNamen().size());
+    assertEquals(29, Sender.getSenderNamen().size());
   }
 
   @Test
@@ -48,6 +48,13 @@ public class SenderTest {
     assertTrue(c.contains(Sender.SRF.getName()));
     assertTrue(c.contains(Sender.SRF_PODCAST.getName()));
     assertTrue(c.contains(Sender.SWR.getName()));
+    assertTrue(c.contains(Sender.WDR1_LIVE.getName()));
+    assertTrue(c.contains(Sender.WDR2.getName()));
+    assertTrue(c.contains(Sender.WDR3.getName()));
+    assertTrue(c.contains(Sender.WDR4.getName()));
+    assertTrue(c.contains(Sender.WDR5.getName()));
+    assertTrue(c.contains(Sender.WDR_COSMO.getName()));
+    assertTrue(c.contains(Sender.WDR_KIRAKA.getName()));
     assertTrue(c.contains(Sender.WDR.getName()));
     assertTrue(c.contains(Sender.ZDF.getName()));
     assertTrue(c.contains(Sender.ZDF_TIVI.getName()));
