@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.Gson;
 import de.mediathekview.mlib.daten.AbstractMediaResource;
 import de.mediathekview.mlib.daten.Film;
+import de.mediathekview.mlib.daten.FilmUrl;
 import de.mediathekview.mlib.daten.GeoLocations;
 import de.mediathekview.mlib.daten.Podcast;
 import de.mediathekview.mlib.daten.Resolution;
@@ -159,34 +160,115 @@ public class FilmToFakeJsonConverter {
 
   private void resourceToFakeJson(final StringBuilder fakeJsonBuilder,
       final AbstractMediaResource<?> aMediaResource, final boolean aIsLastFilm) {
-    final String sender = setSender(aMediaResource);
 
-    final String thema = setThema(aMediaResource);
-
-    final String url = aMediaResource.getUrl(getDefaultResolution(aMediaResource)).toString();
+    String url = "";
     String urlKlein = "";
     String urlHd = "";
 
+    // create film entry
+    url = aMediaResource.getUrl(getDefaultResolution(aMediaResource)).toString();
     if (aMediaResource.getUrls().containsKey(Resolution.SMALL)) {
       urlKlein = aMediaResource.getUrl(Resolution.SMALL).toString();
     }
-
     if (aMediaResource.getUrls().containsKey(Resolution.HD)) {
       urlHd = aMediaResource.getUrl(Resolution.HD).toString();
     }
 
-    urlKlein = reduceUrl(url, urlKlein);
-    urlHd = reduceUrl(url, urlHd);
+    final String title = aMediaResource.getTitel();
+    appendMediaResource(fakeJsonBuilder, aMediaResource, title, urlKlein, url, urlHd, aIsLastFilm);
+    appendAudioDescriptionEntry(aMediaResource, title, fakeJsonBuilder, aIsLastFilm);
+    appendSignLanguageEntry(aMediaResource, title, fakeJsonBuilder, aIsLastFilm);
+   
+  }
 
+  private void appendAudioDescriptionEntry(final AbstractMediaResource<?> aMediaResource, 
+    final String aTitle, 
+    final StringBuilder fakeJsonBuilder, 
+    final boolean aIsLastFilm
+  ) {
+    String url;
+    String urlSmall = "";
+    String urlHd = "";
+
+    if (aMediaResource instanceof Film) {
+      Film film = (Film) aMediaResource;
+
+      FilmUrl filmUrl = film.getAudioDescription(Resolution.NORMAL);
+      if (filmUrl != null) {
+        url = filmUrl.toString();
+        
+        filmUrl = film.getAudioDescription(Resolution.SMALL);
+        if (filmUrl != null) {
+          urlSmall = filmUrl.toString();
+        }
+        
+        filmUrl = film.getAudioDescription(Resolution.HD);
+        if (filmUrl != null) {
+          urlHd = filmUrl.toString();
+        }
+        
+        final String titleAudioDescription = aTitle + " (Audiodeskription)";
+        appendMediaResource(fakeJsonBuilder, aMediaResource, titleAudioDescription, urlSmall, url, urlHd, aIsLastFilm);
+      }
+    }
+  }
+  
+  private void appendSignLanguageEntry(final AbstractMediaResource<?> aMediaResource, 
+    final String aTitle, 
+    final StringBuilder fakeJsonBuilder, 
+    final boolean aIsLastFilm
+  ) {
+    String url;
+    String urlSmall = "";
+    String urlHd = "";
+    
+    if (aMediaResource instanceof Film) {
+      
+      Film film = (Film) aMediaResource;
+      
+      FilmUrl filmUrl = film.getSignLanguage(Resolution.NORMAL);
+      if (filmUrl != null) {
+        url = filmUrl.toString();
+        
+        filmUrl = film.getSignLanguage(Resolution.SMALL);
+        if (filmUrl != null) {
+          urlSmall = filmUrl.toString();
+        }
+        
+        filmUrl = film.getSignLanguage(Resolution.HD);
+        if (filmUrl != null) {
+          urlHd = filmUrl.toString();
+        }
+        
+        final String titleSignLanguage = aTitle + " (Gebärdensprache)";
+        appendMediaResource(fakeJsonBuilder, aMediaResource, titleSignLanguage, urlSmall, url, urlHd, aIsLastFilm);
+      }
+    }
+  }
+
+  private void appendMediaResource(final StringBuilder fakeJsonBuilder,
+    final AbstractMediaResource<?> aMediaResource,
+    final String aTitle,
+    String aUrlSmall,
+    final String aUrlNormal,
+    String aUrlHd, 
+    final boolean aIsLastFilm
+  ) {
+    final Gson gson = new Gson();
+    
+    final String thema = setThema(aMediaResource);
+    final String sender = setSender(aMediaResource);
+    
+    aUrlSmall = reduceUrl(aUrlNormal, aUrlSmall);
+    aUrlHd = reduceUrl(aUrlNormal, aUrlHd);
+    
     String website = "";
     if (aMediaResource.getWebsite().isPresent()) {
       website = aMediaResource.getWebsite().get().toString();
     }
     
-    final Gson gson = new Gson();
-
     fakeJsonBuilder.append(String.format(OUTPUT_PATTERN, sender, gson.toJson(thema),
-        gson.toJson(aMediaResource.getTitel()),
+        gson.toJson(aTitle),
         aMediaResource.getTime() == null ? ""
             : DATE_FORMATTER.format(aMediaResource.getTime().toLocalDate()),
         aMediaResource.getTime() == null ? ""
@@ -197,15 +279,16 @@ public class FilmToFakeJsonConverter {
         aMediaResource instanceof Podcast
             ? ((Podcast) aMediaResource).getFileSize(getDefaultResolution(aMediaResource))
             : "",
-        gson.toJson(aMediaResource.getBeschreibung()), url, website,
-        getSubtitles(aMediaResource), "", urlKlein, "", urlHd, "",
+        gson.toJson(aMediaResource.getBeschreibung()), aUrlNormal, website,
+        getSubtitles(aMediaResource), "", aUrlSmall, "", aUrlHd, "",
         convertDateTimeToLong(aMediaResource.getTime()),
         "", // History
         geolocationsToStirng(aMediaResource.getGeoLocations()),
         aMediaResource instanceof Podcast ? ((Podcast) aMediaResource).isNeu() : false));
+    
     appendEnd(fakeJsonBuilder, aIsLastFilm);
   }
-
+  
   private String setSender(final AbstractMediaResource<?> aMediaResource) {
     String sender = aMediaResource.getSenderName();
     if (lastSender.equals(sender)) {
