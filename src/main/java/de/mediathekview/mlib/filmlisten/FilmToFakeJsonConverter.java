@@ -93,6 +93,10 @@ public class FilmToFakeJsonConverter {
   }
 
   private String durationToString(final Duration aDuration) {
+    // there is no duration for a few films => use duration of 0 instead
+    if (aDuration == null) {
+      return "00:00:00";
+    }
     return LocalTime.MIDNIGHT.plus(aDuration).format(DateTimeFormatter.ofPattern(DURATION_FORMAT));
   }
 
