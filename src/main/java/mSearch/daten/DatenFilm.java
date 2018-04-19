@@ -21,6 +21,7 @@ package mSearch.daten;
 
 import mSearch.Const;
 import mSearch.tool.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.jetbrains.annotations.NotNull;
 import sun.misc.Cleaner;
@@ -203,7 +204,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
             try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
                  PreparedStatement statement = connection.prepareStatement("INSERT INTO description VALUES (?,?)")) {
                 String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
-                cleanedDesc = cleanedDesc.replace("\n", "<br />");
+                cleanedDesc = StringUtils.replace(cleanedDesc, "\n", "<br />");
 
                 statement.setInt(1, filmNr);
                 statement.setString(2, cleanedDesc);
@@ -272,7 +273,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         }
 
         if (s.contains("\\\"")) { // wegen " in json-Files
-            s = s.replace("\\\"", "\"");
+            s = StringUtils.replace(s, "\\\"", "\"");
         }
 
         return s;

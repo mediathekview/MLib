@@ -21,6 +21,7 @@ package mSearch.tool;
 
 import com.jidesoft.utils.SystemInfo;
 import mSearch.Const;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -129,13 +130,13 @@ public class Functions {
         } else {
             DbgMsg.print("getPath");
         }
-        String s = propFile.getAbsolutePath().replace(pFilePath, "");
+        String s = StringUtils.replace(propFile.getAbsolutePath(), pFilePath, "");
         if (!s.endsWith(File.separator)) {
             s = s + File.separator;
         }
         if (s.endsWith("/lib/")) {
             // dann sind wir in der msearch-lib
-            s = s.replace("/lib/", "");
+            s = StringUtils.replace(s, "/lib/", "");
         }
         return s;
     }
