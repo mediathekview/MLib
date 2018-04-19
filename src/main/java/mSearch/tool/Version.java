@@ -81,13 +81,7 @@ public class Version {
 	 * @return 1 Version a ist größer, 0 Versionen sind gleich oder -1 Version a ist kleiner
 	 */
 	public int compare(Version versionzwei) {
-		if(this.toNumber() < versionzwei.toNumber()) {
-			return 1;
-		} else if(this.toNumber() == versionzwei.toNumber()) {
-			return 0;
-		} else {
-			return -1;
-		}
+        return Integer.compare(versionzwei.toNumber(), this.toNumber());
 	}
 
 }
