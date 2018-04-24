@@ -156,9 +156,6 @@ public class FilmlistenSuchen {
         if (!Files.exists(filePath))
             return;
 
-        XMLInputFactory inFactory = XMLInputFactory.newInstance();
-        inFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
-
         XMLStreamReader parser = null;
         try (InputStream is = Files.newInputStream(filePath);
              InputStreamReader inReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
