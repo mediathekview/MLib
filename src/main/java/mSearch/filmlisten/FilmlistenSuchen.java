@@ -19,10 +19,13 @@
  */
 package mSearch.filmlisten;
 
-import mSearch.Config;
 import mSearch.Const;
 import mSearch.tool.Functions;
 import mSearch.tool.Log;
+import mSearch.tool.MVHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -32,7 +35,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -123,7 +125,7 @@ public class FilmlistenSuchen {
     public void updateURLsFilmlisten(final boolean updateFullList) {
         ListeFilmlistenUrls tmp = new ListeFilmlistenUrls();
         if (updateFullList) {
-            getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_AKT, tmp, DatenFilmlisteUrl.SERVER_ART_AKT);
+            getFilmlistServerUrls(Const.ADRESSE_FILMLISTEN_SERVER_AKT, tmp, DatenFilmlisteUrl.SERVER_ART_AKT);
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_akt = tmp;
             } else if (listeFilmlistenUrls_akt.isEmpty()) {
@@ -131,7 +133,7 @@ public class FilmlistenSuchen {
             }
             listeFilmlistenUrls_akt.sort();
         } else {
-            getDownloadUrlsFilmlisten(Const.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, DatenFilmlisteUrl.SERVER_ART_DIFF);
+            getFilmlistServerUrls(Const.ADRESSE_FILMLISTEN_SERVER_DIFF, tmp, DatenFilmlisteUrl.SERVER_ART_DIFF);
             if (!tmp.isEmpty()) {
                 listeFilmlistenUrls_diff = tmp;
             } else if (listeFilmlistenUrls_diff.isEmpty()) {
@@ -186,34 +188,39 @@ public class FilmlistenSuchen {
         }
     }
 
+    private final XMLInputFactory inFactory;
+
+    public FilmlistenSuchen() {
+        inFactory = XMLInputFactory.newInstance();
+        inFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+    }
     /**
      * Read server urls from web location.
      */
     private void readWebLocation(URL dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
-        XMLInputFactory inFactory = XMLInputFactory.newInstance();
-        inFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
-        XMLStreamReader parser = null;
-        //FIXME replace with okhttp
-        try {
-            URLConnection conn = dateiUrl.openConnection();
-            conn.setRequestProperty("User-Agent", Config.getUserAgent());
-            conn.setReadTimeout(20_000);
-            conn.setConnectTimeout(20_000);
-            try (InputStream is = conn.getInputStream();
-                 InputStreamReader inReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-                parser = inFactory.createXMLStreamReader(inReader);
-                parseData(parser, listeFilmlistenUrls, art);
-            } finally {
-                if (parser != null) {
-                    parser.close();
+
+        final Request request = new Request.Builder().url(dateiUrl).get().build();
+        try (Response response = MVHttpClient.getInstance().getReducedTimeOutClient().newCall(request).execute();
+             ResponseBody body = response.body()) {
+            if (response.isSuccessful() && body != null) {
+                //work here...
+                XMLStreamReader parser = null;
+                try (InputStream is = body.byteStream();
+                     InputStreamReader inReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+                    parser = inFactory.createXMLStreamReader(inReader);
+                    parseData(parser, listeFilmlistenUrls, art);
+                } finally {
+                    if (parser != null)
+                        parser.close();
                 }
-            }
+            } else
+                throw new Exception();
         } catch (Exception ex) {
             Log.errorLog(821069874, ex, "Die URL-Filmlisten konnte nicht geladen werden: " + dateiUrl);
         }
     }
 
-    private void getDownloadUrlsFilmlisten(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
+    private void getFilmlistServerUrls(String dateiUrl, ListeFilmlistenUrls listeFilmlistenUrls, String art) {
         //String[] ret = new String[]{""/* version */, ""/* release */, ""/* updateUrl */};
         try {
             if (Functions.istUrl(dateiUrl))
