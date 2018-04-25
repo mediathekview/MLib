@@ -22,6 +22,8 @@ public class MVHttpClient {
             try {
                 final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
                 setupProxyClients(proxy);
+                SysMsg.sysMsg(String.format("MVHttpClient: Proxy configured: (%s)", proxyHost));
+
             } catch (NumberFormatException ex) {
                 Log.errorLog(123456789, ex, "PROXY config failed. Creating non proxy config");
                 //in case of error with proxy configuration log error and create no proxy config
@@ -31,7 +33,6 @@ public class MVHttpClient {
             //TODO setup proxy from settings file
 
             //no proxy setup
-            SysMsg.sysMsg("MVHttpClient: Proxy Authentication not configured");
             setupNonProxyClients();
         }
 
@@ -51,12 +52,7 @@ public class MVHttpClient {
 
     private static final String HTTP_PROXY_AUTHORIZATION = "Proxy-Authorization";
 
-    /**
-     * Set the proxy parameters on the shared HTTP clients.
-     *
-     * @param proxy The proxy settings to be used.
-     */
-    private void setupProxyClients(Proxy proxy) {
+    private Authenticator setupProxyAuthenticator() {
         final String prxUser = System.getProperty("http.proxyUser");
         final String prxPassword = System.getProperty("http.proxyPassword");
         Authenticator proxyAuthenticator = null;
@@ -73,6 +69,17 @@ public class MVHttpClient {
             };
             SysMsg.sysMsg(String.format("Proxy Authentication: (%s)", prxUser));
         }
+
+        return proxyAuthenticator;
+    }
+
+    /**
+     * Set the proxy parameters on the shared HTTP clients.
+     *
+     * @param proxy The proxy settings to be used.
+     */
+    private void setupProxyClients(Proxy proxy) {
+        final Authenticator proxyAuthenticator = setupProxyAuthenticator();
 
         OkHttpClient.Builder tmpBuilder;
         tmpBuilder = getDefaultClientBuilder()
@@ -105,6 +112,8 @@ public class MVHttpClient {
                 .readTimeout(5, TimeUnit.SECONDS)
                 .writeTimeout(2, TimeUnit.SECONDS)
                 .build();
+
+        SysMsg.sysMsg("MVHttpClient: Proxy not configured");
     }
 
     public static MVHttpClient getInstance() {
