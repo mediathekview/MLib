@@ -3,39 +3,50 @@ package mSearch.tool;
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
+import org.apache.commons.configuration2.Configuration;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 public class MVHttpClient {
     private final static MVHttpClient ourInstance = new MVHttpClient();
     private OkHttpClient httpClient;
     private OkHttpClient copyClient;
+    private final Configuration config = ApplicationConfiguration.getConfiguration();
 
     private MVHttpClient() {
-        final String proxyHost = System.getProperty("http.proxyHost");
-        final String proxyPort = System.getProperty("http.proxyPort");
+        String proxyHost = System.getProperty("http.proxyHost");
+        String proxyPort = System.getProperty("http.proxyPort");
 
-        if (proxyHost != null && proxyPort != null) {
-            //setup for proxy
-            try {
+        try {
+            if (proxyHost != null && proxyPort != null && !proxyHost.isEmpty() && !proxyPort.isEmpty()) {
+                //we are configuring the proxy from environment variables...
                 final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
                 setupProxyClients(proxy);
-                SysMsg.sysMsg(String.format("MVHttpClient: Proxy configured: (%s)", proxyHost));
-
-            } catch (NumberFormatException ex) {
-                Log.errorLog(123456789, ex, "PROXY config failed. Creating non proxy config");
-                //in case of error with proxy configuration log error and create no proxy config
-                setupNonProxyClients();
+                SysMsg.sysMsg(String.format("MVHttpClient: Proxy configured from environment variables: (%s)", proxyHost));
+            } else {
+                //environment variables were not set, use application settings...
+                try {
+                    proxyHost = config.getString(ApplicationConfiguration.HTTP_PROXY_HOSTNAME);
+                    proxyPort = config.getString(ApplicationConfiguration.HTTP_PROXY_PORT);
+                    if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
+                        final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
+                        setupProxyClients(proxy);
+                        SysMsg.sysMsg(String.format("MVHttpClient: Proxy configured from application config: (%s)", proxyHost));
+                    } else {
+                        //no proxy setup specified...
+                        setupNonProxyClients();
+                    }
+                } catch (NoSuchElementException e) {
+                    setupNonProxyClients();
+                }
             }
-        } else {
-            //TODO setup proxy from settings file
-
-            //no proxy setup
+        } catch (NumberFormatException ex) {
             setupNonProxyClients();
+            Log.errorLog(123456789, ex, "PROXY config failed. Creating non proxy config");
         }
-
     }
 
     /**
@@ -52,22 +63,38 @@ public class MVHttpClient {
 
     private static final String HTTP_PROXY_AUTHORIZATION = "Proxy-Authorization";
 
+    private Authenticator createAuthenticator(String prxUser, String prxPassword) {
+        return (route, response) -> {
+            if (response.request().header(HTTP_PROXY_AUTHORIZATION) != null) {
+                return null; // Give up, we've already attempted to authenticate.
+            }
+            final String credential = Credentials.basic(prxUser, prxPassword);
+            return response.request().newBuilder()
+                    .header(HTTP_PROXY_AUTHORIZATION, credential)
+                    .build();
+        };
+    }
+
     private Authenticator setupProxyAuthenticator() {
-        final String prxUser = System.getProperty("http.proxyUser");
-        final String prxPassword = System.getProperty("http.proxyPassword");
+        String prxUser = System.getProperty("http.proxyUser");
+        String prxPassword = System.getProperty("http.proxyPassword");
         Authenticator proxyAuthenticator = null;
 
-        if (prxUser != null && prxPassword != null) {
-            proxyAuthenticator = (route, response) -> {
-                if (response.request().header(HTTP_PROXY_AUTHORIZATION) != null) {
-                    return null; // Give up, we've already attempted to authenticate.
+        if (prxUser != null && prxPassword != null && !prxUser.isEmpty() && !prxPassword.isEmpty()) {
+            //create proxy auth from environment vars
+            proxyAuthenticator = createAuthenticator(prxUser, prxPassword);
+            SysMsg.sysMsg(String.format("Proxy Authentication from environment vars: (%s)", prxUser));
+        } else {
+            //try to create proxy auth from settings
+            try {
+                prxUser = config.getString(ApplicationConfiguration.HTTP_PROXY_USERNAME);
+                prxPassword = config.getString(ApplicationConfiguration.HTTP_PROXY_PASSWORD);
+                if (!prxUser.isEmpty() && !prxPassword.isEmpty()) {
+                    proxyAuthenticator = createAuthenticator(prxUser, prxPassword);
+                    SysMsg.sysMsg(String.format("Proxy Authentication from application settings: (%s)", prxUser));
                 }
-                final String credential = Credentials.basic(prxUser, prxPassword);
-                return response.request().newBuilder()
-                        .header(HTTP_PROXY_AUTHORIZATION, credential)
-                        .build();
-            };
-            SysMsg.sysMsg(String.format("Proxy Authentication: (%s)", prxUser));
+            } catch (NoSuchElementException ignored) {
+            }
         }
 
         return proxyAuthenticator;
