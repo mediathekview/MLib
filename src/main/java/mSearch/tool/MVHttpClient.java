@@ -1,5 +1,7 @@
 package mSearch.tool;
 
+import okhttp3.Authenticator;
+import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 
 import java.net.InetSocketAddress;
@@ -29,6 +31,7 @@ public class MVHttpClient {
             //TODO setup proxy from settings file
 
             //no proxy setup
+            SysMsg.sysMsg("MVHttpClient: Proxy Authentication not configured");
             setupNonProxyClients();
         }
 
@@ -46,23 +49,48 @@ public class MVHttpClient {
                 .readTimeout(30, TimeUnit.SECONDS);
     }
 
+    private static final String HTTP_PROXY_AUTHORIZATION = "Proxy-Authorization";
+
     /**
      * Set the proxy parameters on the shared HTTP clients.
      *
      * @param proxy The proxy settings to be used.
      */
     private void setupProxyClients(Proxy proxy) {
-        httpClient = getDefaultClientBuilder()
-                .proxy(proxy)
-                .build();
+        final String prxUser = System.getProperty("http.proxyUser");
+        final String prxPassword = System.getProperty("http.proxyPassword");
+        Authenticator proxyAuthenticator = null;
 
-        copyClient = httpClient.newBuilder()
+        if (prxUser != null && prxPassword != null) {
+            proxyAuthenticator = (route, response) -> {
+                if (response.request().header(HTTP_PROXY_AUTHORIZATION) != null) {
+                    return null; // Give up, we've already attempted to authenticate.
+                }
+                final String credential = Credentials.basic(prxUser, prxPassword);
+                return response.request().newBuilder()
+                        .header(HTTP_PROXY_AUTHORIZATION, credential)
+                        .build();
+            };
+            SysMsg.sysMsg(String.format("Proxy Authentication: (%s)", prxUser));
+        }
+
+        OkHttpClient.Builder tmpBuilder;
+        tmpBuilder = getDefaultClientBuilder()
+                .proxy(proxy);
+
+        if (proxyAuthenticator != null)
+            tmpBuilder.proxyAuthenticator(proxyAuthenticator);
+        httpClient = tmpBuilder.build();
+
+        tmpBuilder = getDefaultClientBuilder()
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
                 .writeTimeout(2, TimeUnit.SECONDS)
-                .proxy(proxy)
-                .build();
+                .proxy(proxy);
 
+        if (proxyAuthenticator != null)
+            tmpBuilder.proxyAuthenticator(proxyAuthenticator);
+        copyClient = tmpBuilder.build();
     }
 
     /**
@@ -72,7 +100,7 @@ public class MVHttpClient {
         httpClient = getDefaultClientBuilder()
                 .build();
 
-        copyClient = httpClient.newBuilder()
+        copyClient = getDefaultClientBuilder()
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
                 .writeTimeout(2, TimeUnit.SECONDS)
