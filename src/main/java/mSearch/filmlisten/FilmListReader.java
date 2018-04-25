@@ -316,9 +316,6 @@ public class FilmListReader implements AutoCloseable {
      * @param listeFilme the list to read to
      */
     private void processFromWeb(URL source, ListeFilme listeFilme) {
-        Request.Builder builder = new Request.Builder().url(source);
-        builder.addHeader("User-Agent", Config.getUserAgent());
-
         //our progress monitor callback
         InputStreamProgressMonitor monitor = new InputStreamProgressMonitor() {
             private final String sourceString = source.toString();
@@ -334,6 +331,7 @@ public class FilmListReader implements AutoCloseable {
             }
         };
 
+        final Request.Builder builder = new Request.Builder().url(source);
         try (Response response = MVHttpClient.getInstance().getHttpClient().newCall(builder.build()).execute()) {
             if (response.isSuccessful()) {
                 try (ResponseBody body = response.body();

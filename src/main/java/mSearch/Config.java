@@ -27,10 +27,6 @@ public class Config {
     public static boolean debug = false; // Debugmodus
     private static final AtomicBoolean stop = new AtomicBoolean(false); // damit kannn das Laden gestoppt werden
 
-    public static String getUserAgent() {
-        return Const.USER_AGENT_DEFAULT;
-    }
-
     /**
      * Damit kann "stop" gesetzt/rückgesetzt werden.
      * Bei true wird die Suche abgebrochen.

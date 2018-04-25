@@ -19,14 +19,12 @@
  */
 package mSearch;
 
-import mSearch.tool.Functions;
-
 public class Const {
 
     @Deprecated public static final String VERSION = "13";
     //public static final String VERSION_FILMLISTE = "3";
     public static final String PROGRAMMNAME = "MSearch";
-    public static final String USER_AGENT_DEFAULT = Const.PROGRAMMNAME + Functions.getProgVersionString();
+    //public static final String USER_AGENT_DEFAULT = Const.PROGRAMMNAME + Functions.getProgVersionString();
     // MediathekView URLs
     public static final String ADRESSE_FILMLISTEN_SERVER_DIFF = "http://res.mediathekview.de/diff.xml";
     public static final String ADRESSE_FILMLISTEN_SERVER_AKT = "http://res.mediathekview.de/akt.xml";
