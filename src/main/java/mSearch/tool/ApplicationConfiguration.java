@@ -91,7 +91,6 @@ public class ApplicationConfiguration {
 
     public void writeConfiguration() {
         try {
-            System.out.println("WRITING SETTINGS FILE TO DISK.");
             handler.save();
         } catch (ConfigurationException ignored) {
         }
@@ -100,10 +99,6 @@ public class ApplicationConfiguration {
     private void createDefaultConfigSettings() {
         try {
             config.setProperty(APPLICATION_USER_AGENT, "MediathekView");
-/*            config.setProperty(HTTP_PROXY_HOSTNAME,"");
-            config.setProperty(HTTP_PROXY_PORT,"");
-            config.setProperty(HTTP_PROXY_USERNAME,"");
-            config.setProperty(HTTP_PROXY_PASSWORD,"");*/
 
             handler.save();
         } catch (ConfigurationException e) {
