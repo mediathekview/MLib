@@ -2,6 +2,7 @@ package mSearch.tool;
 
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
+import mSearch.daten.DatenFilm;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.event.ConfigurationEvent;
@@ -19,10 +20,12 @@ import java.util.NoSuchElementException;
  */
 public class ApplicationConfiguration {
     public static final String APPLICATION_USER_AGENT = "application.user_agent";
+
     public static final String HTTP_PROXY_HOSTNAME = "http.proxy.hostname";
     public static final String HTTP_PROXY_PORT = "http.proxy.port";
     public static final String HTTP_PROXY_USERNAME = "http.proxy.user";
     public static final String HTTP_PROXY_PASSWORD = "http.proxy.password";
+
     public static final String FILTER_PANEL_SHOW_HD_ONLY = "filter.show.hd_only";
     public static final String FILTER_PANEL_SHOW_SUBTITLES_ONLY = "filter.show.subtitles_only";
     public static final String FILTER_PANEL_SHOW_NEW_ONLY = "filter.show.new_only";
@@ -36,6 +39,8 @@ public class ApplicationConfiguration {
     public static final String FILTER_PANEL_FILM_LENGTH_MAX = "filter.film_length.max";
     public static final String FILTER_PANEL_ZEITRAUM = "filter.zeitraum";
 
+    public static final String GEO_REPORT = "geo.report";
+    public static final String GEO_LOCATION = "geo.location";
 
     private static final ApplicationConfiguration ourInstance = new ApplicationConfiguration();
 
@@ -65,7 +70,6 @@ public class ApplicationConfiguration {
             pause = new PauseTransition(Duration.millis(5000));
             pause.setOnFinished(evtl -> {
                 try {
-                    System.out.println("WRITING SETTINGS FILE TO DISK.");
                     handler.save();
                 } catch (ConfigurationException e) {
                     e.printStackTrace();
@@ -97,6 +101,8 @@ public class ApplicationConfiguration {
     private void loadOrCreateConfiguration() {
         try {
             handler.load();
+            //but maybe from an older version created...
+            updateNewerDefaults();
         } catch (ConfigurationException cex) {
             createDefaultConfigSettings();
         }
@@ -112,6 +118,8 @@ public class ApplicationConfiguration {
     private void createDefaultConfigSettings() {
         try {
             config.setProperty(APPLICATION_USER_AGENT, "MediathekView");
+            config.setProperty(GEO_REPORT, true);
+            config.setProperty(GEO_LOCATION, DatenFilm.GEO_DE);
 
             handler.save();
         } catch (ConfigurationException e) {
@@ -119,6 +127,19 @@ public class ApplicationConfiguration {
         } catch (NoSuchElementException e) {
             e.printStackTrace();
             System.exit(2);
+        }
+    }
+
+    private void updateNewerDefaults() {
+        try {
+            boolean b = config.getBoolean(GEO_REPORT);
+        } catch (NoSuchElementException ignored) {
+            config.setProperty(GEO_REPORT, true);
+        }
+        try {
+            String s = config.getString(GEO_LOCATION);
+        } catch (NoSuchElementException ignored) {
+            config.setProperty(GEO_LOCATION, DatenFilm.GEO_DE);
         }
     }
 }
