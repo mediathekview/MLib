@@ -1,5 +1,6 @@
 package mSearch.tool;
 
+import com.jidesoft.utils.SystemInfo;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
 import mSearch.daten.DatenFilm;
@@ -141,6 +142,14 @@ public class ApplicationConfiguration {
             String s = config.getString(GEO_LOCATION);
         } catch (NoSuchElementException ignored) {
             config.setProperty(GEO_LOCATION, DatenFilm.GEO_DE);
+        }
+        try {
+            boolean b = config.getBoolean(APPLICATION_INSTALL_TAB_SWITCH_LISTENER);
+        } catch (NoSuchElementException ignored) {
+            if (SystemInfo.isMacOSX())
+                config.setProperty(APPLICATION_INSTALL_TAB_SWITCH_LISTENER, false);
+            else
+                config.setProperty(APPLICATION_INSTALL_TAB_SWITCH_LISTENER, true);
         }
     }
 }
