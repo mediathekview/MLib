@@ -20,12 +20,14 @@
 package mSearch.filmlisten;
 
 import mSearch.Const;
+import mSearch.tool.ApplicationConfiguration;
 import mSearch.tool.Functions;
 import mSearch.tool.Log;
 import mSearch.tool.MVHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.apache.commons.configuration2.Configuration;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -52,9 +54,29 @@ public class FilmlistenSuchen {
     private static boolean firstSearchDiff = true;
     private static final int UPDATE_LISTE_MAX = 10; // die Downloadliste für die Filmlisten nur jeden 10. Programmstart aktualisieren
 
+
+    /**
+     * Force update of update server urls based on config.
+     *
+     * @param liste     akt of diff url list
+     * @param configStr config setting to use
+     */
+    private void forceUpdateServerReload(ListeFilmlistenUrls liste, String configStr) {
+        final Configuration config = ApplicationConfiguration.getConfiguration();
+        final boolean forceReload = config.getBoolean(configStr, true);
+        if (forceReload) {
+            //just delete all entries. they will be updated...
+            liste.clear();
+            config.setProperty(configStr, false);
+        }
+    }
+
     public String suchenAkt(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Filmliste suchen
         String retUrl;
+
+        forceUpdateServerReload(listeFilmlistenUrls_akt, ApplicationConfiguration.APPLICATION_FORCE_UPDATE_SERVER_RELOAD_AKT);
+
         if (listeFilmlistenUrls_akt.isEmpty()) {
             // bei leerer Liste immer aktualisieren
             updateURLsFilmlisten(true);
@@ -77,6 +99,9 @@ public class FilmlistenSuchen {
     public String suchenDiff(ArrayList<String> bereitsVersucht) {
         // passende URL zum Laden der Filmliste suchen
         String retUrl;
+
+        forceUpdateServerReload(listeFilmlistenUrls_diff, ApplicationConfiguration.APPLICATION_FORCE_UPDATE_SERVER_RELOAD_DIFF);
+
         if (listeFilmlistenUrls_diff.isEmpty()) {
             // bei leerer Liste immer aktualisieren
             updateURLsFilmlisten(false);
