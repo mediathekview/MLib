@@ -20,6 +20,7 @@ import java.util.NoSuchElementException;
  */
 public class ApplicationConfiguration {
     public static final String APPLICATION_USER_AGENT = "application.user_agent";
+    public static final String APPLICATION_INSTALL_TAB_SWITCH_LISTENER = "application.ui.install_tab_listeners";
 
     public static final String HTTP_PROXY_HOSTNAME = "http.proxy.hostname";
     public static final String HTTP_PROXY_PORT = "http.proxy.port";
