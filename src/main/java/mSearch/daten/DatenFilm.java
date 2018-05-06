@@ -143,6 +143,27 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         cleaner = Cleaner.create(this, task);
     }
 
+    public String getTitle() {
+        return arr[FILM_TITEL];
+    }
+
+    public String getThema() {
+        return arr[FILM_THEMA];
+    }
+
+    /**
+     * Return the film size.
+     *
+     * @return size as a string
+     */
+    public String getSize() {
+        return arr[FILM_GROESSE];
+    }
+
+    public String getSender() {
+        return arr[FILM_SENDER];
+    }
+
     @Override
     public void close() {
         cleaner.clean();
@@ -303,7 +324,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         return arr[FILM_URL_SUBTITLE];
     }
 
-    public boolean hasUT() {
+    public boolean hasSubtitle() {
         //Film hat Untertitel
         return !arr[DatenFilm.FILM_URL_SUBTITLE].isEmpty();
     }
