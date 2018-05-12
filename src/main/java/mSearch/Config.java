@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Config {
 
-    public static int bandbreite = 0; // maxBandbreite in Byte
     public static boolean debug = false; // Debugmodus
     private static final AtomicBoolean stop = new AtomicBoolean(false); // damit kannn das Laden gestoppt werden
 

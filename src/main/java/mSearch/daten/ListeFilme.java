@@ -313,8 +313,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
      * @param sekunden The age in seconds.
      * @return true if older.
      */
-    public boolean isOlderThan(int sekunden) {
-        int ret = getAge();
+    public boolean isOlderThan(long sekunden) {
+        final long ret = getAge();
         if (ret != 0) {
             Log.sysLog("Die Filmliste ist " + ret / 60 + " Minuten alt");
         }

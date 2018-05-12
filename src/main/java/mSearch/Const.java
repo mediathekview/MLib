@@ -19,6 +19,8 @@
  */
 package mSearch;
 
+import java.util.concurrent.TimeUnit;
+
 public class Const {
 
     @Deprecated public static final String VERSION = "13";
@@ -31,7 +33,7 @@ public class Const {
     public static final String FORMAT_XZ = ".xz";
     public static final String RTMP_PRTOKOLL = "rtmp";
     public static final String RTMP_FLVSTREAMER = "-r ";
-    public static final int ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE = 3 * 60 * 60; // beim Start des Programms wir die Liste geladen wenn sie älter ist als ..
+    public static final long ALTER_FILMLISTE_SEKUNDEN_FUER_AUTOUPDATE = TimeUnit.SECONDS.convert(3, TimeUnit.HOURS);
     public static final String TIME_MAX_AGE_FOR_DIFF = "09"; // Uhrzeit ab der die Diffliste alle Änderungen abdeckt, die Filmliste darf also nicht vor xx erstellt worden sein
 
     public static final String DREISAT = "3Sat";
@@ -56,5 +58,4 @@ public class Const {
     public static final String ZDF_TIVI = "ZDF-tivi";
 
     public static final String[] SENDER = {DREISAT, ARD, ARTE_DE, ARTE_FR, BR, DW, HR, KIKA, MDR, NDR, ORF, PHOENIX, RBB, SR, SRF, SRF_PODCAST, SWR, WDR, ZDF, ZDF_TIVI};
-
 }
