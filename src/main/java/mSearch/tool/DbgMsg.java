@@ -32,7 +32,7 @@ public class DbgMsg {
     }
 
     private static void print_(String[] texte) {
-        if (Config.debug) {
+        if (Config.isDebuggingEnabled()) {
             final String z = "||";
             for (String text : texte) {
                 System.out.println(z + "  " + text);

@@ -19,21 +19,16 @@
  */
 package mSearch.tool;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import com.jidesoft.utils.SystemInfo;
+import mSearch.Config;
+import mSearch.Const;
+
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
-
-import com.jidesoft.utils.SystemInfo;
-
-import mSearch.Config;
-import mSearch.Const;
 
 public class Log {
 
@@ -274,7 +269,7 @@ public class Log {
             kl = klasse;
         }
         addFehlerNummer(fehlerNummer, kl, ex != null);
-        if (ex != null || Config.debug) {
+        if (ex != null || Config.isDebuggingEnabled()) {
             // Exceptions immer ausgeben
             resetProgress();
             String x, z;

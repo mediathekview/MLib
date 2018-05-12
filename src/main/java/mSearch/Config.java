@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Config {
 
-    public static boolean debug = false; // Debugmodus
+    private static boolean debug = false; // Debugmodus
     private static final AtomicBoolean stop = new AtomicBoolean(false); // damit kannn das Laden gestoppt werden
 
     /**
@@ -43,5 +43,13 @@ public class Config {
      */
     public static boolean getStop() {
         return stop.get();
+    }
+
+    public static void enableDebugMode() {
+        debug = true;
+    }
+
+    public static boolean isDebuggingEnabled() {
+        return debug;
     }
 }
