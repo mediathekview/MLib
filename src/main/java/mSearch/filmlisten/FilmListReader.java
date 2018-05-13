@@ -198,7 +198,7 @@ public class FilmListReader implements AutoCloseable {
 
     private void parseTime(JsonParser jp, DatenFilm datenFilm) throws IOException {
         String zeit = checkedString(jp);
-        if (zeit.length() < 8) {
+        if (!zeit.isEmpty() && zeit.length() < 8) {
             zeit += ":00"; // add seconds
         }
         datenFilm.arr[DatenFilm.FILM_ZEIT] = zeit;
