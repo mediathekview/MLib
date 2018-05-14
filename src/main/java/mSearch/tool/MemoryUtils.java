@@ -10,7 +10,6 @@ public class MemoryUtils {
             isLowMemory = true;
         else
             isLowMemory = false;
-        System.out.println("ISLOWMEM = " + isLowMemory);
     }
 
     public static boolean isLowMemoryEnvironment() {
