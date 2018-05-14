@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -255,27 +257,6 @@ public class FilmListReader implements AutoCloseable {
         }
     }
 
-    /**
-     * Read a locally available filmlist.
-     *
-     * @param source     file path as string
-     * @param listeFilme the list to read to
-     */
-    private void processFromFile(String source, ListeFilme listeFilme) {
-        notifyProgress(source, PROGRESS_MAX);
-        try (FileInputStream fis = new FileInputStream(source);
-             InputStream in = selectDecompressor(source, fis);
-             JsonParser jp = new JsonFactory().createParser(in)) {
-            readData(jp, listeFilme);
-        } catch (FileNotFoundException ex) {
-            Log.errorLog(894512369, "FilmListe existiert nicht: " + source);
-            listeFilme.clear();
-        } catch (Exception ex) {
-            Log.errorLog(945123641, ex, "FilmListe: " + source);
-            listeFilme.clear();
-        }
-    }
-
     private void checkDays(long days) {
         if (days > 0) {
             milliseconds = System.currentTimeMillis() - TimeUnit.MILLISECONDS.convert(days, TimeUnit.DAYS);
@@ -288,7 +269,8 @@ public class FilmListReader implements AutoCloseable {
         try {
             Log.sysLog("Liste Filme lesen von: " + source);
             listeFilme.clear();
-            this.notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
+
+            notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
 
             checkDays(days);
 
@@ -307,6 +289,45 @@ public class FilmListReader implements AutoCloseable {
         }
 
         notifyFertig(source, listeFilme);
+    }
+
+    /**
+     * Read a locally available filmlist.
+     *
+     * @param source     file path as string
+     * @param listeFilme the list to read to
+     */
+    private void processFromFile(String source, ListeFilme listeFilme) {
+        InputStreamProgressMonitor monitor = new InputStreamProgressMonitor() {
+            private final String sourceString = source;
+            private int oldProgress = 0;
+
+            @Override
+            public void progress(final long bytesRead, final long size) {
+                final int iProgress = (int) (bytesRead * 100 / size);
+                if (iProgress != oldProgress) {
+                    oldProgress = iProgress;
+                    notifyProgress(sourceString, iProgress);
+                }
+            }
+        };
+
+        try {
+            final long fileSize = Files.size(Paths.get(source));
+
+            try (FileInputStream fis = new FileInputStream(source);
+                 InputStream input = new ProgressMonitorInputStream(fis, fileSize, monitor);
+                 InputStream in = selectDecompressor(source, input);
+                 JsonParser jp = new JsonFactory().createParser(in)) {
+                readData(jp, listeFilme);
+            }
+        } catch (FileNotFoundException ex) {
+            Log.errorLog(894512369, "FilmListe existiert nicht: " + source);
+            listeFilme.clear();
+        } catch (Exception ex) {
+            Log.errorLog(945123641, ex, "FilmListe: " + source);
+            listeFilme.clear();
+        }
     }
 
     /**
