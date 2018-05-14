@@ -35,7 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class WriteFilmlistJson {
+public class FilmListWriter {
 
     private String sender = "";
     private String thema = "";
@@ -65,7 +65,7 @@ public class WriteFilmlistJson {
         jg.writeEndArray();
     }
 
-    public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
+    public void writeFilmList(String datei, ListeFilme listeFilme) {
         try {
             Log.sysLog("Filme schreiben (" + listeFilme.size() + " Filme) :");
 
@@ -89,44 +89,28 @@ public class WriteFilmlistJson {
                 //Filme schreiben
                 for (DatenFilm datenFilm : listeFilme) {
                     jg.writeArrayFieldStart(DatenFilm.TAG_JSON_LIST);
-                    for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
-                        final int m = DatenFilm.JSON_NAMES[i];
-                        switch (m) {
-                            case DatenFilm.FILM_URL_RTMP:
-                            case DatenFilm.FILM_URL_RTMP_KLEIN:
-                            case DatenFilm.FILM_URL_RTMP_HD:
-                                jg.writeString("");
-                                break;
 
-                            case DatenFilm.FILM_NEU:
-                                jg.writeString(Boolean.toString(datenFilm.isNew()));
-                                break;
+                    writeSender(jg, datenFilm);
+                    writeThema(jg, datenFilm);
+                    writeTitel(jg, datenFilm);
+                    jg.writeString(datenFilm.arr[DatenFilm.FILM_DATUM]);
+                    writeZeit(jg, datenFilm);
+                    jg.writeString(datenFilm.arr[DatenFilm.FILM_DAUER]);
+                    jg.writeString(datenFilm.arr[DatenFilm.FILM_GROESSE]);
+                    jg.writeString(datenFilm.getDescription());
+                    jg.writeString(datenFilm.arr[DatenFilm.FILM_URL]);
+                    jg.writeString(datenFilm.getWebsiteLink());
+                    jg.writeString(datenFilm.arr[DatenFilm.FILM_URL_SUBTITLE]);
+                    skipEntry(jg); //DatenFilm.FILM_URL_RTMP
+                    jg.writeString(datenFilm.arr[DatenFilm.FILM_URL_KLEIN]);
+                    skipEntry(jg); //DatenFilm.URL_RTMP_KLEIN
+                    jg.writeString(datenFilm.arr[DatenFilm.FILM_URL_HD]);
+                    skipEntry(jg); //DatenFilm.FILM_URL_RTMP_HD
+                    jg.writeString(datenFilm.arr[DatenFilm.FILM_DATUM_LONG]);
+                    jg.writeString(datenFilm.arr[DatenFilm.FILM_URL_HISTORY]);
+                    jg.writeString(datenFilm.arr[DatenFilm.FILM_GEO]);
+                    jg.writeString(Boolean.toString(datenFilm.isNew()));
 
-                            case DatenFilm.FILM_SENDER:
-                                writeSender(jg, datenFilm);
-                                break;
-
-                            case DatenFilm.FILM_THEMA:
-                                writeThema(jg, datenFilm);
-                                break;
-
-                            case DatenFilm.FILM_BESCHREIBUNG:
-                                jg.writeString(datenFilm.getDescription());
-                                break;
-
-                            case DatenFilm.FILM_WEBSEITE:
-                                jg.writeString(datenFilm.getWebsiteLink());
-                                break;
-
-                            case DatenFilm.FILM_ZEIT:
-                                writeZeit(jg, datenFilm);
-                                break;
-
-                            default:
-                                jg.writeString(datenFilm.arr[m]);
-                                break;
-                        }
-                    }
                     jg.writeEndArray();
                 }
                 jg.writeEndObject();
@@ -135,6 +119,14 @@ public class WriteFilmlistJson {
         } catch (Exception ex) {
             Log.errorLog(846930145, ex, "nach: " + datei);
         }
+    }
+
+    private void skipEntry(JsonGenerator jg) throws IOException {
+        jg.writeString("");
+    }
+
+    private void writeTitel(JsonGenerator jg, DatenFilm datenFilm) throws IOException {
+        jg.writeString(datenFilm.arr[DatenFilm.FILM_TITEL]);
     }
 
     private void writeSender(JsonGenerator jg, DatenFilm datenFilm) throws IOException {
