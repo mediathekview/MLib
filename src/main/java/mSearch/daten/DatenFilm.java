@@ -650,8 +650,12 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
             try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
                  Statement statement = connection.createStatement()) {
                 statement.executeUpdate("SET DATABASE TRANSACTION CONTROL MVCC");
-                statement.executeUpdate("SET FILES CACHE ROWS 100000");
-                statement.executeUpdate("SET FILES CACHE SIZE 50000");
+                //only increase cache size if there is enough memory
+                if (!MemoryUtils.isLowMemoryEnvironment()) {
+                    statement.executeUpdate("SET FILES CACHE ROWS 100000");
+                    statement.executeUpdate("SET FILES CACHE SIZE 50000");
+                }
+
                 statement.executeUpdate("DROP TABLE IF EXISTS description");
                 statement.executeUpdate("CREATE CACHED TABLE IF NOT EXISTS description (id INTEGER NOT NULL PRIMARY KEY, desc VARCHAR(1024))");
                 statement.executeUpdate("DROP TABLE IF EXISTS website_links");
