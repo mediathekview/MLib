@@ -156,9 +156,15 @@ public class WriteFilmlistJson {
     }
 
     private void writeZeit(JsonGenerator jg, DatenFilm datenFilm) throws IOException {
-        String strZeit = datenFilm.arr[DatenFilm.FILM_ZEIT]
-                .substring(0, datenFilm.arr[DatenFilm.FILM_ZEIT].length() - 3);
-        jg.writeString(strZeit);
+        String strZeit = datenFilm.arr[DatenFilm.FILM_ZEIT];
+        final int len = strZeit.length();
+
+        if (strZeit.isEmpty() || len < 8)
+            jg.writeString("");
+        else {
+            strZeit = strZeit.substring(0, len - 3);
+            jg.writeString(strZeit);
+        }
     }
 
     private void writeFormatDescription(JsonGenerator jg) throws IOException {
