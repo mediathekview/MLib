@@ -19,7 +19,6 @@
  */
 package mSearch.tool;
 
-import com.jidesoft.utils.SystemInfo;
 import mSearch.Config;
 import mSearch.Const;
 import org.apache.logging.log4j.LogManager;
@@ -30,7 +29,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 
 public class Log {
 
@@ -52,7 +50,8 @@ public class Log {
             this.count = 1;
         }
     }
-    private static final LinkedList<Error> fehlerListe = new LinkedList<>();
+
+    private static final ArrayList<Error> fehlerListe = new ArrayList<>();
     private static boolean progress = false;
     public static final Date startZeit = new Date(System.currentTimeMillis());
     private static File logFile = null;
@@ -77,22 +76,6 @@ public class Log {
     private static final Logger logger = LogManager.getLogger(Log.class);
 
     public static void versionMsg(String progName) {
-        if (!SystemInfo.isMacOSX()) {
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            System.out.println("___  ___         _ _       _   _          _    _   _ _               ");
-            System.out.println("|  \\/  |        | (_)     | | | |        | |  | | | (_)              ");
-            System.out.println("| .  . | ___  __| |_  __ _| |_| |__   ___| | _| | | |_  _____      __");
-            System.out.println("| |\\/| |/ _ \\/ _` | |/ _` | __| '_ \\ / _ \\ |/ / | | | |/ _ \\ \\ /\\ / /");
-            System.out.println("| |  | |  __/ (_| | | (_| | |_| | | |  __/   <\\ \\_/ / |  __/\\ V  V / ");
-            System.out.println("\\_|  |_/\\___|\\__,_|_|\\__,_|\\__|_| |_|\\___|_|\\_\\\\___/|_|\\___| \\_/\\_/  ");
-            System.out.println();
-            System.out.println();
-        }
-
         logger.info("Programmstart: {}", dateFormatter.format(Log.startZeit));
 
         final Runtime runtime = Runtime.getRuntime();
