@@ -23,17 +23,19 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.jidesoft.utils.SystemInfo;
+import mSearch.Config;
 import mSearch.daten.DatenFilm;
 import mSearch.daten.ListeFilme;
-import mSearch.tool.Log;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 public class FilmListWriter {
 
@@ -41,8 +43,13 @@ public class FilmListWriter {
     private String thema = "";
 
     protected JsonGenerator getJsonGenerator(OutputStream os) throws IOException {
-        JsonFactory jsonF = new JsonFactory();
-        return jsonF.createGenerator(os, JsonEncoding.UTF8);
+        final JsonFactory jsonF = new JsonFactory();
+        JsonGenerator jg = jsonF.createGenerator(os, JsonEncoding.UTF8);
+        if (Config.isDebuggingEnabled()) {
+            jg = jg.useDefaultPrettyPrinter();
+        }
+
+        return jg;
     }
 
     private void checkOsxCacheDirectory() {
@@ -65,11 +72,12 @@ public class FilmListWriter {
         jg.writeEndArray();
     }
 
+    private static final Logger logger = LogManager.getLogger(FilmListWriter.class);
+
     public void writeFilmList(String datei, ListeFilme listeFilme) {
         try {
-            Log.sysLog("Filme schreiben (" + listeFilme.size() + " Filme) :");
-
-            Log.sysLog("   --> Start Schreiben nach: " + datei);
+            logger.info("Filme schreiben ({} Filme) :", listeFilme.size());
+            logger.info("   --> Start Schreiben nach: {}", datei);
 
             sender = "";
             thema = "";
@@ -78,7 +86,12 @@ public class FilmListWriter {
             if (SystemInfo.isMacOSX()) {
                 checkOsxCacheDirectory();
             }
-            try (FileOutputStream fos = new FileOutputStream(datei);
+
+
+            Path filePath = Paths.get(datei);
+            Files.deleteIfExists(filePath);
+            long start = System.nanoTime();
+            try (OutputStream fos = Files.newOutputStream(filePath);
                  JsonGenerator jg = getJsonGenerator(fos)) {
 
                 jg.writeStartObject();
@@ -114,10 +127,13 @@ public class FilmListWriter {
                     jg.writeEndArray();
                 }
                 jg.writeEndObject();
-                Log.sysLog("   --> geschrieben!");
+                long end = System.nanoTime();
+
+                logger.info("   --> geschrieben!");
+                logger.info("Write duration: {} ms", TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS));
             }
         } catch (Exception ex) {
-            Log.errorLog(846930145, ex, "nach: " + datei);
+            logger.error("nach: {}", datei, ex);
         }
     }
 

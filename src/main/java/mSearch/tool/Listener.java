@@ -19,6 +19,9 @@
  */
 package mSearch.tool;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.util.EventListener;
@@ -63,10 +66,10 @@ public class Listener implements EventListener {
     public static final int EREIGNIS_TOOLBAR_VIS = 44;
     public static final int EREIGNIS_TOOLBAR_BUTTON_KLEIN = 45;
     public static final int EREIGNIS_BANDWIDTH_MONITOR = 46;
-
+    private static final EventListenerList listeners = new EventListenerList();
+    private static final Logger logger = LogManager.getLogger(Listener.class);
     public int[] mvEreignis = {-1};
     public String klasse = "";
-    private static final EventListenerList listeners = new EventListenerList();
 
     public Listener(int eereignis, String kklasse) {
         mvEreignis = new int[]{eereignis};
@@ -76,9 +79,6 @@ public class Listener implements EventListener {
     public Listener(int[] eereignis, String kklasse) {
         mvEreignis = eereignis;
         klasse = kklasse;
-    }
-
-    public void ping() {
     }
 
     public static synchronized void addListener(Listener listener) {
@@ -94,12 +94,15 @@ public class Listener implements EventListener {
                         try {
                             l.pingen();
                         } catch (Exception ex) {
-                            DbgMsg.print("ListenerMediathekView.notifyMediathekListener: " + ex.getMessage());
+                            logger.warn("notify:", ex);
                         }
                     }
                 }
             }
         }
+    }
+
+    public void ping() {
     }
 
     private void pingen() {

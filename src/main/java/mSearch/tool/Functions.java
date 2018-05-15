@@ -22,6 +22,8 @@ package mSearch.tool;
 import com.jidesoft.utils.SystemInfo;
 import mSearch.Const;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,8 +35,14 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 public class Functions {
-	
-	private static final String RBVERSION = "version";
+
+    private static final String RBVERSION = "version";
+    private static final Logger logger = LogManager.getLogger(Functions.class);
+    private static final Pattern PATTERN;
+
+    static {
+        PATTERN = Pattern.compile("\\<.*?>");
+    }
 
     public static void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(64 * 1024);
@@ -69,21 +77,6 @@ public class Functions {
         }
         text = textBuilder.toString();
         return text;
-    }
-
-    public enum OperatingSystemType {
-
-        UNKNOWN(""), WIN32("Windows"), WIN64("Windows"), LINUX("Linux"), MAC("Mac");
-        private final String name;
-
-        OperatingSystemType(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
     }
 
     /**
@@ -128,7 +121,7 @@ public class Functions {
             } catch (Exception ignored) {
             }
         } else {
-            DbgMsg.print("getPath");
+            logger.debug("getPathJar() propFile does exist");
         }
         String s = StringUtils.replace(propFile.getAbsolutePath(), pFilePath, "");
         if (!s.endsWith(File.separator)) {
@@ -182,7 +175,7 @@ public class Functions {
         }
         return new Version("");
     }
-    
+
     @Deprecated
     public static String getBuildNr() {
         String TOKEN_VERSION = "VERSION";
@@ -202,13 +195,22 @@ public class Functions {
         return dateiUrl.startsWith("http") || dateiUrl.startsWith("www");
     }
 
-    private static final Pattern PATTERN;
-
-    static {
-        PATTERN = Pattern.compile("\\<.*?>");
-    }
-
     public static String removeHtml(final String in) {
         return PATTERN.matcher(in).replaceAll("");
+    }
+
+    public enum OperatingSystemType {
+
+        UNKNOWN(""), WIN32("Windows"), WIN64("Windows"), LINUX("Linux"), MAC("Mac");
+        private final String name;
+
+        OperatingSystemType(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }

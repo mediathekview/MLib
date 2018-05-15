@@ -22,6 +22,8 @@ package mSearch.tool;
 import com.jidesoft.utils.SystemInfo;
 import mSearch.Config;
 import mSearch.Const;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -38,10 +40,10 @@ public class Log {
     // private
     private static class Error {
 
-        String cl = "";
-        int nr = 0;
-        int count = 0;
-        boolean ex = false;
+        String cl;
+        int nr;
+        int count;
+        boolean ex;
 
         public Error(int nr, String cl, boolean ex) {
             this.nr = nr;
@@ -72,57 +74,48 @@ public class Log {
 
     private static final long TO_MEGABYTE = 1000L * 1000L;
 
+    private static final Logger logger = LogManager.getLogger(Log.class);
+
     public static void versionMsg(String progName) {
         if (!SystemInfo.isMacOSX()) {
-            sysLog("");
-            sysLog("");
-            sysLog("");
-            sysLog("");
-            sysLog("");
-            sysLog("___  ___         _ _       _   _          _    _   _ _               ");
-            sysLog("|  \\/  |        | (_)     | | | |        | |  | | | (_)              ");
-            sysLog("| .  . | ___  __| |_  __ _| |_| |__   ___| | _| | | |_  _____      __");
-            sysLog("| |\\/| |/ _ \\/ _` | |/ _` | __| '_ \\ / _ \\ |/ / | | | |/ _ \\ \\ /\\ / /");
-            sysLog("| |  | |  __/ (_| | | (_| | |_| | | |  __/   <\\ \\_/ / |  __/\\ V  V / ");
-            sysLog("\\_|  |_/\\___|\\__,_|_|\\__,_|\\__|_| |_|\\___|_|\\_\\\\___/|_|\\___| \\_/\\_/  ");
-            sysLog("");
-            sysLog("");
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println("___  ___         _ _       _   _          _    _   _ _               ");
+            System.out.println("|  \\/  |        | (_)     | | | |        | |  | | | (_)              ");
+            System.out.println("| .  . | ___  __| |_  __ _| |_| |__   ___| | _| | | |_  _____      __");
+            System.out.println("| |\\/| |/ _ \\/ _` | |/ _` | __| '_ \\ / _ \\ |/ / | | | |/ _ \\ \\ /\\ / /");
+            System.out.println("| |  | |  __/ (_| | | (_| | |_| | | |  __/   <\\ \\_/ / |  __/\\ V  V / ");
+            System.out.println("\\_|  |_/\\___|\\__,_|_|\\__,_|\\__|_| |_|\\___|_|\\_\\\\___/|_|\\___| \\_/\\_/  ");
+            System.out.println();
+            System.out.println();
         }
-        sysLog(LILNE);
-        sysLog("Programmstart: " + dateFormatter.format(Log.startZeit));
-        sysLog(LILNE);
-        sysLog("");
-        final long totalMem = Runtime.getRuntime().totalMemory();
-        sysLog("totalMemory: " + totalMem / TO_MEGABYTE + " MB");
-        final long maxMem = Runtime.getRuntime().maxMemory();
-        sysLog("maxMemory: " + maxMem / TO_MEGABYTE + " MB");
-        final long freeMem = Runtime.getRuntime().freeMemory();
-        sysLog("freeMemory: " + freeMem / TO_MEGABYTE + " MB");
-        sysLog("");
-        sysLog(LILNE);
-        sysLog("");
+
+        logger.info("Programmstart: {}", dateFormatter.format(Log.startZeit));
+
+        final Runtime runtime = Runtime.getRuntime();
+        logger.debug("totalMemory: {} MB", runtime.totalMemory() / TO_MEGABYTE);
+        final long maxMem = runtime.maxMemory();
+        logger.info("maxMemory: {} MB", maxMem / TO_MEGABYTE);
+        logger.debug("freeMemory: {} MB", runtime.freeMemory() / TO_MEGABYTE);
+
         //Version
-        sysLog(progName); /*+ Functions.getProgVersionString()*/ // TODO: Es wird noch die Version von MLib angezeigt anstatt von MV
-//        String compile = Functions.getCompileDate();
-//        if (!compile.isEmpty()) {
-//            sysLog("Compiled: " + compile);
-//        }
-        sysLog("");
-        sysLog(LILNE);
-        sysLog("");
-        sysLog("Java");
+        logger.info("Version: {}", progName);
+
+        logger.info("Java:");
         final String[] java = Functions.getJavaVersion();
         for (String ja : java) {
-            sysLog(ja);
+            logger.info(ja);
         }
-        sysLog("");
     }
 
     public static void endMsg() {
-        sysLog("");
-        sysLog("");
-        sysLog("");
-        sysLog("");
+        logger.info("");
+        logger.info("");
+        logger.info("");
+        logger.info("");
 
         printErrorMsg().forEach(Log::sysLog);
 
@@ -134,18 +127,14 @@ public class Log {
         } catch (Exception ex) {
             minuten = -1;
         }
-        sysLog("");
-        sysLog("");
-        sysLog(LILNE);
-        sysLog("   --> Beginn: " + dateFormatter.format(Log.startZeit));
-        sysLog("   --> Fertig: " + dateFormatter.format(stopZeit));
-        sysLog("   --> Dauer[Min]: " + (minuten == 0 ? "<1" : minuten));
-        sysLog(LILNE);
-        sysLog("");
-        sysLog("   und Tschuess");
-        sysLog("");
-        sysLog("");
-        sysLog(LILNE);
+
+        logger.info("");
+        logger.info("");
+        logger.info(LILNE);
+        logger.info("   --> Beginn: {}", dateFormatter.format(Log.startZeit));
+        logger.info("   --> Fertig: {}", dateFormatter.format(stopZeit));
+        logger.info("   --> Dauer[Min]: {}", (minuten == 0 ? "<1" : minuten));
+        logger.info(LILNE);
     }
 
     public static synchronized ArrayList<String> printErrorMsg() {
@@ -218,9 +207,6 @@ public class Log {
         fehlermeldung_(fehlerNummer, null, text);
     }
 
-//    public static synchronized void systemMeldung(String[] text) {
-//        systemmeldung_(text);
-//    }
     public static synchronized void sysLog(String text) {
         systemmeldung_(new String[]{text});
     }

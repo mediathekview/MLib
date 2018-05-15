@@ -19,6 +19,9 @@
  */
 package mSearch.tool;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 
 public class MSStringBuilder {
@@ -130,6 +133,8 @@ public class MSStringBuilder {
         extractList(abMuster, bisMuster, musterStart, "", musterEnde, addUrl, result);
     }
 
+    private static final Logger logger = LogManager.getLogger(MSStringBuilder.class);
+
     public void extractList(String abMuster, String bisMuster, String musterStart1, String musterStart2, String musterEnde, String addUrl, ArrayList<String> result) {
         int pos1, pos2, stopPos, count = 0;
         String str;
@@ -143,7 +148,7 @@ public class MSStringBuilder {
         while ((pos1 = cont.indexOf(musterStart1, pos1)) != -1) {
             ++count;
             if (count > 10_000) {
-                DbgMsg.print("Achtung");
+                logger.debug("count > 10_000");
                 break;
             }
             pos1 += musterStart1.length();
@@ -175,7 +180,7 @@ public class MSStringBuilder {
         if (!result.contains(str)) {
             result.add(str);
             if (result.size() > 1000) {
-                DbgMsg.print("Achtung");
+                logger.debug("result.size() > 1000");
             }
         }
     }
@@ -192,7 +197,7 @@ public class MSStringBuilder {
         while ((pos1 = cont.indexOf(musterStart1, pos1)) != -1) {
             ++count;
             if (count > 10_000) {
-                DbgMsg.print("Achtung");
+                logger.debug("count > 10_000");
                 break;
             }
             pos1 += musterStart1.length();
@@ -219,7 +224,7 @@ public class MSStringBuilder {
             if (!result.contains(str)) {
                 result.add(str);
                 if (result.size() > 1000) {
-                    DbgMsg.print("Achtung");
+                    logger.debug("result.size() > 1000");
                 }
             }
 
