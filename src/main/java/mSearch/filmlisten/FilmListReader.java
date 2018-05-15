@@ -28,10 +28,7 @@ import mSearch.daten.DatenFilm;
 import mSearch.daten.ListeFilme;
 import mSearch.filmeSuchen.ListenerFilmeLaden;
 import mSearch.filmeSuchen.ListenerFilmeLadenEvent;
-import mSearch.tool.InputStreamProgressMonitor;
-import mSearch.tool.Log;
-import mSearch.tool.MVHttpClient;
-import mSearch.tool.ProgressMonitorInputStream;
+import mSearch.tool.*;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -284,6 +281,10 @@ public class FilmListReader implements AutoCloseable {
                 Log.sysLog("--> Abbruch");
                 listeFilme.clear();
             }
+
+            //update filmlist size for startup Progress panel...
+            //use hardcoded string here as this a separate lib without access to FXProgressPanel :-(
+            ApplicationConfiguration.getConfiguration().setProperty("application.last_filmlist_size", listeFilme.size());
         } catch (MalformedURLException ex) {
             ex.printStackTrace();
         }

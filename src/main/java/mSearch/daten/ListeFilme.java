@@ -36,7 +36,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public static final String THEMA_LIVE = "Livestream";
     public static final String FILMLISTE = "Filmliste";
     public static final String FILMLISTE_DATUM = "Filmliste-Datum";
+    /**
+     * Unused in newer MV versions. Useless waste of bytes...
+     */
+    @Deprecated
     public static final int FILMLISTE_DATUM_NR = 0;
+
     public static final String FILMLISTE_DATUM_GMT = "Filmliste-Datum-GMT";
     public static final int FILMLISTE_DATUM_GMT_NR = 1;
     public static final String FILMLISTE_VERSION = "Filmliste-Version";
@@ -57,6 +62,11 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public ObservableList<String> senderList = FXCollections.observableArrayList();
     public String[][] themenPerSender = {{""}};
     public boolean neueFilme = false;
+
+    public ListeFilme() {
+        super();
+        sdf_.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+    }
 
     public synchronized void importFilmliste(DatenFilm film) {
         // hier nur beim Laden aus einer fertigen Filmliste mit der GUI
@@ -205,30 +215,24 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
+    private static final SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+    private static final SimpleTimeZone sdf_tz = new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC");
+
     public synchronized String genDate() {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "dd.MM.yyyy, HH:mm"
+        final String date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
+
+        Date filmDate;
         String ret;
-        String date;
-        if (metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].isEmpty()) {
-            // noch eine alte Filmliste
-            ret = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
-        } else {
-            date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
-            SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
-            sdf_.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
-            Date filmDate = null;
-            try {
-                filmDate = sdf_.parse(date);
-            } catch (ParseException ignored) {
-            }
-            if (filmDate == null) {
-                ret = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
-            } else {
-                FastDateFormat formatter = FastDateFormat.getInstance(DATUM_ZEIT_FORMAT);
-                ret = formatter.format(filmDate);
-            }
+        try {
+            filmDate = sdf_.parse(date);
+            FastDateFormat formatter = FastDateFormat.getInstance(DATUM_ZEIT_FORMAT);
+            ret = formatter.format(filmDate);
+        } catch (ParseException ignored) {
+            ret = date;
         }
+
         return ret;
     }
 
