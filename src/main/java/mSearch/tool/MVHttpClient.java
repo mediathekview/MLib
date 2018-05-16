@@ -4,6 +4,8 @@ import okhttp3.Authenticator;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import org.apache.commons.configuration2.Configuration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -12,9 +14,11 @@ import java.util.concurrent.TimeUnit;
 
 public class MVHttpClient {
     private final static MVHttpClient ourInstance = new MVHttpClient();
+    private static final Logger logger = LogManager.getLogger(MVHttpClient.class);
+    private static final String HTTP_PROXY_AUTHORIZATION = "Proxy-Authorization";
+    private final Configuration config = ApplicationConfiguration.getConfiguration();
     private OkHttpClient httpClient;
     private OkHttpClient copyClient;
-    private final Configuration config = ApplicationConfiguration.getConfiguration();
 
     private MVHttpClient() {
         String proxyHost = System.getProperty("http.proxyHost");
@@ -25,7 +29,7 @@ public class MVHttpClient {
                 //we are configuring the proxy from environment variables...
                 final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
                 setupProxyClients(proxy);
-                SysMsg.sysMsg(String.format("MVHttpClient: Proxy configured from environment variables: (%s)", proxyHost));
+                logger.info("MVHttpClient: Proxy configured from environment variables: ({})", proxyHost);
             } else {
                 //environment variables were not set, use application settings...
                 try {
@@ -34,7 +38,7 @@ public class MVHttpClient {
                     if (!proxyHost.isEmpty() && !proxyPort.isEmpty()) {
                         final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)));
                         setupProxyClients(proxy);
-                        SysMsg.sysMsg(String.format("MVHttpClient: Proxy configured from application config: (%s)", proxyHost));
+                        logger.info("MVHttpClient: Proxy configured from application config: ({})", proxyHost);
                     } else {
                         //no proxy setup specified...
                         setupNonProxyClients();
@@ -45,8 +49,12 @@ public class MVHttpClient {
             }
         } catch (NumberFormatException ex) {
             setupNonProxyClients();
-            Log.errorLog(123456789, ex, "PROXY config failed. Creating non proxy config");
+            logger.error("PROXY config failed. Creating non proxy config", ex);
         }
+    }
+
+    public static MVHttpClient getInstance() {
+        return ourInstance;
     }
 
     /**
@@ -60,8 +68,6 @@ public class MVHttpClient {
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS);
     }
-
-    private static final String HTTP_PROXY_AUTHORIZATION = "Proxy-Authorization";
 
     private Authenticator createAuthenticator(String prxUser, String prxPassword) {
         return (route, response) -> {
@@ -83,7 +89,7 @@ public class MVHttpClient {
         if (prxUser != null && prxPassword != null && !prxUser.isEmpty() && !prxPassword.isEmpty()) {
             //create proxy auth from environment vars
             proxyAuthenticator = createAuthenticator(prxUser, prxPassword);
-            SysMsg.sysMsg(String.format("Proxy Authentication from environment vars: (%s)", prxUser));
+            logger.info("Proxy Authentication from environment vars: ({})", prxUser);
         } else {
             //try to create proxy auth from settings
             try {
@@ -91,7 +97,7 @@ public class MVHttpClient {
                 prxPassword = config.getString(ApplicationConfiguration.HTTP_PROXY_PASSWORD);
                 if (!prxUser.isEmpty() && !prxPassword.isEmpty()) {
                     proxyAuthenticator = createAuthenticator(prxUser, prxPassword);
-                    SysMsg.sysMsg(String.format("Proxy Authentication from application settings: (%s)", prxUser));
+                    logger.info("Proxy Authentication from application settings: ({})", prxUser);
                 }
             } catch (NoSuchElementException ignored) {
             }
@@ -140,11 +146,7 @@ public class MVHttpClient {
                 .writeTimeout(2, TimeUnit.SECONDS)
                 .build();
 
-        SysMsg.sysMsg("MVHttpClient: Proxy not configured");
-    }
-
-    public static MVHttpClient getInstance() {
-        return ourInstance;
+        logger.info("MVHttpClient: Proxy not configured");
     }
 
     public OkHttpClient getHttpClient() {
