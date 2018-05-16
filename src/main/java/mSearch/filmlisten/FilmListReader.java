@@ -36,6 +36,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tukaani.xz.XZInputStream;
 
 import javax.swing.event.EventListenerList;
@@ -46,6 +48,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -322,14 +325,16 @@ public class FilmListReader implements AutoCloseable {
                  JsonParser jp = new JsonFactory().createParser(in)) {
                 readData(jp, listeFilme);
             }
-        } catch (FileNotFoundException ex) {
-            Log.errorLog(894512369, "FilmListe existiert nicht: " + source);
+        } catch (FileNotFoundException | NoSuchFileException ex) {
+            logger.debug("FilmListe existiert nicht: {}", source);
             listeFilme.clear();
         } catch (Exception ex) {
-            Log.errorLog(945123641, ex, "FilmListe: " + source);
+            logger.error("FilmListe: {}", source, ex);
             listeFilme.clear();
         }
     }
+
+    private static final Logger logger = LogManager.getLogger(FilmListReader.class);
 
     /**
      * Download and process a filmliste from the web.
