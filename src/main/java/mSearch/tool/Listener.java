@@ -108,7 +108,7 @@ public class Listener implements EventListener {
         try {
             SwingUtilities.invokeLater(this::ping);
         } catch (Exception ex) {
-            Log.errorLog(698989743, ex);
+            logger.error(ex);
         }
     }
 }
