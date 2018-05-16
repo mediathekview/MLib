@@ -22,10 +22,10 @@ package mSearch.daten;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mSearch.Const;
-import mSearch.tool.Duration;
 import mSearch.tool.FileSize;
-import mSearch.tool.Log;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -320,10 +320,12 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public boolean isOlderThan(long sekunden) {
         final long ret = getAge();
         if (ret != 0) {
-            Log.sysLog("Die Filmliste ist " + ret / 60 + " Minuten alt");
+            logger.info("Die Filmliste ist {} Minuten alt", ret / 60);
         }
         return ret > sekunden;
     }
+
+    private static final Logger logger = LogManager.getLogger(ListeFilme.class);
 
     public synchronized long countNewFilms() {
         return this.stream().filter(DatenFilm::isNew).count();
@@ -336,7 +338,8 @@ public class ListeFilme extends ArrayList<DatenFilm> {
      */
     @SuppressWarnings("unchecked")
     public synchronized void themenLaden() {
-        Duration.counterStart(THEME_SEARCH_TEXT);
+        logger.debug(THEME_SEARCH_TEXT);
+
         LinkedHashSet<String> senderSet = new LinkedHashSet<>(21);
         // der erste Sender ist ""
         senderSet.add("");
@@ -384,6 +387,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             tree[i].clear();
             hashSet[i].clear();
         }
-        Duration.counterStop(THEME_SEARCH_TEXT);
+
+        logger.debug(THEME_SEARCH_TEXT);
     }
 }
