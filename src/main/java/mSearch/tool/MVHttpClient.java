@@ -13,9 +13,9 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 public class MVHttpClient {
-    private final static MVHttpClient ourInstance = new MVHttpClient();
-    private static final Logger logger = LogManager.getLogger(MVHttpClient.class);
+    private static final MVHttpClient ourInstance = new MVHttpClient();
     private static final String HTTP_PROXY_AUTHORIZATION = "Proxy-Authorization";
+    private final Logger logger = LogManager.getLogger(MVHttpClient.class);
     private final Configuration config = ApplicationConfiguration.getConfiguration();
     private OkHttpClient httpClient;
     private OkHttpClient copyClient;
