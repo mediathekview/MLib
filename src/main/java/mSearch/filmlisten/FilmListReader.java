@@ -29,7 +29,6 @@ import mSearch.daten.ListeFilme;
 import mSearch.filmeSuchen.ListenerFilmeLaden;
 import mSearch.filmeSuchen.ListenerFilmeLadenEvent;
 import mSearch.tool.InputStreamProgressMonitor;
-import mSearch.tool.Log;
 import mSearch.tool.MVHttpClient;
 import mSearch.tool.ProgressMonitorInputStream;
 import okhttp3.Request;
@@ -270,7 +269,7 @@ public class FilmListReader implements AutoCloseable {
 
     public void readFilmListe(String source, final ListeFilme listeFilme, int days) {
         try {
-            Log.sysLog("Liste Filme lesen von: " + source);
+            logger.info("Liste Filme lesen von: {}", source);
             listeFilme.clear();
 
             notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
@@ -284,12 +283,12 @@ public class FilmListReader implements AutoCloseable {
                 processFromFile(source, listeFilme);
 
             if (Config.getStop()) {
-                Log.sysLog("--> Abbruch");
+                logger.info("--> Abbruch");
                 listeFilme.clear();
             }
 
         } catch (MalformedURLException ex) {
-            ex.printStackTrace();
+            logger.warn(ex);
         }
 
         notifyFertig(source, listeFilme);
@@ -369,7 +368,7 @@ public class FilmListReader implements AutoCloseable {
                 }
             }
         } catch (Exception ex) {
-            Log.errorLog(945123641, ex, "FilmListe: " + source);
+            logger.error("FilmListe: {}", source, ex);
             listeFilme.clear();
         }
     }
@@ -383,7 +382,7 @@ public class FilmListReader implements AutoCloseable {
                 }
             }
         } catch (Exception ex) {
-            Log.errorLog(495623014, ex);
+            logger.error(ex);
         }
         return true;
     }
@@ -410,9 +409,9 @@ public class FilmListReader implements AutoCloseable {
     }
 
     private void notifyFertig(String url, ListeFilme liste) {
-        Log.sysLog("Liste Filme gelesen am: " + FastDateFormat.getInstance("dd.MM.yyyy, HH:mm").format(new Date()));
-        Log.sysLog("  erstellt am: " + liste.genDate());
-        Log.sysLog("  Anzahl Filme: " + liste.size());
+        logger.info("Liste Filme gelesen am: {}", FastDateFormat.getInstance("dd.MM.yyyy, HH:mm").format(new Date()));
+        logger.info("  erstellt am: {}", liste.genDate());
+        logger.info("  Anzahl Filme: {}", liste.size());
         for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
             progressEvent.senderUrl = url;
             progressEvent.text = "";

@@ -36,14 +36,17 @@ public class SysMsg {
     private static int zeilenNrSystem = 0;
     private static int zeilenNrProgramm = 0;
 
+    @Deprecated
     public static synchronized void sysMsg(String[] text) {
         systemmeldung(text);
     }
 
+    @Deprecated
     public static synchronized void sysMsg(String text) {
         systemmeldung(new String[]{text});
     }
 
+    @Deprecated
     public static synchronized void playerMsg(String text) {
         if (!playerMeldungenAus) {
             playermeldung(new String[]{text});
