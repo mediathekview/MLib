@@ -30,10 +30,6 @@ public class DatumFilm extends Datum {
     private final static SDF dateFormatter1 = new SDF("dd.MM.yyyy");
     private final static SDF dateFormatter2 = new SDF("yyyy.MM.dd");
 
-    public DatumFilm() {
-        super();
-    }
-
     public DatumFilm(long l) {
         super(l);
     }
@@ -59,12 +55,7 @@ public class DatumFilm extends Datum {
     private static class SDF extends SimpleDateFormat {
         private final static TimeZone tz = TimeZone.getTimeZone("Europe/Berlin");
 
-        public SDF() {
-            super();
-            this.setTimeZone(tz);
-        }
-
-        public SDF(String str) {
+        SDF(String str) {
             super(str);
             this.setTimeZone(tz);
         }

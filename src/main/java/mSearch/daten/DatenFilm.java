@@ -22,7 +22,6 @@ package mSearch.daten;
 import mSearch.Const;
 import mSearch.tool.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -104,8 +103,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
      */
     private final static AtomicInteger FILM_COUNTER = new AtomicInteger(0);
     private static final GermanStringSorter sorter = GermanStringSorter.getInstance();
-    private static final FastDateFormat sdf_datum_zeit = FastDateFormat.getInstance("dd.MM.yyyyHH:mm:ss");
-    private static final FastDateFormat sdf_datum = FastDateFormat.getInstance("dd.MM.yyyy");
     public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
 
     static {
@@ -117,6 +114,9 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     public final String[] arr = new String[MAX_ELEM];
 
+    /**
+     * film date stored IN SECONDS!!!
+     */
     public DatumFilm datumFilm = new DatumFilm(0);
     /**
      * film length in seconds.
@@ -422,23 +422,13 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     }
 
     private void setDatum() {
-        //TODO DEBUG HERE AS WELL FOR USE OF DATUM LONG
         if (!arr[DatenFilm.FILM_DATUM].isEmpty()) {
             // nur dann gibts ein Datum
             try {
-                if (arr[DatenFilm.FILM_DATUM_LONG].isEmpty()) {
-                    if (arr[DatenFilm.FILM_ZEIT].isEmpty()) {
-                        datumFilm = new DatumFilm(sdf_datum.parse(arr[DatenFilm.FILM_DATUM]).getTime());
-                    } else {
-                        datumFilm = new DatumFilm(sdf_datum_zeit.parse(arr[DatenFilm.FILM_DATUM] + arr[DatenFilm.FILM_ZEIT]).getTime());
-                    }
-                    arr[FILM_DATUM_LONG] = String.valueOf(datumFilm.getTime() / 1000);
-                } else {
-                    long l = Long.parseLong(arr[DatenFilm.FILM_DATUM_LONG]);
-                    datumFilm = new DatumFilm(l * 1000 /* sind SEKUNDEN!!*/);
-                }
+                final long l = Long.parseLong(arr[DatenFilm.FILM_DATUM_LONG]);
+                datumFilm = new DatumFilm(l * 1000); // sind SEKUNDEN!!
             } catch (Exception ex) {
-                Log.errorLog(915236701, ex, new String[]{"Datum: " + arr[DatenFilm.FILM_DATUM], "Zeit: " + arr[DatenFilm.FILM_ZEIT]});
+                logger.error("Datum: {}, Zeit: {}", arr[DatenFilm.FILM_DATUM], arr[DatenFilm.FILM_ZEIT], ex);
                 datumFilm = new DatumFilm(0);
                 arr[DatenFilm.FILM_DATUM] = "";
                 arr[DatenFilm.FILM_ZEIT] = "";
@@ -471,15 +461,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
             }
         }
         return arr[DatenFilm.FILM_URL];
-    }
-
-    private String performStringPadding(String s) {
-        StringBuilder sBuilder = new StringBuilder(s);
-        while (sBuilder.length() < 2) {
-            sBuilder.insert(0, '0');
-        }
-
-        return sBuilder.toString();
     }
 
     public static class Database {
