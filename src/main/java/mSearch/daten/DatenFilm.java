@@ -23,6 +23,8 @@ import mSearch.Const;
 import mSearch.tool.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import sun.misc.Cleaner;
 
@@ -116,7 +118,10 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     public final String[] arr = new String[MAX_ELEM];
 
     public DatumFilm datumFilm = new DatumFilm(0);
-    public long dauerL = 0; // Sekunden
+    /**
+     * film length in seconds.
+     */
+    public long dauerL = 0;
     public Object abo = null;
     public MSLong dateigroesseL; // Dateigröße in MByte
     /**
@@ -396,37 +401,23 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         return ret;
     }
 
+    private static final Logger logger = LogManager.getLogger(DatenFilm.class);
+
     private void setFilmdauer() {
+        //TODO OPTIMIZE ME!
         try {
-            //TODO is this still valid? Debug me
-            if (!this.arr[DatenFilm.FILM_DAUER].contains(":") && !this.arr[DatenFilm.FILM_DAUER].isEmpty()) {
-                // nur als Übergang bis die Liste umgestellt ist
-                long l = Long.parseLong(this.arr[DatenFilm.FILM_DAUER]);
-                dauerL = l;
-                if (l > 0) {
-                    long hours = l / 3600;
-                    l = l - (hours * 3600);
-                    long min = l / 60;
-                    l = l - (min * 60);
-                    long seconds = l;
-                    this.arr[DatenFilm.FILM_DAUER] = performStringPadding(String.valueOf(hours)) + ':' + performStringPadding(String.valueOf(min)) + ':' + performStringPadding(String.valueOf(seconds));
-                } else {
-                    this.arr[DatenFilm.FILM_DAUER] = "";
-                }
-            } else {
-                dauerL = 0;
-                if (!this.arr[DatenFilm.FILM_DAUER].isEmpty()) {
-                    String[] parts = this.arr[DatenFilm.FILM_DAUER].split(":");
-                    long power = 1;
-                    for (int i = parts.length - 1; i >= 0; i--) {
-                        dauerL += Long.parseLong(parts[i]) * power;
-                        power *= 60;
-                    }
+            dauerL = 0;
+            if (!this.arr[DatenFilm.FILM_DAUER].isEmpty()) {
+                String[] parts = this.arr[DatenFilm.FILM_DAUER].split(":");
+                long power = 1;
+                for (int i = parts.length - 1; i >= 0; i--) {
+                    dauerL += Long.parseLong(parts[i]) * power;
+                    power *= 60;
                 }
             }
         } catch (Exception ex) {
             dauerL = 0;
-            Log.errorLog(468912049, "Dauer: " + this.arr[DatenFilm.FILM_DAUER]);
+            logger.error("Dauer: {}", this.arr[DatenFilm.FILM_DAUER], ex);
         }
     }
 
