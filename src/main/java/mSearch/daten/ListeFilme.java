@@ -22,7 +22,6 @@ package mSearch.daten;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import mSearch.Const;
-import mSearch.tool.FileSize;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,26 +34,18 @@ import java.util.*;
 public class ListeFilme extends ArrayList<DatenFilm> {
     public static final String THEMA_LIVE = "Livestream";
     public static final String FILMLISTE = "Filmliste";
-    public static final String FILMLISTE_DATUM = "Filmliste-Datum";
-    /**
-     * Unused in newer MV versions. Useless waste of bytes...
-     */
-    @Deprecated
-    public static final int FILMLISTE_DATUM_NR = 0;
 
-    public static final String FILMLISTE_DATUM_GMT = "Filmliste-Datum-GMT";
     public static final int FILMLISTE_DATUM_GMT_NR = 1;
-    public static final String FILMLISTE_VERSION = "Filmliste-Version";
-    public static final String FILMLISTE_PROGRAMM = "Filmliste-Programm";
-    public static final String FILMLISTE_ID = "Filmliste-Id";
     public static final int FILMLISTE_ID_NR = 4;
-    public static final int MAX_ELEM = 5;
-    public static final String[] COLUMN_NAMES = {FILMLISTE_DATUM, FILMLISTE_DATUM_GMT, FILMLISTE_VERSION, FILMLISTE_PROGRAMM, FILMLISTE_ID};
+    public static final int MAX_ELEM = 5; //5 although not many indices are declared
+
+    private final static String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
+    private static final SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
+    private static final Logger logger = LogManager.getLogger(ListeFilme.class);
+    private static final String THEME_SEARCH_TEXT = "Themen in Filmliste suchen";
+    private final SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
     public int nr = 1;
     public String[] metaDaten = new String[]{"", "", "", "", ""};
-    private final static String DATUM_ZEIT_FORMAT = "dd.MM.yyyy, HH:mm";
-    private final SimpleDateFormat sdf = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
-    //TODO entferne Sender und nutze Observable list senderList!
     public String[] sender = {""};
     /**
      * List of available senders which notifies its users.
@@ -140,8 +131,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
     @Override
-    public boolean add(DatenFilm aFilm)
-    {
+    public boolean add(DatenFilm aFilm) {
         return super.add(aFilm);
     }
 
@@ -164,30 +154,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
 
     public synchronized void setMeta(ListeFilme listeFilme) {
         System.arraycopy(listeFilme.metaDaten, 0, metaDaten, 0, MAX_ELEM);
-    }
-
-    /**
-     * @param url the URL as String.
-     * @return the determined size or -1.
-     * @deprecated Move this someday to DatenFilm.
-     */
-    @Deprecated
-    public String getFileSizeUrl(String url) {
-        //FIXME bring to DatenFilm and reduce calculation
-        String res;
-
-        Optional<DatenFilm> opt = this.parallelStream()
-                .filter(f -> f.arr[DatenFilm.FILM_URL].equals(url)).findAny();
-        if (opt.isPresent()) {
-            DatenFilm film = opt.get();
-            if (!film.arr[DatenFilm.FILM_GROESSE].isEmpty())
-                res = film.arr[DatenFilm.FILM_GROESSE];
-            else
-                res = FileSize.laengeString(url);
-        } else
-            res = FileSize.laengeString(url);
-
-        return res;
     }
 
     public synchronized DatenFilm getFilmByUrl(final String url) {
@@ -215,9 +181,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret;
     }
 
-    private static final SimpleDateFormat sdf_ = new SimpleDateFormat(DATUM_ZEIT_FORMAT);
-    private static final SimpleTimeZone sdf_tz = new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC");
-
     public synchronized String genDate() {
         // Tag, Zeit in lokaler Zeit wann die Filmliste erstellt wurde
         // in der Form "dd.MM.yyyy, HH:mm"
@@ -239,6 +202,15 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized String getId() {
         // liefert die ID einer Filmliste
         return metaDaten[ListeFilme.FILMLISTE_ID_NR];
+    }
+
+    /**
+     * Replace the current metadata with new one.
+     *
+     * @param data the new metadata
+     */
+    public synchronized void setMetaDaten(String[] data) {
+        metaDaten = data;
     }
 
     /**
@@ -264,14 +236,10 @@ public class ListeFilme extends ArrayList<DatenFilm> {
      *
      * @return Age as a {@link java.util.Date} object.
      */
-    public Date getAgeAsDate() {
-        String date;
-        if (!metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR].isEmpty()) {
-            date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
-            sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
-        } else {
-            date = metaDaten[ListeFilme.FILMLISTE_DATUM_NR];
-        }
+    private Date getAgeAsDate() {
+        String date = metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR];
+        sdf.setTimeZone(new SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC"));
+
         Date filmDate = null;
         try {
             filmDate = sdf.parse(date);
@@ -325,13 +293,10 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return ret > sekunden;
     }
 
-    private static final Logger logger = LogManager.getLogger(ListeFilme.class);
-
     public synchronized long countNewFilms() {
         return this.stream().filter(DatenFilm::isNew).count();
     }
 
-    private static final String THEME_SEARCH_TEXT = "Themen in Filmliste suchen";
     /**
      * Erstellt ein StringArray der Themen eines Senders oder wenn "sender" leer, aller Sender.
      * Ist für die Filterfelder in GuiFilme.
@@ -347,7 +312,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         for (DatenFilm film : this) {
             senderSet.add(film.arr[DatenFilm.FILM_SENDER]);
         }
-        sender = senderSet.toArray(new String[senderSet.size()]);
+        sender = senderSet.toArray(new String[0]);
         senderList.clear();
         senderList.addAll(senderSet);
         senderSet.clear();
@@ -383,7 +348,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             }
         }
         for (int i = 0; i < themenPerSender.length; ++i) {
-            themenPerSender[i] = tree[i].toArray(new String[tree[i].size()]);
+            themenPerSender[i] = tree[i].toArray(new String[0]);
             tree[i].clear();
             hashSet[i].clear();
         }

@@ -200,6 +200,14 @@ public class FilmListReader implements AutoCloseable {
         jp.nextToken();
     }
 
+    /**
+     * Skip over file entry.
+     * This is used when fields were deleted in DatenFilm but still exit in filmlist file.
+     */
+    private void skipToken(JsonParser jp) throws IOException {
+        jp.nextToken();
+    }
+
     private void parseTime(JsonParser jp, DatenFilm datenFilm) throws IOException {
         String zeit = checkedString(jp);
         if (!zeit.isEmpty() && zeit.length() < 8) {
@@ -236,11 +244,11 @@ public class FilmListReader implements AutoCloseable {
                 parseDefault(jp, datenFilm, DatenFilm.FILM_URL);
                 parseWebsiteLink(jp, datenFilm);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_URL_SUBTITLE);
-                skipToken(jp, datenFilm, DatenFilm.FILM_URL_RTMP);
+                skipToken(jp);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_URL_KLEIN);
-                skipToken(jp, datenFilm, DatenFilm.FILM_URL_RTMP_KLEIN);
+                skipToken(jp);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_URL_HD);
-                skipToken(jp, datenFilm, DatenFilm.FILM_URL_RTMP_HD);
+                skipToken(jp);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_DATUM_LONG);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_URL_HISTORY);
                 parseGeo(jp, datenFilm);

@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 import sun.misc.Cleaner;
 
 import java.sql.*;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
@@ -52,52 +51,52 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     public static final int FILM_GROESSE = 9;
     public static final int FILM_HD = 10;
     public static final int FILM_UT = 11;
-    public static final int FILM_BESCHREIBUNG = 12;
-    public static final int FILM_GEO = 13;// Geoblocking
-    public static final int FILM_URL = 14;
-    public static final int FILM_WEBSEITE = 15; //URL der Website des Films beim Sender
-    public static final int FILM_ABO_NAME = 16;// wird vor dem Speichern gelöscht!
-    public static final int FILM_URL_SUBTITLE = 17;
-    public static final int FILM_URL_RTMP = 18;
-    public static final int FILM_URL_AUTH = 19;//frei für andere Sachen
-    public static final int FILM_URL_KLEIN = 20;
-    public static final int FILM_URL_RTMP_KLEIN = 21;
-    public static final int FILM_URL_HD = 22;
-    public static final int FILM_URL_RTMP_HD = 23;
-    public static final int FILM_URL_HISTORY = 24;
-    public static final int FILM_NEU = 25;
-    public static final int FILM_DATUM_LONG = 26;// Datum als Long ABER Sekunden!!
-    public static final int FILM_REF = 27;// Referenz auf this
-    public static final int MAX_ELEM = 28;
+    public static final int FILM_GEO = 12;// Geoblocking
+    public static final int FILM_URL = 13;
+    public static final int FILM_ABO_NAME = 14;// wird vor dem Speichern gelöscht!
+    public static final int FILM_URL_SUBTITLE = 15;
+    public static final int FILM_URL_KLEIN = 16;
+    public static final int FILM_URL_HD = 17;
+    public static final int FILM_URL_HISTORY = 18;
+    public static final int FILM_DATUM_LONG = 19;// Datum als Long ABER Sekunden!!
+    public static final int FILM_NEU = 20;
+    public static final int FILM_WEBSEITE = 21; //URL der Website des Films beim Sender
+    public static final int FILM_BESCHREIBUNG = 22;
+    public static final int FILM_REF = 23;// Referenz auf this
+    public static final int MAX_ELEM = 24;
+
     public static final String TAG = "Filme";
-    public static final String TAG_JSON_LIST = "X";
-    public static final String[] COLUMN_NAMES = {"Nr", "Sender", "Thema", "Titel",
-            "", "", "Datum", "Zeit", "Dauer", "Größe [MB]", "HD", "UT",
-            "Beschreibung", "Geo", "Url", "Website", "Abo",
-            "URL Untertitel", "URL RTMP", "URL Auth", "URL Klein",
-            "URL RTMP Klein", "URL HD", "URL RTMP HD", "URL History", "Neu",
-            "DatumL", "Ref"};
-    // neue Felder werden HINTEN angefügt!!!!!
-    public static final int[] JSON_NAMES = {FILM_SENDER,
-            FILM_THEMA,
-            FILM_TITEL,
-            FILM_DATUM,
-            FILM_ZEIT,
-            FILM_DAUER,
-            FILM_GROESSE,
-            FILM_BESCHREIBUNG,
-            FILM_URL,
-            FILM_WEBSEITE,
-            FILM_URL_SUBTITLE,
-            FILM_URL_RTMP,
-            FILM_URL_KLEIN,
-            FILM_URL_RTMP_KLEIN,
-            FILM_URL_HD,
-            FILM_URL_RTMP_HD,
-            FILM_DATUM_LONG,
-            FILM_URL_HISTORY,
-            FILM_GEO,
-            FILM_NEU};
+
+    //TODO get rid out of DatenFilm
+    public static final String[] COLUMN_NAMES = new String[MAX_ELEM];
+
+    static {
+        COLUMN_NAMES[FILM_NR] = "Nr";
+        COLUMN_NAMES[FILM_SENDER] = "Sender";
+        COLUMN_NAMES[FILM_THEMA] = "Thema";
+        COLUMN_NAMES[FILM_TITEL] = "Titel";
+        COLUMN_NAMES[FILM_ABSPIELEN] = "";
+        COLUMN_NAMES[FILM_AUFZEICHNEN] = "";
+        COLUMN_NAMES[FILM_DATUM] = "Datum";
+        COLUMN_NAMES[FILM_ZEIT] = "Zeit";
+        COLUMN_NAMES[FILM_DAUER] = "Dauer";
+        COLUMN_NAMES[FILM_GROESSE] = "Größe [MB]";
+        COLUMN_NAMES[FILM_HD] = "HD";
+        COLUMN_NAMES[FILM_UT] = "UT";
+        COLUMN_NAMES[FILM_BESCHREIBUNG] = "Beschreibung";
+        COLUMN_NAMES[FILM_GEO] = "Geo";
+        COLUMN_NAMES[FILM_URL] = "URL";
+        COLUMN_NAMES[FILM_WEBSEITE] = "Website";
+        COLUMN_NAMES[FILM_ABO_NAME] = "Abo";
+        COLUMN_NAMES[FILM_URL_SUBTITLE] = "URL Untertitel";
+        COLUMN_NAMES[FILM_URL_KLEIN] = "URL Klein";
+        COLUMN_NAMES[FILM_URL_HD] = "URL HD";
+        COLUMN_NAMES[FILM_URL_HISTORY] = "URL History";
+        COLUMN_NAMES[FILM_REF] = "Ref";
+        COLUMN_NAMES[FILM_DATUM_LONG] = "DatumL";
+        COLUMN_NAMES[FILM_NEU] = "Neu";
+    }
+
     /**
      * The database instance for all descriptions.
      */
@@ -111,18 +110,15 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         try {
             Database.initializeDatabase();
         } catch (SQLException ignored) {
-            ignored.printStackTrace();
         }
     }
 
-    public final String[] arr = new String[]{
-            "", "", "", "", "", "", "", "", "", "",
-            "", "", "", "", "", "", "", "", "", "",
-            "", "", "", "", "", "", "", ""}; //ist einen Tick schneller, hoffentlich :)
+    public final String[] arr = new String[MAX_ELEM];
+
     public DatumFilm datumFilm = new DatumFilm(0);
     public long dauerL = 0; // Sekunden
     public Object abo = null;
-    public MSLong dateigroesseL = new MSLong(0); // Dateigröße in MByte
+    public MSLong dateigroesseL; // Dateigröße in MByte
     /**
      * Die Filmnr
      */
@@ -135,7 +131,14 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     private Cleaner cleaner;
 
+    private void setupArr() {
+        for (int i = 0; i < MAX_ELEM; i++)
+            arr[i] = "";
+    }
+
     public DatenFilm() {
+        setupArr();
+
         dateigroesseL = new MSLong(0); // Dateigröße in MByte
         filmNr = FILM_COUNTER.getAndIncrement();
 
@@ -167,28 +170,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     @Override
     public void close() {
         cleaner.clean();
-    }
-
-    public DatenFilm(String ssender, String tthema, String filmWebsite, String ttitel, String uurl, String uurlRtmp,
-                     String datum, String zeit,
-                     long dauerSekunden, String description) {
-        super();
-        // da werden die gefundenen Filme beim Absuchen der Senderwebsites erstellt, und nur die!!
-        arr[FILM_SENDER] = ssender;
-        arr[FILM_THEMA] = tthema.isEmpty() ? ssender : tthema.trim();
-        arr[FILM_TITEL] = ttitel.isEmpty() ? tthema : ttitel.trim();
-        arr[FILM_URL] = uurl;
-        arr[FILM_URL_RTMP] = uurlRtmp;
-
-        setWebsiteLink(filmWebsite);
-
-        checkDatum(datum, arr[FILM_SENDER] + ' ' + arr[FILM_THEMA] + ' ' + arr[FILM_TITEL]);
-        checkZeit(arr[FILM_DATUM], zeit, arr[FILM_SENDER] + ' ' + arr[FILM_THEMA] + ' ' + arr[FILM_TITEL]);
-
-        setDescription(cleanDescription(description, tthema, ttitel));
-
-        // Filmlänge
-        checkFilmDauer(dauerSekunden);
     }
 
     /**
@@ -308,18 +289,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         neuerFilm = newFilm;
     }
 
-    private void checkFilmDauer(long dauerSekunden) {
-        if (dauerSekunden <= 0 || dauerSekunden > 3600 * 5 /* Werte über 5 Stunden */) {
-            arr[FILM_DAUER] = "";
-        } else {
-            String hours = String.valueOf(dauerSekunden / 3600);
-            dauerSekunden = dauerSekunden % 3600;
-            String min = String.valueOf(dauerSekunden / 60);
-            String seconds = String.valueOf(dauerSekunden % 60);
-            arr[FILM_DAUER] = performStringPadding(hours) + ':' + performStringPadding(min) + ':' + performStringPadding(seconds);
-        }
-    }
-
     public String getUrlSubtitle() {
         return arr[FILM_URL_SUBTITLE];
     }
@@ -342,25 +311,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
             default://AUFLOESUNG_NORMAL
                 ret = arr[DatenFilm.FILM_URL];
-                break;
-        }
-
-        return ret;
-    }
-
-    public String getUrlRtmpFuerAufloesung(String aufloesung) {
-        final String ret;
-        switch (aufloesung) {
-            case AUFLOESUNG_KLEIN:
-                ret = getUrlFlvstreamerKlein();
-                break;
-
-            case AUFLOESUNG_HD:
-                ret = getUrlFlvstreamerHd();
-                break;
-
-            default:
-                ret = getUrlFlvstreamer();
                 break;
         }
 
@@ -448,6 +398,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     private void setFilmdauer() {
         try {
+            //TODO is this still valid? Debug me
             if (!this.arr[DatenFilm.FILM_DAUER].contains(":") && !this.arr[DatenFilm.FILM_DAUER].isEmpty()) {
                 // nur als Übergang bis die Liste umgestellt ist
                 long l = Long.parseLong(this.arr[DatenFilm.FILM_DAUER]);
@@ -480,6 +431,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     }
 
     private void setDatum() {
+        //TODO DEBUG HERE AS WELL FOR USE OF DATUM LONG
         if (!arr[DatenFilm.FILM_DATUM].isEmpty()) {
             // nur dann gibts ein Datum
             try {
@@ -504,16 +456,10 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     }
 
     public void init() {
-        //================================
-        // Dateigröße
         dateigroesseL = new MSLong(this);
 
-        //================================
-        // Filmdauer
         setFilmdauer();
 
-        //================================
-        // Datum
         setDatum();
     }
 
@@ -534,92 +480,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
             }
         }
         return arr[DatenFilm.FILM_URL];
-    }
-
-    private String getUrlFlvstreamer() {
-        String ret;
-        if (arr[DatenFilm.FILM_URL_RTMP] != null && !arr[DatenFilm.FILM_URL_RTMP].isEmpty()) {
-            ret = arr[DatenFilm.FILM_URL_RTMP];
-        } else if (arr[DatenFilm.FILM_URL].startsWith(Const.RTMP_PRTOKOLL)) {
-            ret = Const.RTMP_FLVSTREAMER + arr[DatenFilm.FILM_URL];
-        } else {
-            ret = arr[DatenFilm.FILM_URL];
-        }
-        return ret;
-    }
-
-    private String getUrlFlvstreamerKlein() {
-        // liefert die kleine flvstreamer URL
-        String ret;
-        if (arr[DatenFilm.FILM_URL_RTMP_KLEIN] != null && !arr[DatenFilm.FILM_URL_RTMP_KLEIN].isEmpty()) {
-            // es gibt eine kleine RTMP
-            try {
-                int i = Integer.parseInt(arr[DatenFilm.FILM_URL_RTMP_KLEIN].substring(0, arr[DatenFilm.FILM_URL_RTMP_KLEIN].indexOf('|')));
-                return arr[DatenFilm.FILM_URL_RTMP].substring(0, i) + arr[DatenFilm.FILM_URL_RTMP_KLEIN].substring(arr[DatenFilm.FILM_URL_RTMP_KLEIN].indexOf('|') + 1);
-            } catch (Exception ignored) {
-            }
-        }
-        // es gibt keine kleine RTMP
-        if (arr[DatenFilm.FILM_URL_RTMP] != null && !arr[DatenFilm.FILM_URL_RTMP].isEmpty()) {
-            // dann gibts keine kleine
-            ret = arr[DatenFilm.FILM_URL_RTMP];
-        } else {
-            // dann gibts überhaupt nur die normalen URLs
-            ret = getUrlNormalOrRequested(DatenFilm.FILM_URL_KLEIN);
-            // und jetzt noch "-r" davorsetzten wenn nötig
-            if (ret.startsWith(Const.RTMP_PRTOKOLL)) {
-                ret = Const.RTMP_FLVSTREAMER + ret;
-            }
-        }
-        return ret;
-    }
-
-    private String getUrlFlvstreamerHd() {
-        // liefert die HD flvstreamer URL
-        if (arr[DatenFilm.FILM_URL_RTMP_HD] != null && !arr[DatenFilm.FILM_URL_RTMP_HD].isEmpty()) {
-            // es gibt eine HD RTMP
-            try {
-                final int i = Integer.parseInt(arr[DatenFilm.FILM_URL_RTMP_HD].substring(0, arr[DatenFilm.FILM_URL_RTMP_HD].indexOf('|')));
-                return arr[DatenFilm.FILM_URL_RTMP].substring(0, i) + arr[DatenFilm.FILM_URL_RTMP_HD].substring(arr[DatenFilm.FILM_URL_RTMP_HD].indexOf('|') + 1);
-            } catch (Exception ignored) {
-            }
-        }
-        // es gibt keine HD RTMP
-        return getUrlFlvstreamer();
-    }
-
-    private void checkDatum(String datum, String fehlermeldung) {
-        //Datum max. 100 Tage in der Zukunft
-        final long MAX = 1000L * 60L * 60L * 24L * 100L;
-        datum = datum.trim();
-        if (datum.contains(".") && datum.length() == 10) {
-            try {
-                Date filmDate = FastDateFormat.getInstance("dd.MM.yyyy").parse(datum);
-                if (filmDate.getTime() < 0) {
-                    //Datum vor 1970
-                    Log.errorLog(923012125, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
-                } else if ((new Date().getTime() + MAX) < filmDate.getTime()) {
-                    Log.errorLog(121305469, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
-                } else {
-                    arr[FILM_DATUM] = datum;
-                }
-            } catch (Exception ex) {
-                Log.errorLog(794630593, ex);
-                Log.errorLog(946301596, '[' + datum + "] " + fehlermeldung);
-            }
-        }
-    }
-
-    private void checkZeit(String datum, String zeit, String fehlermeldung) {
-        zeit = zeit.trim();
-        if (!datum.isEmpty() && !zeit.isEmpty()) {
-            //wenn kein Datum, macht die Zeit auch keinen Sinn
-            if (zeit.contains(":") && zeit.length() == 8) {
-                arr[FILM_ZEIT] = zeit;
-            } else {
-                Log.errorLog(159623647, '[' + zeit + "] " + fehlermeldung);
-            }
-        }
     }
 
     private String performStringPadding(String s) {

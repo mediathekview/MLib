@@ -39,10 +39,12 @@ import java.util.concurrent.TimeUnit;
 
 public class FilmListWriter {
 
+    private static final Logger logger = LogManager.getLogger(FilmListWriter.class);
+    private static final String TAG_JSON_LIST = "X";
     private String sender = "";
     private String thema = "";
 
-    protected JsonGenerator getJsonGenerator(OutputStream os) throws IOException {
+    private JsonGenerator getJsonGenerator(OutputStream os) throws IOException {
         final JsonFactory jsonF = new JsonFactory();
         JsonGenerator jg = jsonF.createGenerator(os, JsonEncoding.UTF8);
         if (Config.isDebuggingEnabled()) {
@@ -64,15 +66,14 @@ public class FilmListWriter {
     }
 
     private void writeFormatHeader(JsonGenerator jg, ListeFilme listeFilme) throws IOException {
-// Infos zur Filmliste
         jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
-        for (int i = 0; i < ListeFilme.MAX_ELEM; ++i) {
-            jg.writeString(listeFilme.metaDaten[i]);
-        }
+        jg.writeString(""); //ListeFilme.FILMLISTE_DATUM_NR unused in newer versions
+        jg.writeString(listeFilme.metaDaten[ListeFilme.FILMLISTE_DATUM_GMT_NR]);
+        jg.writeString(listeFilme.metaDaten[2]); //filmlist version
+        jg.writeString(""); //filmlist creator program
+        jg.writeString(listeFilme.metaDaten[ListeFilme.FILMLISTE_ID_NR]);
         jg.writeEndArray();
     }
-
-    private static final Logger logger = LogManager.getLogger(FilmListWriter.class);
 
     public void writeFilmList(String datei, ListeFilme listeFilme) {
         try {
@@ -101,7 +102,7 @@ public class FilmListWriter {
 
                 //Filme schreiben
                 for (DatenFilm datenFilm : listeFilme) {
-                    jg.writeArrayFieldStart(DatenFilm.TAG_JSON_LIST);
+                    jg.writeArrayFieldStart(TAG_JSON_LIST);
 
                     writeSender(jg, datenFilm);
                     writeThema(jg, datenFilm);
@@ -175,12 +176,13 @@ public class FilmListWriter {
         }
     }
 
+    /**
+     * Write a dummy field description array.
+     * Is not used anywhere but necessary for compatibility
+     */
     private void writeFormatDescription(JsonGenerator jg) throws IOException {
-// Infos der Felder in der Filmliste
         jg.writeArrayFieldStart(ListeFilme.FILMLISTE);
-        for (int i = 0; i < DatenFilm.JSON_NAMES.length; ++i) {
-            jg.writeString(DatenFilm.COLUMN_NAMES[DatenFilm.JSON_NAMES[i]]);
-        }
+        jg.writeString("");
         jg.writeEndArray();
     }
 }
