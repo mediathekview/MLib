@@ -28,6 +28,8 @@ import org.jetbrains.annotations.NotNull;
 import sun.misc.Cleaner;
 
 import java.sql.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
@@ -70,6 +72,13 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     //TODO get rid out of DatenFilm
     public static final String[] COLUMN_NAMES = new String[MAX_ELEM];
+    /**
+     * The database instance for all descriptions.
+     */
+    private final static AtomicInteger FILM_COUNTER = new AtomicInteger(0);
+    private static final GermanStringSorter sorter = GermanStringSorter.getInstance();
+    private static final Logger logger = LogManager.getLogger(DatenFilm.class);
+    public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
 
     static {
         COLUMN_NAMES[FILM_NR] = "Nr";
@@ -97,13 +106,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         COLUMN_NAMES[FILM_DATUM_LONG] = "DatumL";
     }
 
-    /**
-     * The database instance for all descriptions.
-     */
-    private final static AtomicInteger FILM_COUNTER = new AtomicInteger(0);
-    private static final GermanStringSorter sorter = GermanStringSorter.getInstance();
-    public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
-
     static {
         try {
             Database.initializeDatabase();
@@ -112,7 +114,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     }
 
     public final String[] arr = new String[MAX_ELEM];
-
     /**
      * film date stored IN SECONDS!!!
      */
@@ -132,13 +133,9 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
      */
     private int filmNr;
     private boolean neuerFilm = false;
-
     private Cleaner cleaner;
-
-    private void setupArr() {
-        for (int i = 0; i < MAX_ELEM; i++)
-            arr[i] = "";
-    }
+    private CompletableFuture<Void> descriptionFuture;
+    private CompletableFuture<Void> websiteFuture;
 
     public DatenFilm() {
         setupArr();
@@ -148,6 +145,11 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
         DatenFilmCleanupTask task = new DatenFilmCleanupTask(filmNr);
         cleaner = Cleaner.create(this, task);
+    }
+
+    private void setupArr() {
+        for (int i = 0; i < MAX_ELEM; i++)
+            arr[i] = "";
     }
 
     public String getTitle() {
@@ -183,17 +185,27 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
      */
     public String getDescription() {
         String sqlStr;
+
         try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT desc FROM description WHERE id = ?")) {
             statement.setInt(1, filmNr);
+
+            if (descriptionFuture != null) {
+                if (!descriptionFuture.isDone()) {
+                    descriptionFuture.get();
+                }
+                //set to null when finished as we don´t need it anymore...
+                descriptionFuture = null;
+            }
+
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
                     sqlStr = rs.getString(1);
                 } else
                     sqlStr = "";
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException | InterruptedException | ExecutionException e) {
+            logger.error(e);
             sqlStr = "";
         }
 
@@ -207,33 +219,46 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
      */
     public void setDescription(final String desc) {
         if (desc != null && !desc.isEmpty()) {
-            try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
-                 PreparedStatement statement = connection.prepareStatement("INSERT INTO description VALUES (?,?)")) {
-                String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
-                cleanedDesc = StringUtils.replace(cleanedDesc, "\n", "<br />");
+            descriptionFuture = CompletableFuture.runAsync(() -> {
+                try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
+                     PreparedStatement statement = connection.prepareStatement("INSERT INTO description VALUES (?,?)")) {
+                    String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
+                    cleanedDesc = StringUtils.replace(cleanedDesc, "\n", "<br />");
 
-                statement.setInt(1, filmNr);
-                statement.setString(2, cleanedDesc);
-                statement.executeUpdate();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-
+                    statement.setInt(1, filmNr);
+                    statement.setString(2, cleanedDesc);
+                    statement.executeUpdate();
+                } catch (SQLException ex) {
+                    logger.error(ex);
+                }
+            });
         }
     }
 
     public String getWebsiteLink() {
         String res;
+
         try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT link FROM website_links WHERE id = ?")) {
             statement.setInt(1, filmNr);
+
+            if (websiteFuture != null) {
+                if (!websiteFuture.isDone()) {
+                    //make sure async op has finished before...
+                    websiteFuture.get();
+                }
+
+                //we don´t need it anymore...
+                websiteFuture = null;
+            }
+
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
                     res = rs.getString(1);
                 } else
                     res = "";
             }
-        } catch (SQLException ex) {
+        } catch (SQLException | InterruptedException | ExecutionException ex) {
             logger.error(ex);
             res = "";
         }
@@ -243,14 +268,16 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     public void setWebsiteLink(String link) {
         if (link != null && !link.isEmpty()) {
-            try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
-                 PreparedStatement statement = connection.prepareStatement("INSERT INTO website_links VALUES (?,?)")) {
-                statement.setInt(1, filmNr);
-                statement.setString(2, link);
-                statement.executeUpdate();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            websiteFuture = CompletableFuture.runAsync(() -> {
+                try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
+                     PreparedStatement statement = connection.prepareStatement("INSERT INTO website_links VALUES (?,?)")) {
+                    statement.setInt(1, filmNr);
+                    statement.setString(2, link);
+                    statement.executeUpdate();
+                } catch (SQLException ex) {
+                    logger.error(ex);
+                }
+            });
         }
     }
 
@@ -399,8 +426,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         }
         return ret;
     }
-
-    private static final Logger logger = LogManager.getLogger(DatenFilm.class);
 
     private void setFilmdauer() {
         //TODO OPTIMIZE ME!

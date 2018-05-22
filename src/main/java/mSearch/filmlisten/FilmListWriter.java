@@ -35,6 +35,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
 public class FilmListWriter {
@@ -76,6 +77,14 @@ public class FilmListWriter {
     }
 
     public void writeFilmList(String datei, ListeFilme listeFilme) {
+        //wait until DB has written all futures...
+        while (ForkJoinPool.commonPool().hasQueuedSubmissions()) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(500);
+            } catch (InterruptedException ignored) {
+            }
+        }
+
         try {
             logger.info("Filme schreiben ({} Filme) :", listeFilme.size());
             logger.info("   --> Start Schreiben nach: {}", datei);
