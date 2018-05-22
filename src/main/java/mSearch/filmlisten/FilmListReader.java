@@ -57,14 +57,18 @@ public class FilmListReader implements AutoCloseable {
     /**
      * Memory limit for the xz decompressor. No limit by default.
      */
-    protected int DECOMPRESSOR_MEMORY_LIMIT = -1;
+    int DECOMPRESSOR_MEMORY_LIMIT = -1;
     private final EventListenerList listeners = new EventListenerList();
     private final ListenerFilmeLadenEvent progressEvent = new ListenerFilmeLadenEvent("", "Download", 0, 0, 0, false);
-    private int max = 0;
+    private final int max;
     private int progress = 0;
     private long milliseconds = 0;
     private String sender = "";
     private String thema = "";
+
+    public FilmListReader() {
+        max = PROGRESS_MAX;
+    }
 
     public void addAdListener(ListenerFilmeLaden listener) {
         listeners.add(ListenerFilmeLaden.class, listener);
@@ -220,6 +224,8 @@ public class FilmListReader implements AutoCloseable {
 
         skipFieldDescriptions(jp);
 
+        long start = System.nanoTime();
+
         while (!Config.getStop() && (jsonToken = jp.nextToken()) != null) {
             if (jsonToken == JsonToken.END_OBJECT) {
                 break;
@@ -258,6 +264,8 @@ public class FilmListReader implements AutoCloseable {
                 }
             }
         }
+        long end = System.nanoTime();
+        logger.debug("Reading filmlist took {} msecs.", TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS));
     }
 
     private void checkDays(long days) {
@@ -273,7 +281,7 @@ public class FilmListReader implements AutoCloseable {
             logger.info("Liste Filme lesen von: {}", source);
             listeFilme.clear();
 
-            notifyStart(source, PROGRESS_MAX); // für die Progressanzeige
+            notifyStart(source); // für die Progressanzeige
 
             checkDays(days);
 
@@ -388,8 +396,7 @@ public class FilmListReader implements AutoCloseable {
         return true;
     }
 
-    private void notifyStart(String url, int mmax) {
-        max = mmax;
+    private void notifyStart(String url) {
         progress = 0;
         for (ListenerFilmeLaden l : listeners.getListeners(ListenerFilmeLaden.class)) {
             l.start(new ListenerFilmeLadenEvent(url, "", max, 0, 0, false));
