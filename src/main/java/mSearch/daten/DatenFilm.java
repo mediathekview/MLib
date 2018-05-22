@@ -60,13 +60,13 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     public static final int FILM_URL_HD = 17;
     public static final int FILM_URL_HISTORY = 18;
     public static final int FILM_DATUM_LONG = 19;// Datum als Long ABER Sekunden!!
-    public static final int FILM_NEU = 20;
-    public static final int FILM_WEBSEITE = 21; //URL der Website des Films beim Sender
-    public static final int FILM_BESCHREIBUNG = 22;
-    public static final int FILM_REF = 23;// Referenz auf this
-    public static final int MAX_ELEM = 24;
+    public static final int FILM_WEBSEITE = 20; //URL der Website des Films beim Sender
+    public static final int FILM_BESCHREIBUNG = 21;
+    public static final int FILM_REF = 22;// Referenz auf this
+    public static final int MAX_ELEM = 23;
 
-    public static final String TAG = "Filme";
+    //Indices without storage context !!!
+    public static final int FILM_NEU = 23;
 
     //TODO get rid out of DatenFilm
     public static final String[] COLUMN_NAMES = new String[MAX_ELEM];
@@ -95,7 +95,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         COLUMN_NAMES[FILM_URL_HISTORY] = "URL History";
         COLUMN_NAMES[FILM_REF] = "Ref";
         COLUMN_NAMES[FILM_DATUM_LONG] = "DatumL";
-        COLUMN_NAMES[FILM_NEU] = "Neu";
     }
 
     /**
@@ -235,7 +234,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
                     res = "";
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            logger.error(ex);
             res = "";
         }
 
