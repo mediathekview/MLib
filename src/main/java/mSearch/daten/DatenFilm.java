@@ -116,10 +116,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     public DatumFilm datumFilm = new DatumFilm(0);
     public Object abo = null;
     /**
-     * the original internalfilm number
-     */
-    private int nr;
-    /**
      * File size in MByte
      */
     private MSLong filmSize;
@@ -137,17 +133,14 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     private CompletableFuture<Void> websiteFuture;
 
     /**
-     * Get the internal film number.
+     * Get the film number.
+     * This is used internally for the database id AND
+     * for the old MV code that might access it for various stuff.
      *
      * @return the original internal film number
      */
     public int getFilmNr() {
-        //TODO replace with database filmnumber??
-        return nr;
-    }
-
-    void setFilmNr(int nr) {
-        this.nr = nr;
+        return databaseFilmNumber;
     }
 
     public DatenFilm() {
@@ -242,30 +235,36 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
      */
     public void setDescription(final String desc) {
         if (desc != null && !desc.isEmpty()) {
-            descriptionFuture = CompletableFuture.runAsync(() -> {
-                try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
-                     PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO description VALUES (?,?)");
-                     PreparedStatement updateStatement = connection.prepareStatement("UPDATE description SET desc=? WHERE id =?")
-                ) {
-                    String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
-                    cleanedDesc = StringUtils.replace(cleanedDesc, "\n", "<br />");
-
-                    updateStatement.setString(1, cleanedDesc);
-                    updateStatement.setInt(2, databaseFilmNumber);
-                    updateStatement.executeUpdate();
-
-                    insertStatement.setInt(1, databaseFilmNumber);
-                    insertStatement.setString(2, cleanedDesc);
-                    insertStatement.execute();
-
-
-                } catch (SQLIntegrityConstraintViolationException ignored) {
-                    //this will happen in UPSERT operation
-                } catch (SQLException ex) {
-                    logger.error(ex);
-                }
-            });
+            if (MemoryUtils.isLowMemoryEnvironment())
+                writeDescriptionToDatabase(desc);
+            else
+                descriptionFuture = CompletableFuture.runAsync(() -> writeDescriptionToDatabase(desc));
         }
+    }
+
+    private void writeDescriptionToDatabase(String desc) {
+        try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
+             PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO description VALUES (?,?)");
+             PreparedStatement updateStatement = connection.prepareStatement("UPDATE description SET desc=? WHERE id =?")
+        ) {
+            String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
+            cleanedDesc = StringUtils.replace(cleanedDesc, "\n", "<br />");
+
+            updateStatement.setString(1, cleanedDesc);
+            updateStatement.setInt(2, databaseFilmNumber);
+            updateStatement.executeUpdate();
+
+            insertStatement.setInt(1, databaseFilmNumber);
+            insertStatement.setString(2, cleanedDesc);
+            insertStatement.execute();
+
+
+        } catch (SQLIntegrityConstraintViolationException ignored) {
+            //this will happen in UPSERT operation
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
     }
 
     public String getWebsiteLink() {
@@ -301,16 +300,21 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     public void setWebsiteLink(String link) {
         if (link != null && !link.isEmpty()) {
-            websiteFuture = CompletableFuture.runAsync(() -> {
-                try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
-                     PreparedStatement statement = connection.prepareStatement("INSERT INTO website_links VALUES (?,?)")) {
-                    statement.setInt(1, databaseFilmNumber);
-                    statement.setString(2, link);
-                    statement.executeUpdate();
-                } catch (SQLException ex) {
-                    logger.error(ex);
-                }
-            });
+            if (MemoryUtils.isLowMemoryEnvironment())
+                writeWebsiteLinkToDatabase(link);
+            else
+                websiteFuture = CompletableFuture.runAsync(() -> writeWebsiteLinkToDatabase(link));
+        }
+    }
+
+    private void writeWebsiteLinkToDatabase(String link) {
+        try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
+             PreparedStatement statement = connection.prepareStatement("INSERT INTO website_links VALUES (?,?)")) {
+            statement.setInt(1, databaseFilmNumber);
+            statement.setString(2, link);
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            logger.error(ex);
         }
     }
 
@@ -444,7 +448,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         DatenFilm ret = new DatenFilm();
         System.arraycopy(this.arr, 0, ret.arr, 0, arr.length);
         ret.datumFilm = this.datumFilm;
-        ret.nr = this.nr;
+        ret.databaseFilmNumber = this.databaseFilmNumber;
         ret.filmSize = this.filmSize;
         ret.filmLength = this.filmLength;
         ret.abo = this.abo;

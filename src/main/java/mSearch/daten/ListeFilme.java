@@ -60,10 +60,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
     public synchronized void importFilmliste(DatenFilm film) {
-        // hier nur beim Laden aus einer fertigen Filmliste mit der GUI
-        // die Filme sind schon sortiert, nur die Nummer muss noch ergänzt werden
-        film.setFilmNr(nr++);
-
         addInit(film);
     }
 
@@ -142,16 +138,6 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         neueFilme = false;
 
         super.clear();
-    }
-
-    public synchronized void sort() {
-        Collections.sort(this);
-        // und jetzt noch die Nummerierung in Ordnung bringen
-        //TODO is this used somewhere for sorting??
-        int i = 1;
-        for (DatenFilm film : this) {
-            film.setFilmNr(i++);
-        }
     }
 
     public synchronized void setMeta(ListeFilme listeFilme) {
