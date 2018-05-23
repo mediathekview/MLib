@@ -117,7 +117,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     /**
      * film length in seconds.
      */
-    public long dauerL = 0;
+    private long filmLength = 0;
     public Object abo = null;
     public MSLong dateigroesseL; // Dateigröße in MByte
     /**
@@ -420,7 +420,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         ret.datumFilm = this.datumFilm;
         ret.nr = this.nr;
         ret.dateigroesseL = this.dateigroesseL;
-        ret.dauerL = this.dauerL;
+        ret.filmLength = this.filmLength;
         ret.abo = this.abo;
         return ret;
     }
@@ -434,20 +434,24 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         return ret;
     }
 
-    private void setFilmdauer() {
+    public long getFilmLength() {
+        return filmLength;
+    }
+
+    private void setFilmLength() {
         //TODO OPTIMIZE ME!
         try {
-            dauerL = 0;
+            filmLength = 0;
             if (!this.arr[DatenFilm.FILM_DAUER].isEmpty()) {
                 String[] parts = this.arr[DatenFilm.FILM_DAUER].split(":");
                 long power = 1;
                 for (int i = parts.length - 1; i >= 0; i--) {
-                    dauerL += Long.parseLong(parts[i]) * power;
+                    filmLength += Long.parseLong(parts[i]) * power;
                     power *= 60;
                 }
             }
         } catch (Exception ex) {
-            dauerL = 0;
+            filmLength = 0;
             logger.error("Dauer: {}", this.arr[DatenFilm.FILM_DAUER], ex);
         }
     }
@@ -470,7 +474,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     public void init() {
         dateigroesseL = new MSLong(this);
 
-        setFilmdauer();
+        setFilmLength();
 
         setDatum();
     }
