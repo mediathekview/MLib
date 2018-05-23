@@ -116,33 +116,47 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     public DatumFilm datumFilm = new DatumFilm(0);
     public Object abo = null;
     /**
-     * Die Filmnr
+     * the original internalfilm number
      */
-    public int nr;
+    private int nr;
     /**
      * File size in MByte
      */
-    private MSLong dateigroesseL; // Dateigröße in MByte
+    private MSLong filmSize;
     /**
      * film length in seconds.
      */
     private long filmLength = 0;
     /**
-     * Internal film number, used for storage in cache map
+     * Internal film number, used for storage in database
      */
-    private int filmNr;
+    private int databaseFilmNumber;
     private boolean neuerFilm = false;
     private Cleaner cleaner;
     private CompletableFuture<Void> descriptionFuture;
     private CompletableFuture<Void> websiteFuture;
 
+    /**
+     * Get the internal film number.
+     *
+     * @return the original internal film number
+     */
+    public int getFilmNr() {
+        //TODO replace with database filmnumber??
+        return nr;
+    }
+
+    void setFilmNr(int nr) {
+        this.nr = nr;
+    }
+
     public DatenFilm() {
         setupArr();
 
-        dateigroesseL = new MSLong(0); // Dateigröße in MByte
-        filmNr = FILM_COUNTER.getAndIncrement();
+        filmSize = new MSLong(0); // Dateigröße in MByte
+        databaseFilmNumber = FILM_COUNTER.getAndIncrement();
 
-        DatenFilmCleanupTask task = new DatenFilmCleanupTask(filmNr);
+        DatenFilmCleanupTask task = new DatenFilmCleanupTask(databaseFilmNumber);
         cleaner = Cleaner.create(this, task);
     }
 
@@ -152,7 +166,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
      * @return The size in MByte
      */
     public MSLong getFilmSize() {
-        return dateigroesseL;
+        return filmSize;
     }
 
     private void setupArr() {
@@ -196,7 +210,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
         try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT desc FROM description WHERE id = ?")) {
-            statement.setInt(1, filmNr);
+            statement.setInt(1, databaseFilmNumber);
 
             if (descriptionFuture != null) {
                 if (!descriptionFuture.isDone()) {
@@ -237,10 +251,10 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
                     cleanedDesc = StringUtils.replace(cleanedDesc, "\n", "<br />");
 
                     updateStatement.setString(1, cleanedDesc);
-                    updateStatement.setInt(2, filmNr);
+                    updateStatement.setInt(2, databaseFilmNumber);
                     updateStatement.executeUpdate();
 
-                    insertStatement.setInt(1, filmNr);
+                    insertStatement.setInt(1, databaseFilmNumber);
                     insertStatement.setString(2, cleanedDesc);
                     insertStatement.execute();
 
@@ -259,7 +273,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
         try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT link FROM website_links WHERE id = ?")) {
-            statement.setInt(1, filmNr);
+            statement.setInt(1, databaseFilmNumber);
 
             if (websiteFuture != null) {
                 if (!websiteFuture.isDone()) {
@@ -290,7 +304,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
             websiteFuture = CompletableFuture.runAsync(() -> {
                 try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
                      PreparedStatement statement = connection.prepareStatement("INSERT INTO website_links VALUES (?,?)")) {
-                    statement.setInt(1, filmNr);
+                    statement.setInt(1, databaseFilmNumber);
                     statement.setString(2, link);
                     statement.executeUpdate();
                 } catch (SQLException ex) {
@@ -431,7 +445,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         System.arraycopy(this.arr, 0, ret.arr, 0, arr.length);
         ret.datumFilm = this.datumFilm;
         ret.nr = this.nr;
-        ret.dateigroesseL = this.dateigroesseL;
+        ret.filmSize = this.filmSize;
         ret.filmLength = this.filmLength;
         ret.abo = this.abo;
         return ret;
@@ -446,6 +460,10 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         return ret;
     }
 
+    /**
+     * Get the filmlength in seconds.
+     * @return filmlength in seconds, or 0.
+     */
     public long getFilmLength() {
         return filmLength;
     }
@@ -484,7 +502,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     }
 
     public void init() {
-        dateigroesseL = new MSLong(this);
+        filmSize = new MSLong(this);
 
         setFilmLength();
 
