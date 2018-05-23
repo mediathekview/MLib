@@ -214,6 +214,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     /**
      * Store description in database.
+     * Performs an UPSERT as we may want to update the description later again.
      *
      * @param desc String to be stored.
      */
@@ -221,13 +222,23 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         if (desc != null && !desc.isEmpty()) {
             descriptionFuture = CompletableFuture.runAsync(() -> {
                 try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
-                     PreparedStatement statement = connection.prepareStatement("INSERT INTO description VALUES (?,?)")) {
+                     PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO description VALUES (?,?)");
+                     PreparedStatement updateStatement = connection.prepareStatement("UPDATE description SET desc=? WHERE id =?");
+                ) {
                     String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
                     cleanedDesc = StringUtils.replace(cleanedDesc, "\n", "<br />");
 
-                    statement.setInt(1, filmNr);
-                    statement.setString(2, cleanedDesc);
-                    statement.executeUpdate();
+                    updateStatement.setString(1, cleanedDesc);
+                    updateStatement.setInt(2, filmNr);
+                    updateStatement.executeUpdate();
+
+                    insertStatement.setInt(1, filmNr);
+                    insertStatement.setString(2, cleanedDesc);
+                    insertStatement.execute();
+
+
+                } catch (SQLIntegrityConstraintViolationException ignored) {
+                    //this will happen in UPSERT operation
                 } catch (SQLException ex) {
                     logger.error(ex);
                 }
@@ -452,7 +463,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
                 final long l = Long.parseLong(arr[DatenFilm.FILM_DATUM_LONG]);
                 datumFilm = new DatumFilm(l * 1000); // sind SEKUNDEN!!
             } catch (Exception ex) {
-                logger.error("Datum: {}, Zeit: {}", arr[DatenFilm.FILM_DATUM], arr[DatenFilm.FILM_ZEIT], ex);
+                logger.error("Datum: {}, Zeit: {}, Datum_LONG: {}", arr[DatenFilm.FILM_DATUM], arr[DatenFilm.FILM_ZEIT], arr[DatenFilm.FILM_DATUM_LONG], ex);
                 datumFilm = new DatumFilm(0);
                 arr[DatenFilm.FILM_DATUM] = "";
                 arr[DatenFilm.FILM_ZEIT] = "";
