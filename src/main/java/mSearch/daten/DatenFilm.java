@@ -221,7 +221,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
             descriptionFuture = CompletableFuture.runAsync(() -> {
                 try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
                      PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO description VALUES (?,?)");
-                     PreparedStatement updateStatement = connection.prepareStatement("UPDATE description SET desc=? WHERE id =?");
+                     PreparedStatement updateStatement = connection.prepareStatement("UPDATE description SET desc=? WHERE id =?")
                 ) {
                     String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
                     cleanedDesc = StringUtils.replace(cleanedDesc, "\n", "<br />");
