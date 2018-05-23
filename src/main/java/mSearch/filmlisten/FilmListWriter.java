@@ -152,7 +152,7 @@ public class FilmListWriter {
     }
 
     private void writeTitel(JsonGenerator jg, DatenFilm datenFilm) throws IOException {
-        jg.writeString(datenFilm.arr[DatenFilm.FILM_TITEL]);
+        jg.writeString(datenFilm.getTitle());
     }
 
     private void writeSender(JsonGenerator jg, DatenFilm datenFilm) throws IOException {

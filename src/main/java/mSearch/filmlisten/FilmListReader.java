@@ -209,6 +209,10 @@ public class FilmListReader implements AutoCloseable {
         datenFilm.arr[DatenFilm.FILM_ZEIT] = zeit;
     }
 
+    private void parseTitel(JsonParser jp, DatenFilm datenFilm) throws IOException {
+        datenFilm.setTitle(checkedString(jp));
+    }
+
     private void readData(JsonParser jp, ListeFilme listeFilme) throws IOException {
         JsonToken jsonToken;
 
@@ -230,7 +234,7 @@ public class FilmListReader implements AutoCloseable {
                 DatenFilm datenFilm = new DatenFilm();
                 parseSender(jp, datenFilm);
                 parseThema(jp, datenFilm);
-                parseDefault(jp, datenFilm, DatenFilm.FILM_TITEL);
+                parseTitel(jp, datenFilm);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_DATUM);
                 parseTime(jp, datenFilm);
                 parseDefault(jp, datenFilm, DatenFilm.FILM_DAUER);

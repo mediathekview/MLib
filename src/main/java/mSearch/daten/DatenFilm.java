@@ -167,8 +167,15 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
             arr[i] = "";
     }
 
+    /**
+     * Return the title of the film.
+     */
     public String getTitle() {
         return arr[FILM_TITEL];
+    }
+
+    public void setTitle(String title) {
+        arr[FILM_TITEL] = title;
     }
 
     public String getThema() {
@@ -247,7 +254,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
              PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO description VALUES (?,?)");
              PreparedStatement updateStatement = connection.prepareStatement("UPDATE description SET desc=? WHERE id =?")
         ) {
-            String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], arr[FILM_TITEL]);
+            String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], getTitle());
             cleanedDesc = StringUtils.replace(cleanedDesc, "\n", "<br />");
 
             updateStatement.setString(1, cleanedDesc);
