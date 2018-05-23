@@ -121,8 +121,6 @@ public class FilmListReader implements AutoCloseable {
         final String value = jp.nextTextValue();
         if (value != null && !value.isEmpty())
             datenFilm.setDescription(value);
-
-        datenFilm.arr[DatenFilm.FILM_BESCHREIBUNG] = null;
     }
 
     protected void parseGeo(JsonParser jp, DatenFilm datenFilm) throws IOException {
