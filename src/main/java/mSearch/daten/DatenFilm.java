@@ -62,12 +62,11 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     public static final int FILM_URL_HD = 17;
     public static final int FILM_URL_HISTORY = 18;
     public static final int FILM_DATUM_LONG = 19;// Datum als Long ABER Sekunden!!
-    public static final int FILM_WEBSEITE = 20; //URL der Website des Films beim Sender
-    public static final int FILM_REF = 21;// Referenz auf this
-    public static final int MAX_ELEM = 22;
+    public static final int FILM_REF = 20;// Referenz auf this
+    public static final int MAX_ELEM = 21;
 
     //Indices without storage context !!!
-    public static final int FILM_NEU = 22;
+    public static final int FILM_NEU = 21;
 
     //TODO get rid out of DatenFilm
     public static final String[] COLUMN_NAMES = new String[MAX_ELEM];
@@ -94,7 +93,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         COLUMN_NAMES[FILM_UT] = "UT";
         COLUMN_NAMES[FILM_GEO] = "Geo";
         COLUMN_NAMES[FILM_URL] = "URL";
-        COLUMN_NAMES[FILM_WEBSEITE] = "Website";
         COLUMN_NAMES[FILM_ABO_NAME] = "Abo";
         COLUMN_NAMES[FILM_URL_SUBTITLE] = "URL Untertitel";
         COLUMN_NAMES[FILM_URL_KLEIN] = "URL Klein";

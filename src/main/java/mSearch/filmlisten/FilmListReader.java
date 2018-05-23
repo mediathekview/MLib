@@ -113,8 +113,6 @@ public class FilmListReader implements AutoCloseable {
         if (value != null && !value.isEmpty()) {
             datenFilm.setWebsiteLink(value);
         }
-
-        datenFilm.arr[DatenFilm.FILM_WEBSEITE] = null;
     }
 
     private void parseDescription(JsonParser jp, DatenFilm datenFilm) throws IOException {
