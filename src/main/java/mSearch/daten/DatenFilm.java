@@ -114,16 +114,19 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
      * film date stored IN SECONDS!!!
      */
     public DatumFilm datumFilm = new DatumFilm(0);
-    /**
-     * film length in seconds.
-     */
-    private long filmLength = 0;
     public Object abo = null;
-    public MSLong dateigroesseL; // Dateigröße in MByte
     /**
      * Die Filmnr
      */
     public int nr;
+    /**
+     * File size in MByte
+     */
+    private MSLong dateigroesseL; // Dateigröße in MByte
+    /**
+     * film length in seconds.
+     */
+    private long filmLength = 0;
     /**
      * Internal film number, used for storage in cache map
      */
@@ -141,6 +144,15 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
         DatenFilmCleanupTask task = new DatenFilmCleanupTask(filmNr);
         cleaner = Cleaner.create(this, task);
+    }
+
+    /**
+     * Get the file size of this film.
+     *
+     * @return The size in MByte
+     */
+    public MSLong getFilmSize() {
+        return dateigroesseL;
     }
 
     private void setupArr() {
