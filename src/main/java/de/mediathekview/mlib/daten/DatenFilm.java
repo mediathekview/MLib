@@ -34,6 +34,8 @@ import de.mediathekview.mlib.tool.MSLong;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 
+    private static final String COPYRIGHT_CHAR_HTML = "&copy;";
+
     public static final String AUFLOESUNG_NORMAL = "normal";
     public static final String AUFLOESUNG_HD = "hd";
     public static final String AUFLOESUNG_KLEIN = "klein";
@@ -127,7 +129,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
         // da werden die gefundenen Filme beim Absuchen der Senderwebsites erstellt, und nur die!!
         arr[FILM_SENDER] = ssender;
         arr[FILM_THEMA] = tthema.isEmpty() ? ssender : tthema.trim();
-        arr[FILM_TITEL] = ttitel.isEmpty() ? tthema : ttitel.trim();
+        setTitle(ttitel.isEmpty() ? tthema : ttitel.trim());
         arr[FILM_URL] = uurl;
         arr[FILM_URL_RTMP] = uurlRtmp;
         arr[FILM_WEBSEITE] = filmWebsite;
@@ -137,6 +139,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
         // Filmlänge
         checkFilmDauer(dauerSekunden);
+    }
+	
+    private void setTitle(String title) {
+        if (title.contains(COPYRIGHT_CHAR_HTML)) {
+            title = title.substring(0, title.indexOf(COPYRIGHT_CHAR_HTML));
+            title = title.trim();
+        }
+        arr[FILM_TITEL] = title;
     }
 
     /**
