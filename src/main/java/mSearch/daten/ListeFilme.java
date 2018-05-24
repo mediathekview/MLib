@@ -64,7 +64,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     }
 
     private void addHash(DatenFilm f, HashSet<String> hash, boolean index) {
-        if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
+        if (f.getSender().equals(Const.KIKA)) {
             // beim KIKA ändern sich die URLs laufend
             hash.add(f.arr[DatenFilm.FILM_THEMA] + f.getTitle());
         } else if (index) {
@@ -86,7 +86,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             Iterator<DatenFilm> it = this.iterator();
             while (it.hasNext()) {
                 DatenFilm f = it.next();
-                if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
+                if (f.getSender().equals(Const.KIKA)) {
                     // beim KIKA ändern sich die URLs laufend
                     if (hash.contains(f.arr[DatenFilm.FILM_THEMA] + f.getTitle())) {
                         it.remove();
@@ -106,7 +106,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
             this.forEach(f -> addHash(f, hash, index));
 
             for (DatenFilm f : listeEinsortieren) {
-                if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
+                if (f.getSender().equals(Const.KIKA)) {
                     if (!hash.contains(f.arr[DatenFilm.FILM_THEMA] + f.getTitle())) {
                         addInit(f);
                     }
@@ -298,7 +298,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         senderSet.add("");
 
         for (DatenFilm film : this) {
-            senderSet.add(film.arr[DatenFilm.FILM_SENDER]);
+            senderSet.add(film.getSender());
         }
         sender = senderSet.toArray(new String[0]);
         senderList.clear();
@@ -319,7 +319,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         //alle Themen
         String filmThema, filmSender;
         for (DatenFilm film : this) {
-            filmSender = film.arr[DatenFilm.FILM_SENDER];
+            filmSender = film.getSender();
             filmThema = film.arr[DatenFilm.FILM_THEMA];
             //hinzufügen
             if (!hashSet[0].contains(filmThema)) {

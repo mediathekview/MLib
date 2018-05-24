@@ -109,6 +109,11 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         }
     }
 
+    /**
+     * The magic arr array.
+     * Here all the film information with some minor exceptions.
+     * Beware it is a dangerous string collection...
+     */
     public final String[] arr = new String[MAX_ELEM];
     /**
      * film date stored IN SECONDS!!!
@@ -129,7 +134,15 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     private int databaseFilmNumber;
     private boolean neuerFilm = false;
     private Cleaner cleaner;
+    /**
+     * Future used for writing description into database.
+     * Will be checked before each read if finished
+     */
     private CompletableFuture<Void> descriptionFuture;
+    /**
+     * Future used for writing website link into database.
+     * Will be checked before each read if finished
+     */
     private CompletableFuture<Void> websiteFuture;
 
     /**
@@ -193,6 +206,10 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     public String getSender() {
         return arr[FILM_SENDER];
+    }
+
+    public void setSender(String sender) {
+        arr[DatenFilm.FILM_SENDER] = sender;
     }
 
     @Override

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package mSearch.filmlisten;
+package mSearch.filmlisten.writer;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -156,11 +156,13 @@ public class FilmListWriter {
     }
 
     private void writeSender(JsonGenerator jg, DatenFilm datenFilm) throws IOException {
-        if (datenFilm.arr[DatenFilm.FILM_SENDER].equals(sender)) {
+        String tempSender = datenFilm.getSender();
+
+        if (tempSender.equals(sender)) {
             jg.writeString("");
         } else {
-            sender = datenFilm.arr[DatenFilm.FILM_SENDER];
-            jg.writeString(datenFilm.arr[DatenFilm.FILM_SENDER]);
+            sender = tempSender;
+            jg.writeString(tempSender);
         }
     }
 
