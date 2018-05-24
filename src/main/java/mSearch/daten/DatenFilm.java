@@ -428,13 +428,13 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     public String getIndex() {
         // liefert einen eindeutigen Index für die Filmliste
         // URL beim KiKa und ORF ändern sich laufend!
-        return (arr[FILM_SENDER] + arr[FILM_THEMA]).toLowerCase() + getUrl();
+        return (getSender() + arr[FILM_THEMA]).toLowerCase() + getUrl();
     }
 
     public String getUrl() {
         // liefert die URL zum VERGLEICHEN!!
         String url = "";
-        if (arr[DatenFilm.FILM_SENDER].equals(Const.ORF)) {
+        if (getSender().equals(Const.ORF)) {
             final String uurl = arr[DatenFilm.FILM_URL];
             try {
                 final String online = "/online/";
@@ -482,7 +482,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     @Override
     public int compareTo(@NotNull DatenFilm other) {
         int ret;
-        if ((ret = sorter.compare(arr[FILM_SENDER], other.arr[FILM_SENDER])) == 0) {
+        if ((ret = sorter.compare(getSender(), other.getSender())) == 0) {
             return sorter.compare(arr[FILM_THEMA], other.arr[FILM_THEMA]);
         }
         return ret;
