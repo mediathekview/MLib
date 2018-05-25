@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package mSearch.filmlisten;
+package mSearch.filmlisten.reader;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -57,7 +57,7 @@ public class FilmListReader implements AutoCloseable {
     /**
      * Memory limit for the xz decompressor. No limit by default.
      */
-    int DECOMPRESSOR_MEMORY_LIMIT = -1;
+    protected int DECOMPRESSOR_MEMORY_LIMIT = -1;
     private final EventListenerList listeners = new EventListenerList();
     private final ListenerFilmeLadenEvent progressEvent = new ListenerFilmeLadenEvent("", "Download", 0, 0, 0, false);
     private final int max;

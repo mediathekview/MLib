@@ -1,4 +1,4 @@
-package mSearch.filmlisten;
+package mSearch.filmlisten.reader;
 
 import com.fasterxml.jackson.core.JsonParser;
 import mSearch.daten.DatenFilm;
