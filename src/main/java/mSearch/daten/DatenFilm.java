@@ -265,31 +265,6 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         }
     }
 
-    private void writeDescriptionToDatabase(String desc) {
-        try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
-             PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO description VALUES (?,?)");
-             PreparedStatement updateStatement = connection.prepareStatement("UPDATE description SET desc=? WHERE id =?")
-        ) {
-            String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], getTitle());
-            cleanedDesc = StringUtils.replace(cleanedDesc, "\n", "<br />");
-
-            updateStatement.setString(1, cleanedDesc);
-            updateStatement.setInt(2, databaseFilmNumber);
-            updateStatement.executeUpdate();
-
-            insertStatement.setInt(1, databaseFilmNumber);
-            insertStatement.setString(2, cleanedDesc);
-            insertStatement.execute();
-
-
-        } catch (SQLIntegrityConstraintViolationException ignored) {
-            //this will happen in UPSERT operation
-        } catch (SQLException ex) {
-            logger.error(ex);
-        }
-
-    }
-
     public String getWebsiteLink() {
         String res;
 
@@ -332,14 +307,47 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     private void writeWebsiteLinkToDatabase(String link) {
         try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
-             PreparedStatement statement = connection.prepareStatement("INSERT INTO website_links VALUES (?,?)")) {
-            statement.setInt(1, databaseFilmNumber);
-            statement.setString(2, link);
-            statement.executeUpdate();
+             PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO website_links VALUES (?,?)");
+             PreparedStatement updateStatement = connection.prepareStatement("UPDATE website_links SET link=? WHERE id=?")) {
+
+            updateStatement.setString(1, link);
+            updateStatement.setInt(2, databaseFilmNumber);
+            updateStatement.executeUpdate();
+
+            insertStatement.setInt(1, databaseFilmNumber);
+            insertStatement.setString(2, link);
+            insertStatement.executeUpdate();
+        } catch (SQLIntegrityConstraintViolationException ignored) {
         } catch (SQLException ex) {
             logger.error(ex);
         }
     }
+
+    private void writeDescriptionToDatabase(String desc) {
+        try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
+             PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO description VALUES (?,?)");
+             PreparedStatement updateStatement = connection.prepareStatement("UPDATE description SET desc=? WHERE id =?")
+        ) {
+            String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], getTitle());
+            cleanedDesc = StringUtils.replace(cleanedDesc, "\n", "<br />");
+
+            updateStatement.setString(1, cleanedDesc);
+            updateStatement.setInt(2, databaseFilmNumber);
+            updateStatement.executeUpdate();
+
+            insertStatement.setInt(1, databaseFilmNumber);
+            insertStatement.setString(2, cleanedDesc);
+            insertStatement.execute();
+
+
+        } catch (SQLIntegrityConstraintViolationException ignored) {
+            //this will happen in UPSERT operation
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+    }
+
 
     private String cleanDescription(String s, String thema, String titel) {
         // die Beschreibung auf x Zeichen beschränken
