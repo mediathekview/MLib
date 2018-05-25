@@ -19,7 +19,6 @@
  */
 package mSearch.daten;
 
-import mSearch.Const;
 import mSearch.tool.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -432,35 +431,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
     }
 
     public String getUrl() {
-        // liefert die URL zum VERGLEICHEN!!
-        String url = "";
-        if (getSender().equals(Const.ORF)) {
-            final String uurl = arr[DatenFilm.FILM_URL];
-            try {
-                final String online = "/online/";
-                url = uurl.substring(uurl.indexOf(online) + online.length());
-                if (!url.contains("/")) {
-                    Log.errorLog(915230478, "Url: " + uurl);
-                    return "";
-                }
-                url = url.substring(url.indexOf('/') + 1);
-                if (!url.contains("/")) {
-                    Log.errorLog(915230478, "Url: " + uurl);
-                    return "";
-                }
-                url = url.substring(url.indexOf('/') + 1);
-                if (url.isEmpty()) {
-                    Log.errorLog(915230478, "Url: " + uurl);
-                    return "";
-                }
-            } catch (Exception ex) {
-                Log.errorLog(915230478, ex, "Url: " + uurl);
-            }
-            return Const.ORF + "----" + url;
-        } else {
             return arr[DatenFilm.FILM_URL];
-        }
-
     }
 
     public boolean isHD() {
