@@ -29,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("serial")
 public class ListeFilme extends ArrayList<DatenFilm> {
@@ -285,6 +286,15 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         return this.stream().filter(DatenFilm::isNew).count();
     }
 
+    private List<String> fetchSenders() {
+        ArrayList<String> senderList = new ArrayList<>();
+        // der erste Sender ist ""
+        senderList.add("");
+        senderList.addAll(stream().map(DatenFilm::getSender).distinct().collect(Collectors.toList()));
+
+        return senderList;
+    }
+
     /**
      * Erstellt ein StringArray der Themen eines Senders oder wenn "sender" leer, aller Sender.
      * Ist für die Filterfelder in GuiFilme.
@@ -293,13 +303,9 @@ public class ListeFilme extends ArrayList<DatenFilm> {
     public synchronized void themenLaden() {
         logger.debug(THEME_SEARCH_TEXT);
 
-        LinkedHashSet<String> senderSet = new LinkedHashSet<>(21);
-        // der erste Sender ist ""
-        senderSet.add("");
+        List<String> senderSet = fetchSenders();
 
-        for (DatenFilm film : this) {
-            senderSet.add(film.getSender());
-        }
+        //TODO umbauen auf ObservableList
         sender = senderSet.toArray(new String[0]);
         senderList.clear();
         senderList.addAll(senderSet);
@@ -320,7 +326,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
         String filmThema, filmSender;
         for (DatenFilm film : this) {
             filmSender = film.getSender();
-            filmThema = film.arr[DatenFilm.FILM_THEMA];
+            filmThema = film.getThema();
             //hinzufügen
             if (!hashSet[0].contains(filmThema)) {
                 hashSet[0].add(filmThema);
@@ -335,6 +341,7 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 }
             }
         }
+
         for (int i = 0; i < themenPerSender.length; ++i) {
             themenPerSender[i] = tree[i].toArray(new String[0]);
             tree[i].clear();

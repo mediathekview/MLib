@@ -46,15 +46,17 @@ public class PooledDatabaseConnection implements Closeable {
     private DataSource setupDataSource() {
         final String CACHE_PATH;
         if (SystemInfo.isMacOSX()) {
-            CACHE_PATH = System.getProperty("user.home") + "/Library/Caches/MediathekView/";
+            CACHE_PATH = System.getProperty("user.home") + "/Library/Caches/MediathekView/database/";
         } else
-            CACHE_PATH = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar;
+            CACHE_PATH = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar
+                    + "database" + File.separatorChar;
 
         Properties props = new Properties();
         //props.put("defaultAutoCommit","false");
         props.put("maxTotal", String.valueOf(Runtime.getRuntime().availableProcessors()));
         props.put("poolPreparedStatements", "true");
-        ConnectionFactory connectionFactory = new DriverManagerConnectionFactory("jdbc:hsqldb:file:" + CACHE_PATH + "cache.db;close_result=true;shutdown=true", props);
+        final String driverCommand = "jdbc:h2:file:" + CACHE_PATH + "mediathekview;MVCC=TRUE";
+        ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(driverCommand, props);
 
         PoolableConnectionFactory poolableConnectionFactory =
                 new PoolableConnectionFactory(connectionFactory, null);
