@@ -50,11 +50,6 @@ public class PooledDatabaseConnection implements Closeable {
         } else
             CACHE_PATH = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar;
 
-        try {
-            Class.forName("org.hsqldb.jdbc.JDBCDriver");
-        } catch (ClassNotFoundException ignored) {
-        }
-
         Properties props = new Properties();
         //props.put("defaultAutoCommit","false");
         props.put("maxTotal", String.valueOf(Runtime.getRuntime().availableProcessors()));
