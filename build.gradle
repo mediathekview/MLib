@@ -9,7 +9,7 @@ targetCompatibility = 1.8
 
 group = 'de.mediathekview'
 archivesBaseName = "MLib"
-version = '2.4.3'
+version = '2.5.0'
 
 ext {
     propsFile = file('src/main/resources/version.properties').absoluteFile
@@ -49,7 +49,7 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven {
-    	url "https://oss.sonatype.org/content/repositories/snapshots/"
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
     }
 }
 
@@ -150,6 +150,12 @@ dependencies {
     compile 'org.tukaani:xz:1.6'
     compile 'com.squareup.okhttp3:okhttp:3.9.1'
     compile 'fm.void.jetm:jetm:1.2.3'
+    compile 'org.apache.logging.log4j:log4j-core:2.8.1'
+    compile group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.3.0'
+    compile 'org.apache.commons:commons-configuration2:2.2'
+
+    // https://mvnrepository.com/artifact/org.jetbrains/annotations
+    compileOnly group: 'org.jetbrains', name: 'annotations', version: '15.0'
 }
 
 task copyTestResources(type: Copy) {
