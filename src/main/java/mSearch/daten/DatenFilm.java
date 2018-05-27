@@ -542,11 +542,9 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         public static void closeDatabase() {
             try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
                  Statement statement = connection.createStatement()) {
-                //statement.executeUpdate("DROP TABLE IF EXISTS mediathekview.description");
-                //statement.executeUpdate("DROP TABLE IF EXISTS mediathekview.website_links");
                 statement.executeUpdate("SHUTDOWN COMPACT");
-            } catch (SQLException ignored) {
-                logger.error(ignored);
+            } catch (SQLException e) {
+                logger.error(e);
             }
             PooledDatabaseConnection.getInstance().close();
         }
@@ -562,12 +560,10 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
                 statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS mediathekview");
                 statement.executeUpdate("SET SCHEMA mediathekview");
 
-                //statement.executeUpdate("DROP TABLE IF EXISTS mediathekview.description");
                 statement.executeUpdate("CREATE TABLE IF NOT EXISTS description (id INTEGER NOT NULL PRIMARY KEY, desc VARCHAR(1024))");
                 statement.executeUpdate("CREATE INDEX IF NOT EXISTS IDX_DESC_ID ON mediathekview.description (id)");
                 statement.executeUpdate("TRUNCATE TABLE mediathekview.description");
 
-                //statement.executeUpdate("DROP TABLE IF EXISTS mediathekview.website_links");
                 statement.executeUpdate("CREATE TABLE IF NOT EXISTS website_links (id INTEGER NOT NULL PRIMARY KEY, link VARCHAR(1024))");
                 statement.executeUpdate("CREATE INDEX IF NOT EXISTS IDX_WEBSITE_LINKS_ID ON mediathekview.website_links (id)");
                 statement.executeUpdate("TRUNCATE TABLE mediathekview.website_links");
