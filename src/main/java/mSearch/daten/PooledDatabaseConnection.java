@@ -11,13 +11,23 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PooledDatabaseConnection implements Closeable {
     private static PooledDatabaseConnection INSTANCE;
     private final DataSource dataSource;
 
+    private final ExecutorService databaseExecutor;
+
     private PooledDatabaseConnection() {
         dataSource = setupDataSource();
+
+        databaseExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    }
+
+    public ExecutorService getDatabaseExecutor() {
+        return databaseExecutor;
     }
 
     public static PooledDatabaseConnection getInstance() {

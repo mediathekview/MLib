@@ -261,7 +261,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
             if (MemoryUtils.isLowMemoryEnvironment())
                 writeDescriptionToDatabase(desc);
             else
-                descriptionFuture = CompletableFuture.runAsync(() -> writeDescriptionToDatabase(desc));
+                descriptionFuture = CompletableFuture.runAsync(() -> writeDescriptionToDatabase(desc), PooledDatabaseConnection.getInstance().getDatabaseExecutor());
         }
     }
 
@@ -301,7 +301,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
             if (MemoryUtils.isLowMemoryEnvironment())
                 writeWebsiteLinkToDatabase(link);
             else
-                websiteFuture = CompletableFuture.runAsync(() -> writeWebsiteLinkToDatabase(link));
+                websiteFuture = CompletableFuture.runAsync(() -> writeWebsiteLinkToDatabase(link), PooledDatabaseConnection.getInstance().getDatabaseExecutor());
         }
     }
 
