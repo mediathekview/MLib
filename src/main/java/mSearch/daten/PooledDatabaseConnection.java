@@ -11,13 +11,23 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PooledDatabaseConnection implements Closeable {
     private static PooledDatabaseConnection INSTANCE;
     private final DataSource dataSource;
 
+    private final ExecutorService databaseExecutor;
+
     private PooledDatabaseConnection() {
         dataSource = setupDataSource();
+
+        databaseExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    }
+
+    public ExecutorService getDatabaseExecutor() {
+        return databaseExecutor;
     }
 
     public static PooledDatabaseConnection getInstance() {
@@ -46,20 +56,17 @@ public class PooledDatabaseConnection implements Closeable {
     private DataSource setupDataSource() {
         final String CACHE_PATH;
         if (SystemInfo.isMacOSX()) {
-            CACHE_PATH = System.getProperty("user.home") + "/Library/Caches/MediathekView/";
+            CACHE_PATH = System.getProperty("user.home") + "/Library/Caches/MediathekView/database/";
         } else
-            CACHE_PATH = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar;
-
-        try {
-            Class.forName("org.hsqldb.jdbc.JDBCDriver");
-        } catch (ClassNotFoundException ignored) {
-        }
+            CACHE_PATH = System.getProperty("user.home") + File.separatorChar + ".mediathek3" + File.separatorChar
+                    + "database" + File.separatorChar;
 
         Properties props = new Properties();
         //props.put("defaultAutoCommit","false");
         props.put("maxTotal", String.valueOf(Runtime.getRuntime().availableProcessors()));
         props.put("poolPreparedStatements", "true");
-        ConnectionFactory connectionFactory = new DriverManagerConnectionFactory("jdbc:hsqldb:file:" + CACHE_PATH + "cache.db;close_result=true;shutdown=true", props);
+        final String driverCommand = "jdbc:h2:file:" + CACHE_PATH + "mediathekview;MVCC=TRUE";
+        ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(driverCommand, props);
 
         PoolableConnectionFactory poolableConnectionFactory =
                 new PoolableConnectionFactory(connectionFactory, null);

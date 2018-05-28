@@ -225,7 +225,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         String sqlStr;
 
         try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT desc FROM description WHERE id = ?")) {
+             PreparedStatement statement = connection.prepareStatement("SELECT desc FROM mediathekview.description WHERE id = ?")) {
             statement.setInt(1, databaseFilmNumber);
 
             if (descriptionFuture != null) {
@@ -261,7 +261,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
             if (MemoryUtils.isLowMemoryEnvironment())
                 writeDescriptionToDatabase(desc);
             else
-                descriptionFuture = CompletableFuture.runAsync(() -> writeDescriptionToDatabase(desc));
+                descriptionFuture = CompletableFuture.runAsync(() -> writeDescriptionToDatabase(desc), PooledDatabaseConnection.getInstance().getDatabaseExecutor());
         }
     }
 
@@ -269,7 +269,7 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         String res;
 
         try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
-             PreparedStatement statement = connection.prepareStatement("SELECT link FROM website_links WHERE id = ?")) {
+             PreparedStatement statement = connection.prepareStatement("SELECT link FROM mediathekview.website_links WHERE id = ?")) {
             statement.setInt(1, databaseFilmNumber);
 
             if (websiteFuture != null) {
@@ -301,14 +301,14 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
             if (MemoryUtils.isLowMemoryEnvironment())
                 writeWebsiteLinkToDatabase(link);
             else
-                websiteFuture = CompletableFuture.runAsync(() -> writeWebsiteLinkToDatabase(link));
+                websiteFuture = CompletableFuture.runAsync(() -> writeWebsiteLinkToDatabase(link), PooledDatabaseConnection.getInstance().getDatabaseExecutor());
         }
     }
 
     private void writeWebsiteLinkToDatabase(String link) {
         try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
-             PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO website_links VALUES (?,?)");
-             PreparedStatement updateStatement = connection.prepareStatement("UPDATE website_links SET link=? WHERE id=?")) {
+             PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO mediathekview.website_links VALUES (?,?)");
+             PreparedStatement updateStatement = connection.prepareStatement("UPDATE mediathekview.website_links SET link=? WHERE id=?")) {
 
             updateStatement.setString(1, link);
             updateStatement.setInt(2, databaseFilmNumber);
@@ -325,8 +325,8 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
 
     private void writeDescriptionToDatabase(String desc) {
         try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
-             PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO description VALUES (?,?)");
-             PreparedStatement updateStatement = connection.prepareStatement("UPDATE description SET desc=? WHERE id =?")
+             PreparedStatement insertStatement = connection.prepareStatement("INSERT INTO mediathekview.description VALUES (?,?)");
+             PreparedStatement updateStatement = connection.prepareStatement("UPDATE mediathekview.description SET desc=? WHERE id =?")
         ) {
             String cleanedDesc = cleanDescription(desc, arr[FILM_THEMA], getTitle());
             cleanedDesc = StringUtils.replace(cleanedDesc, "\n", "<br />");
@@ -542,10 +542,9 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         public static void closeDatabase() {
             try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
                  Statement statement = connection.createStatement()) {
-                statement.executeUpdate("DROP TABLE IF EXISTS description");
-                statement.executeUpdate("DROP TABLE IF EXISTS website_links");
                 statement.executeUpdate("SHUTDOWN COMPACT");
-            } catch (SQLException ignored) {
+            } catch (SQLException e) {
+                logger.error(e);
             }
             PooledDatabaseConnection.getInstance().close();
         }
@@ -553,17 +552,23 @@ public class DatenFilm implements AutoCloseable, Comparable<DatenFilm> {
         private static void initializeDatabase() throws SQLException {
             try (Connection connection = PooledDatabaseConnection.getInstance().getConnection();
                  Statement statement = connection.createStatement()) {
-                statement.executeUpdate("SET DATABASE TRANSACTION CONTROL MVCC");
-                //only increase cache size if there is enough memory
+                statement.executeUpdate("SET MULTI_THREADED 1");
                 if (!MemoryUtils.isLowMemoryEnvironment()) {
-                    statement.executeUpdate("SET FILES CACHE ROWS 100000");
-                    statement.executeUpdate("SET FILES CACHE SIZE 50000");
+                    statement.executeUpdate("SET WRITE_DELAY 2000");
+                    statement.executeUpdate("SET MAX_OPERATION_MEMORY 0");
                 }
+                statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS mediathekview");
+                statement.executeUpdate("SET SCHEMA mediathekview");
 
-                statement.executeUpdate("DROP TABLE IF EXISTS description");
-                statement.executeUpdate("CREATE CACHED TABLE IF NOT EXISTS description (id INTEGER NOT NULL PRIMARY KEY, desc VARCHAR(1024))");
-                statement.executeUpdate("DROP TABLE IF EXISTS website_links");
-                statement.executeUpdate("CREATE CACHED TABLE IF NOT EXISTS website_links (id INTEGER NOT NULL PRIMARY KEY, link VARCHAR(1024))");
+                statement.executeUpdate("CREATE TABLE IF NOT EXISTS description (id INTEGER NOT NULL PRIMARY KEY, desc VARCHAR(1024))");
+                statement.executeUpdate("CREATE INDEX IF NOT EXISTS IDX_DESC_ID ON mediathekview.description (id)");
+                statement.executeUpdate("TRUNCATE TABLE mediathekview.description");
+
+                statement.executeUpdate("CREATE TABLE IF NOT EXISTS website_links (id INTEGER NOT NULL PRIMARY KEY, link VARCHAR(1024))");
+                statement.executeUpdate("CREATE INDEX IF NOT EXISTS IDX_WEBSITE_LINKS_ID ON mediathekview.website_links (id)");
+                statement.executeUpdate("TRUNCATE TABLE mediathekview.website_links");
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
