@@ -17,7 +17,7 @@ public class SenderTest {
 
   @Test
   public void pruefeAnzahlBekannterSender() {
-    assertEquals(29, Sender.getSenderNamen().size());
+    assertEquals(32, Sender.getSenderNamen().size());
   }
 
   @Test
@@ -32,6 +32,9 @@ public class SenderTest {
     assertTrue(c.contains(Sender.ARD.getName()));
     assertTrue(c.contains(Sender.ARTE_DE.getName()));
     assertTrue(c.contains(Sender.ARTE_FR.getName()));
+    assertTrue(c.contains(Sender.ARTE_PL.getName()));
+    assertTrue(c.contains(Sender.ARTE_EN.getName()));
+    assertTrue(c.contains(Sender.ARTE_ES.getName()));
     assertTrue(c.contains(Sender.BR.getName()));
     assertTrue(c.contains(Sender.DREISAT.getName()));
     assertTrue(c.contains(Sender.DW.getName()));
