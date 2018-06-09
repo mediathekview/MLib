@@ -156,7 +156,7 @@ dependencies {
 
 task copyTestResources(type: Copy) {
     from "${projectDir}/src/test/resources"
-    into "${buildDir}/classes/test"
+    into "${buildDir}/classes/java/test"
 }
 processTestResources.dependsOn copyTestResources
 
