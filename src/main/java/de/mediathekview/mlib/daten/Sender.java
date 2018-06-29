@@ -17,9 +17,9 @@ import java.util.Optional;
 public enum Sender {
   ARD("ARD"),
   ARTE_DE("ARTE.DE", "ARTEDE", "ARTE_DE"),
-  ARTE_FR("ARTE.FR", "ARTEFR", "ARTE_FR"),
   ARTE_EN("ARTE.EN", "ARTEEN", "ARTE_EN"),
   ARTE_ES("ARTE.ES", "ARTEES", "ARTE_ES"),
+  ARTE_FR("ARTE.FR", "ARTEFR", "ARTE_FR"),
   ARTE_PL("ARTE.PL", "ARTEPL", "ARTE_PL"),
   BR("BR"),
   DREISAT("3sat"),
@@ -38,13 +38,13 @@ public enum Sender {
   SRF_PODCAST("SRF.Podcast"),
   SWR("SWR"),
   WDR("WDR"),
+  WDR_COSMO("WDR COSMO"),
+  WDR_KIRAKA("WDR KIRAKA"),
   WDR1_LIVE("WDR 1LIVE"),
   WDR2("WDR 2"),
   WDR3("WDR 3"),
   WDR4("WDR 4"),
   WDR5("WDR 5"),
-  WDR_COSMO("WDR COSMO"),
-  WDR_KIRAKA("WDR KIRAKA"),
   ZDF("ZDF"),
   ZDF_TIVI("ZDF Tivi", "ZDF-tivi");
 
@@ -81,5 +81,10 @@ public enum Sender {
 
   public String getName() {
     return name;
+  }
+
+  @Override
+  public String toString() {
+    return getName();
   }
 }
