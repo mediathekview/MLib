@@ -30,7 +30,7 @@ public enum Sender {
   MDR("MDR"),
   NDR("NDR"),
   ORF("ORF"),
-  PHOENIX("Phönix"),
+  PHOENIX("PHOENIX"),
   RBB("RBB"),
   SF("SF"),
   SR("SR"),
