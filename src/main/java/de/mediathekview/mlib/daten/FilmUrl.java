@@ -1,88 +1,49 @@
 package de.mediathekview.mlib.daten;
 
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+public class FilmUrl extends MediaUrl implements Serializable {
+	private static final long serialVersionUID = -7673915328280663006L;
+	private Long fileSize;
 
-public class FilmUrl implements Serializable {
-  private static final long serialVersionUID = 576534421232286643L;
-  private static final Logger LOG = LogManager.getLogger(FilmUrl.class);
-  private static final String URL_START_NRODL = "//nrodl";
-  private static final String URL_START_RODL = "//rodl";
-  private static final String URL_HTTPS = "https";
-  private static final String URL_HTTP = "http";
-  private URL url;
-  private Long fileSize;
+	public FilmUrl(final URL url, final Long fileSize) {
+		super(url);
+		this.fileSize = fileSize;
+	}
 
-  public FilmUrl(final URL url, final Long fileSize) {
-    this.url = url;
-    this.fileSize = fileSize;
-  }
+	public Long getFileSize() {
+		return fileSize;
+	}
 
-  @Override
-  public boolean equals(final Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
+	public void setFileSize(final Long fileSize) {
+		this.fileSize = fileSize;
+	}
 
-    final FilmUrl filmUrl = (FilmUrl) o;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((fileSize == null) ? 0 : fileSize.hashCode());
+		return result;
+	}
 
-    if (!makeUrlComparable(getUrl()).equals(makeUrlComparable(filmUrl.getUrl()))) {
-      return false;
-    }
-    return getFileSize().equals(filmUrl.getFileSize());
-
-  }
-
-  public Long getFileSize() {
-    return fileSize;
-  }
-
-  public URL getUrl() {
-    return url;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = makeUrlComparable(getUrl()).hashCode();
-    result = 31 * result + getFileSize().hashCode();
-    return result;
-  }
-
-  public void setFileSize(final Long fileSize) {
-    this.fileSize = fileSize;
-  }
-
-  public void setUrl(final URL url) {
-    this.url = url;
-  }
-
-  private URL makeUrlComparable(final URL aUrl) {
-    URL newUrl;
-    if (aUrl == null) {
-      newUrl = aUrl;
-    } else {
-      final String urlAsText = aUrl.toString();
-      try {
-        newUrl = new URL(
-            urlAsText.replaceAll(URL_START_NRODL, URL_START_RODL).replaceAll(URL_HTTPS, URL_HTTP));
-      } catch (final MalformedURLException aMalformedURLException) {
-        LOG.fatal("Can't replace the nrodl in these URL: " + aUrl.toString(),
-            aMalformedURLException);
-        newUrl = aUrl;
-      }
-    }
-    return newUrl;
-  }
-  
-  public String toString() {
-      return getUrl().toString();
-  }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (!(obj instanceof FilmUrl))
+			return false;
+		FilmUrl other = (FilmUrl) obj;
+		if (fileSize == null) {
+			if (other.fileSize != null)
+				return false;
+		} else if (!fileSize.equals(other.fileSize)) {
+			return false;
+		}
+		return true;
+	}
 
 }

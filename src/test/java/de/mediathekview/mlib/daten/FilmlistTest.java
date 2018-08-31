@@ -70,7 +70,7 @@ public class FilmlistTest {
     final Livestream testLivestream1 = new Livestream(UUID.randomUUID(), Sender.ZDF, "Livestream 1",
         "Livestream", LocalDateTime.now());
     testLivestream1.setWebsite(new URL("https://zdf.de"));
-    testLivestream1.addUrl(Resolution.HD, new URL("http://example.org/hd.mp4"));
+    testLivestream1.addUrl(Resolution.HD, new MediaUrl(new URL("http://example.org/hd.mp4")));
     return testLivestream1;
   }
 
@@ -78,7 +78,7 @@ public class FilmlistTest {
     final Livestream testLivestream2 = new Livestream(UUID.randomUUID(), Sender.ZDF, "Livestream 2",
         "Livestream", LocalDateTime.now());
     testLivestream2.setWebsite(new URL("https://zdf.de"));
-    testLivestream2.addUrl(Resolution.NORMAL, new URL("http://example.org/normal.mp4"));
+    testLivestream2.addUrl(Resolution.NORMAL, new MediaUrl(new URL("http://example.org/normal.mp4")));
     return testLivestream2;
   }
 
