@@ -1,9 +1,9 @@
 package de.mediathekview.mlib.filmlisten;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -17,16 +17,14 @@ import de.mediathekview.mlib.daten.Filmlist;
 
 @RunWith(Parameterized.class)
 public class NewFilmlistReadTest {
-  private static final String BASE_FOLDER = "";
   private static Filmlist testData;
-  private static Path testFileFolderPath;
 
   private static final FilmlistManager filmlistManager = FilmlistManager.getInstance();
   private final String jsonName;
   private final FilmlistFormats format;
 
   public NewFilmlistReadTest(final String aJsonName, final FilmlistFormats aFormat) {
-    jsonName = aJsonName;
+    jsonName = getClass().getClassLoader().getResource(aJsonName).getFile();
     format = aFormat;
   }
 
@@ -44,15 +42,15 @@ public class NewFilmlistReadTest {
 
   @BeforeClass
   public static void initTestData() throws URISyntaxException, IOException {
-    testData = FilmlistTestData.getInstance().createTestdataNewFormat();
-    testFileFolderPath =
-        Paths.get(NewFilmlistReadTest.class.getClassLoader().getResource(BASE_FOLDER).toURI());
+    testData = FilmlistTestData.getInstance().createTestdataNewFormat();  
   }
-
+  
   @Test
   public void testRead() throws IOException {
-    final Path testFilePath = testFileFolderPath.resolve(jsonName);
+    final Path testFilePath = new File(jsonName).toPath();
     final Optional<Filmlist> result = filmlistManager.importList(format, testFilePath);
+
+    System.out.println(result.isPresent());
 
     Assert.assertThat(result.isPresent(), CoreMatchers.is(true));
     Assert.assertThat(result.get().getFilms().size(), CoreMatchers.is(testData.getFilms().size()));

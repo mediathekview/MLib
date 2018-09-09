@@ -16,9 +16,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
-import org.tukaani.xz.LZMA2Options;
-import org.tukaani.xz.XZInputStream;
-import org.tukaani.xz.XZOutputStream;
+import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
+import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
 
 /**
  * A util class to work with compressed files.
@@ -41,7 +40,7 @@ public class CompressionManager {
       final OutputStream aOutputStream) throws IOException {
     switch (aCompressionType) {
       case XZ:
-        return new XZOutputStream(aOutputStream, new LZMA2Options(LZMA2Options.PRESET_MAX));
+        return new XZCompressorOutputStream(aOutputStream, 9);
       case GZIP:
         return new GZIPOutputStream(aOutputStream) {
           {
@@ -103,7 +102,7 @@ public class CompressionManager {
       final InputStream aInputStream) throws IOException {
     switch (aCompressionType) {
       case XZ:
-        return new XZInputStream(aInputStream);
+        return new XZCompressorInputStream(aInputStream);
       case GZIP:
         return new GZIPInputStream(aInputStream);
       case BZIP:
