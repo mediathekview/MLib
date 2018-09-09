@@ -136,8 +136,6 @@ build.dependsOn(install)
 dependencies {
     compile 'org.apache.commons:commons-lang3:3.5'
     compile 'com.fasterxml.jackson.core:jackson-core:2.8.9'
-    compile 'com.jidesoft:jide-oss:3.6.16'
-    compile 'org.tukaani:xz:1.5'
     compile 'com.squareup.okhttp3:okhttp:3.6.0'
     compile 'org.apache.logging.log4j:log4j-core:2.7'
     compile 'fm.void.jetm:jetm:1.2.3'
@@ -146,9 +144,6 @@ dependencies {
     compile 'org.glassfish.jersey.core:jersey-client:2.25'
     compile 'org.apache.commons:commons-compress:1.15'
     
-
-
-
     testCompile "junit:junit:4.12"
     testCompile "commons-io:commons-io:1.3.1"
     testCompile "org.hamcrest:hamcrest-junit:2.0.0.0"

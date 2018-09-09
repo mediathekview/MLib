@@ -19,7 +19,7 @@ import java.io.File;
 import java.security.CodeSource;
 import java.util.ResourceBundle;
 import org.apache.commons.lang3.StringEscapeUtils;
-import com.jidesoft.utils.SystemInfo;
+import org.apache.commons.lang3.SystemUtils;
 import de.mediathekview.mlib.Const;
 
 @Deprecated
@@ -177,12 +177,12 @@ public class Functions {
         os = OperatingSystemType.WIN32;
       }
 
-    } else if (SystemInfo.isLinux()) {
+    } else if (SystemUtils.IS_OS_LINUX) {
       os = OperatingSystemType.LINUX;
     } else if (System.getProperty("os.name").toLowerCase().contains("freebsd")) {
       os = OperatingSystemType.LINUX;
 
-    } else if (SystemInfo.isMacOSX()) {
+    } else if (SystemUtils.IS_OS_MAC_OSX) {
       os = OperatingSystemType.MAC;
     }
     return os;

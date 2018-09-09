@@ -7,7 +7,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
-import com.jidesoft.utils.SystemInfo;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  * User: crystalpalace1977 Date: 28.12.14 Time: 16:02
@@ -34,13 +34,13 @@ public class FilenameUtils {
     boolean isWindowsPath = false;
     final String splitChar;
 
-    if (SystemInfo.isWindows()) {
+    if (SystemUtils.IS_OS_WINDOWS) {
       splitChar = "\\\\";
     } else {
       splitChar = "/";
     }
 
-    if (SystemInfo.isWindows()) {
+    if (SystemUtils.IS_OS_WINDOWS) {
       ret = removeWindowsTrailingDots(ret);
       if (isPath) {
         if (ret.length() > 1 && ret.charAt(1) == ':') {
@@ -142,7 +142,7 @@ public class FilenameUtils {
       final boolean userReplace, final boolean onlyAscii) {
     String ret = name;
     boolean isWindowsPath = false;
-    if (SystemInfo.isWindows() && isPath && ret.length() > 1 && ret.charAt(1) == ':') {
+    if (SystemUtils.IS_OS_WINDOWS && isPath && ret.length() > 1 && ret.charAt(1) == ':') {
       // damit auch "d:" und nicht nur "d:\" als Pfad geht
       isWindowsPath = true;
       ret = ret.replaceFirst(":", ""); // muss zum Schluss wieder rein, kann aber so nicht ersetzt

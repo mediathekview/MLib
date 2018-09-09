@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
-import com.jidesoft.utils.SystemInfo;
+import org.apache.commons.lang3.SystemUtils;
 import de.mediathekview.mlib.Config;
 import de.mediathekview.mlib.Const;
 
@@ -191,7 +191,7 @@ public class Log {
   }
 
   public static void versionMsg(final String progName) {
-    if (!SystemInfo.isMacOSX()) {
+    if (!SystemUtils.IS_OS_MAC_OSX) {
       sysLog("");
       sysLog("");
       sysLog("");
