@@ -50,8 +50,6 @@ public class NewFilmlistReadTest {
     final Path testFilePath = new File(jsonName).toPath();
     final Optional<Filmlist> result = filmlistManager.importList(format, testFilePath);
 
-    System.out.println(result.isPresent());
-
     Assert.assertThat(result.isPresent(), CoreMatchers.is(true));
     Assert.assertThat(result.get().getFilms().size(), CoreMatchers.is(testData.getFilms().size()));
   }
