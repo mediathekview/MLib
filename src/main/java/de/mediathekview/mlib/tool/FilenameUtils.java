@@ -90,7 +90,7 @@ public class FilenameUtils {
    * Remove illegal characters from String based on current OS.
    *
    * @param input The input string
-   * @param isPath
+   * @param isPath is the input String a Path?
    * @return Cleaned-up string.
    */
   public static String removeIllegalCharacters(final String input, final boolean isPath) {
@@ -133,9 +133,9 @@ public class FilenameUtils {
    * Entferne verbotene Zeichen aus Dateiname.
    *
    * @param name Dateiname
-   * @param isPath
-   * @param userReplace
-   * @param onlyAscii
+   * @param isPath true/false if it is a Path
+   * @param userReplace use users replace List?
+   * @param onlyAscii use only ascii characters?
    * @return Bereinigte Fassung
    */
   public static String replaceLeerDateiname(final String name, final boolean isPath,
