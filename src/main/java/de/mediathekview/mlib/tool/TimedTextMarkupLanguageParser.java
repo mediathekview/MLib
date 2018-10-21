@@ -91,6 +91,7 @@ public class TimedTextMarkupLanguageParser {
    * Parse the TTML file into internal representation.
    *
    * @param ttmlFilePath the TTML file to parse
+   * @return returns if the parse had no errors (true) or got an Exception (false)
    */
   public boolean parse(final Path ttmlFilePath) {
     boolean ret;
@@ -128,7 +129,7 @@ public class TimedTextMarkupLanguageParser {
    * Parse the XML Subtitle File for Flash Player into internal representation.
    *
    * @param ttmlFilePath the TTML file to parse
-   * @return
+   * @return returns true there are no errors while parsing. false if there where an Exception while parsing.
    */
   public boolean parseXmlFlash(final Path ttmlFilePath) {
     boolean ret;
@@ -196,6 +197,8 @@ public class TimedTextMarkupLanguageParser {
 
   /**
    * Convert internal representation into SubRip Text Format and save to file.
+   *
+   * @param srtFile The {@link Path} to the SubRip File
    */
   public void toSrt(final Path srtFile) {
     try (FileOutputStream fos = new FileOutputStream(srtFile.toFile());

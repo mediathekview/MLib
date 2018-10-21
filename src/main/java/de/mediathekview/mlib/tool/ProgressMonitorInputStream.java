@@ -28,6 +28,9 @@ public class ProgressMonitorInputStream extends FilterInputStream {
    *
    * @param in the underlying input stream, or <code>null</code> if this instance is to be created
    *        without an underlying stream.
+   * @param maxSize  Maximum size to adjust the Progressbar.
+   * @param mon The InputStreamProgressMonitor to Monitor the InputStream
+   * @throws IOException Throws an IOException if the is Zero
    */
   public ProgressMonitorInputStream(final InputStream in, final long maxSize,
       final InputStreamProgressMonitor mon) throws IOException {

@@ -23,7 +23,7 @@ public enum Resolution {
     }
   }
 
-  /**
+  /*
    * The bigger the index the better the quality.
    */
   private final int resolutionSize;
@@ -60,16 +60,16 @@ public enum Resolution {
   /**
    * Derzeit sind folgende ARD AudioVideo Ordinals bekannt:<br>
    * <ul>
-   * <li>HD = 1280 width x 720 height</li>
-   * <li>Premium = 969 width x 540 height</li>
-   * <li>Large = 640 width x 360 height</li>
-   * <li>Standard = 512 width x 288 height</li>
-   * <li>Mobile = 480 width x 270 height</li>
-   * <li>Mobile_S = 320 width x 180 height</li>
+   * <LI>HD = 1280 width x 720 height</LI>
+   * <LI>Premium = 969 width x 540 height</LI>
+   * <LI>Large = 640 width x 360 height</LI>
+   * <LI>Standard = 512 width x 288 height</LI>
+   * <LI>Mobile = 480 width x 270 height</LI>
+   * <LI>Mobile_S = 320 width x 180 height</LI>
    * </ul>
    *
-   * @param profileName
-   * @return
+   * @param profileName Angabe des Profilenamens per String.
+   * @return Gibt als Enum die entsprechende Enumeration zurück. Oder per Default VERY_SMALL.
    */
   public static Resolution getResolutionFromArdAudioVideoOrdinalsByProfileName(
       final String profileName) {
@@ -98,15 +98,15 @@ public enum Resolution {
 
   /**
    * The following width size limits are relevant:<br>
-   * <ul>
-   * <li>HD = >= 1280 width</li>
-   * <li>Normal = >= 969 width</li>
-   * <li>Small = >= 640 width</li>
-   * <li>Very Small = < 640 width</li>
-   * </ul>
+   * <UL>
+   * <li>HD = &gt;= 1280 width</li>
+   * <li>Normal = &gt;= 969 width</li>
+   * <li>Small = &gt;= 640 width</li>
+   * <li>Very Small = &lt; 640 width</li>
+   * </UL>
    *
-   * @param width
-   * @return
+   * @param width Try to get an Resolution based on the horizontal width of the screen Resolution
+   * @return returns the Resolution best working for the searched Resolution.
    */
   public static Resolution getResolutionFromWidth(final int width) {
     if (width >= 1280) {

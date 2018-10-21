@@ -62,7 +62,8 @@ public class CompressionManager {
    *
    * @param aCompressionType The type in which should be compressed.
    * @param aSourceFile The file to compress.
-   * @return true if all worked fine
+   *
+   * @throws IOException Throws an IOException when the file to be compressed does not exists.
    */
   public void compress(final CompressionType aCompressionType, final Path aSourceFile)
       throws IOException {
@@ -75,7 +76,8 @@ public class CompressionManager {
    * @param aCompressionType The type in which should be compressed.
    * @param aSourceFile The file to compress.
    * @param aTargetPath The path for the compressed file.
-   * @return true if all worked fine
+   * @throws IOException Throws an IOException when the file to be compressed does not exists.
+   *
    */
   public void compress(final CompressionType aCompressionType, final Path aSourceFile,
       final Path aTargetPath) throws IOException {
@@ -97,6 +99,8 @@ public class CompressionManager {
    * @param aCompressionType The type in which should be compressed.
    * @param aInputStream The {@link InputStream} to uncompress.
    * @return A uncompressed {@link InputStream}
+   * @throws IOException Throws an IOException when the file to be decompressed does not exists.
+   *
    */
   public InputStream decompress(final CompressionType aCompressionType,
       final InputStream aInputStream) throws IOException {
@@ -118,8 +122,9 @@ public class CompressionManager {
    * {@link CompressionType}.
    *
    * @param aCompressionType The type in which should be compressed.
-   * @param aSourceFile
-   * @return
+   * @param aSourceFile The source File to be decompressed
+   * @throws IOException Throws an IOException when the file to be decompressed does not exists.
+   *
    */
   public void decompress(final CompressionType aCompressionType, final Path aSourceFile)
       throws IOException {
@@ -133,7 +138,7 @@ public class CompressionManager {
    * @param aCompressionType The type in which should be compressed.
    * @param aSourceFile The file to decompress.
    * @param aTargetPath The path for the decompressed file.
-   * @return true if all worked fine
+   * @throws IOException Throws an IOException when the file to be decompressed does not exists.
    */
   public void decompress(final CompressionType aCompressionType, final Path aSourceFile,
       final Path aTargetPath) throws IOException {
