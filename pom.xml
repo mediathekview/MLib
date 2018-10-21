@@ -191,14 +191,14 @@
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
         <includes>
-          <include>**/version.txt</include>
+          <include>**/version.properties</include>
         </includes>
       </resource>
       <resource>
         <directory>src/main/resources</directory>
         <filtering>false</filtering>
         <excludes>
-          <exclude>**/version.txt</exclude>
+          <exclude>**/version.properties</exclude>
         </excludes>
       </resource>
     </resources>
