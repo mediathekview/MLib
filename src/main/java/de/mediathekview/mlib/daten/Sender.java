@@ -22,7 +22,7 @@ public enum Sender {
   ARTE_FR("ARTE.FR", "ARTEFR", "ARTE_FR"),
   ARTE_PL("ARTE.PL", "ARTEPL", "ARTE_PL"),
   BR("BR"),
-  DREISAT("3sat"),
+  DREISAT("3Sat"),
   DW("DW"),
   FUNK("Funk.net"),
   HR("HR"),
