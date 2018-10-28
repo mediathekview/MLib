@@ -14,7 +14,7 @@ public enum GeoLocations {
   GEO_EU("EU", "EUR_DE_FR"),
   GEO_DE_FR("DE-FR", "DE_FR"),
   GEO_DE_AT_CH("DE-AT-CH", "dach"),
-  GEO_DE_AT_CH_EU("DE-AT-CH-EU", "SAT");
+  GEO_DE_AT_CH_EU("DE-AT-CH-EU", "SAT", "EBU");
 
   private final String description;
   private String[] alternatives;
@@ -33,7 +33,7 @@ public enum GeoLocations {
   public static Optional<GeoLocations> find(final String aTerm) {
     for (final GeoLocations geoLoc : GeoLocations.values()) {
       if (geoLoc.getDescription().equalsIgnoreCase(aTerm)
-          || StringUtils.equalsAny(aTerm, geoLoc.alternatives)) {
+          || StringUtils.equalsAnyIgnoreCase(aTerm, geoLoc.alternatives)) {
         return Optional.of(geoLoc);
       }
     }
