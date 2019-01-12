@@ -24,11 +24,10 @@ env:
 before_script:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in scripte/deploy/secring.gpg.enc
   -out scripte/deploy/secring.gpg -d
+- gpg --fast-import scripte/deploy/secring.gpg
 script:
-- "./gradlew check build"
-- if [ "$TRAVIS_BRANCH" == "develop" ]; then ./gradlew releaseSnapshot -PSONATYPE_USERNAME=$SONATYPE_USERNAME
-  -PSONATYPE_PASSWORD=$SONATYPE_PASSWORD -Psigning.keyId=$GPG_KEYNAME -Psigning.password=$GPG_PASSPHRASE
-  -Psigning.secretKeyRingFile=scripte/deploy/secring.gpg; fi
+- "./mvnw install"
+- if [ "$TRAVIS_BRANCH" == "develop" ]; then ./mvnw --settings .maven.xml deploy; fi
 after_success:
 - sonar-scanner
 before_cache:
@@ -41,8 +40,7 @@ cache:
 before_deploy:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in scripte/deploy/secring.gpg.enc
   -out scripte/deploy/secring.gpg -d
-- "./gradlew release -PSONATYPE_USERNAME=$SONATYPE_USERNAME -PSONATYPE_PASSWORD=$SONATYPE_PASSWORD
-  -Psigning.keyId=$GPG_KEYNAME -Psigning.password=$GPG_PASSPHRASE -Psigning.secretKeyRingFile=scripte/deploy/secring.gpg"
+- "./mvnw --settings .maven.xml deploy"
 deploy:
   provider: releases
   api_key:
