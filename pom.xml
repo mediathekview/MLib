@@ -25,6 +25,7 @@
       <id>Nicklas2751</id>
       <name>Nicklas Wiegandt</name>
       <email>nicklas@mediathekview.de</email>
+      <url>nicklas.wiegandt.eu</url>
     </developer>
     <developer>
       <id>derreisende77</id>
@@ -53,6 +54,17 @@
     <developerConnection>scm:git:ssh://github.com:mediathekview/MLib.git</developerConnection>
     <url>https://github.com/mediathekview/MLib/tree/master</url>
   </scm>
+
+  <distributionManagement>
+    <snapshotRepository>
+     <id>ossrh</id>
+     <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+     <id>ossrh</id>
+     <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -186,7 +198,6 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.7.0</version>
@@ -200,7 +211,7 @@
         <version>3.1.0</version>
       </plugin>
       <plugin>
-        <artifactId>maven-install-plugin</artifactId>
+       <artifactId>maven-install-plugin</artifactId>
         <version>2.5.2</version>
       </plugin>
       <plugin>
@@ -228,4 +239,64 @@
     </resources>
 
   </build>
+
+<profiles>
+		<profile>
+			<id>deploy</id>
+			<build>
+				<plugins>
+<!-- To release to Maven central -->
+              <plugin>
+                  <groupid>org.sonatype.plugins</groupid>
+                  <artifactid>nexus-staging-maven-plugin</artifactid>
+                  <version>1.6.8</version>
+                  <extensions>true</extensions>
+                  <configuration>
+                      <serverid>ossrh</serverid>
+                      <nexusurl>https://oss.sonatype.org/</nexusurl>
+                      <autoreleaseafterclose>true</autoreleaseafterclose>
+                  </configuration>
+              </plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.5</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>create-license-list</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>license-maven-plugin</artifactId>
+						<version>1.8</version>
+						<configuration>
+							<useMissingFile>true</useMissingFile>
+						</configuration>
+						<executions>
+							<execution>
+								<id>create-license-list</id>
+								<goals>
+									<goal>aggregate-add-third-party</goal>
+								</goals>
+								<phase>generate-resources</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+  </profiles>
 </project>
