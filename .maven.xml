@@ -8,6 +8,10 @@
             <password>${env.SONATYPE_PASSWORD}</password>
         </server>
     </servers>
+    
+    <activeProfiles>
+      <activeProfile>deploy</activeProfile>
+    </activeProfiles>
 
     <profiles>
       <profile>

@@ -237,7 +237,7 @@
 
 	<profiles>
 		<profile>
-			<id>ossrh</id>
+			<id>deploy</id>
 			<build>
 				<plugins>
 					<!-- To release to Maven central -->
