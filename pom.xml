@@ -224,13 +224,6 @@
 					<include>**/version.properties</include>
 				</includes>
 			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>false</filtering>
-				<excludes>
-					<exclude>**/version.properties</exclude>
-				</excludes>
-			</resource>
 		</resources>
 
 	</build>
@@ -263,30 +256,6 @@
 								<goals>
 									<goal>sign</goal>
 								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>create-license-list</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>license-maven-plugin</artifactId>
-						<version>1.8</version>
-						<configuration>
-							<useMissingFile>true</useMissingFile>
-						</configuration>
-						<executions>
-							<execution>
-								<id>create-license-list</id>
-								<goals>
-									<goal>aggregate-add-third-party</goal>
-								</goals>
-								<phase>generate-resources</phase>
 							</execution>
 						</executions>
 					</plugin>
