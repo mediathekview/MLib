@@ -21,6 +21,7 @@ public class Film extends Podcast {
 
 	private final Map<Resolution, FilmUrl> signLanguages;
 	private final Collection<URL> subtitles;
+
 	public Film(final UUID aUuid, final Sender aSender, final String aTitel, final String aThema,
 			final LocalDateTime aTime, final Duration aDauer) {
 		super(aUuid, aSender, aTitel, aThema, aTime, aDauer);
@@ -28,6 +29,14 @@ public class Film extends Podcast {
 		signLanguages = new EnumMap<>(Resolution.class);
 		subtitles = new ArrayList<>();
 	}
+
+	public Film(Film copyObj) {
+		super(copyObj);
+		audioDescriptions = copyObj.audioDescriptions;
+		signLanguages = copyObj.signLanguages;
+		subtitles = copyObj.subtitles;
+	}
+
 	public void addAllSubtitleUrls(Set<URL> urlsToAdd) {
 		this.subtitles.addAll(urlsToAdd);
 	}

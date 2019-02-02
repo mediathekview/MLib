@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
+
 import de.mediathekview.mlib.Const;
 import de.mediathekview.mlib.tool.Functions;
 
@@ -52,7 +53,20 @@ public abstract class AbstractMediaResource<T> implements Serializable {
     beschreibung = "";
   }
 
-  public void addAllGeoLocations(final Collection<GeoLocations> aGeoLocations) {
+  public AbstractMediaResource(AbstractMediaResource<T> copyObj) {
+	super();
+	uuid = copyObj.uuid;
+	geoLocations = copyObj.geoLocations;
+	urls = copyObj.urls;
+	sender = copyObj.sender;
+	titel = copyObj.titel;
+	thema = copyObj.thema;
+	time = copyObj.time;
+	beschreibung = copyObj.beschreibung;
+	website = copyObj.website;
+}
+
+public void addAllGeoLocations(final Collection<GeoLocations> aGeoLocations) {
     geoLocations.addAll(aGeoLocations);
   }
 
