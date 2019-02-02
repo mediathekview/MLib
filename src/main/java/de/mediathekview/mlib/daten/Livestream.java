@@ -11,7 +11,7 @@ public class Livestream extends AbstractMediaResource<URL> {
 			final LocalDateTime aTime) {
 		super(aUuid, aSender, aTitel, aThema, aTime);
 	}
-
+	
 	public Livestream(Livestream copyObj) {
 		super(copyObj);
 	}

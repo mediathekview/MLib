@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Represents a found film.
@@ -20,14 +22,14 @@ public class Film extends Podcast {
 	private final Map<Resolution, FilmUrl> audioDescriptions;
 
 	private final Map<Resolution, FilmUrl> signLanguages;
-	private final Collection<URL> subtitles;
+	private final Set<URL> subtitles;
 
 	public Film(final UUID aUuid, final Sender aSender, final String aTitel, final String aThema,
 			final LocalDateTime aTime, final Duration aDauer) {
 		super(aUuid, aSender, aTitel, aThema, aTime, aDauer);
 		audioDescriptions = new EnumMap<>(Resolution.class);
 		signLanguages = new EnumMap<>(Resolution.class);
-		subtitles = new ArrayList<>();
+		subtitles = new HashSet<>();
 	}
 
 	public Film(Film copyObj) {
@@ -36,6 +38,24 @@ public class Film extends Podcast {
 		signLanguages = copyObj.signLanguages;
 		subtitles = copyObj.subtitles;
 	}
+	
+	@Override
+	public AbstractMediaResource<FilmUrl> merge(AbstractMediaResource<FilmUrl> objToMergeWith) {
+		addAllGeoLocations(objToMergeWith.getGeoLocations());
+		addAllUrls(objToMergeWith.getUrls().entrySet().stream().filter(urlEntry -> !urls.containsKey(urlEntry.getKey()) || 
+				urlEntry.getValue().getFileSize() > urls.get(urlEntry.getKey()).getFileSize()
+				)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+		return this;
+	}
+	
+		public Film merge(Film objToMergeWith) {
+			merge((AbstractMediaResource<FilmUrl>)objToMergeWith);
+			objToMergeWith.getAudioDescriptions().forEach(audioDescriptions::putIfAbsent);
+			objToMergeWith.getSignLanguages().forEach(signLanguages::putIfAbsent);
+			subtitles.addAll(objToMergeWith.getSubtitles());
+			return this;
+		}
 
 	public void addAllSubtitleUrls(Set<URL> urlsToAdd) {
 		this.subtitles.addAll(urlsToAdd);
