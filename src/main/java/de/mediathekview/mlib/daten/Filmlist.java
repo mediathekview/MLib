@@ -118,7 +118,7 @@ public class Filmlist {
 
 
   public List<Film> getFilmsSorted(
-      @SuppressWarnings("rawtypes") final Comparator<AbstractMediaResource> aComparator) {
+      final Comparator<AbstractMediaResource<?>> aComparator) {
     final List<Film> sortedFilms = new ArrayList<>(films.values());
     sortedFilms.sort(aComparator);
     return sortedFilms;

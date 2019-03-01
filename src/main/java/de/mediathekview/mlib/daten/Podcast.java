@@ -8,6 +8,15 @@ public class Podcast extends AbstractMediaResource<FilmUrl> {
 	private static final long serialVersionUID = -7161315980975471103L;
 	private final Duration duration;
 	private boolean neu;
+	
+	/**
+	 * DON'T USE! - ONLY FOR GSON!
+	 */
+	protected Podcast() {
+		super();
+		duration = null;
+		neu = false;
+	}
 
 	public Podcast(final UUID aUuid, final Sender aSender, final String aTitel, final String aThema,
 			final LocalDateTime aTime, final Duration aDauer) {

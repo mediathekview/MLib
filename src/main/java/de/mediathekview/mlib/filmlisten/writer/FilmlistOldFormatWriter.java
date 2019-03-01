@@ -2,6 +2,7 @@ package de.mediathekview.mlib.filmlisten.writer;
 
 import static java.time.format.FormatStyle.MEDIUM;
 import static java.time.format.FormatStyle.SHORT;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -11,10 +12,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import de.mediathekview.mlib.daten.Filmlist;
-import de.mediathekview.mlib.daten.MediaResourceComperatorFactory;
+import de.mediathekview.mlib.daten.MediaResourceComperators;
 import de.mediathekview.mlib.filmlisten.FilmToFakeJsonConverter;
 import de.mediathekview.mlib.messages.LibMessages;
 import de.mediathekview.mlib.tool.Functions;
@@ -29,7 +32,7 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
   public boolean write(final Filmlist aFilmlist, final Path aSavePath) {
     final FilmToFakeJsonConverter filmToFakeJsonConverter = new FilmToFakeJsonConverter();
     final String filmlistAsFakeJson = filmToFakeJsonConverter.toFakeJson(
-        aFilmlist.getSorted(MediaResourceComperatorFactory.getInstance().getDefault()),
+        aFilmlist.getSorted(MediaResourceComperators.DEFAULT_COMPERATOR.getComparator()),
         DATE_TIME_FORMAT.format(aFilmlist.getCreationDate()),
         DATE_TIME_FORMAT.format(aFilmlist.getCreationDate().atZone(ZoneOffset.UTC)),
         Functions.getProgVersion().toString(), Functions.getProgVersionString(),

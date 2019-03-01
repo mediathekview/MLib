@@ -1,26 +1,30 @@
 package de.mediathekview.mlib.filmlisten;
 
 import static java.time.format.FormatStyle.MEDIUM;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import com.google.gson.Gson;
+
 import de.mediathekview.mlib.daten.AbstractMediaResource;
 import de.mediathekview.mlib.daten.Film;
 import de.mediathekview.mlib.daten.FilmUrl;
 import de.mediathekview.mlib.daten.GeoLocations;
 import de.mediathekview.mlib.daten.Podcast;
 import de.mediathekview.mlib.daten.Resolution;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 /**
  * A helper class to generate the old fake json format for a
@@ -49,9 +53,9 @@ public class FilmToFakeJsonConverter {
 	private String lastSender;
 	private String lastThema;
 
-	public String toFakeJson(@SuppressWarnings("rawtypes") final List<AbstractMediaResource> aResources,
-			final String aFilmlisteDatum, final String aFilmlisteDatumGmt, final String aFilmlisteVersion,
-			final String aFilmlisteProgramm, final String aFilmlisteId) {
+	public String toFakeJson(final List<AbstractMediaResource<?>> aResources, final String aFilmlisteDatum,
+			final String aFilmlisteDatumGmt, final String aFilmlisteVersion, final String aFilmlisteProgramm,
+			final String aFilmlisteId) {
 		final StringBuilder fakeJsonBuilder = new StringBuilder();
 		fakeJsonBuilder.append(FAKE_JSON_BEGIN);
 		fakeJsonBuilder.append(System.lineSeparator());
@@ -188,7 +192,6 @@ public class FilmToFakeJsonConverter {
 
 		if (aMediaResource instanceof Film) {
 			Film film = (Film) aMediaResource;
-			//TODO fix NullPointerException      
 			FilmUrl filmUrl = film.getAudioDescription(Resolution.NORMAL);
 			if (filmUrl != null) {
 				url = filmUrl.toString();

@@ -47,13 +47,7 @@ public class FilmlistManager extends MessageCreator {
   public Optional<Filmlist> importList(final FilmlistFormats aFormat,
       final InputStream aInputStream) throws IOException {
     publishMessage(LibMessages.FILMLIST_IMPORT_STARTED);
-    InputStream input;
-    final Optional<CompressionType> compressionType = aFormat.getCompressionType();
-    if (compressionType.isPresent()) {
-      input = CompressionManager.getInstance().decompress(compressionType.get(), aInputStream);
-    } else {
-      input = aInputStream;
-    }
+    InputStream input = decompressInputStreamIfFormatNeedsTo(aFormat, aInputStream);
 
     try {
       if (aFormat.isOldFormat()) {
@@ -65,6 +59,18 @@ public class FilmlistManager extends MessageCreator {
       publishMessage(LibMessages.FILMLIST_IMPORT_FINISHED);
     }
   }
+
+private InputStream decompressInputStreamIfFormatNeedsTo(final FilmlistFormats aFormat, final InputStream aInputStream)
+		throws IOException {
+	InputStream input;
+    final Optional<CompressionType> compressionType = aFormat.getCompressionType();
+    if (compressionType.isPresent()) {
+      input = CompressionManager.getInstance().decompress(compressionType.get(), aInputStream);
+    } else {
+      input = aInputStream;
+    }
+	return input;
+}
 
   public Optional<Filmlist> importList(final FilmlistFormats aFormat, final Path aFilePath)
       throws IOException {

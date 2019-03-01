@@ -39,6 +39,17 @@ public class Film extends Podcast {
 		subtitles = copyObj.subtitles;
 	}
 	
+	/**
+	 * DON'T USE! - ONLY FOR GSON!
+	 */
+	@SuppressWarnings("unused")
+	private Film() {
+		super();
+		audioDescriptions = new EnumMap<>(Resolution.class);
+		signLanguages = new EnumMap<>(Resolution.class);
+		subtitles = new HashSet<>();
+	}
+	
 	@Override
 	public AbstractMediaResource<FilmUrl> merge(AbstractMediaResource<FilmUrl> objToMergeWith) {
 		addAllGeoLocations(objToMergeWith.getGeoLocations());

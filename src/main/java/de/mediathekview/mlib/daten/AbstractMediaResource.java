@@ -37,6 +37,19 @@ public abstract class AbstractMediaResource<T> implements Serializable {
 	private String beschreibung;
 	private Optional<URL> website;
 
+	/**
+	 * DON'T USE! - ONLY FOR GSON!
+	 */
+	protected AbstractMediaResource() {
+		geoLocations = new ArrayList<>();
+		urls = new EnumMap<>(Resolution.class);
+		uuid = null;
+		sender = null;
+		time = null;
+		website = Optional.empty();
+		beschreibung = "";
+	}
+	
 	public AbstractMediaResource(final UUID aUuid, final Sender aSender, final String aTitel, final String aThema,
 			final LocalDateTime aTime) {
 		geoLocations = new ArrayList<>();
