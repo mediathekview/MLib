@@ -119,7 +119,7 @@ private InputStream decompressInputStreamIfFormatNeedsTo(final FilmlistFormats a
 
   private boolean compressFile(final AbstractFilmlistWriter aWriter, final FilmlistFormats aFormat,
       final Path aSavePath, final Filmlist aFilmlist) {
-    final Path tempPath = aSavePath.resolveSibling(aSavePath.toString() + TEMP_ENDING);
+    final Path tempPath = aSavePath.resolveSibling(aSavePath.getFileName().toString() + TEMP_ENDING);
     try {
       return aWriter.write(aFilmlist, tempPath) && compress(aFormat, tempPath, aSavePath);
     } finally {

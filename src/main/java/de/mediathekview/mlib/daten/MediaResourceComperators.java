@@ -3,10 +3,14 @@ package de.mediathekview.mlib.daten;
 import java.util.Comparator;
 
 public enum MediaResourceComperators {
-	SENDER_COMPERAOR(Comparator.comparing(AbstractMediaResource::getSender)),
-	TITEL_COMPERATOR(Comparator.comparing(AbstractMediaResource::getTitel)),
-	THEMA_COMPERATOR(Comparator.comparing(AbstractMediaResource::getThema)),
-	DATE_COMPERATOR(Comparator.comparing(AbstractMediaResource::getTime)),
+	SENDER_COMPERAOR(
+			Comparator.comparing(AbstractMediaResource::getSender, Comparator.nullsFirst(Comparator.naturalOrder()))),
+	TITEL_COMPERATOR(
+			Comparator.comparing(AbstractMediaResource::getTitel, Comparator.nullsFirst(Comparator.naturalOrder()))),
+	THEMA_COMPERATOR(
+			Comparator.comparing(AbstractMediaResource::getThema, Comparator.nullsFirst(Comparator.naturalOrder()))),
+	DATE_COMPERATOR(
+			Comparator.comparing(AbstractMediaResource::getTime, Comparator.nullsFirst(Comparator.naturalOrder()))),
 	DEFAULT_COMPERATOR(createDefaultComperator());
 
 	private Comparator<AbstractMediaResource<?>> comparator;
