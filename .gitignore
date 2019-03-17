@@ -12,5 +12,6 @@ dist/javadoc
 /nbproject/private/
 .externalToolBuilders
 .idea
+*.iml
 /.nb-gradle/
 RepoZugang.properties
