@@ -7,20 +7,16 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public enum Resolution {
-  HD(3, "HD"), NORMAL(2, "Normal"), SMALL(1, "Klein"), VERY_SMALL(0, "Sehr klein");
+  UHD(5, "UHD"),
+  WQHD(4, "WQHD"),
+  HD(3, "HD"),
+  NORMAL(2, "Normal"),
+  SMALL(1, "Klein"),
+  VERY_SMALL(0, "Sehr klein");
 
-  private enum CountingDirection {
-    HIGHER(+1), LOWER(-1);
-
-    int direction;
-
-    private CountingDirection(final int direction) {
-      this.direction = direction;
-    }
-
-    public int getDirectionValue() {
-      return direction;
-    }
+  Resolution(final int resolutionSize, final String description) {
+    this.resolutionSize = resolutionSize;
+    this.description = description;
   }
 
   /*
@@ -30,9 +26,8 @@ public enum Resolution {
 
   private final String description;
 
-  private Resolution(final int resolutionSize, final String description) {
-    this.resolutionSize = resolutionSize;
-    this.description = description;
+  public static Resolution getHighestResolution() {
+    return Resolution.UHD;
   }
 
   public static List<Resolution> getFromBestToLowest() {
@@ -41,31 +36,16 @@ public enum Resolution {
         .collect(Collectors.toList());
   }
 
-  public static Resolution getHighestResolution() {
-    return Resolution.HD;
-  }
-
-  public static Resolution getLowestResolution() {
-    return Resolution.VERY_SMALL;
-  }
-
-  public static Resolution getNextHigherResolution(final Resolution startingResolution) {
-    return getNextResolutionByDirection(startingResolution, CountingDirection.HIGHER);
-  }
-
-  public static Resolution getNextLowerResolution(final Resolution startingResolution) {
-    return getNextResolutionByDirection(startingResolution, CountingDirection.LOWER);
-  }
-
   /**
    * Derzeit sind folgende ARD AudioVideo Ordinals bekannt:<br>
+   *
    * <ul>
-   * <LI>HD = 1280 width x 720 height</LI>
-   * <LI>Premium = 969 width x 540 height</LI>
-   * <LI>Large = 640 width x 360 height</LI>
-   * <LI>Standard = 512 width x 288 height</LI>
-   * <LI>Mobile = 480 width x 270 height</LI>
-   * <LI>Mobile_S = 320 width x 180 height</LI>
+   *   <LI>HD = 1280 width x 720 height
+   *   <LI>Premium = 969 width x 540 height
+   *   <LI>Large = 640 width x 360 height
+   *   <LI>Standard = 512 width x 288 height
+   *   <LI>Mobile = 480 width x 270 height
+   *   <LI>Mobile_S = 320 width x 180 height
    * </ul>
    *
    * @param profileName Angabe des Profilenamens per String.
@@ -93,22 +73,42 @@ public enum Resolution {
     }
 
     return Resolution.VERY_SMALL;
+  }
 
+  public static Resolution getLowestResolution() {
+    return Resolution.VERY_SMALL;
+  }
+
+  public static Resolution getNextHigherResolution(final Resolution startingResolution) {
+    return getNextResolutionByDirection(startingResolution, CountingDirection.HIGHER);
+  }
+
+  public static Resolution getNextLowerResolution(final Resolution startingResolution) {
+    return getNextResolutionByDirection(startingResolution, CountingDirection.LOWER);
   }
 
   /**
    * The following width size limits are relevant:<br>
+   *
    * <UL>
-   * <li>HD = &gt;= 1280 width</li>
-   * <li>Normal = &gt;= 969 width</li>
-   * <li>Small = &gt;= 640 width</li>
-   * <li>Very Small = &lt; 640 width</li>
+   *   <li>UHD = &gt;= 2160 width
+   *   <li>WQHD = &gt;= 1440 width
+   *   <li>HD = &gt;= 1280 width
+   *   <li>Normal = &gt;= 969 width
+   *   <li>Small = &gt;= 640 width
+   *   <li>Very Small = &lt; 640 width
    * </UL>
    *
    * @param width Try to get an Resolution based on the horizontal width of the screen Resolution
    * @return returns the Resolution best working for the searched Resolution.
    */
   public static Resolution getResolutionFromWidth(final int width) {
+    if (width >= 2160) {
+      return Resolution.UHD;
+    }
+    if (width >= 1440) {
+      return Resolution.WQHD;
+    }
     if (width >= 1280) {
       return Resolution.HD;
     }
@@ -121,8 +121,8 @@ public enum Resolution {
     return Resolution.VERY_SMALL;
   }
 
-  static Resolution getNextResolutionByDirection(final Resolution startingResolution,
-      final CountingDirection direction) {
+  static Resolution getNextResolutionByDirection(
+      final Resolution startingResolution, final CountingDirection direction) {
     try {
       return getResoultionByResolutionSize(
           startingResolution.getResolutionSize() + direction.getDirectionValue());
@@ -131,6 +131,20 @@ public enum Resolution {
     }
   }
 
+  private enum CountingDirection {
+    HIGHER(+1),
+    LOWER(-1);
+
+    int direction;
+
+    CountingDirection(final int direction) {
+      this.direction = direction;
+    }
+
+    public int getDirectionValue() {
+      return direction;
+    }
+  }
 
   static Resolution getResoultionByResolutionSize(final int searchedResolutionSize)
       throws NoSuchElementException {
@@ -151,6 +165,4 @@ public enum Resolution {
   public int getResolutionSize() {
     return resolutionSize;
   }
-
-
 }
