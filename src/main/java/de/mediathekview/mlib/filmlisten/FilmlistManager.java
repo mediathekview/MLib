@@ -1,13 +1,5 @@
 package de.mediathekview.mlib.filmlisten;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import de.mediathekview.mlib.compression.CompressionManager;
 import de.mediathekview.mlib.compression.CompressionType;
 import de.mediathekview.mlib.daten.Filmlist;
@@ -21,6 +13,18 @@ import de.mediathekview.mlib.messages.MessageCreator;
 import de.mediathekview.mlib.tool.MVHttpClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.Optional;
 
 public class FilmlistManager extends MessageCreator {
 
@@ -34,7 +38,6 @@ public class FilmlistManager extends MessageCreator {
     super();
     filmlistOldFormatWriter = new FilmlistOldFormatWriter();
     filmlistWriter = new FilmlistWriter();
-
   }
 
   public static FilmlistManager getInstance() {
@@ -44,10 +47,10 @@ public class FilmlistManager extends MessageCreator {
     return instance;
   }
 
-  public Optional<Filmlist> importList(final FilmlistFormats aFormat,
-      final InputStream aInputStream) throws IOException {
+  public Optional<Filmlist> importList(
+      final FilmlistFormats aFormat, final InputStream aInputStream) throws IOException {
     publishMessage(LibMessages.FILMLIST_IMPORT_STARTED);
-    InputStream input = decompressInputStreamIfFormatNeedsTo(aFormat, aInputStream);
+    final InputStream input = decompressInputStreamIfFormatNeedsTo(aFormat, aInputStream);
 
     try {
       if (aFormat.isOldFormat()) {
@@ -60,21 +63,21 @@ public class FilmlistManager extends MessageCreator {
     }
   }
 
-private InputStream decompressInputStreamIfFormatNeedsTo(final FilmlistFormats aFormat, final InputStream aInputStream)
-		throws IOException {
-	InputStream input;
+  private InputStream decompressInputStreamIfFormatNeedsTo(
+      final FilmlistFormats aFormat, final InputStream aInputStream) throws IOException {
+    final InputStream input;
     final Optional<CompressionType> compressionType = aFormat.getCompressionType();
     if (compressionType.isPresent()) {
       input = CompressionManager.getInstance().decompress(compressionType.get(), aInputStream);
     } else {
       input = aInputStream;
     }
-	return input;
-}
+    return input;
+  }
 
   public Optional<Filmlist> importList(final FilmlistFormats aFormat, final Path aFilePath)
       throws IOException {
-    try (InputStream fileInputStream = Files.newInputStream(aFilePath)) {
+    try (final InputStream fileInputStream = Files.newInputStream(aFilePath)) {
       return importList(aFormat, fileInputStream);
     }
   }
@@ -83,14 +86,14 @@ private InputStream decompressInputStreamIfFormatNeedsTo(final FilmlistFormats a
       throws IOException {
     final Request request = new Request.Builder().url(aUrl).build();
     final OkHttpClient httpClient = MVHttpClient.getInstance().getHttpClient();
-    try (InputStream fileInputStream = httpClient.newCall(request).execute().body().byteStream()) {
+    try (final InputStream fileInputStream =
+        httpClient.newCall(request).execute().body().byteStream()) {
       return importList(aFormat, fileInputStream);
     }
   }
 
-
-  public boolean save(final FilmlistFormats aFormat, final Filmlist aFilmlist,
-      final Path aSavePath) {
+  public boolean save(
+      final FilmlistFormats aFormat, final Filmlist aFilmlist, final Path aSavePath) {
     try {
       publishMessage(LibMessages.FILMLIST_WRITE_STARTED, aSavePath);
       filmlistWriter.addAllMessageListener(messageListeners);
@@ -105,11 +108,11 @@ private InputStream decompressInputStreamIfFormatNeedsTo(final FilmlistFormats a
     }
   }
 
-  private boolean compress(final FilmlistFormats aFormat, final Path aSourcePath,
-      final Path aTargetPath) {
+  private boolean compress(
+      final FilmlistFormats aFormat, final Path aSourcePath, final Path aTargetPath) {
     try {
-      CompressionManager.getInstance().compress(aFormat.getCompressionType().get(), aSourcePath,
-          aTargetPath);
+      CompressionManager.getInstance()
+          .compress(aFormat.getCompressionType().get(), aSourcePath, aTargetPath);
       return true;
     } catch (final IOException ioException) {
       publishMessage(LibMessages.FILMLIST_COMPRESS_ERROR, aTargetPath.toAbsolutePath().toString());
@@ -117,9 +120,43 @@ private InputStream decompressInputStreamIfFormatNeedsTo(final FilmlistFormats a
     }
   }
 
-  private boolean compressFile(final AbstractFilmlistWriter aWriter, final FilmlistFormats aFormat,
-      final Path aSavePath, final Filmlist aFilmlist) {
-    final Path tempPath = aSavePath.resolveSibling(aSavePath.getFileName().toString() + TEMP_ENDING);
+  public boolean writeHashFile(final Filmlist filmlist, final Path savePath) {
+    try (final BufferedWriter fileWriter =
+        Files.newBufferedWriter(
+            savePath,
+            StandardCharsets.UTF_8,
+            StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING)) {
+      fileWriter.write(String.valueOf(filmlist.hashCode()));
+      return true;
+    } catch (final IOException ioException) {
+      LOG.fatal("Can't write the hash file \"{}\".", savePath);
+      return false;
+    }
+  }
+
+  public boolean writeIdFile(final Filmlist filmlist, final Path savePath) {
+    try (final BufferedWriter fileWriter =
+        Files.newBufferedWriter(
+            savePath,
+            StandardCharsets.UTF_8,
+            StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING)) {
+      fileWriter.write(filmlist.getListId().toString());
+      return true;
+    } catch (final IOException ioException) {
+      LOG.fatal("Can't write the hash file \"{}\".", savePath);
+      return false;
+    }
+  }
+
+  private boolean compressFile(
+      final AbstractFilmlistWriter aWriter,
+      final FilmlistFormats aFormat,
+      final Path aSavePath,
+      final Filmlist aFilmlist) {
+    final Path tempPath =
+        aSavePath.resolveSibling(aSavePath.getFileName().toString() + TEMP_ENDING);
     try {
       return aWriter.write(aFilmlist, tempPath) && compress(aFormat, tempPath, aSavePath);
     } finally {
@@ -129,16 +166,17 @@ private InputStream decompressInputStreamIfFormatNeedsTo(final FilmlistFormats a
         LOG.error(String.format("Can't delete temp file \"%s\".", tempPath.toString()));
       }
     }
-
   }
 
-  private boolean save(final AbstractFilmlistWriter aFilmlistwirter, final FilmlistFormats aFormat,
-      final Filmlist aFilmlist, final Path aSavePath) {
+  private boolean save(
+      final AbstractFilmlistWriter aFilmlistwirter,
+      final FilmlistFormats aFormat,
+      final Filmlist aFilmlist,
+      final Path aSavePath) {
     if (aFormat.getCompressionType().isPresent()) {
       return compressFile(aFilmlistwirter, aFormat, aSavePath, aFilmlist);
     } else {
       return aFilmlistwirter.write(aFilmlist, aSavePath);
     }
   }
-
 }
