@@ -134,11 +134,11 @@ if (project.hasProperty('SONATYPE_USERNAME')) {
 build.dependsOn(install)
 
 dependencies {
-    compile 'org.apache.commons:commons-lang3:3.5'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.7.0'
-    compile 'com.jidesoft:jide-oss:3.6.16'
-    compile 'org.tukaani:xz:1.5'
-    compile 'com.squareup.okhttp3:okhttp:3.6.0'
+    compile 'org.apache.commons:commons-lang3:3.9'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.9.9'
+    compile 'com.jidesoft:jide-oss:3.6.18'
+    compile 'org.tukaani:xz:1.8'
+    compile 'com.squareup.okhttp3:okhttp:3.14.2'
     compile 'fm.void.jetm:jetm:1.2.3'
 }
 
