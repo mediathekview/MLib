@@ -42,6 +42,9 @@ repositories {
     maven {
     	url "https://oss.sonatype.org/content/repositories/snapshots/"
     }
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
 }
 
 if (project.hasProperty('SONATYPE_USERNAME')) {
@@ -141,6 +144,7 @@ dependencies {
     compile 'org.tukaani:xz:1.8'
     compile 'com.squareup.okhttp3:okhttp:3.14.2'
     compile 'fm.void.jetm:jetm:1.2.3'
+    classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.0"
 }
 
 task copyTestResources(type: Copy) {
