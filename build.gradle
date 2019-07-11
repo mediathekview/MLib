@@ -187,7 +187,6 @@ task release(dependsOn: 'uploadArchives') {
         println 'Released Version '+version
     }
 }
-closeAndReleaseRepository.dependsOn release
 
 /**
  * <b>You don't have to call this. Travis will do it for you if you push to develop!<b/>
