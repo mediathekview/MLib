@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'io.codearte.nexus-staging'
 apply from: "${project.rootDir}/gradle/eclipse.gradle"
 import java.nio.file.Files
 
@@ -10,6 +11,17 @@ targetCompatibility = 1.8
 group = 'de.mediathekview'
 archivesBaseName = "MLib"
 version = '3.0.3'
+
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.21.0"
+  }
+}
 
 ext {
     propsFile = file('src/main/resources/version.properties').absoluteFile
@@ -175,6 +187,7 @@ task release(dependsOn: 'uploadArchives') {
         println 'Released Version '+version
     }
 }
+closeAndReleaseRepository.dependsOn release
 
 /**
  * <b>You don't have to call this. Travis will do it for you if you push to develop!<b/>
