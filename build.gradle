@@ -60,41 +60,44 @@ repositories {
 if (project.hasProperty('SONATYPE_USERNAME')) {
     signing {
         sign configurations.archives
+        sign publishing.publications.mavenJava
     }
 	
-	uploadArchives {
+
+	publishing {
 	  println 'Uploading Version '+version
 	  repositories {
-	    mavenDeployer {
-	      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-	
-	      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-	        authentication(userName: SONATYPE_USERNAME, password: SONATYPE_PASSWORD)
+	    maven {
+	      def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+	      def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+	      url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+	      credentials {
+	        username = SONATYPE_USERNAME
+	        password = SONATYPE_PASSWORD
 	      }
-	
-	      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-	        authentication(userName: SONATYPE_USERNAME, password: SONATYPE_PASSWORD)
-	      }
-	
-	      pom.project {
+	    }
+	  }
+	  publications {
+	    mavenJava(MavenPublication) {
+	      pom {
 	        name project.name
 	        packaging 'jar'
 	        description 'The libary for mediathekview/MediathekView and mediathekview/MServer'
 	        url 'https://github.com/mediathekview/' + project.name
-	
+		
 	        scm {
 	          connection 'scm:git:git://github.com/mediathekview/MLib.git'
 	          developerConnection 'scm:git:ssh://github.com:mediathekview/MLib.git'
 	          url 'http://github.com/mediathekview/MLib/tree/master'
 	        }
-	
+		
 	        licenses {
 	          license {
 	            name 'GNU General Public License v3.0'
 	            url 'https://www.gnu.org/licenses/gpl.html'
 	          }
 	        }
-	
+		
 	        developers {
 	          developer {
 	            id 'Nicklas2751'
@@ -184,7 +187,7 @@ processResources.dependsOn updateVersion
  * <b>You don't have to call this. Travis will do it for you if a new releass (tag) will be build!<b/>
  * Call this so: './gradlew build release -PrepoPw=[PASSWORD]'
  */
-task release(dependsOn: 'uploadArchives') {
+task release(dependsOn: 'publish') {
     doLast {
         println 'Released Version '+version
     }
@@ -194,7 +197,7 @@ task release(dependsOn: 'uploadArchives') {
  * <b>You don't have to call this. Travis will do it for you if you push to develop!<b/>
  * Call this so: './gradlew build releaseSnapshot -PrepoPw=[PASSWORD]'
  */
-task releaseSnapshot(dependsOn: 'uploadArchives') {
+task releaseSnapshot(dependsOn: 'publishs') {
     doLast {
         println 'Released Snapshot Version '+version
     }
