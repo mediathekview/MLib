@@ -123,6 +123,12 @@ if (project.hasProperty('SONATYPE_USERNAME')) {
 	    }
 	  }
 	}
+        nexusPublishing {
+	    serverUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+	    snapshotRepositoryUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+	    username = SONATYPE_USERNAME
+            password = SONATYPE_PASSWORD
+	}
         signing {
 	        sign configurations.archives
 	        sign publishing.publications.mavenJava
