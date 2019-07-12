@@ -129,6 +129,9 @@ if (project.hasProperty('SONATYPE_USERNAME')) {
 	    username = SONATYPE_USERNAME
             password = SONATYPE_PASSWORD
 	}
+	nexusStaging {
+	  packageGroup = "de.mediathekview"
+	}
         signing {
 	        sign configurations.archives
 	        sign publishing.publications.mavenJava
