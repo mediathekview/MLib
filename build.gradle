@@ -58,12 +58,6 @@ repositories {
 }
 
 if (project.hasProperty('SONATYPE_USERNAME')) {
-    signing {
-        sign configurations.archives
-        sign publishing.publications.mavenJava
-    }
-	
-
 	publishing {
 	  println 'Uploading Version '+version
 	  repositories {
@@ -128,6 +122,10 @@ if (project.hasProperty('SONATYPE_USERNAME')) {
 	      }
 	    }
 	  }
+	}
+        signing {
+	        sign configurations.archives
+	        sign publishing.publications.mavenJava
 	}
 	task myJavadocs(type: Javadoc) {
 	  source = sourceSets.main.allJava
