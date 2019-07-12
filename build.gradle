@@ -131,6 +131,10 @@ if (project.hasProperty('SONATYPE_USERNAME')) {
 	}
 	nexusStaging {
 	  packageGroup = "de.mediathekview"
+          stagingProfileID = "7edbe315063867"
+          serverUrl = "https://oss.sonatype.org/service/local"
+	  username = SONATYPE_USERNAME
+          password = SONATYPE_PASSWORD
 	}
         signing {
 	        sign configurations.archives
