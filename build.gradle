@@ -74,10 +74,10 @@ if (project.hasProperty('SONATYPE_USERNAME')) {
 	  publications {
 	    mavenJava(MavenPublication) {
 	      pom {
-	        name project.name
-	        packaging 'jar'
-	        description 'The libary for mediathekview/MediathekView and mediathekview/MServer'
-	        url 'https://github.com/mediathekview/' + project.name
+	        name = project.name
+	        packaging = 'jar'
+	        description = 'The libary for mediathekview/MediathekView and mediathekview/MServer'
+	        url = 'https://github.com/mediathekview/' + project.name
 		
 	        scm {
 	          connection 'scm:git:git://github.com/mediathekview/MLib.git'
