@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'io.codearte.nexus-staging'
+apply plugin: 'de.marcphilipp.nexus-publish'
 apply from: "${project.rootDir}/gradle/eclipse.gradle"
 import java.nio.file.Files
 
@@ -51,7 +52,7 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven {
-    	url "https://oss.sonatype.org/content/repositories/snapshots/"
+       url "https://oss.sonatype.org/content/repositories/snapshots/"
     }
 }
 
