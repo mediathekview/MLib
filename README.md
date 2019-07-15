@@ -20,7 +20,7 @@ git clone https://github.com/mediathekview/MLib.git
 ## Bauen an der Kommandozeile
 ```bash
 cd MLib
-./gradlew build
+./clean install
 ```
 
 ## Entwicklung mit Netbeans
