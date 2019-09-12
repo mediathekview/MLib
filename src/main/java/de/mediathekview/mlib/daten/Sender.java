@@ -9,10 +9,9 @@ import java.util.Optional;
  * A enum of the possible sender.
  *
  * @author Nicklas Wiegandt (Nicklas2751)<br>
- *         <b>Mail:</b> nicklas@wiegandt.eu<br>
- *         <b>Jabber:</b> nicklas2751@elaon.de<br>
- *         <b>Riot.im:</b> nicklas2751:matrix.elaon.de<br>
- *
+ *     <b>Mail:</b> nicklas@wiegandt.eu<br>
+ *     <b>Jabber:</b> nicklas2751@elaon.de<br>
+ *     <b>Riot.im:</b> nicklas2751:matrix.elaon.de<br>
  */
 public enum Sender {
   ARD("ARD"),
@@ -21,6 +20,7 @@ public enum Sender {
   ARTE_ES("ARTE.ES", "ARTEES", "ARTE_ES"),
   ARTE_FR("ARTE.FR", "ARTEFR", "ARTE_FR"),
   ARTE_PL("ARTE.PL", "ARTEPL", "ARTE_PL"),
+  ARTE_IT("ARTE.IT", "ARTEIT", "ARTE_IT"),
   BR("BR"),
   DREISAT("3Sat"),
   DW("DW"),
@@ -48,8 +48,8 @@ public enum Sender {
   ZDF("ZDF"),
   ZDF_TIVI("ZDF Tivi", "ZDF-tivi");
 
-  private String name;
-  private String[] nameAlternatives;
+  private final String name;
+  private final String[] nameAlternatives;
 
   Sender(final String aName, final String... aNameAlternatives) {
     name = aName;
