@@ -7,22 +7,24 @@
  */
 package de.mediathekview.mlib.daten;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+
 import java.util.Collection;
 import java.util.Optional;
-import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SenderTest {
 
   @Test
   public void pruefeAnzahlBekannterSender() {
-    assertEquals(32, Sender.getSenderNamen().size());
+    assertEquals(33, Sender.getSenderNamen().size());
   }
 
   @Test
   public void pruefeGetSenderByNameMitNullString() {
-    assertEquals(Optional.empty(), Sender.getSenderByName((String) null));
+    assertEquals(Optional.empty(), Sender.getSenderByName(null));
   }
 
   @Test
@@ -35,6 +37,7 @@ public class SenderTest {
     assertTrue(c.contains(Sender.ARTE_PL.getName()));
     assertTrue(c.contains(Sender.ARTE_EN.getName()));
     assertTrue(c.contains(Sender.ARTE_ES.getName()));
+    assertTrue(c.contains(Sender.ARTE_IT.getName()));
     assertTrue(c.contains(Sender.BR.getName()));
     assertTrue(c.contains(Sender.DREISAT.getName()));
     assertTrue(c.contains(Sender.DW.getName()));
@@ -84,5 +87,4 @@ public class SenderTest {
   public void pruefeZugriffAufPhönixPerNamensaufloesung() {
     assertEquals(Optional.of(Sender.PHOENIX), Sender.getSenderByName("PHOENIX"));
   }
-
 }
