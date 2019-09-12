@@ -84,7 +84,7 @@ public class SenderTest {
   }
 
   @Test
-  public void pruefeZugriffAufPhönixPerNamensaufloesung() {
+  public void pruefeZugriffAufPhoenixPerNamensaufloesung() {
     assertEquals(Optional.of(Sender.PHOENIX), Sender.getSenderByName("PHOENIX"));
   }
 }
