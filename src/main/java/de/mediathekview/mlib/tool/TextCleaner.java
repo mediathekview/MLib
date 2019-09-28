@@ -1,9 +1,9 @@
 package de.mediathekview.mlib.tool;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 public class TextCleaner {
-  private static final String HTML_TAG_REGEX = "\\<.*?>";
+  private static final String HTML_TAG_REGEX = "<.*?>";
   private static final String TAB = "\r";
   private static final String NEW_LINE = "\n";
   private static final int MAX_BESCHREIBUNG = 400;
@@ -62,7 +62,7 @@ public class TextCleaner {
     return text;
   }
 
-  public static String beschreibungCleanUp(
+  private static String beschreibungCleanUp(
       final String text, final String titel, final String thema) {
     String textTemp = text;
     if (textTemp.startsWith(titel)) {

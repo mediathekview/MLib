@@ -1,37 +1,28 @@
 package de.mediathekview.mlib.filmlisten;
 
-import static java.time.format.FormatStyle.MEDIUM;
-
 import com.google.gson.Gson;
-import de.mediathekview.mlib.daten.AbstractMediaResource;
-import de.mediathekview.mlib.daten.Film;
-import de.mediathekview.mlib.daten.FilmUrl;
-import de.mediathekview.mlib.daten.GeoLocations;
-import de.mediathekview.mlib.daten.Podcast;
-import de.mediathekview.mlib.daten.Resolution;
+import de.mediathekview.mlib.daten.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.net.URL;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import static java.time.format.FormatStyle.MEDIUM;
 
 /**
  * A helper class to generate the old fake json format for a {@link
  * de.mediathekview.mlib.daten.Film}.
  */
 public class FilmToFakeJsonConverter {
-
   private static final Logger LOG = LogManager.getLogger(FilmToFakeJsonConverter.class);
-  private static final String[] COLUMNNAMES =
+  private static final Object[] COLUMNNAMES =
       new String[] {
         "Sender",
         "Thema",
@@ -95,7 +86,7 @@ public class FilmToFakeJsonConverter {
             aFilmlisteId));
     appendEnd(fakeJsonBuilder, false);
 
-    fakeJsonBuilder.append(String.format(COLUMNNAMES_PATTERN, (Object[]) COLUMNNAMES));
+    fakeJsonBuilder.append(String.format(COLUMNNAMES_PATTERN, COLUMNNAMES));
     appendEnd(fakeJsonBuilder, false);
 
     lastSender = "";
@@ -167,7 +158,7 @@ public class FilmToFakeJsonConverter {
 
       // prefer ttml-files
       String url = "";
-      for (URL subtitleUrl : film.getSubtitles()) {
+      for (final URL subtitleUrl : film.getSubtitles()) {
         if (url.isEmpty() || subtitleUrl.getFile().endsWith(".ttml")) {
           url = subtitleUrl.toString();
         }
@@ -189,7 +180,7 @@ public class FilmToFakeJsonConverter {
     }
 
     final String urlIntersection = urlIntersectionBuilder.toString();
-    String result;
+    final String result;
     if (urlIntersection.isEmpty()) {
       result = aUrlToReduce;
     } else {
@@ -201,12 +192,12 @@ public class FilmToFakeJsonConverter {
     return result;
   }
 
-  private long convertDateTimeToLong(LocalDateTime dateTime) {
+  private long convertDateTimeToLong(final LocalDateTime dateTime) {
     if (dateTime == null) {
       return 0;
     }
 
-    ZonedDateTime zonedDateTime = dateTime.atZone(ZONE_ID);
+    final ZonedDateTime zonedDateTime = dateTime.atZone(ZONE_ID);
     return zonedDateTime.toEpochSecond();
   }
 
@@ -215,7 +206,7 @@ public class FilmToFakeJsonConverter {
       final AbstractMediaResource<?> aMediaResource,
       final boolean aIsLastFilm) {
 
-    String url = "";
+    final String url;
     String urlKlein = "";
     String urlHd = "";
 
@@ -239,12 +230,12 @@ public class FilmToFakeJsonConverter {
       final String aTitle,
       final StringBuilder fakeJsonBuilder,
       final boolean aIsLastFilm) {
-    String url;
+    final String url;
     String urlSmall = "";
     String urlHd = "";
 
     if (aMediaResource instanceof Film) {
-      Film film = (Film) aMediaResource;
+      final Film film = (Film) aMediaResource;
       FilmUrl filmUrl = film.getAudioDescription(Resolution.NORMAL);
       if (filmUrl != null) {
         url = filmUrl.toString();
@@ -277,13 +268,13 @@ public class FilmToFakeJsonConverter {
       final String aTitle,
       final StringBuilder fakeJsonBuilder,
       final boolean aIsLastFilm) {
-    String url;
+    final String url;
     String urlSmall = "";
     String urlHd = "";
 
     if (aMediaResource instanceof Film) {
 
-      Film film = (Film) aMediaResource;
+      final Film film = (Film) aMediaResource;
 
       FilmUrl filmUrl = film.getSignLanguage(Resolution.NORMAL);
       if (filmUrl != null) {
@@ -357,7 +348,7 @@ public class FilmToFakeJsonConverter {
             convertDateTimeToLong(aMediaResource.getTime()),
             "", // History
             geolocationsToStirng(aMediaResource.getGeoLocations()),
-            aMediaResource instanceof Podcast ? ((Podcast) aMediaResource).isNeu() : false));
+            aMediaResource instanceof Podcast && ((Podcast) aMediaResource).isNeu()));
 
     appendEnd(fakeJsonBuilder, aIsLastFilm);
   }

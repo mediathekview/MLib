@@ -3,29 +3,34 @@ package de.mediathekview.mlib.daten;
 import java.util.Comparator;
 
 public enum MediaResourceComperators {
-	SENDER_COMPERAOR(
-			Comparator.comparing(AbstractMediaResource::getSender, Comparator.nullsFirst(Comparator.naturalOrder()))),
-	TITEL_COMPERATOR(
-			Comparator.comparing(AbstractMediaResource::getTitel, Comparator.nullsFirst(Comparator.naturalOrder()))),
-	THEMA_COMPERATOR(
-			Comparator.comparing(AbstractMediaResource::getThema, Comparator.nullsFirst(Comparator.naturalOrder()))),
-	DATE_COMPERATOR(
-			Comparator.comparing(AbstractMediaResource::getTime, Comparator.nullsFirst(Comparator.naturalOrder()))),
-	DEFAULT_COMPERATOR(createDefaultComperator());
+  SENDER_COMPERAOR(
+      Comparator.comparing(
+          AbstractMediaResource::getSender, Comparator.nullsFirst(Comparator.naturalOrder()))),
+  TITEL_COMPERATOR(
+      Comparator.comparing(
+          AbstractMediaResource::getTitel, Comparator.nullsFirst(Comparator.naturalOrder()))),
+  THEMA_COMPERATOR(
+      Comparator.comparing(
+          AbstractMediaResource::getThema, Comparator.nullsFirst(Comparator.naturalOrder()))),
+  DATE_COMPERATOR(
+      Comparator.comparing(
+          AbstractMediaResource::getTime, Comparator.nullsFirst(Comparator.naturalOrder()))),
+  DEFAULT_COMPERATOR(createDefaultComperator());
 
-	private Comparator<AbstractMediaResource<?>> comparator;
+  private final Comparator<AbstractMediaResource<?>> comparator;
 
-	private MediaResourceComperators(Comparator<AbstractMediaResource<?>> acomparator) {
-		comparator = acomparator;
-	}
+  MediaResourceComperators(final Comparator<AbstractMediaResource<?>> acomparator) {
+    comparator = acomparator;
+  }
 
-	private static Comparator<AbstractMediaResource<?>> createDefaultComperator() {
-		return SENDER_COMPERAOR.getComparator().thenComparing(THEMA_COMPERATOR.getComparator())
-				.thenComparing(DATE_COMPERATOR.getComparator());
-	}
+  private static Comparator<AbstractMediaResource<?>> createDefaultComperator() {
+    return SENDER_COMPERAOR
+        .getComparator()
+        .thenComparing(THEMA_COMPERATOR.getComparator())
+        .thenComparing(DATE_COMPERATOR.getComparator());
+  }
 
-	public Comparator<AbstractMediaResource<?>> getComparator() {
-		return comparator;
-	}
-
+  public Comparator<AbstractMediaResource<?>> getComparator() {
+    return comparator;
+  }
 }

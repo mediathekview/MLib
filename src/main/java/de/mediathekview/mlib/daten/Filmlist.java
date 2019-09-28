@@ -1,11 +1,7 @@
 package de.mediathekview.mlib.daten;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -46,17 +42,16 @@ public class Filmlist {
   }
 
   public void addAllFilms(final Collection<Film> aFilms) {
-    aFilms.stream().forEach(this::add);
+    aFilms.forEach(this::add);
   }
 
   public void addAllLivestreams(final Collection<Livestream> aLivestreams) {
-    aLivestreams.stream().forEach(this::add);
+    aLivestreams.forEach(this::add);
   }
 
   public void addAllPodcasts(final Collection<Podcast> aPodcasts) {
-    aPodcasts.stream().forEach(this::add);
+    aPodcasts.forEach(this::add);
   }
-
 
   @Override
   public boolean equals(final Object obj) {
@@ -99,13 +94,10 @@ public class Filmlist {
       return false;
     }
     if (podcasts == null) {
-      if (other.podcasts != null) {
-        return false;
-      }
-    } else if (!podcasts.equals(other.podcasts)) {
-      return false;
+      return other.podcasts == null;
+    } else {
+      return podcasts.equals(other.podcasts);
     }
-    return true;
   }
 
   public LocalDateTime getCreationDate() {
@@ -116,9 +108,7 @@ public class Filmlist {
     return films;
   }
 
-
-  public List<Film> getFilmsSorted(
-      final Comparator<AbstractMediaResource<?>> aComparator) {
+  public List<Film> getFilmsSorted(final Comparator<AbstractMediaResource<?>> aComparator) {
     final List<Film> sortedFilms = new ArrayList<>(films.values());
     sortedFilms.sort(aComparator);
     return sortedFilms;
@@ -179,13 +169,16 @@ public class Filmlist {
   public Filmlist merge(final Filmlist aFilmlist) {
     final Filmlist differenceList = new Filmlist(UUID.randomUUID(), creationDate);
 
-    aFilmlist.films.entrySet().stream().filter(e -> !films.containsKey(e.getKey()))
+    aFilmlist.films.entrySet().stream()
+        .filter(e -> !films.containsKey(e.getKey()))
         .forEachOrdered(e -> differenceList.films.put(e.getKey(), e.getValue()));
 
-    aFilmlist.podcasts.entrySet().stream().filter(e -> !podcasts.containsKey(e.getKey()))
+    aFilmlist.podcasts.entrySet().stream()
+        .filter(e -> !podcasts.containsKey(e.getKey()))
         .forEachOrdered(e -> differenceList.podcasts.put(e.getKey(), e.getValue()));
 
-    aFilmlist.livestreams.entrySet().stream().filter(e -> !livestreams.containsKey(e.getKey()))
+    aFilmlist.livestreams.entrySet().stream()
+        .filter(e -> !livestreams.containsKey(e.getKey()))
         .forEachOrdered(e -> differenceList.livestreams.put(e.getKey(), e.getValue()));
 
     films.putAll(differenceList.films);
