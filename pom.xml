@@ -75,12 +75,10 @@
     </properties>
 
     <dependencies>
-
-        <!-- Apache Commons Lang für Utils -->
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.9</version>
+            <artifactId>commons-text</artifactId>
+            <version>1.8</version>
         </dependency>
 
         <dependency>
