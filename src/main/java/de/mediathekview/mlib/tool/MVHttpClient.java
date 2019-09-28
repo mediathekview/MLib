@@ -1,32 +1,36 @@
 package de.mediathekview.mlib.tool;
 
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.concurrent.TimeUnit;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 
-@Deprecated
+import javax.net.ssl.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.concurrent.TimeUnit;
+
 public class MVHttpClient {
-  private final static MVHttpClient ourInstance = new MVHttpClient();
+  private static final MVHttpClient ourInstance = new MVHttpClient();
   private final OkHttpClient httpClient;
   private final OkHttpClient copyClient;
   private final OkHttpClient sslUnsafeClient;
 
   private MVHttpClient() {
-    httpClient = new OkHttpClient.Builder().connectTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS)
-        .connectionPool(new ConnectionPool(100, 1, TimeUnit.SECONDS)).build();
+    httpClient =
+        new OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .connectionPool(new ConnectionPool(100, 1, TimeUnit.SECONDS))
+            .build();
     httpClient.dispatcher().setMaxRequests(100);
 
-    copyClient = httpClient.newBuilder().connectTimeout(5, TimeUnit.SECONDS)
-        .readTimeout(5, TimeUnit.SECONDS).writeTimeout(2, TimeUnit.SECONDS).build();
+    copyClient =
+        httpClient
+            .newBuilder()
+            .connectTimeout(5, TimeUnit.SECONDS)
+            .readTimeout(5, TimeUnit.SECONDS)
+            .writeTimeout(2, TimeUnit.SECONDS)
+            .build();
 
     sslUnsafeClient = getUnsafeOkHttpClient();
   }
@@ -53,20 +57,25 @@ public class MVHttpClient {
   private OkHttpClient getUnsafeOkHttpClient() {
     try {
       // Create a trust manager that does not validate certificate chains
-      final TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
-        @Override
-        public void checkClientTrusted(final java.security.cert.X509Certificate[] chain,
-            final String authType) throws CertificateException {}
+      final TrustManager[] trustAllCerts =
+          new TrustManager[] {
+            new X509TrustManager() {
+              @Override
+              public void checkClientTrusted(
+                  final java.security.cert.X509Certificate[] chain, final String authType)
+                  throws CertificateException {}
 
-        @Override
-        public void checkServerTrusted(final java.security.cert.X509Certificate[] chain,
-            final String authType) throws CertificateException {}
+              @Override
+              public void checkServerTrusted(
+                  final java.security.cert.X509Certificate[] chain, final String authType)
+                  throws CertificateException {}
 
-        @Override
-        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-          return new X509Certificate[0];
-        }
-      }};
+              @Override
+              public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[0];
+              }
+            }
+          };
 
       // Install the all-trusting trust manager
       final SSLContext sslContext = SSLContext.getInstance("SSL");
@@ -74,15 +83,19 @@ public class MVHttpClient {
       // Create an ssl socket factory with our all-trusting manager
       final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
-      return new OkHttpClient.Builder().connectTimeout(5, TimeUnit.SECONDS)
-          .readTimeout(5, TimeUnit.SECONDS).writeTimeout(2, TimeUnit.SECONDS)
+      return new OkHttpClient.Builder()
+          .connectTimeout(5, TimeUnit.SECONDS)
+          .readTimeout(5, TimeUnit.SECONDS)
+          .writeTimeout(2, TimeUnit.SECONDS)
           .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
-          .hostnameVerifier(new HostnameVerifier() {
-            @Override
-            public boolean verify(final String hostname, final SSLSession session) {
-              return true;
-            }
-          }).build();
+          .hostnameVerifier(
+              new HostnameVerifier() {
+                @Override
+                public boolean verify(final String hostname, final SSLSession session) {
+                  return true;
+                }
+              })
+          .build();
 
     } catch (final Exception e) {
       throw new RuntimeException(e);

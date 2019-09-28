@@ -1,7 +1,6 @@
 package de.mediathekview.mlib.daten;
 
-import de.mediathekview.mlib.Const;
-import de.mediathekview.mlib.tool.Functions;
+import de.mediathekview.mlib.tool.TextCleaner;
 
 import java.io.Serializable;
 import java.net.URL;
@@ -12,16 +11,6 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractMediaResource<T> implements Serializable {
   private static final long serialVersionUID = -6404888306701549134L;
-  private static final String[] GERMAN_GEOBLOCKING_TEXTS = {
-    "+++ Aus rechtlichen Gründen ist der Film nur innerhalb von Deutschland abrufbar. +++",
-    "+++ Aus rechtlichen Gründen ist diese Sendung nur innerhalb von Deutschland abrufbar. +++",
-    "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland abrufbar. +++",
-    "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland verfügbar. +++",
-    "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++ Due to legal reasons the video is only available in Germany.+++",
-    "+++ Aus rechtlichen Gründen kann das Video nur innerhalb von Deutschland abgerufen werden. +++",
-    "+++ Due to legal reasons the video is only available in Germany.+++",
-    "+++ Aus rechtlichen Gründen kann das Video nur in Deutschland abgerufen werden. +++"
-  };
   protected final Map<Resolution, T> urls;
   private final UUID uuid; // Old: filmNr
   private final Sender sender;
@@ -144,66 +133,7 @@ public abstract class AbstractMediaResource<T> implements Serializable {
   }
 
   public void setBeschreibung(final String aBeschreibung) {
-    // die Beschreibung auf x Zeichen beschränken
-    String unfilteredBeschreibung = aBeschreibung;
-    unfilteredBeschreibung =
-        Functions.unescape(Functions.removeHtml(unfilteredBeschreibung)); // damit
-    // die
-    // Beschreibung
-    // nicht
-    // unnötig
-    // kurz
-    // wird
-    // wenn
-    // es
-    // erst
-    // später
-    // gemacht
-    // wird
-
-    for (final String geoBlockingText : GERMAN_GEOBLOCKING_TEXTS) {
-      if (unfilteredBeschreibung.contains(geoBlockingText)) {
-        unfilteredBeschreibung = unfilteredBeschreibung.replace(geoBlockingText, ""); // steht
-        // auch
-        // mal
-        // in
-        // der
-        // Mitte
-      }
-    }
-    if (unfilteredBeschreibung.startsWith(titel)) {
-      unfilteredBeschreibung = unfilteredBeschreibung.substring(titel.length()).trim();
-    }
-    if (unfilteredBeschreibung.startsWith(thema)) {
-      unfilteredBeschreibung = unfilteredBeschreibung.substring(thema.length()).trim();
-    }
-    if (unfilteredBeschreibung.startsWith("|")) {
-      unfilteredBeschreibung = unfilteredBeschreibung.substring(1).trim();
-    }
-    if (unfilteredBeschreibung.startsWith("Video-Clip")) {
-      unfilteredBeschreibung = unfilteredBeschreibung.substring("Video-Clip".length()).trim();
-    }
-    if (unfilteredBeschreibung.startsWith(titel)) {
-      unfilteredBeschreibung = unfilteredBeschreibung.substring(titel.length()).trim();
-    }
-    if (unfilteredBeschreibung.startsWith(":")) {
-      unfilteredBeschreibung = unfilteredBeschreibung.substring(1).trim();
-    }
-    if (unfilteredBeschreibung.startsWith(",")) {
-      unfilteredBeschreibung = unfilteredBeschreibung.substring(1).trim();
-    }
-    if (unfilteredBeschreibung.startsWith("\n")) {
-      unfilteredBeschreibung = unfilteredBeschreibung.substring(1).trim();
-    }
-    if (unfilteredBeschreibung.contains("\\\"")) { // wegen " in json-Files
-      unfilteredBeschreibung = unfilteredBeschreibung.replace("\\\"", "\"");
-    }
-    if (unfilteredBeschreibung.length() > Const.MAX_BESCHREIBUNG) {
-      unfilteredBeschreibung =
-          unfilteredBeschreibung.substring(0, Const.MAX_BESCHREIBUNG) + "\n.....";
-    }
-
-    beschreibung = unfilteredBeschreibung;
+    beschreibung = TextCleaner.shortAndCleanBeschreibung(aBeschreibung, titel, thema);
   }
 
   public Optional<T> getDefaultUrl() {
@@ -225,13 +155,6 @@ public abstract class AbstractMediaResource<T> implements Serializable {
     geoLocations = aGeoLocations;
   }
 
-  public String getIndexName() {
-    return new StringBuilder(titel == null ? "" : titel)
-        .append(thema == null ? "" : thema)
-        .append(urls.isEmpty() ? "" : urls.get(Resolution.NORMAL))
-        .toString();
-  }
-
   public Sender getSender() {
     return sender;
   }
@@ -245,7 +168,7 @@ public abstract class AbstractMediaResource<T> implements Serializable {
   }
 
   public void setThema(final String aThema) {
-    thema = Functions.unescape(Functions.removeHtml(aThema));
+    thema = TextCleaner.clean(aThema);
   }
 
   public LocalDateTime getTime() {
@@ -257,7 +180,7 @@ public abstract class AbstractMediaResource<T> implements Serializable {
   }
 
   public void setTitel(final String aTitel) {
-    titel = Functions.unescape(Functions.removeHtml(aTitel));
+    titel = TextCleaner.clean(aTitel);
   }
 
   public T getUrl(final Resolution aQuality) {
