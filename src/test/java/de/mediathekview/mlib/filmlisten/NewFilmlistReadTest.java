@@ -1,57 +1,57 @@
 package de.mediathekview.mlib.filmlisten;
 
+import static org.assertj.core.api.Assertions.from;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
+import de.mediathekview.mlib.daten.Filmlist;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Optional;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import de.mediathekview.mlib.daten.Filmlist;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
 public class NewFilmlistReadTest {
-  private static Filmlist testData;
 
   private static final FilmlistManager filmlistManager = FilmlistManager.getInstance();
-  private final String jsonName;
-  private final FilmlistFormats format;
+  private static Filmlist referenceData;
 
-  public NewFilmlistReadTest(final String aJsonName, final FilmlistFormats aFormat) {
-    jsonName = getClass().getClassLoader().getResource(aJsonName).getFile();
-    format = aFormat;
+  @BeforeAll
+  public static void intializeReferenceData() throws MalformedURLException {
+    referenceData = FilmlistTestData.getInstance().createTestdataNewFormat();
   }
 
-  @Parameterized.Parameters(name = "Test {index} Filmlist for {0} with {1}")
-  public static Collection<Object[]> data() {
-    return Arrays.asList(new Object[][] {{"TestFilmlistNewJson.json", FilmlistFormats.JSON},
-        {"TestFilmlistNewJson.json.xz", FilmlistFormats.JSON_COMPRESSED_XZ},
-        {"TestFilmlistNewJson.json.gz", FilmlistFormats.JSON_COMPRESSED_GZIP},
-        {"TestFilmlistNewJson.json.bz", FilmlistFormats.JSON_COMPRESSED_BZIP},
-        {"TestFilmlist.json", FilmlistFormats.OLD_JSON},
-        {"TestFilmlist.json.xz", FilmlistFormats.OLD_JSON_COMPRESSED_XZ},
-        {"TestFilmlist.json.gz", FilmlistFormats.OLD_JSON_COMPRESSED_GZIP},
-        {"TestFilmlist.json.bz", FilmlistFormats.OLD_JSON_COMPRESSED_BZIP}});
+  @ParameterizedTest
+  @MethodSource("createReadTestArguments")
+  public void filmListReadTest(String filename, FilmlistFormats filmlistFormats)
+      throws IOException {
+    ClassLoader classLoader = getClass().getClassLoader();
+    final Path testFilePath = new File(classLoader.getResource(filename).getFile()).toPath();
+
+    Optional<Filmlist> classUnderTest = filmlistManager.importList(filmlistFormats, testFilePath);
+
+    assertThat(classUnderTest)
+        .isNotEmpty()
+        .get().returns(referenceData.getFilms().size(),
+        from(Filmlist::getFilms).andThen(ConcurrentMap::size));
   }
 
-  @BeforeClass
-  public static void initTestData() throws URISyntaxException, IOException {
-    testData = FilmlistTestData.getInstance().createTestdataNewFormat();  
-  }
-  
-  @Test
-  public void testRead() throws IOException {
-    final Path testFilePath = new File(jsonName).toPath();
-    final Optional<Filmlist> result = filmlistManager.importList(format, testFilePath);
-
-    Assert.assertThat(result.isPresent(), CoreMatchers.is(true));
-    Assert.assertThat(result.get().getFilms().size(), CoreMatchers.is(testData.getFilms().size()));
+  private static Stream<Arguments> createReadTestArguments() {
+    return Stream.of(
+        Arguments.of("TestFilmlistNewJson.json", FilmlistFormats.JSON),
+        Arguments.of("TestFilmlistNewJson.json.xz", FilmlistFormats.JSON_COMPRESSED_XZ),
+        Arguments.of("TestFilmlistNewJson.json.gz", FilmlistFormats.JSON_COMPRESSED_GZIP),
+        Arguments.of("TestFilmlistNewJson.json.bz", FilmlistFormats.JSON_COMPRESSED_BZIP),
+        Arguments.of("TestFilmlist.json", FilmlistFormats.OLD_JSON),
+        Arguments.of("TestFilmlist.json.xz", FilmlistFormats.OLD_JSON_COMPRESSED_XZ),
+        Arguments.of("TestFilmlist.json.gz", FilmlistFormats.OLD_JSON_COMPRESSED_GZIP),
+        Arguments.of("TestFilmlist.json.bz", FilmlistFormats.OLD_JSON_COMPRESSED_BZIP)
+    );
   }
 
 }

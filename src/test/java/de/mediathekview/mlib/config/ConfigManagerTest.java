@@ -1,7 +1,6 @@
 package de.mediathekview.mlib.config;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,8 +8,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Testin the {@link ConfigManager} and if a config file on the path can
@@ -43,33 +42,37 @@ public class ConfigManagerTest {
 
 	@Test
 	public void testGetConfigFileName() {
-		assertThat(new TestConfigManager().getConfigFileName(), is(TEST_CONFIG_FILE_NAME));
+		assertThat(new TestConfigManager().getConfigFileName()).isEqualTo(TEST_CONFIG_FILE_NAME);
 	}
 
 	@Test
 	public void testGetConfigClass() {
-		assertThat(new TestConfigManager().getConfigClass(), is(TestConfigDTO.class));
+		assertThat(new TestConfigManager().getConfigClass()).isEqualTo(TestConfigDTO.class);
 	}
 
 	@Test
 	public void testReadClasspathConfig() {
 		TestConfigDTO classpathConfig = new TestConfigManager().getConfig();
-		assertThat(classpathConfig.getValueWithDefault(), is("Hello World!"));
-		assertThat(classpathConfig.getValueWithoutDefault(), is("Not the default, sorry!"));
+		assertThat(classpathConfig.getValueWithDefault()).isEqualTo("Hello World!");
+		assertThat(classpathConfig.getValueWithoutDefault()).isEqualTo("Not the default, sorry!");
 	}
 
 	@Test
 	public void testReadFileConfig() throws IOException {
+
+		writeTempTestFileConfig();
+
+		TestConfigDTO fileConfig = new TestConfigManager().getConfig();
+		assertThat(fileConfig.getValueWithDefault()).isEqualTo("TestValue");
+		assertThat(fileConfig.getValueWithoutDefault()).isEqualTo("Some other test value");
+
+	}
+
+	@AfterEach
+	public void deleteExistingFiles() {
 		try {
-			writeTempTestFileConfig();
-
-			TestConfigDTO fileConfig = new TestConfigManager().getConfig();
-			assertThat(fileConfig.getValueWithDefault(), is("TestValue"));
-			assertThat(fileConfig.getValueWithoutDefault(), is("Some other test value"));
-		} finally {
 			Files.deleteIfExists(Paths.get(TEST_CONFIG_FILE_NAME));
-		}
-
+		} catch (IOException ioe) {	}
 	}
 
 	private void writeTempTestFileConfig() throws IOException {

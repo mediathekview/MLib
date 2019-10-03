@@ -1,9 +1,7 @@
 package de.mediathekview.mlib.daten;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
@@ -12,7 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FilmEqualsTest {
   public Film createTestFilm1() throws MalformedURLException {
@@ -36,8 +34,8 @@ public class FilmEqualsTest {
     testFilm2.setBeschreibung("testEqualsBeschreibung");
     testFilm1.getUrls().entrySet().forEach(e -> testFilm2.addUrl(e.getKey(), e.getValue()));
 
-    assertThat(testFilm1, equalTo(testFilm2));
-    assertThat(testFilm1.hashCode(), is(testFilm2.hashCode()));
+    assertThat(testFilm1).isEqualTo(testFilm2);
+    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
   }
 
   @Test
@@ -50,8 +48,8 @@ public class FilmEqualsTest {
     testFilm2.setBeschreibung(testFilm1.getBeschreibung());
     testFilm1.getUrls().entrySet().forEach(e -> testFilm2.addUrl(e.getKey(), e.getValue()));
 
-    assertThat(testFilm1, equalTo(testFilm2));
-    assertThat(testFilm1.hashCode(), is(testFilm2.hashCode()));
+    assertThat(testFilm1).isEqualTo(testFilm2);
+    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
   }
 
   @Test
@@ -66,8 +64,8 @@ public class FilmEqualsTest {
     testFilm2.setBeschreibung(testFilm1.getBeschreibung());
     testFilm1.getUrls().entrySet().forEach(e -> testFilm2.addUrl(e.getKey(), e.getValue()));
 
-    assertThat(testFilm1, equalTo(testFilm2));
-    assertThat(testFilm1.hashCode(), is(testFilm2.hashCode()));
+    assertThat(testFilm1).isEqualTo(testFilm2);
+    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
   }
 
   @Test
@@ -80,8 +78,8 @@ public class FilmEqualsTest {
     testFilm2.setBeschreibung(testFilm1.getBeschreibung());
     testFilm1.getUrls().entrySet().forEach(e -> testFilm2.addUrl(e.getKey(), e.getValue()));
 
-    assertThat(testFilm1, equalTo(testFilm2));
-    assertThat(testFilm1.hashCode(), is(testFilm2.hashCode()));
+    assertThat(testFilm1).isEqualTo(testFilm2);
+    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
   }
 
   @Test
@@ -93,8 +91,8 @@ public class FilmEqualsTest {
     testFilm2.setWebsite(testFilm1.getWebsite());
     testFilm2.setBeschreibung(testFilm1.getBeschreibung());
 
-    assertThat(testFilm1, equalTo(testFilm2));
-    assertThat(testFilm1.hashCode(), is(testFilm2.hashCode()));
+    assertThat(testFilm1).isEqualTo(testFilm2);
+    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
   }
 
   @Test
@@ -107,8 +105,8 @@ public class FilmEqualsTest {
     testFilm2.setBeschreibung(testFilm1.getBeschreibung());
     testFilm1.getUrls().entrySet().forEach(e -> testFilm2.addUrl(e.getKey(), e.getValue()));
 
-    assertThat(testFilm1, equalTo(testFilm2));
-    assertThat(testFilm1.hashCode(), is(testFilm2.hashCode()));
+    assertThat(testFilm1).isEqualTo(testFilm2);
+    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
   }
 
   @Test
@@ -121,8 +119,8 @@ public class FilmEqualsTest {
     testFilm2.setBeschreibung(testFilm1.getBeschreibung());
     testFilm1.getUrls().entrySet().forEach(e -> testFilm2.addUrl(e.getKey(), e.getValue()));
 
-    assertThat(testFilm1, equalTo(testFilm2));
-    assertThat(testFilm1.hashCode(), is(testFilm2.hashCode()));
+    assertThat(testFilm1).isEqualTo(testFilm2);
+    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
   }
 
   @Test
@@ -136,8 +134,8 @@ public class FilmEqualsTest {
     testFilm2.setBeschreibung(testFilm1.getBeschreibung());
     testFilm1.getUrls().entrySet().forEach(e -> testFilm2.addUrl(e.getKey(), e.getValue()));
 
-    assertThat(testFilm1, not(equalTo(testFilm2)));
-    assertThat(testFilm1.hashCode(), not(is(testFilm2.hashCode())));
+    assertThat(testFilm1).isNotEqualTo(testFilm2);
+    assertThat(testFilm1.hashCode()).isNotEqualTo(testFilm2.hashCode());
   }
 
   @Test
@@ -150,8 +148,8 @@ public class FilmEqualsTest {
     testFilm2.setBeschreibung(testFilm1.getBeschreibung());
     testFilm1.getUrls().entrySet().forEach(e -> testFilm2.addUrl(e.getKey(), e.getValue()));
 
-    assertThat(testFilm1, not(equalTo(testFilm2)));
-    assertThat(testFilm1.hashCode(), not(is(testFilm2.hashCode())));
+    assertThat(testFilm1).isNotEqualTo(testFilm2);
+    assertThat(testFilm1.hashCode()).isNotEqualTo(testFilm2.hashCode());
   }
 
   @Test
@@ -164,8 +162,8 @@ public class FilmEqualsTest {
     testFilm2.setBeschreibung(testFilm1.getBeschreibung());
     testFilm1.getUrls().entrySet().forEach(e -> testFilm2.addUrl(e.getKey(), e.getValue()));
 
-    assertThat(testFilm1, not(equalTo(testFilm2)));
-    assertThat(testFilm1.hashCode(), not(is(testFilm2.hashCode())));
+    assertThat(testFilm1).isNotEqualTo(testFilm2);
+    assertThat(testFilm1.hashCode()).isNotEqualTo(testFilm2.hashCode());
   }
 
   @Test
@@ -178,7 +176,7 @@ public class FilmEqualsTest {
     testFilm2.setBeschreibung(testFilm1.getBeschreibung());
     testFilm1.getUrls().entrySet().forEach(e -> testFilm2.addUrl(e.getKey(), e.getValue()));
 
-    assertThat(testFilm1, not(equalTo(testFilm2)));
-    assertThat(testFilm1.hashCode(), not(is(testFilm2.hashCode())));
+    assertThat(testFilm1).isNotEqualTo(testFilm2);
+    assertThat(testFilm1.hashCode()).isNotEqualTo(testFilm2.hashCode());
   }
 }

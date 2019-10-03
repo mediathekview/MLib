@@ -1,10 +1,9 @@
 package de.mediathekview.mlib.daten;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class GeoLocationsTest {
 
@@ -12,23 +11,23 @@ public class GeoLocationsTest {
   public void testFindSAT() {
     Optional<GeoLocations> actual = GeoLocations.find("SAT");
 
-    assertThat(actual.isPresent(), equalTo(true));
-    assertThat(actual.get(), equalTo(GeoLocations.GEO_DE_AT_CH_EU));
+    assertThat(actual.isPresent()).isEqualTo(true);
+    assertThat(actual.get()).isEqualTo(GeoLocations.GEO_DE_AT_CH_EU);
   }
 
   @Test
   public void testFindEBU() {
     Optional<GeoLocations> actual = GeoLocations.find("EBU");
 
-    assertThat(actual.isPresent(), equalTo(true));
-    assertThat(actual.get(), equalTo(GeoLocations.GEO_DE_AT_CH_EU));
+    assertThat(actual.isPresent()).isEqualTo(true);
+    assertThat(actual.get()).isEqualTo(GeoLocations.GEO_DE_AT_CH_EU);
   }
 
   @Test
   public void testFindEBUSmall() {
     Optional<GeoLocations> actual = GeoLocations.find("ebu");
 
-    assertThat(actual.isPresent(), equalTo(true));
-    assertThat(actual.get(), equalTo(GeoLocations.GEO_DE_AT_CH_EU));
+    assertThat(actual.isPresent()).isEqualTo(true);
+    assertThat(actual.get()).isEqualTo(GeoLocations.GEO_DE_AT_CH_EU);
   }
 }

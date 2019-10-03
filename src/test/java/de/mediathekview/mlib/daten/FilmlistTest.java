@@ -1,14 +1,14 @@
 package de.mediathekview.mlib.daten;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FilmlistTest {
 
@@ -35,13 +35,11 @@ public class FilmlistTest {
     filmlist2.add(testLivestream2);
 
     final Filmlist differenceList = filmlist1.merge(filmlist2);
-    assertThat(differenceList.getFilms().size(), is(0));
-    assertThat(differenceList.getPodcasts().size(), is(1));
-    assertThat(differenceList.getLivestreams().size(), is(1));
-    assertThat(differenceList.getPodcasts().entrySet().iterator().next().getValue(),
-        is(testPodcast1));
-    assertThat(differenceList.getLivestreams().entrySet().iterator().next().getValue(),
-        is(testLivestream2));
+    assertThat(differenceList.getFilms().size()).isEqualTo(0);
+    assertThat(differenceList.getPodcasts().size()).isEqualTo(1);
+    assertThat(differenceList.getLivestreams().size()).isEqualTo(1);
+    assertThat(differenceList.getPodcasts().entrySet().iterator().next().getValue()).isEqualTo(testPodcast1);
+    assertThat(differenceList.getLivestreams().entrySet().iterator().next().getValue()).isEqualTo(testLivestream2);
   }
 
   private Film createTestFilm1() throws MalformedURLException {
