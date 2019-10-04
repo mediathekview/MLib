@@ -43,21 +43,52 @@ public class FileSizeDeterminer {
   }
 
   /** @return The file size in bytes. */
-  public Long getFileSize() {
-    if (url.startsWith(PROTOCOL_RTMP)) {
-      // Cant determine the file size of rtmp.
-      return -1L;
-    }
+  public Long getFileSizeForBuilder() {
+    return getFileSizeByRequest(RequestType.HEAD);
+  }
 
-    try {
-      final Response headResponse =
-          client.newCall(new Request.Builder().url(url).head().build()).execute();
-      final String contentLengthHeader = headResponse.header(HttpHeaders.CONTENT_LENGTH);
-      return parseContentLength(contentLengthHeader);
-    } catch (final IOException ioException) {
-      LOG.error("Somethin went wrong determining the file size of \"{}\"", url);
-      return -1L;
+  private Long getFileSizeByRequest(final RequestType requestType) {
+    // Cant determine the file size of rtmp.
+    if (!url.startsWith(PROTOCOL_RTMP)) {
+      try {
+        final Response headResponse =
+            client.newCall(createRequestBuilderForRequestType(requestType).build()).execute();
+        final String contentLengthHeader = headResponse.header(HttpHeaders.CONTENT_LENGTH);
+        return parseContentLength(contentLengthHeader);
+      } catch (final IOException ioException) {
+        LOG.error(
+            "Something went wrong determining the file size of \"{}\" with {} request.",
+            url,
+            requestType);
+        if (requestType.equals(RequestType.HEAD)) {
+          LOG.info("Retrying the file size determination with GET request.");
+          return getFileSizeByRequest(RequestType.GET);
+        }
+      }
     }
+    return -1L;
+  }
+
+  @NotNull
+  private Request.Builder createRequestBuilderForRequestType(final RequestType requestType) {
+    final Request.Builder requestBuilder;
+    switch (requestType) {
+      case GET:
+        // TODO: Don't read file size from header. Get it from ???
+        requestBuilder = new Request.Builder().url(url).get();
+        break;
+      case HEAD:
+        requestBuilder = new Request.Builder().url(url).head();
+        break;
+      default:
+        throw new IllegalStateException("Unsupported request type for determining the file size.");
+    }
+    return requestBuilder;
+  }
+
+  /** @return The file size in MiB. */
+  public Long getFileSizeInMiB() {
+    return getFileSizeForBuilder() / BYTE_TO_MiB;
   }
 
   @NotNull
@@ -73,13 +104,13 @@ public class FileSizeDeterminer {
     }
   }
 
-  /** @return The file size in MiB. */
-  public Long getFileSizeInMiB() {
-    return getFileSize() / BYTE_TO_MiB;
-  }
-
   /** @return The file size in MB. */
   public Long getFileSizeInMB() {
-    return getFileSize() / BYTE_TO_MB;
+    return getFileSizeForBuilder() / BYTE_TO_MB;
+  }
+
+  private enum RequestType {
+    GET,
+    HEAD
   }
 }
