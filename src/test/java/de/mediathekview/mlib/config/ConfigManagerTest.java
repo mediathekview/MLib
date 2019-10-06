@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -68,11 +68,16 @@ public class ConfigManagerTest {
 
 	}
 
-	@AfterEach
+	@BeforeEach
 	public void deleteExistingFiles() {
 		try {
 			Files.deleteIfExists(Paths.get(TEST_CONFIG_FILE_NAME));
-		} catch (IOException ioe) {	}
+		} catch (IOException ioe) {
+			try {
+				Thread.sleep(200);
+				Files.deleteIfExists(Paths.get(TEST_CONFIG_FILE_NAME));
+			} catch (InterruptedException | IOException e) { }
+		}
 	}
 
 	private void writeTempTestFileConfig() throws IOException {
