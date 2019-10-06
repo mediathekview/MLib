@@ -39,7 +39,7 @@ public class FileSizeDeterminerTest {
 
   @Test
   public void testGetFileSize() {
-    assertThat(new FileSizeDeterminer(TEST_FILE_URL).getFileSize()).isEqualTo(5643l);
+    assertThat(new FileSizeDeterminer(TEST_FILE_URL).getFileSizeForBuilder()).isEqualTo(5643l);
   }
 
   @Test
