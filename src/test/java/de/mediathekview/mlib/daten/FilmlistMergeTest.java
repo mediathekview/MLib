@@ -1,15 +1,14 @@
 package de.mediathekview.mlib.daten;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FilmlistMergeTest {
 
@@ -69,7 +68,7 @@ public class FilmlistMergeTest {
     testFilmlist2.add(testFilm4);
     final int sizeOld = testFilmlist1.getFilms().size();
     testFilmlist1.merge(testFilmlist2);
-    assertThat(testFilmlist1.getFilms().size(), not(is(sizeOld)));
+    assertThat(testFilmlist1.getFilms().size()).isNotEqualTo(sizeOld);
   }
 
 
@@ -94,7 +93,7 @@ public class FilmlistMergeTest {
     testFilmlist2.add(testFilm4);
     final int sizeOld = testFilmlist1.getFilms().size();
     testFilmlist1.merge(testFilmlist2);
-    assertThat(testFilmlist1.getFilms().size(), not(is(sizeOld)));
+    assertThat(testFilmlist1.getFilms().size()).isNotEqualTo(sizeOld);
   }
 
   @Test
@@ -118,7 +117,7 @@ public class FilmlistMergeTest {
     testFilmlist2.add(testFilm4);
     final int sizeOld = testFilmlist1.getFilms().size();
     testFilmlist1.merge(testFilmlist2);
-    assertThat(testFilmlist1.getFilms().size(), not(is(sizeOld)));
+    assertThat(testFilmlist1.getFilms().size()).isNotEqualTo(sizeOld);
   }
 
   @Test
@@ -144,8 +143,8 @@ public class FilmlistMergeTest {
     testFilmlist1.add(testFilm4);
     final int sizeOld = testFilmlist1.getFilms().size();
     testFilmlist1.merge(testFilmlist2);
-    assertThat(testFilmlist1.getFilms().size(), is(sizeOld));
-    assertThat(testFilm3.hashCode(), is(testFilm4.hashCode()));
+    assertThat(testFilmlist1.getFilms().size()).isEqualTo(sizeOld);
+    assertThat(testFilm3.hashCode()).isEqualTo(testFilm4.hashCode());
   }
 
 }

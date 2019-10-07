@@ -7,84 +7,82 @@
  */
 package de.mediathekview.mlib.daten;
 
-import org.junit.Test;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-import java.util.Collection;
-import java.util.Optional;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
 
 public class SenderTest {
 
   @Test
   public void pruefeAnzahlBekannterSender() {
-    assertEquals(33, Sender.getSenderNamen().size());
+    assertThat(Sender.getSenderNamen())
+        .hasSize(33);
   }
 
   @Test
   public void pruefeGetSenderByNameMitNullString() {
-    assertEquals(Optional.empty(), Sender.getSenderByName(null));
+    assertThat(Sender.getSenderByName(null))
+        .isEmpty();
   }
 
   @Test
   public void pruefeListeBekannterSender() {
-    final Collection<String> c = Sender.getSenderNamen();
+    assertThat(Sender.getSenderNamen())
+        .contains(
+            Sender.ARD.getName(),
+            Sender.ARTE_DE.getName(),
+            Sender.ARTE_FR.getName(),
+            Sender.ARTE_PL.getName(),
+            Sender.ARTE_EN.getName(),
+            Sender.ARTE_ES.getName(),
+            Sender.ARTE_IT.getName(),
+            Sender.BR.getName(),
+            Sender.DREISAT.getName(),
+            Sender.DW.getName(),
+            Sender.FUNK.getName(),
+            Sender.HR.getName(),
+            Sender.KIKA.getName(),
+            Sender.MDR.getName(),
+            Sender.NDR.getName(),
+            Sender.ORF.getName(),
+            Sender.PHOENIX.getName(),
+            Sender.RBB.getName(),
+            Sender.SF.getName(),
+            Sender.SR.getName(),
+            Sender.SRF.getName(),
+            Sender.SRF_PODCAST.getName(),
+            Sender.SWR.getName(),
+            Sender.WDR1_LIVE.getName(),
+            Sender.WDR2.getName(),
+            Sender.WDR3.getName(),
+            Sender.WDR4.getName(),
+            Sender.WDR5.getName(),
+            Sender.WDR_COSMO.getName(),
+            Sender.WDR_KIRAKA.getName(),
+            Sender.WDR.getName(),
+            Sender.ZDF.getName(),
+            Sender.ZDF_TIVI.getName()
+        );
 
-    assertTrue(c.contains(Sender.ARD.getName()));
-    assertTrue(c.contains(Sender.ARTE_DE.getName()));
-    assertTrue(c.contains(Sender.ARTE_FR.getName()));
-    assertTrue(c.contains(Sender.ARTE_PL.getName()));
-    assertTrue(c.contains(Sender.ARTE_EN.getName()));
-    assertTrue(c.contains(Sender.ARTE_ES.getName()));
-    assertTrue(c.contains(Sender.ARTE_IT.getName()));
-    assertTrue(c.contains(Sender.BR.getName()));
-    assertTrue(c.contains(Sender.DREISAT.getName()));
-    assertTrue(c.contains(Sender.DW.getName()));
-    assertTrue(c.contains(Sender.FUNK.getName()));
-    assertTrue(c.contains(Sender.HR.getName()));
-    assertTrue(c.contains(Sender.KIKA.getName()));
-    assertTrue(c.contains(Sender.MDR.getName()));
-    assertTrue(c.contains(Sender.NDR.getName()));
-    assertTrue(c.contains(Sender.ORF.getName()));
-    assertTrue(c.contains(Sender.PHOENIX.getName()));
-    assertTrue(c.contains(Sender.RBB.getName()));
-    assertTrue(c.contains(Sender.SF.getName()));
-    assertTrue(c.contains(Sender.SR.getName()));
-    assertTrue(c.contains(Sender.SRF.getName()));
-    assertTrue(c.contains(Sender.SRF_PODCAST.getName()));
-    assertTrue(c.contains(Sender.SWR.getName()));
-    assertTrue(c.contains(Sender.WDR1_LIVE.getName()));
-    assertTrue(c.contains(Sender.WDR2.getName()));
-    assertTrue(c.contains(Sender.WDR3.getName()));
-    assertTrue(c.contains(Sender.WDR4.getName()));
-    assertTrue(c.contains(Sender.WDR5.getName()));
-    assertTrue(c.contains(Sender.WDR_COSMO.getName()));
-    assertTrue(c.contains(Sender.WDR_KIRAKA.getName()));
-    assertTrue(c.contains(Sender.WDR.getName()));
-    assertTrue(c.contains(Sender.ZDF.getName()));
-    assertTrue(c.contains(Sender.ZDF_TIVI.getName()));
   }
 
   @Test
   public void pruefeNullRueckgabeBeiNichtExistentenSendernamen() {
-    assertEquals(Optional.empty(), Sender.getSenderByName("thequickbrownfoxjumpsoverthelazydog"));
+    assertThat(Sender.getSenderByName("thequickbrownfoxjumpsoverthelazydog")).isEmpty();
   }
-
-  //
 
   @Test
   public void pruefeZugriffAufARDperNamensaufloesung() {
-    assertEquals(Optional.of(Sender.ARD), Sender.getSenderByName("ARD"));
+    assertThat(Sender.getSenderByName("ARD")).contains(Sender.ARD);
   }
 
   @Test
   public void pruefeZugriffAufARDperNamensaufloesungSchreibweiseGeaendert() {
-    assertEquals(Optional.of(Sender.ARD), Sender.getSenderByName("ard"));
+    assertThat(Sender.getSenderByName("ard")).contains(Sender.ARD);
   }
 
   @Test
   public void pruefeZugriffAufPhoenixPerNamensaufloesung() {
-    assertEquals(Optional.of(Sender.PHOENIX), Sender.getSenderByName("PHOENIX"));
+    assertThat(Sender.getSenderByName("PHOENIX")).contains(Sender.PHOENIX);
   }
 }
