@@ -14,10 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class FileSizeDeterminerTest {
-  public static final String MOCK_URL_BASE = "http://localhost:8589";
   private static final String TEST_FILE_NAME = "FileSizeDeterminerTest.txt";
-  private static final String TEST_FILE_URL = MOCK_URL_BASE + "/" + TEST_FILE_NAME;
-  private static WireMockServer wireMockServer = new WireMockServer(options().port(8589));
+  private static final String TEST_FILE_URL = "/" + TEST_FILE_NAME;
+  private static WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
 
   @BeforeEach
   public void startWireMock() {
@@ -39,16 +38,22 @@ public class FileSizeDeterminerTest {
 
   @Test
   public void testGetFileSize() {
-    assertThat(new FileSizeDeterminer(TEST_FILE_URL).getFileSizeForBuilder()).isEqualTo(5643l);
+    assertThat(getClassUnderTest().getFileSizeForBuilder()).isEqualTo(5643L);
   }
 
   @Test
   public void testGetFileSizeMiB() {
-    assertThat(new FileSizeDeterminer(TEST_FILE_URL).getFileSizeInMiB()).isEqualTo(5l);
+    assertThat(getClassUnderTest().getFileSizeInMiB()).isEqualTo(5L);
   }
 
   @Test
   public void testGetFileSizeMB() {
-    assertThat(new FileSizeDeterminer(TEST_FILE_URL).getFileSizeInMB()).isEqualTo(5l);
+    assertThat(getClassUnderTest().getFileSizeInMB()).isEqualTo(5L);
   }
+
+  private FileSizeDeterminer getClassUnderTest() {
+    return new FileSizeDeterminer(wireMockServer.baseUrl() + TEST_FILE_URL);
+  }
+
+
 }
