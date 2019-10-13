@@ -15,6 +15,7 @@ public class FileSizeDeterminer {
   private static final int BYTE_TO_MiB = 1024;
   private static final int BYTE_TO_MB = 1000;
   private static final String PROTOCOL_RTMP = "rtmp";
+  private static final String FILE_TYPE_M3U8 = "m3u8";
   private final String url;
   private final OkHttpClient client;
 
@@ -48,8 +49,8 @@ public class FileSizeDeterminer {
   }
 
   private Long getFileSizeByRequest(final RequestType requestType) {
-    // Cant determine the file size of rtmp.
-    if (!url.startsWith(PROTOCOL_RTMP)) {
+    // Cant determine the file size of rtmp and m3u8.
+    if (!url.startsWith(PROTOCOL_RTMP) && !url.endsWith(FILE_TYPE_M3U8)) {
       try (final Response response =
           client.newCall(createRequestBuilderForRequestType(requestType).build()).execute()) {
         final String contentLengthHeader = response.header(HttpHeaders.CONTENT_LENGTH);
