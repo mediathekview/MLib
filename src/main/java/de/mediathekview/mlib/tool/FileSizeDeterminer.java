@@ -50,10 +50,9 @@ public class FileSizeDeterminer {
   private Long getFileSizeByRequest(final RequestType requestType) {
     // Cant determine the file size of rtmp.
     if (!url.startsWith(PROTOCOL_RTMP)) {
-      try {
-        final Response headResponse =
-            client.newCall(createRequestBuilderForRequestType(requestType).build()).execute();
-        final String contentLengthHeader = headResponse.header(HttpHeaders.CONTENT_LENGTH);
+      try (final Response response =
+          client.newCall(createRequestBuilderForRequestType(requestType).build()).execute()) {
+        final String contentLengthHeader = response.header(HttpHeaders.CONTENT_LENGTH);
         return parseContentLength(contentLengthHeader);
       } catch (final IOException ioException) {
         LOG.error(
@@ -74,7 +73,6 @@ public class FileSizeDeterminer {
     final Request.Builder requestBuilder;
     switch (requestType) {
       case GET:
-        // TODO: Don't read file size from header. Get it from ???
         requestBuilder = new Request.Builder().url(url).get();
         break;
       case HEAD:
