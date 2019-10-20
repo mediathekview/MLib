@@ -54,50 +54,25 @@ public class Filmlist {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
+  public boolean equals(final Object o) {
+    if (this == o) {
       return true;
     }
-    if (obj == null) {
+    if (!(o instanceof Filmlist)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final Filmlist other = (Filmlist) obj;
-    if (creationDate == null) {
-      if (other.creationDate != null) {
-        return false;
-      }
-    } else if (!creationDate.equals(other.creationDate)) {
-      return false;
-    }
-    if (films == null) {
-      if (other.films != null) {
-        return false;
-      }
-    } else if (!films.equals(other.films)) {
-      return false;
-    }
-    if (listId == null) {
-      if (other.listId != null) {
-        return false;
-      }
-    } else if (!listId.equals(other.listId)) {
-      return false;
-    }
-    if (livestreams == null) {
-      if (other.livestreams != null) {
-        return false;
-      }
-    } else if (!livestreams.equals(other.livestreams)) {
-      return false;
-    }
-    if (podcasts == null) {
-      return other.podcasts == null;
-    } else {
-      return podcasts.equals(other.podcasts);
-    }
+    final Filmlist filmlist = (Filmlist) o;
+    return Objects.equals(getFilms(), filmlist.getFilms())
+        && Objects.equals(getPodcasts(), filmlist.getPodcasts())
+        && Objects.equals(getLivestreams(), filmlist.getLivestreams())
+        && Objects.equals(getCreationDate(), filmlist.getCreationDate())
+        && Objects.equals(getListId(), filmlist.getListId());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        getFilms(), getPodcasts(), getLivestreams(), getCreationDate(), getListId());
   }
 
   public LocalDateTime getCreationDate() {
@@ -146,18 +121,6 @@ public class Filmlist {
     sortedResources.addAll(livestreams.values());
     sortedResources.sort(aComperator);
     return sortedResources;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + (creationDate == null ? 0 : creationDate.hashCode());
-    result = prime * result + (films == null ? 0 : films.hashCode());
-    result = prime * result + (listId == null ? 0 : listId.hashCode());
-    result = prime * result + (livestreams == null ? 0 : livestreams.hashCode());
-    result = prime * result + (podcasts == null ? 0 : podcasts.hashCode());
-    return result;
   }
 
   /**

@@ -313,10 +313,7 @@ public class FilmToFakeJsonConverter {
     aUrlSmall = reduceUrl(aUrlNormal, aUrlSmall);
     aUrlHd = reduceUrl(aUrlNormal, aUrlHd);
 
-    String website = "";
-    if (aMediaResource.getWebsite().isPresent()) {
-      website = aMediaResource.getWebsite().get().toString();
-    }
+    final String website = aMediaResource.getWebsite().map(URL::toString).orElse("");
 
     fakeJsonBuilder.append(
         String.format(

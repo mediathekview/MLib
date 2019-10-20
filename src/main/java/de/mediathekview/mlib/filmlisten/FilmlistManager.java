@@ -13,6 +13,8 @@ import de.mediathekview.mlib.messages.MessageCreator;
 import de.mediathekview.mlib.tool.MVHttpClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,7 +49,7 @@ public class FilmlistManager extends MessageCreator {
     return instance;
   }
 
-  public Optional<Filmlist> importList(
+  private Optional<Filmlist> importList(
       final FilmlistFormats aFormat, final InputStream aInputStream) throws IOException {
     publishMessage(LibMessages.FILMLIST_IMPORT_STARTED);
     final InputStream input = decompressInputStreamIfFormatNeedsTo(aFormat, aInputStream);
@@ -86,9 +88,15 @@ public class FilmlistManager extends MessageCreator {
       throws IOException {
     final Request request = new Request.Builder().url(aUrl).build();
     final OkHttpClient httpClient = MVHttpClient.getInstance().getHttpClient();
-    try (final InputStream fileInputStream =
-        httpClient.newCall(request).execute().body().byteStream()) {
-      return importList(aFormat, fileInputStream);
+
+    try (final Response response = httpClient.newCall(request).execute()) {
+      final ResponseBody responseBody = response.body();
+      if (responseBody == null) {
+        return Optional.empty();
+      }
+      try (final InputStream fileInputStream = responseBody.byteStream()) {
+        return importList(aFormat, fileInputStream);
+      }
     }
   }
 
@@ -110,14 +118,17 @@ public class FilmlistManager extends MessageCreator {
 
   private boolean compress(
       final FilmlistFormats aFormat, final Path aSourcePath, final Path aTargetPath) {
-    try {
-      CompressionManager.getInstance()
-          .compress(aFormat.getCompressionType().get(), aSourcePath, aTargetPath);
-      return true;
-    } catch (final IOException ioException) {
-      publishMessage(LibMessages.FILMLIST_COMPRESS_ERROR, aTargetPath.toAbsolutePath().toString());
-      return false;
+    final Optional<CompressionType> compressionType = aFormat.getCompressionType();
+    if (compressionType.isPresent()) {
+      try {
+        CompressionManager.getInstance().compress(compressionType.get(), aSourcePath, aTargetPath);
+        return true;
+      } catch (final IOException ioException) {
+        publishMessage(
+            LibMessages.FILMLIST_COMPRESS_ERROR, aTargetPath.toAbsolutePath().toString());
+      }
     }
+    return false;
   }
 
   public boolean writeHashFile(final Filmlist filmlist, final Path savePath) {

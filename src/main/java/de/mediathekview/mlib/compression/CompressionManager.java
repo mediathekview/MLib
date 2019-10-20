@@ -1,27 +1,20 @@
 package de.mediathekview.mlib.compression;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
+import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
+import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
-import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
-import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
 
-/**
- * A util class to work with compressed files.
- */
+/** A util class to work with compressed files. */
 public class CompressionManager {
   private static CompressionManager instance;
 
@@ -36,17 +29,13 @@ public class CompressionManager {
     return instance;
   }
 
-  public OutputStream compress(final CompressionType aCompressionType,
-      final OutputStream aOutputStream) throws IOException {
+  public OutputStream compress(
+      final CompressionType aCompressionType, final OutputStream aOutputStream) throws IOException {
     switch (aCompressionType) {
       case XZ:
         return new XZCompressorOutputStream(aOutputStream, 9);
       case GZIP:
-        return new GZIPOutputStream(aOutputStream) {
-          {
-            def.setLevel(Deflater.BEST_COMPRESSION);
-          }
-        };
+        return new MediathekviewGZIPOutputStrean(aOutputStream);
       case BZIP:
         // This uses already the best compression.
         return new BZip2CompressorOutputStream(aOutputStream);
@@ -57,12 +46,11 @@ public class CompressionManager {
   }
 
   /**
-   * Compresses a file and uses the old name and appends the file appender based on the
-   * {@link CompressionType}.
+   * Compresses a file and uses the old name and appends the file appender based on the {@link
+   * CompressionType}.
    *
    * @param aCompressionType The type in which should be compressed.
    * @param aSourceFile The file to compress.
-   *
    * @throws IOException Throws an IOException when the file to be compressed does not exists.
    */
   public void compress(final CompressionType aCompressionType, final Path aSourceFile)
@@ -77,18 +65,18 @@ public class CompressionManager {
    * @param aSourceFile The file to compress.
    * @param aTargetPath The path for the compressed file.
    * @throws IOException Throws an IOException when the file to be compressed does not exists.
-   *
    */
-  public void compress(final CompressionType aCompressionType, final Path aSourceFile,
-      final Path aTargetPath) throws IOException {
+  public void compress(
+      final CompressionType aCompressionType, final Path aSourceFile, final Path aTargetPath)
+      throws IOException {
     final Path targetPath =
         aTargetPath.getFileName().toString().endsWith(aCompressionType.getFileEnding())
             ? aTargetPath
             : aTargetPath.resolveSibling(
                 aTargetPath.getFileName().toString() + aCompressionType.getFileEnding());
 
-    try (InputStream input = new BufferedInputStream(Files.newInputStream(aSourceFile));
-        final OutputStream output = compress(aCompressionType, Files.newOutputStream(targetPath))) {
+    try (final InputStream input = new BufferedInputStream(Files.newInputStream(aSourceFile));
+         final OutputStream output = compress(aCompressionType, Files.newOutputStream(targetPath))) {
       fastChannelCopy(Channels.newChannel(input), Channels.newChannel(output));
     }
   }
@@ -100,10 +88,9 @@ public class CompressionManager {
    * @param aInputStream The {@link InputStream} to uncompress.
    * @return A uncompressed {@link InputStream}
    * @throws IOException Throws an IOException when the file to be decompressed does not exists.
-   *
    */
-  public InputStream decompress(final CompressionType aCompressionType,
-      final InputStream aInputStream) throws IOException {
+  public InputStream decompress(
+      final CompressionType aCompressionType, final InputStream aInputStream) throws IOException {
     switch (aCompressionType) {
       case XZ:
         return new XZCompressorInputStream(aInputStream);
@@ -118,18 +105,20 @@ public class CompressionManager {
   }
 
   /**
-   * Decompresses a file and uses the old name and removes the file appender based on the
-   * {@link CompressionType}.
+   * Decompresses a file and uses the old name and removes the file appender based on the {@link
+   * CompressionType}.
    *
    * @param aCompressionType The type in which should be compressed.
    * @param aSourceFile The source File to be decompressed
    * @throws IOException Throws an IOException when the file to be decompressed does not exists.
-   *
    */
   public void decompress(final CompressionType aCompressionType, final Path aSourceFile)
       throws IOException {
-    decompress(aCompressionType, aSourceFile, aSourceFile.resolveSibling(
-        aSourceFile.getFileName().toString().replace(aCompressionType.getFileEnding(), "")));
+    decompress(
+        aCompressionType,
+        aSourceFile,
+        aSourceFile.resolveSibling(
+            aSourceFile.getFileName().toString().replace(aCompressionType.getFileEnding(), "")));
   }
 
   /**
@@ -140,10 +129,11 @@ public class CompressionManager {
    * @param aTargetPath The path for the decompressed file.
    * @throws IOException Throws an IOException when the file to be decompressed does not exists.
    */
-  public void decompress(final CompressionType aCompressionType, final Path aSourceFile,
-      final Path aTargetPath) throws IOException {
+  public void decompress(
+      final CompressionType aCompressionType, final Path aSourceFile, final Path aTargetPath)
+      throws IOException {
     try (final InputStream input = decompress(aCompressionType, Files.newInputStream(aSourceFile));
-        OutputStream output = new BufferedOutputStream(Files.newOutputStream(aTargetPath))) {
+         final OutputStream output = new BufferedOutputStream(Files.newOutputStream(aTargetPath))) {
       fastChannelCopy(Channels.newChannel(input), Channels.newChannel(output));
     }
   }

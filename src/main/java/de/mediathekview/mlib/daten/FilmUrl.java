@@ -87,9 +87,7 @@ public class FilmUrl implements Serializable {
       try {
         newUrl =
             new URL(
-                urlAsText
-                    .replaceAll(URL_START_NRODL, URL_START_RODL)
-                    .replaceAll(URL_HTTPS, URL_HTTP));
+                urlAsText.replace(URL_START_NRODL, URL_START_RODL).replace(URL_HTTPS, URL_HTTP));
       } catch (final MalformedURLException aMalformedURLException) {
         LOG.fatal(
             "Can't replace the nrodl in these URL: " + aUrl.toString(), aMalformedURLException);

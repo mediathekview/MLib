@@ -31,7 +31,7 @@ public enum Resolution {
   }
 
   public static List<Resolution> getFromBestToLowest() {
-    return Arrays.asList(Resolution.values()).stream()
+    return Arrays.stream(Resolution.values())
         .sorted(Comparator.comparing(Resolution::getResolutionSize).reversed())
         .collect(Collectors.toList());
   }
@@ -146,8 +146,7 @@ public enum Resolution {
     }
   }
 
-  static Resolution getResoultionByResolutionSize(final int searchedResolutionSize)
-      throws NoSuchElementException {
+  static Resolution getResoultionByResolutionSize(final int searchedResolutionSize) {
     for (final Resolution currentResolution : Resolution.values()) {
       if (searchedResolutionSize == currentResolution.getResolutionSize()) {
         return currentResolution;

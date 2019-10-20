@@ -1,6 +1,7 @@
 package de.mediathekview.mlib.config;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,85 +9,75 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 /**
- * Testin the {@link ConfigManager} and if a config file on the path can
- * override the one in the classpath.
- * 
- * @author nicklas
+ * Testin the {@link ConfigManager} and if a config file on the path can override the one in the
+ * classpath.
  *
+ * @author nicklas
  */
 public class ConfigManagerTest {
-	private static final String TEST_CONFIG_FILE_NAME = "TestConfig.yaml";
+  private static final String TEST_CONFIG_FILE_NAME = "TestConfig.yaml";
 
-	class TestConfigManager extends ConfigManager<TestConfigDTO> {
+  class TestConfigManager extends ConfigManager<TestConfigDTO> {
 
-		private TestConfigManager() {
-			super();
-			readConfig();
-		}
+    private TestConfigManager() {
+      super();
+      readConfig();
+    }
 
-		@Override
-		protected String getConfigFileName() {
-			return TEST_CONFIG_FILE_NAME;
-		}
+    @Override
+    protected String getConfigFileName() {
+      return TEST_CONFIG_FILE_NAME;
+    }
 
-		@Override
-		protected Class<TestConfigDTO> getConfigClass() {
-			return TestConfigDTO.class;
-		}
+    @Override
+    protected Class<TestConfigDTO> getConfigClass() {
+      return TestConfigDTO.class;
+    }
+  }
 
-	}
+  @Test
+  public void testGetConfigFileName() {
+    assertThat(new TestConfigManager().getConfigFileName()).isEqualTo(TEST_CONFIG_FILE_NAME);
+  }
 
-	@Test
-	public void testGetConfigFileName() {
-		assertThat(new TestConfigManager().getConfigFileName()).isEqualTo(TEST_CONFIG_FILE_NAME);
-	}
+  @Test
+  public void testGetConfigClass() {
+    assertThat(new TestConfigManager().getConfigClass()).isEqualTo(TestConfigDTO.class);
+  }
 
-	@Test
-	public void testGetConfigClass() {
-		assertThat(new TestConfigManager().getConfigClass()).isEqualTo(TestConfigDTO.class);
-	}
+  @Test
+  public void testReadClasspathConfig() {
+    final TestConfigDTO classpathConfig = new TestConfigManager().getConfig();
+    assertThat(classpathConfig.getValueWithDefault()).isEqualTo("Hello World!");
+    assertThat(classpathConfig.getValueWithoutDefault()).isEqualTo("Not the default, sorry!");
+  }
 
-	@Test
-	public void testReadClasspathConfig() {
-		TestConfigDTO classpathConfig = new TestConfigManager().getConfig();
-		assertThat(classpathConfig.getValueWithDefault()).isEqualTo("Hello World!");
-		assertThat(classpathConfig.getValueWithoutDefault()).isEqualTo("Not the default, sorry!");
-	}
+  @Test
+  public void testReadFileConfig() throws IOException {
 
-	@Test
-	public void testReadFileConfig() throws IOException {
+    writeTempTestFileConfig();
 
-		writeTempTestFileConfig();
+    final TestConfigDTO fileConfig = new TestConfigManager().getConfig();
+    assertThat(fileConfig.getValueWithDefault()).isEqualTo("TestValue");
+    assertThat(fileConfig.getValueWithoutDefault()).isEqualTo("Some other test value");
+  }
 
-		TestConfigDTO fileConfig = new TestConfigManager().getConfig();
-		assertThat(fileConfig.getValueWithDefault()).isEqualTo("TestValue");
-		assertThat(fileConfig.getValueWithoutDefault()).isEqualTo("Some other test value");
+  @BeforeEach
+  public void deleteExistingFiles() throws IOException {
+    Files.deleteIfExists(Paths.get(TEST_CONFIG_FILE_NAME));
+  }
 
-	}
+  private void writeTempTestFileConfig() throws IOException {
+    final Path tempConfigPath = Paths.get("./" + TEST_CONFIG_FILE_NAME);
 
-	@BeforeEach
-	public void deleteExistingFiles() {
-		try {
-			Files.deleteIfExists(Paths.get(TEST_CONFIG_FILE_NAME));
-		} catch (IOException ioe) {
-			try {
-				Thread.sleep(200);
-				Files.deleteIfExists(Paths.get(TEST_CONFIG_FILE_NAME));
-			} catch (InterruptedException | IOException e) { }
-		}
-	}
-
-	private void writeTempTestFileConfig() throws IOException {
-		Path tempConfigPath = Paths.get("./" + TEST_CONFIG_FILE_NAME);
-
-		Files.write(tempConfigPath,
-				Arrays.asList("valueWithDefault: TestValue", "valueWithoutDefault: Some other test value"),
-				StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-	}
-
+    Files.write(
+        tempConfigPath,
+        Arrays.asList("valueWithDefault: TestValue", "valueWithoutDefault: Some other test value"),
+        StandardOpenOption.CREATE,
+        StandardOpenOption.TRUNCATE_EXISTING);
+  }
 }

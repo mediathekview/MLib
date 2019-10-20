@@ -9,9 +9,9 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-public abstract class AbstractMediaResource<T> implements Serializable {
+public abstract class AbstractMediaResource<T extends Serializable> implements Serializable {
   private static final long serialVersionUID = -6404888306701549134L;
-  protected final Map<Resolution, T> urls;
+  private final Map<Resolution, T> urls;
   private final UUID uuid; // Old: filmNr
   private final Sender sender;
   private final LocalDateTime time;
@@ -19,16 +19,16 @@ public abstract class AbstractMediaResource<T> implements Serializable {
   private String titel;
   private String thema;
   private String beschreibung;
-  private Optional<URL> website;
+  private URL website;
 
   /** DON'T USE! - ONLY FOR GSON! */
-  protected AbstractMediaResource() {
+  AbstractMediaResource() {
     geoLocations = new ArrayList<>();
     urls = new EnumMap<>(Resolution.class);
     uuid = null;
     sender = null;
     time = null;
-    website = Optional.empty();
+    website = null;
     beschreibung = "";
   }
 
@@ -48,7 +48,7 @@ public abstract class AbstractMediaResource<T> implements Serializable {
     setTitel(aTitel);
     setThema(aThema);
     time = aTime;
-    website = Optional.empty();
+    website = null;
 
     beschreibung = "";
   }
@@ -191,20 +191,20 @@ public abstract class AbstractMediaResource<T> implements Serializable {
     return new EnumMap<>(urls);
   }
 
+  protected Map<Resolution, T> getUrlsDirect() {
+    return urls;
+  }
+
   public UUID getUuid() {
     return uuid;
   }
 
   public Optional<URL> getWebsite() {
-    return website;
-  }
-
-  public void setWebsite(final Optional<URL> aWebsite) {
-    website = aWebsite;
+    return Optional.ofNullable(website);
   }
 
   public void setWebsite(final URL aWebsite) {
-    website = Optional.of(aWebsite);
+    website = aWebsite;
   }
 
   @Override

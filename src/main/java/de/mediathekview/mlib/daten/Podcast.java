@@ -2,6 +2,7 @@ package de.mediathekview.mlib.daten;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Podcast extends AbstractMediaResource<FilmUrl> {
@@ -34,43 +35,36 @@ public class Podcast extends AbstractMediaResource<FilmUrl> {
     neu = copyObj.neu;
   }
 
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!super.equals(obj)) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final Podcast other = (Podcast) obj;
-    if (duration == null) {
-      return other.duration == null;
-    } else {
-      return duration.equals(other.duration);
-    }
-  }
-
   public Duration getDuration() {
     return duration;
   }
 
-  public Long getFileSize(final Resolution aQuality) {
-    if (urls.containsKey(aQuality)) {
-      return urls.get(aQuality).getFileSize();
-    } else {
-      return 0L;
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
     }
+    if (!(o instanceof Podcast)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    final Podcast podcast = (Podcast) o;
+    return isNeu() == podcast.isNeu() && Objects.equals(getDuration(), podcast.getDuration());
   }
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + (duration == null ? 0 : duration.hashCode());
-    return result;
+    return Objects.hash(super.hashCode(), getDuration(), isNeu());
+  }
+
+  public Long getFileSize(final Resolution aQuality) {
+    if (getUrls().containsKey(aQuality)) {
+      return getUrls().get(aQuality).getFileSize();
+    } else {
+      return 0L;
+    }
   }
 
   public boolean isNeu() {

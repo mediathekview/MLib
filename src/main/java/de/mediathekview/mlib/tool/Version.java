@@ -23,7 +23,7 @@ public class Version {
   }
 
   public Version(final String versionsstring) {
-    final String[] versions = versionsstring.replaceAll("-SNAPSHOT", "").split("\\.");
+    final String[] versions = versionsstring.replace("-SNAPSHOT", "").split("\\.");
     if (versions.length == 3) {
       try {
         major = Integer.parseInt(versions[0]);

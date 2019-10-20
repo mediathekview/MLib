@@ -1,34 +1,34 @@
 package de.mediathekview.mlib.filmlisten;
 
-import java.util.Optional;
 import de.mediathekview.mlib.compression.CompressionType;
 
-public enum FilmlistFormats {
+import java.util.Optional;
 
+public enum FilmlistFormats {
   JSON("Json", false, "json"),
   OLD_JSON("Old Json", true, "json"),
   JSON_COMPRESSED_XZ("Json + XZ", false, CompressionType.XZ),
-  OLD_JSON_COMPRESSED_XZ("Old Json compressed", true, CompressionType.XZ),
+  OLD_JSON_COMPRESSED_XZ("Old Json compressed XZ", true, CompressionType.XZ),
   JSON_COMPRESSED_GZIP("Json + GZIP", false, CompressionType.GZIP),
-  OLD_JSON_COMPRESSED_GZIP("Old Json compressed", true, CompressionType.GZIP),
+  OLD_JSON_COMPRESSED_GZIP("Old Json compressed GZIP", true, CompressionType.GZIP),
   JSON_COMPRESSED_BZIP("Json + BZIP", false, CompressionType.BZIP),
-  OLD_JSON_COMPRESSED_BZIP("Old Json compressed", true, CompressionType.BZIP);
+  OLD_JSON_COMPRESSED_BZIP("Old Json compressed BZIP", true, CompressionType.BZIP);
 
-  private String description;
-  private boolean oldFormat;
-  private Optional<String> fileExtension;
-  private Optional<CompressionType> compressionType;
+  private final String description;
+  private final boolean oldFormat;
+  private final Optional<String> fileExtension;
+  private final Optional<CompressionType> compressionType;
 
-  FilmlistFormats(final String aDescription, final boolean aOldFormat,
-      final CompressionType aCompressionType) {
+  FilmlistFormats(
+      final String aDescription, final boolean aOldFormat, final CompressionType aCompressionType) {
     description = aDescription;
     oldFormat = aOldFormat;
     compressionType = Optional.of(aCompressionType);
     fileExtension = Optional.empty();
   }
 
-  FilmlistFormats(final String aDescription, final boolean aOldFormat,
-      final String aFileExtension) {
+  FilmlistFormats(
+      final String aDescription, final boolean aOldFormat, final String aFileExtension) {
     description = aDescription;
     oldFormat = aOldFormat;
     fileExtension = Optional.of(aFileExtension);

@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class FileSizeDeterminer {
   private static final Logger LOG = LogManager.getLogger(FileSizeDeterminer.class);
-  private static final int BYTE_TO_MiB = 1024;
+  private static final int BYTE_TO_MIB = 1024;
   private static final int BYTE_TO_MB = 1000;
   private static final String PROTOCOL_RTMP = "rtmp";
   private static final String FILE_TYPE_M3U8 = "m3u8";
@@ -87,7 +87,7 @@ public class FileSizeDeterminer {
 
   /** @return The file size in MiB. */
   public Long getFileSizeInMiB() {
-    return getFileSizeForBuilder() / BYTE_TO_MiB;
+    return getFileSizeForBuilder() / BYTE_TO_MIB;
   }
 
   @NotNull

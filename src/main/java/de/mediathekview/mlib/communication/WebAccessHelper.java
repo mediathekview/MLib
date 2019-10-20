@@ -20,8 +20,7 @@ public class WebAccessHelper {
   private WebAccessHelper() {}
 
   public static String getJsonResultFromPostAccess(
-      final URL serverUrl, final String request, final long timeoutInSeconds)
-      throws IllegalArgumentException {
+      final URL serverUrl, final String request, final long timeoutInSeconds) {
     if (null == serverUrl) {
       throw new IllegalArgumentException("Es wurde keine gültige ServerURL angegeben");
     }

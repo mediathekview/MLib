@@ -31,8 +31,8 @@ public class TextCleaner {
     unescapedText = StringEscapeUtils.unescapeXml(text);
     unescapedText = StringEscapeUtils.unescapeHtml4(unescapedText);
     unescapedText = StringEscapeUtils.unescapeJava(unescapedText);
-    unescapedText = unescapedText.replaceAll(TAB, " ").trim();
-    unescapedText = unescapedText.replaceAll(NEW_LINE, " ").trim();
+    unescapedText = unescapedText.replace(TAB, " ").trim();
+    unescapedText = unescapedText.replace(NEW_LINE, " ").trim();
     return unescapedText;
   }
 
