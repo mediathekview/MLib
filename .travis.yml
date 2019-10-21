@@ -33,6 +33,8 @@ jobs:
           - $HOME/.m2
     - stage: Build and deploy snapshots
       script:
+        - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in scripte/deploy/secring.gpg.enc -out scripte/deploy/secring.gpg -d
+        - gpg --fast-import scripte/deploy/secring.gpg
         - ./mvnw --settings .maven.xml deploy
       cache:
         directories:
