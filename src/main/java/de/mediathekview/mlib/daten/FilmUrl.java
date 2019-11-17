@@ -1,6 +1,5 @@
 package de.mediathekview.mlib.daten;
 
-import de.mediathekview.mlib.tool.FileSizeDeterminer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -23,12 +22,8 @@ public class FilmUrl implements Serializable {
   /** The file size in MiB. */
   private Long fileSize;
 
-  public FilmUrl(final String url) throws MalformedURLException {
-    this(buildURL(url));
-  }
-
-  public FilmUrl(final URL url) {
-    this(url, new FileSizeDeterminer(url.toString()).getFileSizeInMiB());
+  public FilmUrl(final String url, final Long aFileSize) throws MalformedURLException {
+    this(buildURL(url), aFileSize);
   }
 
   public FilmUrl(final URL url, final Long fileSize) {
