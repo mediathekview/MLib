@@ -16,7 +16,7 @@ public class SenderTest {
   @Test
   public void pruefeAnzahlBekannterSender() {
     assertThat(Sender.getSenderNamen())
-        .hasSize(33);
+        .hasSize(34);
   }
 
   @Test
@@ -47,6 +47,7 @@ public class SenderTest {
             Sender.ORF.getName(),
             Sender.PHOENIX.getName(),
             Sender.RBB.getName(),
+            Sender.RBTV.getName(),
             Sender.SF.getName(),
             Sender.SR.getName(),
             Sender.SRF.getName(),
