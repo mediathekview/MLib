@@ -32,6 +32,7 @@ public enum Sender {
   ORF("ORF"),
   PHOENIX("PHOENIX"),
   RBB("RBB"),
+  RBTV("Radio Bremen TV", "RBTV", "radiobremen"),
   SF("SF"),
   SR("SR"),
   SRF("SRF"),
