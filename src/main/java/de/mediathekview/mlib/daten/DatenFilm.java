@@ -21,7 +21,6 @@ package de.mediathekview.mlib.daten;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -535,7 +534,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     datum = datum.trim();
     if (datum.contains(".") && datum.length() == 10) {
       try {
-        LocalDateTime filmDate = LocalDateTime.parse(datum, DATUM_FORMATTER);;
+        LocalDateTime filmDate = LocalDateTime.parse(datum, DATUM_FORMATTER);
         if (filmDate.getYear() < 1900) {
           //Datum vor 1970
           Log.errorLog(923012125, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
