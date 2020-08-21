@@ -32,6 +32,7 @@ import de.mediathekview.mlib.tool.GermanStringSorter;
 import de.mediathekview.mlib.tool.Hash;
 import de.mediathekview.mlib.tool.Log;
 import de.mediathekview.mlib.tool.MSLong;
+import java.time.LocalDate;
 
 public class DatenFilm implements Comparable<DatenFilm> {
 
@@ -534,7 +535,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     datum = datum.trim();
     if (datum.contains(".") && datum.length() == 10) {
       try {
-        LocalDateTime filmDate = LocalDateTime.parse(datum, DATUM_FORMATTER);
+        LocalDate filmDate = LocalDate.parse(datum, DATUM_FORMATTER);
         if (filmDate.getYear() < 1900) {
           //Datum vor 1970
           Log.errorLog(923012125, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
