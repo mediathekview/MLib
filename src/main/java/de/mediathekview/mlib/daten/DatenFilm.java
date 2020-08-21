@@ -19,7 +19,8 @@
  */
 package de.mediathekview.mlib.daten;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -35,6 +36,8 @@ import de.mediathekview.mlib.tool.MSLong;
 public class DatenFilm implements Comparable<DatenFilm> {
 
   private static final String COPYRIGHT_CHAR_HTML = "&copy;";
+
+  private static final DateTimeFormatter DATUM_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
   public static final String AUFLOESUNG_NORMAL = "normal";
   public static final String AUFLOESUNG_HD = "hd";
@@ -531,8 +534,8 @@ public class DatenFilm implements Comparable<DatenFilm> {
     datum = datum.trim();
     if (datum.contains(".") && datum.length() == 10) {
       try {
-        Date filmDate = FastDateFormat.getInstance("dd.MM.yyyy").parse(datum);
-        if (filmDate.getTime() < 0) {
+        LocalDateTime filmDate = LocalDateTime.parse(datum, DATUM_FORMATTER);
+        if (filmDate.getYear() < 1900) {
           //Datum vor 1970
           Log.errorLog(923012125, "Unsinniger Wert: [" + datum + "] " + fehlermeldung);
         } else {
