@@ -1,9 +1,10 @@
 package de.mediathekview.mlib.filmlisten.writer;
 
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.logging.log4j.LogManager;
@@ -33,7 +34,9 @@ public class FilmlistWriter extends AbstractFilmlistWriter
     public boolean write(final Filmlist aFilmlist, final Path aSavePath)
     {
         final Gson gson = new Gson();
-        try (BufferedWriter fileWriter = Files.newBufferedWriter(aSavePath, StandardCharsets.UTF_8))
+        // https://stackoverflow.com/questions/26268132/all-inclusive-charset-to-avoid-java-nio-charset-malformedinputexception-input
+        //try (BufferedWriter fileWriter = Files.newBufferedWriter(aSavePath, StandardCharsets.UTF_8))
+        try (BufferedWriter fileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(aSavePath.toFile()),StandardCharsets.UTF_8),512000))
         {
             gson.toJson(aFilmlist, fileWriter);
         }
