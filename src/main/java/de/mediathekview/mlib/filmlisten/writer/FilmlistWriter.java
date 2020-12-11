@@ -34,12 +34,10 @@ public class FilmlistWriter extends AbstractFilmlistWriter
     public boolean write(final Filmlist aFilmlist, final Path aSavePath)
     {
         final Gson gson = new Gson();
-        try
+        try (final BufferedWriter fileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(aSavePath.toFile()),StandardCharsets.UTF_8),512000))
         {
-           final BufferedWriter fileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(aSavePath.toFile()),StandardCharsets.UTF_8),512000);
            gson.toJson(aFilmlist, fileWriter);
            fileWriter.flush();
-           fileWriter.close();
         }
         catch (final IOException ioException)
         {

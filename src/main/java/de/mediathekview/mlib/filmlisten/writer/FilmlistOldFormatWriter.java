@@ -44,12 +44,10 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
             aFilmlist.getListId().toString());
 
     final Collection<String> linesToWrite = Arrays.asList(filmlistAsFakeJson.split(LINE_BREAK));
-    try {
-      final BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(aSavePath.toFile()),StandardCharsets.UTF_8),512000);
+    try (final BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(aSavePath.toFile()),StandardCharsets.UTF_8),512000)){
       for (String s : linesToWrite) 
         bw.write(s);
       bw.flush();
-      bw.close();
     } catch (final IOException ioException) {
       LOG.debug("Something went wrong on writing the film list.", ioException);
       publishMessage(LibMessages.FILMLIST_WRITE_ERROR, aSavePath.toAbsolutePath().toString());
