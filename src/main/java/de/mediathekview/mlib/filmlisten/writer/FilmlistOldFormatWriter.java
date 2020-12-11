@@ -9,9 +9,11 @@ import de.mediathekview.mlib.tool.VersionReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -43,7 +45,11 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
 
     final Collection<String> linesToWrite = Arrays.asList(filmlistAsFakeJson.split(LINE_BREAK));
     try {
-      Files.write(aSavePath, linesToWrite, StandardCharsets.UTF_8);
+      final BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(aSavePath.toFile()),StandardCharsets.UTF_8),512000);
+      for (String s : linesToWrite) 
+        bw.write(s);
+      bw.flush();
+      bw.close();
     } catch (final IOException ioException) {
       LOG.debug("Something went wrong on writing the film list.", ioException);
       publishMessage(LibMessages.FILMLIST_WRITE_ERROR, aSavePath.toAbsolutePath().toString());
