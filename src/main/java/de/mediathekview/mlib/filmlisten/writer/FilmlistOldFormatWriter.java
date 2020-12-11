@@ -45,9 +45,7 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
 
     final Collection<String> linesToWrite = Arrays.asList(filmlistAsFakeJson.split(LINE_BREAK));
     try {
-      // https://stackoverflow.com/questions/26268132/all-inclusive-charset-to-avoid-java-nio-charset-malformedinputexception-input
-      //Files.write(aSavePath, linesToWrite, StandardCharsets.UTF_8);
-      BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(aSavePath.toFile()),StandardCharsets.UTF_8),512000);
+      final BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(aSavePath.toFile()),StandardCharsets.UTF_8),512000);
       for (String s : linesToWrite) 
         bw.write(s);
       bw.flush();

@@ -34,11 +34,12 @@ public class FilmlistWriter extends AbstractFilmlistWriter
     public boolean write(final Filmlist aFilmlist, final Path aSavePath)
     {
         final Gson gson = new Gson();
-        // https://stackoverflow.com/questions/26268132/all-inclusive-charset-to-avoid-java-nio-charset-malformedinputexception-input
-        //try (BufferedWriter fileWriter = Files.newBufferedWriter(aSavePath, StandardCharsets.UTF_8))
-        try (BufferedWriter fileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(aSavePath.toFile()),StandardCharsets.UTF_8),512000))
+        try
         {
-            gson.toJson(aFilmlist, fileWriter);
+           final BufferedWriter fileWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(aSavePath.toFile()),StandardCharsets.UTF_8),512000);
+           gson.toJson(aFilmlist, fileWriter);
+           fileWriter.flush();
+           fileWriter.close();
         }
         catch (final IOException ioException)
         {
