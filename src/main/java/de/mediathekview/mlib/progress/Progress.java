@@ -3,7 +3,7 @@ package de.mediathekview.mlib.progress;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /** A POJO to store the progress information. */
@@ -11,14 +11,14 @@ public class Progress {
   private final long maxCount;
   private final long actualCount;
   private final long errorCount;
-  private final LocalTime crawlerStartTime;
+  private final LocalDateTime crawlerStartTime;
   private final Integer maxCrawlerDurationInMinutes;
 
   public Progress(
       final long maxCount,
       final long actualCount,
       final long errorCount,
-      final LocalTime crawlerStartTime,
+      final LocalDateTime crawlerStartTime,
       @Nullable final Integer maxCrawlerDurationInMinutes) {
     super();
     this.maxCount = maxCount;
@@ -69,7 +69,7 @@ public class Progress {
 
   /** @return The duration since the crawler has started. */
   public Duration durationSinceStart() {
-    return Duration.between(crawlerStartTime, LocalTime.now());
+    return Duration.between(crawlerStartTime, LocalDateTime.now());
   }
 
   /**
