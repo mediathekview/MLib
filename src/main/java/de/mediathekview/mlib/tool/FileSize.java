@@ -1,10 +1,10 @@
 package de.mediathekview.mlib.tool;
 
-import java.io.IOException;
-
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.internal.http.HttpHeaders;
+import okhttp3.ResponseBody;
+
+import java.io.IOException;
 
 public class FileSize {
 
@@ -36,9 +36,11 @@ public class FileSize {
 
     final Request request = new Request.Builder().url(url).head().build();
     long respLength = -1;
-    try (Response response = MVHttpClient.getInstance().getReducedTimeOutClient().newCall(request).execute()) {
+    try (Response response =
+        MVHttpClient.getInstance().getReducedTimeOutClient().newCall(request).execute()) {
       if (response.isSuccessful()) {
-        respLength = HttpHeaders.contentLength(response);
+        ResponseBody responseBody = response.body();
+        respLength = responseBody == null ? -1 : responseBody.contentLength();
       }
     } catch (IOException ignored) {
       respLength = -1;
@@ -51,5 +53,4 @@ public class FileSize {
     }
     return respLength;
   }
-
 }
