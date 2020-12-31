@@ -277,7 +277,7 @@ public class FilenameUtils {
      * Remove illegal characters from String based on current OS.
      *
      * @param input The input string
-     * @param isPath
+     * @param isPath Flag to switch replacing of illegal path characters on and off
      * @return Cleaned-up string.
      */
     public static String removeIllegalCharacters(final String input, boolean isPath) {
@@ -312,12 +312,12 @@ public class FilenameUtils {
     }
 
     /**
-     * Entferne verbotene Zeichen aus Dateiname.
+     * Remove illegal file name characters
      *
-     * @param name Dateiname
-     * @param isPath
-     * @param userReplace
-     * @param onlyAscii
+     * @param name The file name
+     * @param isPath Flag to switch replacing of illegal path characters on and off
+     * @param userReplace Flag to switch the user replacing table on and off
+     * @param onlyAscii Flag to switch if only ASCII characters should be allowed
      * @return Bereinigte Fassung
      */
     public static String replaceLeerDateiname(String name, boolean isPath, boolean userReplace, boolean onlyAscii) {
