@@ -2,11 +2,11 @@ package de.mediathekview.mlib.tool;
 
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 import java.io.IOException;
 
 public class FileSize {
+  private FileSize() {}
 
   public static String laengeString(String url) {
     // liefert die Dateigröße einer URL in MB!!
