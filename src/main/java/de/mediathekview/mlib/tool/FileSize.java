@@ -36,13 +36,12 @@ public class FileSize {
 
     final Request request = new Request.Builder().url(url).head().build();
     long respLength = -1;
-    try (Response response =
-        MVHttpClient.getInstance().getReducedTimeOutClient().newCall(request).execute()) {
+    try (Response response
+            = MVHttpClient.getInstance().getReducedTimeOutClient().newCall(request).execute()) {
       if (response.isSuccessful()) {
-        ResponseBody responseBody = response.body();
-        respLength = responseBody == null ? -1 : responseBody.contentLength();
+        respLength = Long.parseLong(response.header("Content-Length", "-1"));
       }
-    } catch (IOException ignored) {
+    } catch (IOException | NumberFormatException ignored) {
       respLength = -1;
     }
 
