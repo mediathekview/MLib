@@ -43,9 +43,8 @@ public class Config {
 
     /**
      * Damit kann "stop" gesetzt/rückgesetzt werden.
-     * Bei true wird die Suche abgebrochen.
      *
-     * @param set
+     * @param set Bei true wird die Suche abgebrochen.
      */
     public static void setStop(boolean set) {
         stop.set(set);

@@ -1,12 +1,12 @@
 package de.mediathekview.mlib.tool;
 
-import java.io.IOException;
-
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.internal.http.HttpHeaders;
+
+import java.io.IOException;
 
 public class FileSize {
+  private FileSize() {}
 
   public static String laengeString(String url) {
     // liefert die Dateigröße einer URL in MB!!
@@ -36,11 +36,12 @@ public class FileSize {
 
     final Request request = new Request.Builder().url(url).head().build();
     long respLength = -1;
-    try (Response response = MVHttpClient.getInstance().getReducedTimeOutClient().newCall(request).execute()) {
+    try (Response response
+            = MVHttpClient.getInstance().getReducedTimeOutClient().newCall(request).execute()) {
       if (response.isSuccessful()) {
-        respLength = HttpHeaders.contentLength(response);
+        respLength = Long.parseLong(response.header("Content-Length", "-1"));
       }
-    } catch (IOException ignored) {
+    } catch (IOException | NumberFormatException ignored) {
       respLength = -1;
     }
 
@@ -51,5 +52,4 @@ public class FileSize {
     }
     return respLength;
   }
-
 }

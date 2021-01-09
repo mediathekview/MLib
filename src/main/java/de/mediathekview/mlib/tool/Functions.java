@@ -23,7 +23,7 @@ import java.io.File;
 import java.security.CodeSource;
 import java.util.ResourceBundle;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import com.jidesoft.utils.SystemInfo;
 

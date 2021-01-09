@@ -188,6 +188,7 @@ public class TimedTextMarkupLanguageParser {
      * Parse the TTML file into internal representation.
      *
      * @param ttmlFilePath the TTML file to parse
+     * @return true if the parsing was successful
      */
     public boolean parse(Path ttmlFilePath) {
         boolean ret;
@@ -213,7 +214,6 @@ public class TimedTextMarkupLanguageParser {
             buildFilmList();
             ret = true;
         } catch (Exception ex) {
-            //Log.errorLog(912036478, ex, new String[]{ex.getLocalizedMessage(), "File: " + ttmlFilePath});
             Log.errorLog(912036478, new String[]{ex.getLocalizedMessage(), "File: " + ttmlFilePath});
             ret = false;
         }
@@ -224,7 +224,7 @@ public class TimedTextMarkupLanguageParser {
      * Parse the XML Subtitle File for Flash Player into internal representation.
      *
      * @param ttmlFilePath the TTML file to parse
-     * @return
+     * @return true if the parsing was successful
      */
     public boolean parseXmlFlash(Path ttmlFilePath) {
         boolean ret;
@@ -292,6 +292,7 @@ public class TimedTextMarkupLanguageParser {
 
     /**
      * Convert internal representation into SubRip Text Format and save to file.
+     * @param srtFile The path to the srt file to convert
      */
     public void toSrt(Path srtFile) {
         try (FileOutputStream fos = new FileOutputStream(srtFile.toFile());

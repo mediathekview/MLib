@@ -7,7 +7,7 @@
 
     <groupId>de.mediathekview</groupId>
     <artifactId>MLib</artifactId>
-    <version>3.0.6</version>
+    <version>3.0.7</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -81,17 +81,16 @@
         </dependency>
 
 
-        <!-- Apache Commons Lang für Utils -->
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.8</version>
+            <artifactId>commons-text</artifactId>
+            <version>1.8</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.19</version>
+            <version>1.20</version>
         </dependency>
         <!-- Apache Commons Compress needs this for xz Format -->
         <dependency>
@@ -104,14 +103,14 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.9.9</version>
+            <version>2.12.0</version>
         </dependency>
 
 
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-            <version>2.27</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>javax.activation</groupId>
@@ -121,29 +120,29 @@
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>2.3.0</version>
+            <version>2.3.1</version>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-core</artifactId>
-            <version>2.3.0</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>2.3.0</version>
+            <version>3.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>3.11.0</version>
+            <version>4.9.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>16.0.2</version>
+            <version>20.1.0</version>
         </dependency>
 
         <dependency>
@@ -156,14 +155,14 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.13.2</version>
+            <version>2.14.0</version>
         </dependency>
 
         <!-- Unit Test -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
 
@@ -177,7 +176,7 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-jre8</artifactId>
-            <version>2.23.2</version>
+            <version>2.27.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -188,20 +187,20 @@
         <plugins>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
             </plugin>
 
             <!-- Need Maven Resource Plugin to fill version.properties template. -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.2.0</version>
             </plugin>
 
             <!-- Build a source Jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -216,7 +215,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -228,15 +227,15 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.8.1</version>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>
+                <version>2.22.2</version>
             </plugin>
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.0</version>
             </plugin>
             <plugin>
                 <artifactId>maven-install-plugin</artifactId>
