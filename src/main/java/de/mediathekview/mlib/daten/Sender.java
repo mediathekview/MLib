@@ -25,7 +25,7 @@ public enum Sender {
   DW("DW"),
   FUNK("Funk.net"),
   HR("HR"),
-  KIKA("KIKA"),
+  KIKA("KiKA", "KIKA"),
   MDR("MDR"),
   NDR("NDR"),
   ORF("ORF"),
