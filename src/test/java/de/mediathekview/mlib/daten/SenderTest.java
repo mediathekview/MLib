@@ -15,7 +15,7 @@ public class SenderTest {
 
   @Test
   public void pruefeAnzahlBekannterSender() {
-    assertThat(Sender.getSenderNamen()).hasSize(34);
+    assertThat(Sender.getSenderNamen()).hasSize(37);
   }
 
   @Test
