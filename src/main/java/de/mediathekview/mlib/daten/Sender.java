@@ -14,6 +14,7 @@ import java.util.Optional;
  */
 public enum Sender {
   ARD("ARD"),
+  ARD_ALPHA("ARD-alpha"),
   ARTE_DE("ARTE.DE", "ARTEDE", "ARTE_DE"),
   ARTE_EN("ARTE.EN", "ARTEEN", "ARTE_EN"),
   ARTE_ES("ARTE.ES", "ARTEES", "ARTE_ES"),
@@ -28,6 +29,7 @@ public enum Sender {
   KIKA("KiKA", "KIKA"),
   MDR("MDR"),
   NDR("NDR"),
+  ONE("ONE"),
   ORF("ORF"),
   PHOENIX("PHOENIX"),
   RBB("RBB"),
@@ -37,6 +39,7 @@ public enum Sender {
   SRF("SRF"),
   SRF_PODCAST("SRF.Podcast"),
   SWR("SWR"),
+  TAGESSCHAU24("tagesschau24"),
   WDR("WDR"),
   WDR_COSMO("WDR COSMO"),
   WDR_KIRAKA("WDR KIRAKA"),
