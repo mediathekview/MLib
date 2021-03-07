@@ -59,7 +59,7 @@ public class Podcast extends AbstractMediaResource<FilmUrl> {
     return Objects.hash(super.hashCode(), getDuration(), isNeu());
   }
 
-  public Long getFileSize(final Resolution aQuality) {
+  public Long getFileSizeKB(final Resolution aQuality) {
     if (getUrls().containsKey(aQuality)) {
       return getUrls().get(aQuality).getFileSize();
     } else {
