@@ -7,22 +7,20 @@
  */
 package de.mediathekview.mlib.daten;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class SenderTest {
 
   @Test
   public void pruefeAnzahlBekannterSender() {
-    assertThat(Sender.getSenderNamen())
-        .hasSize(34);
+    assertThat(Sender.getSenderNamen()).hasSize(37);
   }
 
   @Test
   public void pruefeGetSenderByNameMitNullString() {
-    assertThat(Sender.getSenderByName(null))
-        .isEmpty();
+    assertThat(Sender.getSenderByName(null)).isEmpty();
   }
 
   @Test
@@ -30,6 +28,7 @@ public class SenderTest {
     assertThat(Sender.getSenderNamen())
         .contains(
             Sender.ARD.getName(),
+            Sender.ARD_ALPHA.getName(),
             Sender.ARTE_DE.getName(),
             Sender.ARTE_FR.getName(),
             Sender.ARTE_PL.getName(),
@@ -44,6 +43,7 @@ public class SenderTest {
             Sender.KIKA.getName(),
             Sender.MDR.getName(),
             Sender.NDR.getName(),
+            Sender.ONE.getName(),
             Sender.ORF.getName(),
             Sender.PHOENIX.getName(),
             Sender.RBB.getName(),
@@ -53,6 +53,7 @@ public class SenderTest {
             Sender.SRF.getName(),
             Sender.SRF_PODCAST.getName(),
             Sender.SWR.getName(),
+            Sender.TAGESSCHAU24.getName(),
             Sender.WDR1_LIVE.getName(),
             Sender.WDR2.getName(),
             Sender.WDR3.getName(),
@@ -62,9 +63,7 @@ public class SenderTest {
             Sender.WDR_KIRAKA.getName(),
             Sender.WDR.getName(),
             Sender.ZDF.getName(),
-            Sender.ZDF_TIVI.getName()
-        );
-
+            Sender.ZDF_TIVI.getName());
   }
 
   @Test

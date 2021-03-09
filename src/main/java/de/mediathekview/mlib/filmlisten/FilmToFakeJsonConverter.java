@@ -331,7 +331,7 @@ public class FilmToFakeJsonConverter {
                 ? durationToString(((Podcast) aMediaResource).getDuration())
                 : "",
             aMediaResource instanceof Podcast
-                ? ((Podcast) aMediaResource).getFileSize(getDefaultResolution(aMediaResource))
+                ? (((Podcast) aMediaResource).getFileSizeKB(getDefaultResolution(aMediaResource))/1024)
                 : "",
             gson.toJson(aMediaResource.getBeschreibung()),
             aUrlNormal,
