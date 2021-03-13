@@ -27,7 +27,12 @@ public abstract class ConfigManager<T extends ConfigDTO> {
   public T getConfig() {
     if (config == null) {
       readConfig();
+      initializeConfigAfterRead(config);
     }
     return config;
+  }
+
+  protected void initializeConfigAfterRead(final T config) {
+    // Do something after the configuration is read
   }
 }
