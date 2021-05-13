@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class Podcast extends AbstractMediaResource<FilmUrl> {
   private static final long serialVersionUID = -7161315980975471103L;
-  private final Duration duration;
+  private Duration duration;
   private boolean neu;
 
   /** DON'T USE! - ONLY FOR GSON! */
@@ -38,6 +38,8 @@ public class Podcast extends AbstractMediaResource<FilmUrl> {
   public Duration getDuration() {
     return duration;
   }
+
+  public void setDuration(final Duration duration) { this.duration = duration; }
 
   @Override
   public boolean equals(final Object o) {
