@@ -19,6 +19,7 @@
  */
 package de.mediathekview.mlib.daten;
 
+import java.text.Normalizer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -132,14 +133,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
           long dauerSekunden, String description) {
     // da werden die gefundenen Filme beim Absuchen der Senderwebsites erstellt, und nur die!!
     arr[FILM_SENDER] = ssender;
-    arr[FILM_THEMA] = tthema.isEmpty() ? ssender : tthema.trim();
+    arr[FILM_THEMA] = tthema.isEmpty() ? ssender : normalize(tthema.trim());
     setTitle(ttitel.isEmpty() ? tthema : ttitel.trim());
     arr[FILM_URL] = uurl;
     arr[FILM_URL_RTMP] = uurlRtmp;
     arr[FILM_WEBSEITE] = filmWebsite;
     checkDatum(datum, arr[FILM_SENDER] + ' ' + arr[FILM_THEMA] + ' ' + arr[FILM_TITEL]);
     checkZeit(arr[FILM_DATUM], zeit, arr[FILM_SENDER] + ' ' + arr[FILM_THEMA] + ' ' + arr[FILM_TITEL]);
-    arr[FILM_BESCHREIBUNG] = cleanDescription(description, tthema, ttitel);
+    arr[FILM_BESCHREIBUNG] = normalize(cleanDescription(description, tthema, ttitel));
 
     // Filmlänge
     checkFilmDauer(dauerSekunden);
@@ -150,7 +151,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
       title = title.substring(0, title.indexOf(COPYRIGHT_CHAR_HTML));
       title = title.trim();
     }
-    arr[FILM_TITEL] = title;
+    arr[FILM_TITEL] = normalize(title);
   }
 
   /**
@@ -160,6 +161,15 @@ public class DatenFilm implements Comparable<DatenFilm> {
     if (arr[DatenFilm.FILM_GROESSE].isEmpty()) {
       arr[DatenFilm.FILM_GROESSE] = FileSize.laengeString(arr[DatenFilm.FILM_URL]);
     }
+  }
+
+  private static String normalize(String s) {
+    // some websites uses NFD normalization instead of NFC => normalize
+    if (s != null) {
+      return Normalizer.normalize(s, Normalizer.Form.NFC);
+    }
+
+    return null;
   }
 
   public static String cleanDescription(String s, String thema, String titel) {
