@@ -4,8 +4,11 @@ import org.apache.commons.text.StringEscapeUtils;
 
 public class TextCleaner {
   private static final String HTML_TAG_REGEX = "<.*?>";
-  private static final String TAB = "\r";
-  private static final String NEW_LINE = "\n";
+  private static final String HORIZONTAL_TAB = "\t";
+  private static final String VERTICAL_TAB = "\u000B";
+  private static final String LINE_FEED = "\n";
+  private static final String FORM_FEED = "\f";
+  private static final String CARRIAGE_RETURN = "\r";
   private static final int MAX_BESCHREIBUNG = 400;
   private static final String[] GERMAN_GEOBLOCKING_TEXTS = {
     "+++ Aus rechtlichen Gründen ist der Film nur innerhalb von Deutschland abrufbar. +++",
@@ -31,8 +34,11 @@ public class TextCleaner {
     unescapedText = StringEscapeUtils.unescapeXml(text);
     unescapedText = StringEscapeUtils.unescapeHtml4(unescapedText);
     unescapedText = StringEscapeUtils.unescapeJava(unescapedText);
-    unescapedText = unescapedText.replace(TAB, " ").trim();
-    unescapedText = unescapedText.replace(NEW_LINE, " ").trim();
+    unescapedText = unescapedText.replace(HORIZONTAL_TAB, " ").trim();
+    unescapedText = unescapedText.replace(VERTICAL_TAB, " ").trim();
+    unescapedText = unescapedText.replace(LINE_FEED, " ").trim();
+    unescapedText = unescapedText.replace(FORM_FEED, " ").trim();
+    unescapedText = unescapedText.replace(CARRIAGE_RETURN, " ").trim();
     return unescapedText;
   }
 
