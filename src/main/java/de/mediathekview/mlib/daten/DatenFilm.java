@@ -19,7 +19,6 @@
  */
 package de.mediathekview.mlib.daten;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -109,7 +108,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     "+++ Aus rechtlichen Gründen dürfen wir dieses Video nur innerhalb von Deutschland anbieten. +++",
     "+++Aus rechtlichen Gründen kann dieses Video nur innerhalb von Deutschland abgerufen werden.+++"
   };
-  private static long MAX_DAUER = 3600 * 99;  /* Werte über 99 Stunden */
+  private static final long MAX_DAUER = 3600 * 99L;  /* Werte über 99 Stunden */
   public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
   public final String[] arr = new String[]{
     "", "", "", "", "", "", "", "", "", "",
