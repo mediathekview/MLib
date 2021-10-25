@@ -109,6 +109,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     "+++ Aus rechtlichen Gründen dürfen wir dieses Video nur innerhalb von Deutschland anbieten. +++",
     "+++Aus rechtlichen Gründen kann dieses Video nur innerhalb von Deutschland abgerufen werden.+++"
   };
+  private static long MAX_DAUER = 3600 * 99;  /* Werte über 99 Stunden */
   public static boolean[] spaltenAnzeigen = new boolean[MAX_ELEM];
   public final String[] arr = new String[]{
     "", "", "", "", "", "", "", "", "", "",
@@ -214,7 +215,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
   }
 
   private void checkFilmDauer(long dauerSekunden) {
-    if (dauerSekunden <= 0 || dauerSekunden > 3600 * 5 /* Werte über 5 Stunden */) {
+    if (dauerSekunden <= 0 || dauerSekunden > MAX_DAUER) {
       arr[FILM_DAUER] = "";
     } else {
       String hours = String.valueOf(dauerSekunden / 3600);
