@@ -8,7 +8,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.Objects;
 
 public class FilmUrl implements Serializable {
@@ -96,8 +95,7 @@ public class FilmUrl implements Serializable {
             new URL(
                 urlAsText.replace(URL_START_NRODL, URL_START_RODL).replace(URL_HTTPS, URL_HTTP));
       } catch (final MalformedURLException aMalformedURLException) {
-        LOG.fatal(
-                MessageFormat.format("Can''t replace the nrodl in these URL: {0}", aUrl), aMalformedURLException);
+        LOG.fatal("Can't replace the nrodl in these URL: {}", aUrl, aMalformedURLException);
         newUrl = aUrl;
       }
     }
