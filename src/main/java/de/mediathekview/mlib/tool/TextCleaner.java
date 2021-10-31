@@ -9,6 +9,7 @@ public class TextCleaner {
   private static final String LINE_FEED = "\n";
   private static final String FORM_FEED = "\f";
   private static final String CARRIAGE_RETURN = "\r";
+  private static final String NO_BREAK_SPACE = "\u00a0";
   private static final int MAX_BESCHREIBUNG = 400;
   private static final String[] GERMAN_GEOBLOCKING_TEXTS = {
     "+++ Aus rechtlichen Gründen ist der Film nur innerhalb von Deutschland abrufbar. +++",
@@ -39,6 +40,7 @@ public class TextCleaner {
     unescapedText = unescapedText.replace(LINE_FEED, " ").trim();
     unescapedText = unescapedText.replace(FORM_FEED, " ").trim();
     unescapedText = unescapedText.replace(CARRIAGE_RETURN, " ").trim();
+    unescapedText = unescapedText.replace(NO_BREAK_SPACE, " ").trim();
     return unescapedText;
   }
 
