@@ -132,7 +132,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
           long dauerSekunden, String description) {
     // da werden die gefundenen Filme beim Absuchen der Senderwebsites erstellt, und nur die!!
     arr[FILM_SENDER] = ssender;
-    arr[FILM_THEMA] = tthema.isEmpty() ? ssender : removeWhitespacesExceptSpace(tthema.trim());
+    arr[FILM_THEMA] = tthema.isEmpty() ? ssender : cleanWhitespaces(tthema.trim());
     setTitle(ttitel.isEmpty() ? tthema : ttitel.trim());
     arr[FILM_URL] = uurl;
     arr[FILM_URL_RTMP] = uurlRtmp;
@@ -150,7 +150,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
       title = title.substring(0, title.indexOf(COPYRIGHT_CHAR_HTML));
       title = title.trim();
     }
-    arr[FILM_TITEL] = removeWhitespacesExceptSpace(title);
+    arr[FILM_TITEL] = cleanWhitespaces(title);
   }
 
   /**
@@ -162,8 +162,10 @@ public class DatenFilm implements Comparable<DatenFilm> {
     }
   }
 
-  public static String removeWhitespacesExceptSpace(String s) {
-    return s.replaceAll("[\\t\\n\\x0B\\f\\r]", "");
+  public static String cleanWhitespaces(String text) {
+    return text.replaceAll("[\\t\\n\\x0B\\f\\r]", "")
+            .replaceAll("\u00a0", " ") // repalce no-back-space with space
+            ;
   }
 
   public static String cleanDescription(String s, String thema, String titel) {
