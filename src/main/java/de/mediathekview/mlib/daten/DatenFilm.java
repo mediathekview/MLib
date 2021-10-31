@@ -164,7 +164,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
   public static String cleanWhitespaces(String text) {
     return text.replaceAll("[\\t\\n\\x0B\\f\\r]", "")
-            .replaceAll("\u00a0", " ") // repalce no-back-space with space
+            .replace("\u00a0", " ") // repalce no-break-space with space
             ;
   }
 
