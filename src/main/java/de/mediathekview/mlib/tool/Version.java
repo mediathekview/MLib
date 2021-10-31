@@ -3,6 +3,8 @@ package de.mediathekview.mlib.tool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.text.MessageFormat;
+
 public class Version {
   private static final Logger LOG = LogManager.getLogger(Version.class);
 
@@ -30,7 +32,7 @@ public class Version {
         minor = Integer.parseInt(versions[1]);
         patch = Integer.parseInt(versions[2]);
       } catch (final NumberFormatException ex) {
-        LOG.error("Fehler beim Parsen der Version '" + versionsstring + "'.", ex);
+        LOG.error(MessageFormat.format("Fehler beim Parsen der Version ''{0}''.", versionsstring), ex);
         major = 0;
         minor = 0;
         patch = 0;

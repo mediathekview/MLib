@@ -92,7 +92,7 @@ public class FilmToFakeJsonConverter {
     lastSender = "";
     lastThema = "";
     for (final AbstractMediaResource<?> mediaResource :
-        aResources.stream().filter(Objects::nonNull).collect(Collectors.toList())) {
+        aResources.stream().filter(Objects::nonNull).toList()) {
       try {
         resourceToFakeJson(
             fakeJsonBuilder,

@@ -28,7 +28,7 @@ public class NewFilmlistReadTest {
 
   @ParameterizedTest
   @MethodSource("createReadTestArguments")
-  public void filmListReadTest(String filename, FilmlistFormats filmlistFormats)
+  void filmListReadTest(String filename, FilmlistFormats filmlistFormats)
       throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
     final Path testFilePath = new File(classLoader.getResource(filename).getFile()).toPath();

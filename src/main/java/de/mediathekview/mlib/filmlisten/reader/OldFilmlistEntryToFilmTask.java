@@ -19,7 +19,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.time.format.FormatStyle.MEDIUM;
@@ -38,7 +37,7 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
   private final Future<Film> entryBefore;
 
   OldFilmlistEntryToFilmTask(final List<String> aEntrySplits, final Future<Film> aFilmEntryBefore) {
-    entrySplits = aEntrySplits.stream().map(String::trim).collect(Collectors.toList());
+    entrySplits = aEntrySplits.stream().map(String::trim).toList();
     entryBefore = aFilmEntryBefore;
   }
 

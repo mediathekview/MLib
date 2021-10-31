@@ -43,7 +43,7 @@ public class NewFilmlistWriteTest {
 
   @ParameterizedTest
   @MethodSource("createReadTestArguments")
-  public void testWrite(String jsonName, FilmlistFormats format) {
+  void testWrite(String jsonName, FilmlistFormats format) {
     final Path testFilePath = testFileFolderPath.resolve(jsonName);
     System.out.println(testFilePath.toString());
     filmlistManager.save(format, testData, testFilePath);
