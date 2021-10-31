@@ -5,13 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 
-/**
- * A enum of the possible sender.
- *
- * @author Nicklas Wiegandt (Nicklas2751)<br>
- *     <b>Mail:</b> nicklas@wiegandt.eu<br>
- *     <b>Riot.im:</b> nicklas2751:matrix.elaon.de<br>
- */
+/** A enum of the possible sender. */
 public enum Sender {
   ARD("ARD"),
   ARD_ALPHA("ARD-alpha"),
