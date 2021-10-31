@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-public class FilmlistMergeTest {
+class FilmlistMergeTest {
 
   public Film createTestFilm1() throws MalformedURLException {
     final Film testFilm1 =
@@ -65,7 +65,7 @@ public class FilmlistMergeTest {
   }
 
   @Test
-  public void testMergeNotEqualsSender() throws MalformedURLException {
+  void testMergeNotEqualsSender() throws MalformedURLException {
     final Film testFilm1 = createTestFilm1();
     final Film testFilm2 = createTestFilm2();
     final Film testFilm3 = createTestFilm3();
@@ -97,7 +97,7 @@ public class FilmlistMergeTest {
   }
 
   @Test
-  public void testMergeNotEqualsThema() throws MalformedURLException {
+  void testMergeNotEqualsThema() throws MalformedURLException {
     final Film testFilm1 = createTestFilm1();
     final Film testFilm2 = createTestFilm2();
     final Film testFilm3 = createTestFilm3();
@@ -127,7 +127,7 @@ public class FilmlistMergeTest {
   }
 
   @Test
-  public void testMergeNotEqualsTitle() throws MalformedURLException {
+  void testMergeNotEqualsTitle() throws MalformedURLException {
     final Film testFilm1 = createTestFilm1();
     final Film testFilm2 = createTestFilm2();
     final Film testFilm3 = createTestFilm3();
@@ -157,7 +157,7 @@ public class FilmlistMergeTest {
   }
 
   @Test
-  public void testMergeUpdateUUID() throws MalformedURLException {
+  void testMergeUpdateUUID() throws MalformedURLException {
     final Film testFilm1 = createTestFilm1();
     final Film testFilm2 = createTestFilm2();
     final Film testFilm3 = createTestFilm3();
@@ -186,6 +186,6 @@ public class FilmlistMergeTest {
     final int sizeOld = testFilmlist1.getFilms().size();
     testFilmlist1.merge(testFilmlist2);
     assertThat(testFilmlist1.getFilms().size()).isEqualTo(sizeOld);
-    assertThat(testFilm3.hashCode()).isEqualTo(testFilm4.hashCode());
+    assertThat(testFilm3).hasSameHashCodeAs(testFilm4);
   }
 }

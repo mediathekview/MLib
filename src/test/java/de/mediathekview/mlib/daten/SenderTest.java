@@ -11,20 +11,20 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-public class SenderTest {
+class SenderTest {
 
   @Test
-  public void pruefeAnzahlBekannterSender() {
+  void pruefeAnzahlBekannterSender() {
     assertThat(Sender.getSenderNamen()).hasSize(37);
   }
 
   @Test
-  public void pruefeGetSenderByNameMitNullString() {
+  void pruefeGetSenderByNameMitNullString() {
     assertThat(Sender.getSenderByName(null)).isEmpty();
   }
 
   @Test
-  public void pruefeListeBekannterSender() {
+  void pruefeListeBekannterSender() {
     assertThat(Sender.getSenderNamen())
         .contains(
             Sender.ARD.getName(),
@@ -67,22 +67,22 @@ public class SenderTest {
   }
 
   @Test
-  public void pruefeNullRueckgabeBeiNichtExistentenSendernamen() {
+  void pruefeNullRueckgabeBeiNichtExistentenSendernamen() {
     assertThat(Sender.getSenderByName("thequickbrownfoxjumpsoverthelazydog")).isEmpty();
   }
 
   @Test
-  public void pruefeZugriffAufARDperNamensaufloesung() {
+  void pruefeZugriffAufARDperNamensaufloesung() {
     assertThat(Sender.getSenderByName("ARD")).contains(Sender.ARD);
   }
 
   @Test
-  public void pruefeZugriffAufARDperNamensaufloesungSchreibweiseGeaendert() {
+  void pruefeZugriffAufARDperNamensaufloesungSchreibweiseGeaendert() {
     assertThat(Sender.getSenderByName("ard")).contains(Sender.ARD);
   }
 
   @Test
-  public void pruefeZugriffAufPhoenixPerNamensaufloesung() {
+  void pruefeZugriffAufPhoenixPerNamensaufloesung() {
     assertThat(Sender.getSenderByName("PHOENIX")).contains(Sender.PHOENIX);
   }
 }

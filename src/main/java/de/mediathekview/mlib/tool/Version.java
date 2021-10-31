@@ -30,7 +30,7 @@ public class Version {
         minor = Integer.parseInt(versions[1]);
         patch = Integer.parseInt(versions[2]);
       } catch (final NumberFormatException ex) {
-        LOG.error("Fehler beim Parsen der Version '" + versionsstring + "'.", ex);
+        LOG.error("Fehler beim Parsen der Version {}.", versionsstring, ex);
         major = 0;
         minor = 0;
         patch = 0;

@@ -48,7 +48,7 @@ class FilmEqualsTest {
     testFilm1.getUrls().forEach(testFilm2::addUrl);
 
     assertThat(testFilm1).isEqualTo(testFilm2);
-    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
+    assertThat(testFilm1).hasSameHashCodeAs(testFilm2);
   }
 
   @Test
@@ -68,7 +68,7 @@ class FilmEqualsTest {
     testFilm1.getUrls().forEach(testFilm2::addUrl);
 
     assertThat(testFilm1).isEqualTo(testFilm2);
-    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
+    assertThat(testFilm1).hasSameHashCodeAs(testFilm2);
   }
 
   @Test
@@ -90,7 +90,7 @@ class FilmEqualsTest {
     testFilm1.getUrls().forEach(testFilm2::addUrl);
 
     assertThat(testFilm1).isEqualTo(testFilm2);
-    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
+    assertThat(testFilm1).hasSameHashCodeAs(testFilm2);
   }
 
   @Test
@@ -110,7 +110,7 @@ class FilmEqualsTest {
     testFilm1.getUrls().forEach(testFilm2::addUrl);
 
     assertThat(testFilm1).isEqualTo(testFilm2);
-    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
+    assertThat(testFilm1).hasSameHashCodeAs(testFilm2);
   }
 
   @Test
@@ -129,7 +129,7 @@ class FilmEqualsTest {
     testFilm2.setBeschreibung(testFilm1.getBeschreibung());
 
     assertThat(testFilm1).isEqualTo(testFilm2);
-    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
+    assertThat(testFilm1).hasSameHashCodeAs(testFilm2);
   }
 
   @Test
@@ -149,7 +149,7 @@ class FilmEqualsTest {
     testFilm1.getUrls().forEach(testFilm2::addUrl);
 
     assertThat(testFilm1).isEqualTo(testFilm2);
-    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
+    assertThat(testFilm1).hasSameHashCodeAs(testFilm2);
   }
 
   @Test
@@ -169,7 +169,7 @@ class FilmEqualsTest {
     testFilm1.getUrls().forEach(testFilm2::addUrl);
 
     assertThat(testFilm1).isEqualTo(testFilm2);
-    assertThat(testFilm1.hashCode()).isEqualTo(testFilm2.hashCode());
+    assertThat(testFilm1).hasSameHashCodeAs(testFilm2);
   }
 
   @Test

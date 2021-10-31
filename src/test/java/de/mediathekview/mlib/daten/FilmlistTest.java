@@ -10,10 +10,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-public class FilmlistTest {
+class FilmlistTest {
 
   @Test
-  public void testMerge() throws MalformedURLException {
+  void testMerge() throws MalformedURLException {
     final Film testFilm1 = createTestFilm1();
     final Film testFilm2 = createTestFilm2();
     final Podcast testPodcast1 = createTestPodcast1();
@@ -35,11 +35,13 @@ public class FilmlistTest {
     filmlist2.add(testLivestream2);
 
     final Filmlist differenceList = filmlist1.merge(filmlist2);
-    assertThat(differenceList.getFilms().size()).isEqualTo(0);
-    assertThat(differenceList.getPodcasts().size()).isEqualTo(1);
-    assertThat(differenceList.getLivestreams().size()).isEqualTo(1);
-    assertThat(differenceList.getPodcasts().entrySet().iterator().next().getValue()).isEqualTo(testPodcast1);
-    assertThat(differenceList.getLivestreams().entrySet().iterator().next().getValue()).isEqualTo(testLivestream2);
+    assertThat(differenceList.getFilms().size()).isZero();
+    assertThat(differenceList.getPodcasts()).hasSize(1).allSatisfy((currentKey, currentElement) -> {
+      assertThat(currentElement).isEqualTo(testPodcast1);
+    });
+    assertThat(differenceList.getLivestreams()).hasSize(1).allSatisfy((currentKey, currentElement) -> {
+      assertThat(currentElement).isEqualTo(testLivestream2);
+    });
   }
 
   private Film createTestFilm1() throws MalformedURLException {

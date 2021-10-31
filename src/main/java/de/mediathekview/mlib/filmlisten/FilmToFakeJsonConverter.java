@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static java.time.format.FormatStyle.MEDIUM;
 
@@ -92,7 +91,7 @@ public class FilmToFakeJsonConverter {
     lastSender = "";
     lastThema = "";
     for (final AbstractMediaResource<?> mediaResource :
-        aResources.stream().filter(Objects::nonNull).collect(Collectors.toList())) {
+        aResources.stream().filter(Objects::nonNull).toList()) {
       try {
         resourceToFakeJson(
             fakeJsonBuilder,

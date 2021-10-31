@@ -11,7 +11,7 @@ import com.google.gson.stream.JsonWriter;
 
 /**
  * GsonDurationAdapter
- * Serialize/Deserialize java.time.Duration to string in format HH:MM:SS
+ * Serialize/Deserialize java.time.Duration to/from string
  *
  */
 public class GsonDurationAdapter extends TypeAdapter<Duration> {
@@ -22,10 +22,7 @@ public class GsonDurationAdapter extends TypeAdapter<Duration> {
             out.nullValue();
             return;
         }
-        out.value(String.format("%02d:%02d:%02d", 
-            duration.toHours(), 
-            duration.toMinutesPart(), 
-            duration.toSecondsPart()));
+        out.value(duration.toString());
     }
 
     @Override
@@ -34,10 +31,7 @@ public class GsonDurationAdapter extends TypeAdapter<Duration> {
             in.nextNull();
             return null;
         }
-        return Duration.between ( 
-            LocalTime.MIN,
-            LocalTime.parse(in.nextString()) 
-        );
+        return Duration.parse(in.nextString());
         
     }
 }

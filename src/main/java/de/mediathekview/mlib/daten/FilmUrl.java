@@ -4,12 +4,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 
 public class FilmUrl implements Serializable {
+  @Serial
   private static final long serialVersionUID = 576534421232286643L;
   private static final Logger LOG = LogManager.getLogger(FilmUrl.class);
   private static final String URL_START_NRODL = "//nrodl";
@@ -22,11 +24,20 @@ public class FilmUrl implements Serializable {
   /** The file size in MiB. */
   private Long fileSize;
 
+  /**
+   * Only for Jackson deserialization
+   */
+  private FilmUrl()
+  {
+    super();
+  }
+
   public FilmUrl(final String url, final Long aFileSize) throws MalformedURLException {
     this(buildURL(url), aFileSize);
   }
 
   public FilmUrl(final URL url, final Long fileSize) {
+    this();
     this.url = url;
     this.fileSize = fileSize;
   }
@@ -84,8 +95,7 @@ public class FilmUrl implements Serializable {
             new URL(
                 urlAsText.replace(URL_START_NRODL, URL_START_RODL).replace(URL_HTTPS, URL_HTTP));
       } catch (final MalformedURLException aMalformedURLException) {
-        LOG.fatal(
-            "Can't replace the nrodl in these URL: " + aUrl.toString(), aMalformedURLException);
+        LOG.fatal("Can't replace the nrodl in these URL: {}", aUrl, aMalformedURLException);
         newUrl = aUrl;
       }
     }
