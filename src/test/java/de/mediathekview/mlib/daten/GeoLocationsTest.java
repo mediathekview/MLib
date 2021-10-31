@@ -4,30 +4,18 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
-public class GeoLocationsTest {
+class GeoLocationsTest {
 
-  @Test
-  public void testFindSAT() {
-    Optional<GeoLocations> actual = GeoLocations.find("SAT");
+  @ParameterizedTest
+  @CsvSource({"SAT", "EBU", "ebu"})
+  void testDiffernetPresentGeolocationsAreFound(String searchTerm) {
+    Optional<GeoLocations> actual = GeoLocations.find(searchTerm);
 
-    assertThat(actual.isPresent()).isEqualTo(true);
-    assertThat(actual.get()).isEqualTo(GeoLocations.GEO_DE_AT_CH_EU);
+    assertThat(actual).isPresent()
+            .contains(GeoLocations.GEO_DE_AT_CH_EU);
   }
 
-  @Test
-  public void testFindEBU() {
-    Optional<GeoLocations> actual = GeoLocations.find("EBU");
-
-    assertThat(actual.isPresent()).isEqualTo(true);
-    assertThat(actual.get()).isEqualTo(GeoLocations.GEO_DE_AT_CH_EU);
-  }
-
-  @Test
-  public void testFindEBUSmall() {
-    Optional<GeoLocations> actual = GeoLocations.find("ebu");
-
-    assertThat(actual.isPresent()).isEqualTo(true);
-    assertThat(actual.get()).isEqualTo(GeoLocations.GEO_DE_AT_CH_EU);
-  }
 }

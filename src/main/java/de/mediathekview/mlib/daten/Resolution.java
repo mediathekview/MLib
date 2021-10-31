@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 public enum Resolution {
   UHD(5, "UHD"),
@@ -33,7 +32,7 @@ public enum Resolution {
   public static List<Resolution> getFromBestToLowest() {
     return Arrays.stream(Resolution.values())
         .sorted(Comparator.comparing(Resolution::getResolutionSize).reversed())
-        .collect(Collectors.toList());
+        .toList();
   }
 
   /**

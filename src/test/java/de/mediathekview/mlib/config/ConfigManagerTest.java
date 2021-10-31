@@ -18,7 +18,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
  *
  * @author nicklas
  */
-public class ConfigManagerTest {
+class ConfigManagerTest {
   private static final String TEST_CONFIG_FILE_NAME = "TestConfig.yaml";
 
   class TestConfigManager extends ConfigManager<TestConfigDTO> {
@@ -40,24 +40,24 @@ public class ConfigManagerTest {
   }
 
   @Test
-  public void testGetConfigFileName() {
+  void testGetConfigFileName() {
     assertThat(new TestConfigManager().getConfigFileName()).isEqualTo(TEST_CONFIG_FILE_NAME);
   }
 
   @Test
-  public void testGetConfigClass() {
+  void testGetConfigClass() {
     assertThat(new TestConfigManager().getConfigClass()).isEqualTo(TestConfigDTO.class);
   }
 
   @Test
-  public void testReadClasspathConfig() {
+  void testReadClasspathConfig() {
     final TestConfigDTO classpathConfig = new TestConfigManager().getConfig();
     assertThat(classpathConfig.getValueWithDefault()).isEqualTo("Hello World!");
     assertThat(classpathConfig.getValueWithoutDefault()).isEqualTo("Not the default, sorry!");
   }
 
   @Test
-  public void testReadFileConfig() throws IOException {
+  void testReadFileConfig() throws IOException {
 
     writeTempTestFileConfig();
 
@@ -67,7 +67,7 @@ public class ConfigManagerTest {
   }
 
   @BeforeEach
-  public void deleteExistingFiles() throws IOException {
+  void deleteExistingFiles() throws IOException {
     Files.deleteIfExists(Paths.get(TEST_CONFIG_FILE_NAME));
   }
 

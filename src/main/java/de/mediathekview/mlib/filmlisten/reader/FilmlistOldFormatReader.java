@@ -20,7 +20,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static java.time.format.FormatStyle.MEDIUM;
 import static java.time.format.FormatStyle.SHORT;
@@ -91,7 +90,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
         entries.stream()
             .map(this::splittEntry)
             .filter(splittEntry -> !splittEntry.isEmpty())
-            .collect(Collectors.toList());
+            .toList();
 
     for (final List<String> splittedEntry : splittedEntries) {
       if (isFirst) {
