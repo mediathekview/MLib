@@ -79,6 +79,9 @@ public class Podcast extends AbstractMediaResource<FilmUrl> {
 
   @Override
   public String toString() {
-    return "Podcast [duration=" + duration + ", neu=" + neu + "]";
+    return "Podcast{" +
+            "duration=" + duration +
+            ", neu=" + neu +
+            "} " + super.toString();
   }
 }

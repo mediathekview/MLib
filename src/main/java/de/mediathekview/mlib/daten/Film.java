@@ -109,14 +109,11 @@ public class Film extends Podcast {
 
   @Override
   public String toString() {
-    return "Film{"
-        + "audioDescriptions="
-        + audioDescriptions
-        + ", signLanguages="
-        + signLanguages
-        + ", subtitles="
-        + subtitles
-        + '}';
+    return "Film{" +
+            "audioDescriptions=" + audioDescriptions +
+            ", signLanguages=" + signLanguages +
+            ", subtitles=" + subtitles +
+            "} " + super.toString();
   }
 
   @Override

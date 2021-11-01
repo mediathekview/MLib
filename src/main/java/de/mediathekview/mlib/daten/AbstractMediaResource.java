@@ -223,22 +223,16 @@ public abstract class AbstractMediaResource<T extends Serializable> implements S
 
   @Override
   public String toString() {
-    return "AbstractMediaResource [uuid="
-        + uuid
-        + ", geoLocations="
-        + geoLocations
-        + ", sender="
-        + sender
-        + ", titel="
-        + titel
-        + ", thema="
-        + thema
-        + ", time="
-        + time
-        + ", beschreibung="
-        + beschreibung
-        + ", website="
-        + website
-        + "]";
+    return "AbstractMediaResource{" +
+            "urls=" + urls +
+            ", uuid=" + uuid +
+            ", sender=" + sender +
+            ", time=" + time +
+            ", geoLocations=" + geoLocations +
+            ", titel='" + titel + '\'' +
+            ", thema='" + thema + '\'' +
+            ", beschreibung='" + beschreibung + '\'' +
+            ", website=" + website +
+            '}';
   }
 }
