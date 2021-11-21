@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractMediaResource<T extends Serializable> implements Serializable {
   private static final long serialVersionUID = -6404888306701549134L;
-  private final Map<Resolution, T> urls;
-  private final UUID uuid; // Old: filmNr
-  private final Sender sender;
-  private final LocalDateTime time;
+  private Map<Resolution, T> urls;
+  private UUID uuid; // Old: filmNr
+  private Sender sender;
+  private LocalDateTime time;
   private Collection<GeoLocations> geoLocations;
   private String titel;
   private String thema;
@@ -159,6 +159,10 @@ public abstract class AbstractMediaResource<T extends Serializable> implements S
     return sender;
   }
 
+  public void setSender(Sender sender) {
+    this.sender = sender;
+  }
+
   public String getSenderName() {
     return sender.getName();
   }
@@ -175,6 +179,10 @@ public abstract class AbstractMediaResource<T extends Serializable> implements S
     return time;
   }
 
+  public void setTime(LocalDateTime time) {
+    this.time = time;
+  }
+
   public String getTitel() {
     return titel;
   }
@@ -188,7 +196,14 @@ public abstract class AbstractMediaResource<T extends Serializable> implements S
   }
 
   public Map<Resolution, T> getUrls() {
+    if (urls.isEmpty()) {
+      return new EnumMap<>(Resolution.class);
+    }
     return new EnumMap<>(urls);
+  }
+
+  public void setUrls(Map<Resolution, T> urls) {
+    this.urls = urls;
   }
 
   protected Map<Resolution, T> getUrlsDirect() {
@@ -197,6 +212,10 @@ public abstract class AbstractMediaResource<T extends Serializable> implements S
 
   public UUID getUuid() {
     return uuid;
+  }
+
+  public void setUuid(UUID uuid) {
+    this.uuid = uuid;
   }
 
   public Optional<URL> getWebsite() {
@@ -223,16 +242,28 @@ public abstract class AbstractMediaResource<T extends Serializable> implements S
 
   @Override
   public String toString() {
-    return "AbstractMediaResource{" +
-            "urls=" + urls +
-            ", uuid=" + uuid +
-            ", sender=" + sender +
-            ", time=" + time +
-            ", geoLocations=" + geoLocations +
-            ", titel='" + titel + '\'' +
-            ", thema='" + thema + '\'' +
-            ", beschreibung='" + beschreibung + '\'' +
-            ", website=" + website +
-            '}';
+    return "AbstractMediaResource{"
+        + "urls="
+        + urls
+        + ", uuid="
+        + uuid
+        + ", sender="
+        + sender
+        + ", time="
+        + time
+        + ", geoLocations="
+        + geoLocations
+        + ", titel='"
+        + titel
+        + '\''
+        + ", thema='"
+        + thema
+        + '\''
+        + ", beschreibung='"
+        + beschreibung
+        + '\''
+        + ", website="
+        + website
+        + '}';
   }
 }

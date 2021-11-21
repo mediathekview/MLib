@@ -9,11 +9,9 @@ import java.util.stream.Collectors;
 /** Represents a found film. */
 public class Film extends Podcast {
   private static final long serialVersionUID = -7834270191129532291L;
-
-  private final Map<Resolution, FilmUrl> audioDescriptions;
-
-  private final Map<Resolution, FilmUrl> signLanguages;
   private final Set<URL> subtitles;
+  private Map<Resolution, FilmUrl> audioDescriptions;
+  private Map<Resolution, FilmUrl> signLanguages;
 
   public Film(
       final UUID aUuid,
@@ -36,7 +34,7 @@ public class Film extends Podcast {
   }
 
   /** DON'T USE! - ONLY FOR GSON! */
-  private Film() {
+  public Film() {
     super();
     audioDescriptions = new EnumMap<>(Resolution.class);
     signLanguages = new EnumMap<>(Resolution.class);
@@ -92,7 +90,14 @@ public class Film extends Podcast {
   }
 
   public Map<Resolution, FilmUrl> getAudioDescriptions() {
+    if (audioDescriptions.isEmpty()) {
+      return new EnumMap<>(Resolution.class);
+    }
     return new EnumMap<>(audioDescriptions);
+  }
+
+  public void setAudioDescriptions(Map<Resolution, FilmUrl> audioDescriptions) {
+    this.audioDescriptions = audioDescriptions;
   }
 
   public FilmUrl getSignLanguage(final Resolution aQuality) {
@@ -100,7 +105,14 @@ public class Film extends Podcast {
   }
 
   public Map<Resolution, FilmUrl> getSignLanguages() {
+    if (signLanguages.isEmpty()) {
+      return new EnumMap<>(Resolution.class);
+    }
     return new EnumMap<>(signLanguages);
+  }
+
+  public void setSignLanguages(Map<Resolution, FilmUrl> signLanguages) {
+    this.signLanguages = signLanguages;
   }
 
   public Collection<URL> getSubtitles() {
@@ -109,11 +121,15 @@ public class Film extends Podcast {
 
   @Override
   public String toString() {
-    return "Film{" +
-            "audioDescriptions=" + audioDescriptions +
-            ", signLanguages=" + signLanguages +
-            ", subtitles=" + subtitles +
-            "} " + super.toString();
+    return "Film{"
+        + "audioDescriptions="
+        + audioDescriptions
+        + ", signLanguages="
+        + signLanguages
+        + ", subtitles="
+        + subtitles
+        + "} "
+        + super.toString();
   }
 
   @Override

@@ -73,10 +73,10 @@ public class TextCleaner {
   private static String beschreibungCleanUp(
       final String text, final String titel, final String thema) {
     String textTemp = text;
-    if (textTemp.startsWith(titel)) {
+    if (titel != null && textTemp.startsWith(titel)) {
       textTemp = textTemp.substring(titel.length()).trim();
     }
-    if (textTemp.startsWith(thema)) {
+    if (thema != null && textTemp.startsWith(thema)) {
       textTemp = textTemp.substring(thema.length()).trim();
     }
     if (textTemp.startsWith("|")) {
@@ -85,7 +85,7 @@ public class TextCleaner {
     if (textTemp.startsWith("Video-Clip")) {
       textTemp = textTemp.substring("Video-Clip".length()).trim();
     }
-    if (textTemp.startsWith(titel)) {
+    if (titel != null && textTemp.startsWith(titel)) {
       textTemp = textTemp.substring(titel.length()).trim();
     }
     if (textTemp.startsWith(":")) {
