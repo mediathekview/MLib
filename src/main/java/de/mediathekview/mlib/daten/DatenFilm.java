@@ -93,7 +93,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
   private static final GermanStringSorter sorter = GermanStringSorter.getInstance();
   private static final FastDateFormat sdf_datum_zeit = FastDateFormat.getInstance("dd.MM.yyyyHH:mm:ss");
   private static final FastDateFormat sdf_datum = FastDateFormat.getInstance("dd.MM.yyyy");
-  private static final String[] GERMAN_ONLY = {
+  private static final String[] LEGAL_NOTICES = {
     "+++ Aus rechtlichen Gründen ist der Film nur innerhalb von Deutschland abrufbar. +++",
     "+++ Aus rechtlichen Gründen ist diese Sendung nur innerhalb von Deutschland abrufbar. +++",
     "+++ Aus rechtlichen Gründen ist dieses Video nur innerhalb von Deutschland abrufbar. +++",
@@ -139,7 +139,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
     arr[FILM_WEBSEITE] = filmWebsite;
     checkDatum(datum, arr[FILM_SENDER] + ' ' + arr[FILM_THEMA] + ' ' + arr[FILM_TITEL]);
     checkZeit(arr[FILM_DATUM], zeit, arr[FILM_SENDER] + ' ' + arr[FILM_THEMA] + ' ' + arr[FILM_TITEL]);
-    arr[FILM_BESCHREIBUNG] = cleanDescription(description, tthema, ttitel);
+    arr[FILM_BESCHREIBUNG] = cleanDescription(description);
 
     // Filmlänge
     checkFilmDauer(dauerSekunden);
@@ -168,42 +168,33 @@ public class DatenFilm implements Comparable<DatenFilm> {
             ;
   }
 
-  public static String cleanDescription(String s, String thema, String titel) {
+  public static String cleanDescription(String description) {
     // die Beschreibung auf x Zeichen beschränken
 
-    s = Functions.removeHtml(s); // damit die Beschreibung nicht unnötig kurz wird wenn es erst später gemacht wird
+    description = Functions.removeHtml(description); // damit die Beschreibung nicht unnötig kurz wird wenn es erst später gemacht wird
 
-    for (String g : GERMAN_ONLY) {
-      if (s.contains(g)) {
-        s = s.replace(g, ""); // steht auch mal in der Mitte
+    for (String legalNotice : LEGAL_NOTICES) {
+      if (description.contains(legalNotice)) {
+        description = description.replace(legalNotice, ""); // steht auch mal in der Mitte
       }
     }
-    if (s.startsWith(titel)) {
-      s = s.substring(titel.length()).trim();
+    if (description.startsWith("|")) {
+      description = description.substring(1).trim();
     }
-    if (s.startsWith(thema)) {
-      s = s.substring(thema.length()).trim();
+    if (description.startsWith("Video-Clip")) {
+      description = description.substring("Video-Clip".length()).trim();
     }
-    if (s.startsWith("|")) {
-      s = s.substring(1).trim();
-    }
-    if (s.startsWith("Video-Clip")) {
-      s = s.substring("Video-Clip".length()).trim();
-    }
-    if (s.startsWith(titel)) {
-      s = s.substring(titel.length()).trim();
-    }
-    if (s.startsWith(":") || s.startsWith(",") || s.startsWith("\n")) {
-      s = s.substring(1).trim();
+    if (description.startsWith(":") || description.startsWith(",") || description.startsWith("\n")) {
+      description = description.substring(1).trim();
     }
 
-    if (s.contains("\\\"")) { // wegen " in json-Files
-      s = s.replace("\\\"", "\"");
+    if (description.contains("\\\"")) { // wegen " in json-Files
+      description = description.replace("\\\"", "\"");
     }
-    if (s.length() > Const.MAX_BESCHREIBUNG) {
-      return s.substring(0, Const.MAX_BESCHREIBUNG) + "\n.....";
+    if (description.length() > Const.MAX_BESCHREIBUNG) {
+      return description.substring(0, Const.MAX_BESCHREIBUNG) + "\n.....";
     } else {
-      return s;
+      return description;
     }
   }
 
