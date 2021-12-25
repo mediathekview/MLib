@@ -81,7 +81,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
   @NotNull
   private List<Future<Film>> asyncConvertEntriesToFilms(
       final List<String> entries, final Filmlist filmlist) {
-    final ExecutorService executorService = Executors.newCachedThreadPool();
+    final ExecutorService executorService = Executors.newWorkStealingPool();
     boolean isFirst = true;
     Future<Film> filmEntryBefore = null;
     final List<Future<Film>> futureFilms = new ArrayList<>();
