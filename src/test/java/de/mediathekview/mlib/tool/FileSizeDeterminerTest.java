@@ -6,10 +6,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.ws.rs.core.HttpHeaders;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_LENGTH;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 class FileSizeDeterminerTest {
@@ -22,7 +21,7 @@ class FileSizeDeterminerTest {
     wireMockServer.stubFor(
         head(urlEqualTo("/" + TEST_FILE_NAME))
             .willReturn(
-                aResponse().withStatus(200).withHeader(HttpHeaders.CONTENT_LENGTH, "5643")));
+                aResponse().withStatus(200).withHeader(CONTENT_LENGTH, "5643")));
   }
 
   @BeforeEach
