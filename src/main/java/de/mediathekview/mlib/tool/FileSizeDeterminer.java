@@ -7,8 +7,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
+
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_LENGTH;
 
 public class FileSizeDeterminer {
   private static final Logger LOG = LogManager.getLogger(FileSizeDeterminer.class);
@@ -53,7 +54,7 @@ public class FileSizeDeterminer {
     if (!url.startsWith(PROTOCOL_RTMP) && !url.endsWith(FILE_TYPE_M3U8)) {
       try (final Response response =
           client.newCall(createRequestBuilderForRequestType(requestType).build()).execute()) {
-        final String contentLengthHeader = response.header(HttpHeaders.CONTENT_LENGTH);
+        final String contentLengthHeader = response.header(CONTENT_LENGTH);
         return parseContentLength(contentLengthHeader);
       } catch (final IOException ioException) {
         LOG.error(
