@@ -111,10 +111,10 @@ public enum Resolution {
     if (width >= 1280) {
       return Resolution.HD;
     }
-    if (width >= 969) {
+    if (width >= 720) {
       return Resolution.NORMAL;
     }
-    if (width >= 640) {
+    if (width >= 500) {
       return Resolution.SMALL;
     }
     return Resolution.VERY_SMALL;
