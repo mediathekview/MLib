@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-import static jakarta.ws.rs.core.HttpHeaders.CONTENT_LENGTH;
+import static javax.ws.rs.core.HttpHeaders.CONTENT_LENGTH;
 
 public class FileSizeDeterminer {
   private static final Logger LOG = LogManager.getLogger(FileSizeDeterminer.class);
