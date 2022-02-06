@@ -5,7 +5,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.6.3</version>
-    <relativePath/>
+    <relativePath></relativePath>
     <!-- lookup parent from repository -->
   </parent>
 
@@ -246,11 +246,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
+        <version>3.8.2</version>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>3.0.0</version>
       </plugin>
 
       <!-- Build a source Jar -->
