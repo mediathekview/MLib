@@ -66,7 +66,7 @@ public class OldFilmlistToRawFilmlistReader {
         LocalTime.parse(dateTimeSplitted[1], TIME_FORMATTER));
   }
 
-  private String clearField(String rawField) {
+  private String removeFirstAndLastQuotationMarkFromField(String rawField) {
     if (rawField.isEmpty()) {
       return rawField;
     }
@@ -94,26 +94,21 @@ public class OldFilmlistToRawFilmlistReader {
         if (entryArray.length == 20) {
           rawFilmlistBuilder.rawFilm(
               new RawFilm(
-                  clearField(entryArray[0]),
-                  clearField(entryArray[1]),
-                  clearField(entryArray[2]),
-                  clearField(entryArray[3]),
-                  clearField(entryArray[4]),
-                  clearField(entryArray[5]),
-                  clearField(entryArray[6]),
-                  clearField(entryArray[7]),
-                  clearField(entryArray[8]),
-                  clearField(entryArray[9]),
-                  clearField(entryArray[10]),
-                  clearField(entryArray[11]),
-                  clearField(entryArray[12]),
-                  clearField(entryArray[13]),
-                  clearField(entryArray[14]),
-                  clearField(entryArray[15]),
-                  clearField(entryArray[16]),
-                  clearField(entryArray[17]),
-                  clearField(entryArray[18]),
-                  clearField(entryArray[19])));
+                  removeFirstAndLastQuotationMarkFromField(entryArray[0]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[1]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[2]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[3]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[4]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[5]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[6]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[7]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[8]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[9]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[10]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[12]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[14]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[18]),
+                  removeFirstAndLastQuotationMarkFromField(entryArray[19])));
         } else {
           rawFilmlistBuilder
               .creationDate(toCreationTime(entryArray[0]))

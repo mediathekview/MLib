@@ -18,13 +18,8 @@ public class RawFilm {
   String url;
   String website;
   String urlUntertitel;
-  String urlRtmp;
   String urlKlein;
-  String urlRtmpKlein;
   String urlHd;
-  String urlRtmpHd;
-  String datumL;
-  String urlHistory;
   String geo;
   String neu;
 }
