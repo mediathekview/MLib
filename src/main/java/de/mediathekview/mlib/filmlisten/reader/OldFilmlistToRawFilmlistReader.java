@@ -20,7 +20,7 @@ import static java.time.format.FormatStyle.SHORT;
 @RequiredArgsConstructor
 public class OldFilmlistToRawFilmlistReader {
   private static final Logger LOG = LogManager.getLogger(OldFilmlistToRawFilmlistReader.class);
-  private static final String ENTRY_DELIMITER = "],\"X\":\\[";
+  private static final String ENTRY_DELIMITER = "],\"X\":\s*\\[";
   private static final String QUOTATION_MARK = "\"";
   private static final String ENTRY_SPLIT_PATTERN = "\",\"";
   private static final DateTimeFormatter DATE_FORMATTER =
@@ -28,6 +28,7 @@ public class OldFilmlistToRawFilmlistReader {
   private static final DateTimeFormatter TIME_FORMATTER =
       DateTimeFormatter.ofLocalizedTime(SHORT).withLocale(Locale.GERMANY);
   private static final String DATE_TIME_SPLITERATOR = ",?\\s+";
+  private static final String ALL_AFTER_UUID_PATTERN = "\"].*";
   private final InputStream filmlistStream;
 
   public RawFilmlist read() {
@@ -43,7 +44,7 @@ public class OldFilmlistToRawFilmlistReader {
 
   private UUID toListId(String entryPart) {
     try {
-      String rawUUID = entryPart.replaceFirst("\"].*", "");
+      String rawUUID = entryPart.replaceFirst(ALL_AFTER_UUID_PATTERN, "");
       return UUID.fromString(
           String.format(
               "%s-%s-%s-%s-%s",
