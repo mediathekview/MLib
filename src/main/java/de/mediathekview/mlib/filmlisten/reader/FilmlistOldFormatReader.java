@@ -29,7 +29,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
 
   private Optional<Film> mapRawFilmToFilm(RawFilm rawFilm) {
     try {
-      return Optional.of(RawFilmToFilmMapper.INSTANCE.rawFilmToFilm(rawFilm, rawFilm));
+      return Optional.of(RawFilmToFilmMapper.INSTANCE.rawFilmToFilm(rawFilm));
     } catch (RawFilmToFilmException rawFilmToFilmException) {
       LOG.error("Skipping a film with invalid data.", rawFilmToFilmException);
       return Optional.empty();

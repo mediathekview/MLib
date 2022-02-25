@@ -20,7 +20,7 @@ class RawFilmToFilmMapperTest {
 
   @Test
   void rawFilmToFilm_null_noExceptions() {
-    assertThat(rawFilmToFilmMapper.rawFilmToFilm(null, null)).isNull();
+    assertThat(rawFilmToFilmMapper.rawFilmToFilm(null)).isNull();
   }
 
   @Test
@@ -77,7 +77,7 @@ class RawFilmToFilmMapperTest {
     expectedFilm.addGeolocation(GeoLocations.GEO_NONE);
 
     // WHEN
-    var film = rawFilmToFilmMapper.rawFilmToFilm(rawFilm, rawFilm);
+    var film = rawFilmToFilmMapper.rawFilmToFilm(rawFilm);
 
     // THEN
     assertThat(film).usingRecursiveComparison().ignoringFields("uuid").isEqualTo(expectedFilm);
