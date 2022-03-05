@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.time.format.FormatStyle.MEDIUM;
 
@@ -43,7 +44,7 @@ public interface RawFilmToFilmMapper {
   Film rawFilmToFilm(RawFilm rawFilm);
 
   default List<GeoLocations> mapGeolocation(RawFilm rawFilm) {
-    return GeoLocations.find(rawFilm.getGeo()).map(List::of).orElse(new ArrayList<>());
+    return GeoLocations.find(rawFilm.getGeo()).stream().collect(Collectors.toList());
   }
 
   default LocalDateTime mapDateTime(RawFilm rawFilm) {
@@ -108,7 +109,7 @@ public interface RawFilmToFilmMapper {
     return new HashSet<>();
   }
 
-  private Optional<URL> gatherNormalUrl(String url) {
+  default Optional<URL> gatherNormalUrl(String url) {
     try {
       return Optional.of(new URL(StringEscapeUtils.unescapeJava(url)));
     } catch (final MalformedURLException malformedURLException) {
@@ -117,7 +118,7 @@ public interface RawFilmToFilmMapper {
     }
   }
 
-  private Optional<FilmUrl> buildAlternativeUrl(
+  default Optional<FilmUrl> buildAlternativeUrl(
       Film film, final long groesse, final URL urlNormal, final String url) {
     if (url.isEmpty()) {
       return Optional.empty();
@@ -160,7 +161,7 @@ public interface RawFilmToFilmMapper {
     return duration;
   }
 
-  private LocalTime gatherTime(String zeit) {
+  default LocalTime gatherTime(String zeit) {
     final LocalTime time;
     if (StringUtils.isNotBlank(zeit)) {
       time = LocalTime.parse(zeit, TIME_FORMATTER);
@@ -170,7 +171,7 @@ public interface RawFilmToFilmMapper {
     return time;
   }
 
-  private long mapSize(RawFilm rawFilm) {
+  default long mapSize(RawFilm rawFilm) {
     String groesseText = rawFilm.getGroesseMb();
     if (StringUtils.isNotBlank(groesseText)) {
       return Long.parseLong(groesseText);
@@ -186,7 +187,7 @@ public interface RawFilmToFilmMapper {
     return 0L;
   }
 
-  private Optional<LocalDate> gatherDate(RawFilm rawFilm) {
+  default Optional<LocalDate> gatherDate(RawFilm rawFilm) {
     String datum = rawFilm.getDatum();
     if (StringUtils.isNotBlank(datum)) {
       return Optional.of(LocalDate.parse(datum, DATE_FORMATTER));
