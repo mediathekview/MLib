@@ -44,7 +44,7 @@ public interface RawFilmToFilmMapper {
   Film rawFilmToFilm(RawFilm rawFilm);
 
   default List<GeoLocations> mapGeolocation(RawFilm rawFilm) {
-    return GeoLocations.find(rawFilm.getGeo()).stream().collect(Collectors.toList());
+    return GeoLocations.find(rawFilm.getGeo()).stream().toList();
   }
 
   default LocalDateTime mapDateTime(RawFilm rawFilm) {
