@@ -2,21 +2,25 @@ package de.mediathekview.mlib.filmlisten;
 
 import de.mediathekview.mlib.daten.*;
 import de.mediathekview.mlib.filmlisten.reader.RawFilm;
+import de.mediathekview.mlib.filmlisten.reader.RawFilmToFilmException;
 import de.mediathekview.mlib.filmlisten.reader.RawFilmToFilmMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mapstruct.factory.Mappers;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 class RawFilmToFilmMapperTest {
   private final RawFilmToFilmMapper classUnderTest =
@@ -124,5 +128,91 @@ class RawFilmToFilmMapperTest {
     Arrays.stream(testGeoLocation.getAlternatives()).forEach(alternative ->
     assertThat(classUnderTest.mapGeolocation(RawFilm.builder().geo(alternative).build())).containsExactly(testGeoLocation));
 
+  }
+
+  @Test
+  void websiteToWebsiteUrl_null_null() {
+    assertThat(classUnderTest.websiteToWebsiteUrl(RawFilm.builder().website(null).build())).isNull();
+  }
+
+  @Test
+  void websiteToWebsiteUrl_emptyString_null() {
+    assertThat(classUnderTest.websiteToWebsiteUrl(RawFilm.builder().website("").build())).isNull();
+  }
+
+  @Test
+  void websiteToWebsiteUrl_invalidUrl_null() {
+    assertThat(classUnderTest.websiteToWebsiteUrl(RawFilm.builder().website("unknown").build())).isNull();
+  }
+
+  @Test
+  void websiteToWebsiteUrl_urlWithSpecialChars_url() throws MalformedURLException {
+    assertThat(classUnderTest.websiteToWebsiteUrl(RawFilm.builder().website("https://fr\u00FCher.xyz/").build()))
+            .isEqualTo(new URL("https://früher.xyz/"));
+  }
+
+  @Test
+  void senderTextToSender_null_exception() {
+    assertThat(catchThrowable(() -> classUnderTest.senderTextToSender(null))).isInstanceOf(RawFilmToFilmException.class);
+  }
+
+  @Test
+  void senderTextToSender_empty_exception() {
+    assertThat(catchThrowable(() -> classUnderTest.senderTextToSender(""))).isInstanceOf(RawFilmToFilmException.class);
+  }
+
+  @Test
+  void senderTextToSender_invalidSender_exception() {
+    assertThat(catchThrowable(() -> classUnderTest.senderTextToSender("unknown"))).isInstanceOf(RawFilmToFilmException.class);
+  }
+
+  @ParameterizedTest
+  @EnumSource(Sender.class)
+  void senderTextToSender_validSenderName_sender(Sender testSender) {
+    assertThat(classUnderTest.senderTextToSender(testSender.getName())).isEqualTo(testSender);
+
+    Arrays.stream(testSender.getNameAlternatives()).forEach(alternativeName ->
+    assertThat(classUnderTest.senderTextToSender(alternativeName)).isEqualTo(testSender));
+  }
+
+  @ParameterizedTest
+  @MethodSource("mapSubtitleUrlArguments")
+  void mapSubtitleUrl(String testUrl, List<URL> expectedUrl) {
+    RawFilm testFilm = RawFilm.builder().urlUntertitel(testUrl).build();
+
+    if(expectedUrl.isEmpty()) {
+      assertThat(classUnderTest.mapSubtitleUrl(testFilm)).isEmpty();
+    }else {
+      assertThat(classUnderTest.mapSubtitleUrl(testFilm)).containsExactlyElementsOf(expectedUrl);
+    }
+  }
+
+  private static Stream<Arguments> mapSubtitleUrlArguments() throws MalformedURLException {
+    return Stream.of(
+            Arguments.of(null, new ArrayList<>()),
+            Arguments.of("", new ArrayList<>()),
+            Arguments.of("invalidUrl", new ArrayList<>()),
+            Arguments.of("https://www.google.com/", List.of(new URL("https://www.google.com/")))
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("gatherNormalUrlArguments")
+  void gatherNormalUrl(String testUrl, URL expectedUrl) {
+    if(expectedUrl == null) {
+      assertThat(classUnderTest.gatherNormalUrl(testUrl)).isNotPresent();
+    }else {
+      assertThat(classUnderTest.gatherNormalUrl(testUrl)).isPresent().get().isEqualTo(expectedUrl);
+    }
+  }
+
+  private static Stream<Arguments> gatherNormalUrlArguments() throws MalformedURLException {
+    return Stream.of(
+            Arguments.of(null, null),
+            Arguments.of("", null),
+            Arguments.of("invalidUrl", null),
+            Arguments.of("https://www.google.com/", new URL("https://www.google.com/")),
+            Arguments.of("https://fr\u00FCher.xyz/", new URL("https://früher.xyz/"))
+    );
   }
 }

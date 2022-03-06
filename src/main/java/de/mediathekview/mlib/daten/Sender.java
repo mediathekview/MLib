@@ -84,4 +84,8 @@ public enum Sender {
   public String toString() {
     return getName();
   }
+
+  public String[] getNameAlternatives() {
+    return nameAlternatives;
+  }
 }
