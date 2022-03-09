@@ -17,7 +17,7 @@ public enum GeoLocations {
   GEO_DE_AT_CH_EU("DE-AT-CH-EU", "SAT", "EBU");
 
   private final String description;
-  private String[] alternatives;
+  private final String[] alternatives;
 
   GeoLocations(final String aDescription, final String... aAlternatives) {
     description = aDescription;
@@ -46,5 +46,9 @@ public enum GeoLocations {
 
   public String getDescription() {
     return description;
+  }
+
+  public String[] getAlternatives() {
+    return alternatives;
   }
 }

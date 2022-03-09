@@ -1,5 +1,6 @@
 package de.mediathekview.mlib.daten;
 
+import java.io.Serial;
 import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -8,11 +9,11 @@ import java.util.stream.Collectors;
 
 /** Represents a found film. */
 public class Film extends Podcast {
+  @Serial
   private static final long serialVersionUID = -7834270191129532291L;
-  private final Set<URL> subtitles;
+  private Set<URL> subtitles;
   private Map<Resolution, FilmUrl> audioDescriptions;
   private Map<Resolution, FilmUrl> signLanguages;
-
   public Film(
       final UUID aUuid,
       final Sender aSender,
@@ -117,6 +118,10 @@ public class Film extends Podcast {
 
   public Collection<URL> getSubtitles() {
     return new ArrayList<>(subtitles);
+  }
+
+  public void setSubtitles(Set<URL> subtitles) {
+    this.subtitles = subtitles;
   }
 
   @Override
