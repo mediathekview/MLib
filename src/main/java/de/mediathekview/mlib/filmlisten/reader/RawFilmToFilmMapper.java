@@ -15,20 +15,24 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.time.format.FormatStyle.MEDIUM;
+import static java.time.format.FormatStyle.SHORT;
 
 @Mapper
 public interface RawFilmToFilmMapper {
   Logger LOG = LogManager.getLogger(RawFilmToFilmMapper.class);
   DateTimeFormatter DATE_FORMATTER =
       DateTimeFormatter.ofLocalizedDate(MEDIUM).withLocale(Locale.GERMANY);
+  DateTimeFormatter DATE_SHORT_FORMATTER =
+      DateTimeFormatter.ofLocalizedDate(SHORT).withLocale(Locale.GERMANY);
   DateTimeFormatter TIME_FORMATTER =
       DateTimeFormatter.ofLocalizedTime(MEDIUM).withLocale(Locale.GERMANY);
   RawFilmToFilmMapper INSTANCE = Mappers.getMapper(RawFilmToFilmMapper.class);
   String URL_SPLITERATOR = "\\|";
+  int SHORT_GERMAN_DATE_LENGTH = 8;
 
   @Mapping(target = "urls", ignore = true)
   @Mapping(target = "signLanguages", ignore = true)
@@ -118,88 +122,131 @@ public interface RawFilmToFilmMapper {
     }
   }
 
+  /**
+   * In the old format all others film urls then the normal one are shortened. All chars which are
+   * same between the URLs getting counted and will be replaced by the count and the char |. This
+   * method inverts this behavior.<br>
+   * <br>
+   * <b>Example:</b> <code>https://www.google.com</code> as base (URL for size normal) and <code>
+   * 19|de</code> will get to: <code>https://www.google.de</code>.
+   *
+   * @param film The film is used for the logging if a URL is invalid so Sender, Thema and Title of
+   *     the Film with the invalid URL can be printed.
+   * @param groesse The size of the video file for the normal URL.
+   * @param urlNormal The URL for normal.
+   * @param url The URL with the char count part.
+   * @return The full URL without the char count part.
+   */
   default Optional<FilmUrl> buildAlternativeUrl(
       Film film, final long groesse, final URL urlNormal, final String url) {
-    if (url.isEmpty()) {
+    if (url == null || url.isEmpty()) {
       return Optional.empty();
     }
 
     final String[] splittedUrlText = url.split(URL_SPLITERATOR);
     if (splittedUrlText.length == 2) {
       final int lengthOfOld = Integer.parseInt(splittedUrlText[0]);
-
-      final String newUrl = urlNormal.toString().substring(0, lengthOfOld) + splittedUrlText[1];
-      try {
-        return Optional.of(new FilmUrl(new URL(newUrl), groesse));
-      } catch (MalformedURLException malformedURLException) {
-        LOG.debug(
-            "The film \"{} {} - {}\" has a invalid film URL \"{}\".",
-            film.getSender().getName(),
-            film.getThema(),
-            film.getTitel(),
-            malformedURLException);
+      String urlNormalText = urlNormal.toString();
+      if (lengthOfOld >= 0 && lengthOfOld <= urlNormalText.length()) {
+        final String newUrl = urlNormalText.substring(0, lengthOfOld) + splittedUrlText[1];
+        try {
+          return Optional.of(new FilmUrl(new URL(newUrl), groesse));
+        } catch (MalformedURLException malformedURLException) {
+          LOG.debug(
+              "The film \"{} {} - {}\" has a invalid film URL \"{}\".",
+              film.getSender().getName(),
+              film.getThema(),
+              film.getTitel(),
+              malformedURLException);
+        }
       }
     }
     return Optional.empty();
   }
 
   default Duration mapDuration(RawFilm rawFilm) {
-    final Duration duration;
     String dauer = rawFilm.getDauer();
-    if (StringUtils.isNotBlank(dauer)) {
-      duration = Duration.between(LocalTime.MIDNIGHT, LocalTime.parse(dauer));
-    } else {
-      duration = Duration.ZERO;
-      if (LOG.isDebugEnabled()) {
+    try {
+      if (StringUtils.isNotBlank(dauer)) {
+        return Duration.between(LocalTime.MIDNIGHT, LocalTime.parse(dauer));
+      } else {
         LOG.debug(
             "A film without duration \"{} {} - {}\".",
             rawFilm.getSender(),
             rawFilm.getThema(),
             rawFilm.getTitel());
       }
+    } catch (DateTimeParseException dateTimeParseException) {
+      LOG.debug(
+          "The film \"{} {} - {}\" has a invalid duartion: \"{}\".",
+          rawFilm.getSender(),
+          rawFilm.getThema(),
+          rawFilm.getTitel(),
+          dauer,
+          dateTimeParseException);
     }
-    return duration;
+    return Duration.ZERO;
   }
 
   default LocalTime gatherTime(String zeit) {
-    final LocalTime time;
     if (StringUtils.isNotBlank(zeit)) {
-      time = LocalTime.parse(zeit, TIME_FORMATTER);
-    } else {
-      time = LocalTime.MIDNIGHT;
+      try {
+        return LocalTime.parse(zeit, TIME_FORMATTER);
+      } catch (DateTimeParseException dateTimeParseException) {
+        LOG.debug("A film has a invalid time: \"{}\".", zeit, dateTimeParseException);
+      }
     }
-    return time;
+    return LocalTime.MIDNIGHT;
   }
 
   default long mapSize(RawFilm rawFilm) {
     String groesseText = rawFilm.getGroesseMb();
     if (StringUtils.isNotBlank(groesseText)) {
-      return Long.parseLong(groesseText);
+      try {
+        return Long.parseLong(groesseText);
+      } catch (NumberFormatException numberFormatException) {
+        LOG.debug(
+            "The film \"{} {} - {}\" has an invalid size \"{}\".",
+            rawFilm.getSender(),
+            rawFilm.getThema(),
+            rawFilm.getTitel(),
+            groesseText,
+            numberFormatException);
+      }
     }
-    if (LOG.isDebugEnabled()) {
-      LOG.debug(
-          "A film without a size \"{} {} - {}\".",
-          rawFilm.getSender(),
-          rawFilm.getThema(),
-          rawFilm.getTitel());
-    }
+    LOG.debug(
+        "A film without a size \"{} {} - {}\".",
+        rawFilm.getSender(),
+        rawFilm.getThema(),
+        rawFilm.getTitel());
 
     return 0L;
   }
 
   default Optional<LocalDate> gatherDate(RawFilm rawFilm) {
     String datum = rawFilm.getDatum();
-    if (StringUtils.isNotBlank(datum)) {
-      return Optional.of(LocalDate.parse(datum, DATE_FORMATTER));
-    } else {
-      if (LOG.isDebugEnabled()) {
+    try {
+      if (StringUtils.isNotBlank(datum)) {
+        if (datum.length() == SHORT_GERMAN_DATE_LENGTH) {
+          return Optional.of(LocalDate.parse(datum, DATE_SHORT_FORMATTER));
+        }
+        return Optional.of(LocalDate.parse(datum, DATE_FORMATTER));
+      } else {
         LOG.debug(
             "A film without date \"{} {} - {}\".",
             rawFilm.getSender(),
             rawFilm.getThema(),
             rawFilm.getTitel());
       }
-      return Optional.empty();
+    } catch (DateTimeParseException dateTimeParseException) {
+      LOG.debug(
+          "The film \"{} {} - {}\" has a invalid date: \"{}\".",
+          rawFilm.getSender(),
+          rawFilm.getThema(),
+          rawFilm.getTitel(),
+          datum,
+          dateTimeParseException);
     }
+    return Optional.empty();
   }
 }
