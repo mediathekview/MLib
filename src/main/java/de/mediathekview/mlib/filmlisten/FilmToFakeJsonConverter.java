@@ -5,6 +5,7 @@ import de.mediathekview.mlib.daten.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -205,23 +206,31 @@ public class FilmToFakeJsonConverter {
       final AbstractMediaResource<?> aMediaResource,
       final boolean aIsLastFilm) {
 
+    final String title = aMediaResource.getTitel();
+    appendDefaultEntry(aMediaResource, title, fakeJsonBuilder, aIsLastFilm);
+    appendAudioDescriptionEntry(aMediaResource, title, fakeJsonBuilder, aIsLastFilm);
+    appendSignLanguageEntry(aMediaResource, title, fakeJsonBuilder, aIsLastFilm);
+  }
+
+  private void appendDefaultEntry(AbstractMediaResource<?> aMediaResource, String title, StringBuilder fakeJsonBuilder, boolean aIsLastFilm) {
     final String url;
     String urlKlein = "";
     String urlHd = "";
 
-    // create film entry
-    url = aMediaResource.getUrl(getDefaultResolution(aMediaResource)).toString();
-    if (aMediaResource.getUrls().containsKey(Resolution.SMALL)) {
-      urlKlein = aMediaResource.getUrl(Resolution.SMALL).toString();
-    }
-    if (aMediaResource.getUrls().containsKey(Resolution.HD)) {
-      urlHd = aMediaResource.getUrl(Resolution.HD).toString();
-    }
+    final Serializable mediaUrl = aMediaResource.getUrl(getDefaultResolution(aMediaResource));
+    if (mediaUrl != null) {
+      // create film entry
+      url = mediaUrl.toString();
+      if (aMediaResource.getUrls().containsKey(Resolution.SMALL)) {
+        urlKlein = aMediaResource.getUrl(Resolution.SMALL).toString();
+      }
+      if (aMediaResource.getUrls().containsKey(Resolution.HD)) {
+        urlHd = aMediaResource.getUrl(Resolution.HD).toString();
+      }
 
-    final String title = aMediaResource.getTitel();
-    appendMediaResource(fakeJsonBuilder, aMediaResource, title, urlKlein, url, urlHd, aIsLastFilm);
-    appendAudioDescriptionEntry(aMediaResource, title, fakeJsonBuilder, aIsLastFilm);
-    appendSignLanguageEntry(aMediaResource, title, fakeJsonBuilder, aIsLastFilm);
+      appendMediaResource(
+          fakeJsonBuilder, aMediaResource, title, urlKlein, url, urlHd, aIsLastFilm);
+    }
   }
 
   private void appendAudioDescriptionEntry(
