@@ -69,31 +69,31 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
 
-    <assertj.version>3.21.0</assertj.version>
+    <assertj.version>3.23.1</assertj.version>
     <commons-compress.version>1.21</commons-compress.version>
     <commons-text.version>1.10.0</commons-text.version>
-    <gson.version>2.8.9</gson.version>
+    <gson.version>2.9.1</gson.version>
     <jakarta-activation.version>2.0.1</jakarta-activation.version>
     <javax-jaxb.version>2.4.0-b180830.0359</javax-jaxb.version>
     <jetbrains-annotations.version>22.0.0</jetbrains-annotations.version>
-    <jersey.version>3.0.3</jersey.version>
+    <jersey.version>3.1.0-M8</jersey.version>
     <junit-jupiter.version>5.9.1</junit-jupiter.version>
-    <log4j2.version>2.17.1</log4j2.version>
-    <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
-    <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-    <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-    <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-    <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-    <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
-    <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-    <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
-    <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
+    <log4j2.version>2.19.0</log4j2.version>
+    <maven-clean-plugin.version>3.2.0</maven-clean-plugin.version>
+    <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+    <maven-deploy-plugin.version>3.0.0</maven-deploy-plugin.version>
+    <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+    <maven-install-plugin.version>3.0.1</maven-install-plugin.version>
+    <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
+    <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
+    <maven-project-info-reports-plugin.version>3.4.1</maven-project-info-reports-plugin.version>
+    <maven-resources-plugin.version>3.3.0</maven-resources-plugin.version>
     <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
     <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
-    <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
-    <mockito.version>4.2.0</mockito.version>
-    <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
-    <okhttp3.version>4.9.3</okhttp3.version>
+    <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
+    <mockito.version>4.8.1</mockito.version>
+    <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+    <okhttp3.version>4.10.0</okhttp3.version>
     <wiremock.version>2.34.0</wiremock.version>
     <yacl4j-core.version>0.9.2</yacl4j-core.version>
     <xz.version>1.9</xz.version>
@@ -200,19 +200,16 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>${junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
-      <version>${junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
 
