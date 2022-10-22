@@ -1,13 +1,13 @@
 package de.mediathekview.mlib.daten;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * GsonLocalDateTimeAdapter
@@ -24,7 +24,6 @@ public class GsonLocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
         if (localDateTime == null) {
             jsonWriter.nullValue();
         } else {
-            //jsonWriter.value(localDateTime.toString());
             jsonWriter.value(localDateTime.format(formatter));
             
         }

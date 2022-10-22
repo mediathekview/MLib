@@ -16,6 +16,7 @@ class TextCleanerTest {
         "Hello\u000cWorld", // Form Feed
         "Hello\rWorld", // Carriage Return
         "Hello\u00a0World", // No Break Space
+        "Hello<hr/> World", // Remove Tags
       })
   void testSingleReplaceCharsWillBeReplacedWithBlank(String textToConvert) {
         // given

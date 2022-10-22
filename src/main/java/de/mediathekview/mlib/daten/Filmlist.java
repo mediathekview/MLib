@@ -58,10 +58,9 @@ public class Filmlist {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof Filmlist)) {
+    if (!(o instanceof final Filmlist filmlist)) {
       return false;
     }
-    final Filmlist filmlist = (Filmlist) o;
     return Objects.equals(getFilms(), filmlist.getFilms())
         && Objects.equals(getPodcasts(), filmlist.getPodcasts())
         && Objects.equals(getLivestreams(), filmlist.getLivestreams())
@@ -114,8 +113,7 @@ public class Filmlist {
     return sortedPodcasts;
   }
 
-  public List<AbstractMediaResource<?>> getSorted(
-      final Comparator<AbstractMediaResource<?>> aComperator) {
+  public List<AbstractMediaResource<?>> getSorted(final Comparator<AbstractMediaResource<?>> aComperator) {
     final List<AbstractMediaResource<?>> sortedResources = new ArrayList<>(films.values());
     sortedResources.addAll(podcasts.values());
     sortedResources.addAll(livestreams.values());

@@ -3,7 +3,7 @@ package de.mediathekview.mlib.tool;
 import org.apache.commons.text.StringEscapeUtils;
 
 public class TextCleaner {
-  private static final String HTML_TAG_REGEX = "<.*?>";
+  private static final String HTML_TAG_REGEX = "<[^>]*+>";
   private static final String HORIZONTAL_TAB = "\t";
   private static final String VERTICAL_TAB = "\u000B";
   private static final String LINE_FEED = "\n";

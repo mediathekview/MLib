@@ -150,8 +150,7 @@ public class FilmToFakeJsonConverter {
   }
 
   private String getSubtitles(final AbstractMediaResource<?> aMediaResource) {
-    if (aMediaResource instanceof Film) {
-      final Film film = (Film) aMediaResource;
+    if (aMediaResource instanceof Film film) {
       if (film.getSubtitles().isEmpty()) {
         return "";
       }
@@ -242,8 +241,7 @@ public class FilmToFakeJsonConverter {
     String urlSmall = "";
     String urlHd = "";
 
-    if (aMediaResource instanceof Film) {
-      final Film film = (Film) aMediaResource;
+    if (aMediaResource instanceof Film film) {
       FilmUrl filmUrl = film.getAudioDescription(Resolution.NORMAL);
       if (filmUrl != null) {
         url = filmUrl.toString();
@@ -280,10 +278,7 @@ public class FilmToFakeJsonConverter {
     String urlSmall = "";
     String urlHd = "";
 
-    if (aMediaResource instanceof Film) {
-
-      final Film film = (Film) aMediaResource;
-
+    if (aMediaResource instanceof Film film) {
       FilmUrl filmUrl = film.getSignLanguage(Resolution.NORMAL);
       if (filmUrl != null) {
         url = filmUrl.toString();
@@ -335,12 +330,10 @@ public class FilmToFakeJsonConverter {
             aMediaResource.getTime() == null
                 ? ""
                 : TIME_FORMATTER.format(aMediaResource.getTime().toLocalTime()),
-            aMediaResource instanceof Podcast
-                ? durationToString(((Podcast) aMediaResource).getDuration())
-                : "",
-            aMediaResource instanceof Podcast
-                ? (((Podcast) aMediaResource).getFileSizeKB(getDefaultResolution(aMediaResource))/1024)
-                : "",
+            aMediaResource instanceof Podcast podcast
+                ? durationToString(podcast.getDuration()) : "",
+            aMediaResource instanceof Podcast podcast
+                ? (podcast.getFileSizeKB(getDefaultResolution(aMediaResource))/1024) : "",
             gson.toJson(aMediaResource.getBeschreibung()),
             aUrlNormal,
             website,
@@ -353,7 +346,7 @@ public class FilmToFakeJsonConverter {
             convertDateTimeToLong(aMediaResource.getTime()),
             "", // History
             geolocationsToStirng(aMediaResource.getGeoLocations()),
-            aMediaResource instanceof Podcast && ((Podcast) aMediaResource).isNeu()));
+            aMediaResource instanceof Podcast podcast && podcast.isNeu()));
 
     appendEnd(fakeJsonBuilder, aIsLastFilm);
   }
