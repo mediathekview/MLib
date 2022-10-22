@@ -24,9 +24,9 @@ class FilmlistMergeTest {
             Duration.of(10, ChronoUnit.MINUTES));
     testFilm1.setWebsite(new URL("http://www.example.org/"));
     testFilm1.setBeschreibung("Test beschreibung.");
-    testFilm1.addUrl(Resolution.SMALL, new FilmUrl(new URL("http://example.org/klein.mp4"), 42l));
-    testFilm1.addUrl(Resolution.NORMAL, new FilmUrl(new URL("http://example.org/Test.mp4"), 42l));
-    testFilm1.addUrl(Resolution.HD, new FilmUrl(new URL("http://example.org/hd.mp4"), 42l));
+    testFilm1.addUrl(Resolution.SMALL, new FilmUrl(new URL("http://example.org/klein.mp4"), 42L));
+    testFilm1.addUrl(Resolution.NORMAL, new FilmUrl(new URL("http://example.org/Test.mp4"), 42L));
+    testFilm1.addUrl(Resolution.HD, new FilmUrl(new URL("http://example.org/hd.mp4"), 42L));
     return testFilm1;
   }
 
@@ -41,9 +41,9 @@ class FilmlistMergeTest {
             Duration.of(10, ChronoUnit.MINUTES));
     testFilm2.setWebsite(new URL("http://www.example.org/2"));
     testFilm2.setBeschreibung("Test beschreibung.");
-    testFilm2.addUrl(Resolution.SMALL, new FilmUrl(new URL("http://example.org/klein2.mp4"), 42l));
-    testFilm2.addUrl(Resolution.NORMAL, new FilmUrl(new URL("http://example.org/Test2.mp4"), 42l));
-    testFilm2.addUrl(Resolution.HD, new FilmUrl(new URL("http://example.org/hd2.mp4"), 42l));
+    testFilm2.addUrl(Resolution.SMALL, new FilmUrl(new URL("http://example.org/klein2.mp4"), 42L));
+    testFilm2.addUrl(Resolution.NORMAL, new FilmUrl(new URL("http://example.org/Test2.mp4"), 42L));
+    testFilm2.addUrl(Resolution.HD, new FilmUrl(new URL("http://example.org/hd2.mp4"), 42L));
     return testFilm2;
   }
 
@@ -58,9 +58,9 @@ class FilmlistMergeTest {
             Duration.of(10, ChronoUnit.MINUTES));
     testFilm3.setWebsite(new URL("http://www.example.org/"));
     testFilm3.setBeschreibung("Test beschreibung.");
-    testFilm3.addUrl(Resolution.SMALL, new FilmUrl(new URL("http://example.org/klein.mp4"), 42l));
-    testFilm3.addUrl(Resolution.NORMAL, new FilmUrl(new URL("http://example.org/Test.mp4"), 42l));
-    testFilm3.addUrl(Resolution.HD, new FilmUrl(new URL("http://example.org/hd.mp4"), 42l));
+    testFilm3.addUrl(Resolution.SMALL, new FilmUrl(new URL("http://example.org/klein.mp4"), 42L));
+    testFilm3.addUrl(Resolution.NORMAL, new FilmUrl(new URL("http://example.org/Test.mp4"), 42L));
+    testFilm3.addUrl(Resolution.HD, new FilmUrl(new URL("http://example.org/hd.mp4"), 42L));
     return testFilm3;
   }
 
@@ -85,7 +85,7 @@ class FilmlistMergeTest {
             testFilm3.getDuration());
     testFilm4.setWebsite(testFilm3.getWebsite().orElse(null));
     testFilm4.setBeschreibung(testFilm3.getBeschreibung());
-    testFilm3.getUrls().entrySet().forEach(e -> testFilm4.addUrl(e.getKey(), e.getValue()));
+    testFilm3.getUrls().forEach((key, value) -> testFilm4.addUrl(key, value));
 
     final Filmlist testFilmlist2 = new Filmlist();
     testFilmlist2.add(testFilm1);
@@ -177,7 +177,7 @@ class FilmlistMergeTest {
             testFilm3.getDuration());
     testFilm4.setWebsite(testFilm3.getWebsite().orElse(null));
     testFilm4.setBeschreibung(testFilm3.getBeschreibung());
-    testFilm3.getUrls().entrySet().forEach(e -> testFilm4.addUrl(e.getKey(), e.getValue()));
+    testFilm3.getUrls().forEach((key, value) -> testFilm4.addUrl(key, value));
 
     final Filmlist testFilmlist2 = new Filmlist();
     testFilmlist2.add(testFilm1);
@@ -185,7 +185,7 @@ class FilmlistMergeTest {
     testFilmlist1.add(testFilm4);
     final int sizeOld = testFilmlist1.getFilms().size();
     testFilmlist1.merge(testFilmlist2);
-    assertThat(testFilmlist1.getFilms().size()).isEqualTo(sizeOld);
+    assertThat(testFilmlist1.getFilms()).hasSize(sizeOld);
     assertThat(testFilm3).hasSameHashCodeAs(testFilm4);
   }
 }

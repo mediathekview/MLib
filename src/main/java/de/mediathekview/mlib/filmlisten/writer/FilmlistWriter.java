@@ -6,8 +6,6 @@ import de.mediathekview.mlib.daten.Filmlist;
 import de.mediathekview.mlib.daten.GsonDurationAdapter;
 import de.mediathekview.mlib.daten.GsonLocalDateTimeAdapter;
 import de.mediathekview.mlib.messages.listener.MessageListener;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -18,7 +16,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class FilmlistWriter extends AbstractFilmlistWriter {
-  private static final Logger LOG = LogManager.getLogger(FilmlistWriter.class);
 
   public FilmlistWriter() {
     super();
