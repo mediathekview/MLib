@@ -7,7 +7,7 @@
 
     <groupId>de.mediathekview</groupId>
     <artifactId>MLib</artifactId>
-    <version>3.0.12</version>
+    <version>3.0.13</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
