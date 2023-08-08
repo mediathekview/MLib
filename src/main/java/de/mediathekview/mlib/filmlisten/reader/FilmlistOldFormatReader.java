@@ -99,6 +99,9 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
       } else if (splittedEntry.size() == 21 && FILM_ENTRY_ID.equals(splittedEntry.get(0))) {
         filmEntryBefore =
             convertEntryToFilm(filmEntryBefore, executorService, futureFilms, splittedEntry);
+      } else {
+        // TODO do something useful here  
+        LOG.debug(String.format("unkown entry %s",splittedEntry));
       }
     }
     return futureFilms;
@@ -145,9 +148,9 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
 
   private void setListId(final Filmlist aFilmlist, final List<String> aSplittedEntry) {
     try {
-      aFilmlist.setListId(UUID.fromString(aSplittedEntry.get(4)));
+      aFilmlist.setListId(UUID.fromString(aSplittedEntry.get(5)));
     } catch (final IllegalArgumentException illegalArgumentException) {
-      LOG.debug("Can't parse the film list id. Setting a random uuid.", illegalArgumentException);
+      LOG.debug(String.format("Can't parse the film list id. Setting a random uuid. %s", aSplittedEntry), illegalArgumentException);
       aFilmlist.setListId(UUID.randomUUID());
     }
   }
