@@ -18,6 +18,7 @@ import okhttp3.ResponseBody;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,8 +80,9 @@ public class FilmlistManager extends MessageCreator {
 
   public Optional<Filmlist> importList(final FilmlistFormats aFormat, final Path aFilePath)
       throws IOException {
-    try (final InputStream fileInputStream = Files.newInputStream(aFilePath)) {
-      return importList(aFormat, fileInputStream);
+    try (final InputStream fileInputStream = Files.newInputStream(aFilePath);
+        final BufferedInputStream bis = new BufferedInputStream(fileInputStream, 512000) ) {
+      return importList(aFormat, bis);
     }
   }
 
@@ -94,8 +96,9 @@ public class FilmlistManager extends MessageCreator {
       if (responseBody == null) {
         return Optional.empty();
       }
-      try (final InputStream fileInputStream = responseBody.byteStream()) {
-        return importList(aFormat, fileInputStream);
+      try (final InputStream fileInputStream = responseBody.byteStream();
+          final BufferedInputStream bis = new BufferedInputStream(fileInputStream, 512000)) {
+        return importList(aFormat, bis);
       }
     }
   }

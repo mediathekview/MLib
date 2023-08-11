@@ -33,12 +33,12 @@ public class CompressionManager {
       final CompressionType aCompressionType, final OutputStream aOutputStream) throws IOException {
     switch (aCompressionType) {
       case XZ:
-        return new XZCompressorOutputStream(aOutputStream, 9);
+        return new XZCompressorOutputStream(new BufferedOutputStream(aOutputStream, 512000), 9);
       case GZIP:
-        return new MediathekviewGZIPOutputStrean(aOutputStream);
+        return new MediathekviewGZIPOutputStrean(new BufferedOutputStream(aOutputStream, 512000));
       case BZIP:
         // This uses already the best compression.
-        return new BZip2CompressorOutputStream(aOutputStream);
+        return new BZip2CompressorOutputStream(new BufferedOutputStream(aOutputStream, 512000));
       default:
         throw new IllegalArgumentException(
             String.format("The type \"%s\" isn't supported.", aCompressionType.name()));
@@ -75,7 +75,7 @@ public class CompressionManager {
             : aTargetPath.resolveSibling(
                 aTargetPath.getFileName().toString() + aCompressionType.getFileEnding());
 
-    try (final InputStream input = new BufferedInputStream(Files.newInputStream(aSourceFile));
+    try (final BufferedInputStream input = new BufferedInputStream(Files.newInputStream(aSourceFile), 512000);
          final OutputStream output = compress(aCompressionType, Files.newOutputStream(targetPath))) {
       fastChannelCopy(Channels.newChannel(input), Channels.newChannel(output));
     }

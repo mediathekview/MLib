@@ -135,13 +135,15 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
   private void setWebsite(final Film film) {
     Optional<URL> urlWebseite = Optional.empty();
     final String websiteUrlText = entrySplits.get(10).trim();
-    try {
-      urlWebseite = Optional.of(new URL(StringEscapeUtils.unescapeJava(websiteUrlText)));
-    } catch (final MalformedURLException malformedURLException) {
-      LOG.warn(format("The website URL \"%s\" can't be parsed for %s %s %s %s", websiteUrlText, film.getSender(),
-          film.getThema(), film.getTitel(), malformedURLException));
+    if (!websiteUrlText.isBlank()) {
+      try {
+        urlWebseite = Optional.of(new URL(StringEscapeUtils.unescapeJava(websiteUrlText)));
+      } catch (final MalformedURLException malformedURLException) {
+        LOG.warn(format("The website URL \"%s\" can't be parsed for %s %s %s %s", websiteUrlText, film.getSender(),
+            film.getThema(), film.getTitel(), malformedURLException));
+      }
+      film.setWebsite(urlWebseite.orElse(null));
     }
-    film.setWebsite(urlWebseite.orElse(null));
   }
 
   private void addGeoLocations(final Film film) {
@@ -152,7 +154,8 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
   private void addSubtitle(final Film film) {
     final String urlTextUntertitel = entrySplits.get(11);
     try {
-      if (!urlTextUntertitel.isEmpty()) {
+      if (!urlTextUntertitel.isEmpty()
+          && urlTextUntertitel.toLowerCase().startsWith("http")) {
         film.addSubtitle(new URL(urlTextUntertitel));
       }
     } catch (MalformedURLException exception) {
@@ -167,13 +170,11 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
     long groesse = 0L;
     if (StringUtils.isNotBlank(groesseText)) {
       try {
-        groesse = Long.parseLong(groesseText);
+        groesse = Long.parseLong(groesseText)*1024; // oldFilmlist format is MB - new DM is KB
       } catch (NumberFormatException e) {
         LOG.warn(
             format("NumberFormatException Size on %s for %s %s %s %s", groesseText, sender.getName(), thema, titel, e));
       }
-    } else {
-      LOG.debug(format("Film ohne Größe \"%s %s - %s\".", sender.getName(), thema, titel));
     }
     return groesse;
   }
@@ -188,8 +189,6 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
         LOG.warn(format("DateTimeException duration of %s for %s %s %s %s", durationText, sender.getName(), thema,
             titel, e));
       }
-    } else {
-      LOG.debug(format("Film ohne Dauer \"%s %s - %s\".", sender.getName(), thema, titel));
     }
     return dauer;
   }
@@ -219,8 +218,6 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
         LOG.warn(
             format("DateTimeParseException DATE on %s for %s %s %s %s", dateText, sender.getName(), thema, titel, e));
       }
-    } else {
-      LOG.debug(format("Film ohne Datum \"%s %s - %s\".", sender.getName(), thema, titel));
     }
     return date;
   }
