@@ -16,11 +16,11 @@ import java.nio.file.Path;
 public abstract class AbstractFilmlistWriter extends MessageCreator {
   private static final Logger LOG = LogManager.getLogger(AbstractFilmlistWriter.class);
 
-  public AbstractFilmlistWriter() {
+  protected AbstractFilmlistWriter() {
     super();
   }
 
-  public AbstractFilmlistWriter(final MessageListener... aListeners) {
+  protected AbstractFilmlistWriter(final MessageListener... aListeners) {
     super(aListeners);
   }
 

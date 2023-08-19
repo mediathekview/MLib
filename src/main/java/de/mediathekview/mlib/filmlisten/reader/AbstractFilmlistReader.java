@@ -9,12 +9,12 @@ import de.mediathekview.mlib.messages.listener.MessageListener;
 
 public abstract class AbstractFilmlistReader extends MessageCreator
 {
-    public AbstractFilmlistReader()
+    protected AbstractFilmlistReader()
     {
         super();
     }
 
-    public AbstractFilmlistReader(final MessageListener... aListeners)
+    protected AbstractFilmlistReader(final MessageListener... aListeners)
     {
         super(aListeners);
     }
