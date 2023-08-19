@@ -9,11 +9,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -25,10 +27,10 @@ import static java.time.format.FormatStyle.MEDIUM;
 
 public class OldFilmlistEntryToFilmTask implements Callable<Film> {
   private static final Logger LOG = LogManager.getLogger(OldFilmlistEntryToFilmTask.class);
-  private static final DateTimeFormatter DATE_FORMATTER =
-      DateTimeFormatter.ofLocalizedDate(MEDIUM).withLocale(Locale.GERMANY);
-  private static final DateTimeFormatter TIME_FORMATTER =
-      DateTimeFormatter.ofLocalizedTime(MEDIUM).withLocale(Locale.GERMANY);
+  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofLocalizedDate(MEDIUM)
+      .withLocale(Locale.GERMANY);
+  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm[:ss]", Locale.GERMANY);
+  private static final LocalDate DEFAULT_DATE = LocalDate.parse("01.01.1970", DATE_FORMATTER);
   private static final char GEO_SPLITTERATOR = '-';
   private static final String URL_SPLITTERATOR = "\\|";
   private static final String EXCEPTION_TEXT_CANT_BUILD_FILM = "Can't build a Film from splits.";
@@ -50,12 +52,11 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
       final String titel = gatherTextOrUseAlternativ(3, AbstractMediaResource::getTitel);
 
       if (sender == null) {
-        throw new CantReadFilmException(
-            format("Can't gather a Sender for the film \"%s\" - \"%s\".", thema, titel));
+        throw new CantReadFilmException(format("Can't gather a Sender for the film \"%s\" - \"%s\".", thema, titel));
       }
 
       final LocalDate date = gatherDate(sender, thema, titel);
-      final LocalTime time = gatherTime();
+      final LocalTime time = gatherTime(sender, thema, titel);
       final Duration dauer = gatherDuration(sender, thema, titel);
       final long groesse = gatherGroesse(sender, thema, titel);
 
@@ -69,19 +70,21 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
               sender,
               titel,
               thema,
-              date == null ? null : LocalDateTime.of(date, time),
+              LocalDateTime.of(date, time),
               dauer);
       addGeoLocations(film);
       setWebsite(film);
       setNeu(film);
       film.setBeschreibung(beschreibung);
       addSubtitle(film);
-      // Here we import also films without a download URL so the next entry can use the Sender,
-      // Thema and Titel. After the import all films without download URLs will be removed.
+      // Here we import also films without a download URL so the next entry can use
+      // the Sender,
+      // Thema and Titel. After the import all films without download URLs will be
+      // removed.
       addUrls(groesse, film);
 
       return film;
-    } catch (final CantReadFilmException | MalformedURLException | ExecutionException exception) {
+    } catch (final CantReadFilmException | ExecutionException exception) {
       throw new OldFilmlistImportException(EXCEPTION_TEXT_CANT_BUILD_FILM, exception);
     } catch (final InterruptedException exception) {
       Thread.currentThread().interrupt();
@@ -89,8 +92,15 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
     }
   }
 
-  private void addUrls(final long groesse, final Film film) throws MalformedURLException {
-    final Optional<URL> oprionalUrlNormal = gatherNormalUrl();
+  private void addUrls(final long groesse, final Film film) {
+    final String urlNormalText = entrySplits.get(9).trim();
+    Optional<URL> oprionalUrlNormal = Optional.empty();
+    try {
+      oprionalUrlNormal = Optional.of(new URL(StringEscapeUtils.unescapeJava(urlNormalText)));
+    } catch (MalformedURLException e) {
+      LOG.warn(format("MalformedURLException video url %s for %s %s %s %s", urlNormalText, film.getSender(),
+          film.getThema(), film.getTitel(), e));
+    }
     if (oprionalUrlNormal.isPresent()) {
       final URL urlNormal = oprionalUrlNormal.get();
       film.addUrl(Resolution.NORMAL, new FilmUrl(urlNormal, groesse));
@@ -99,14 +109,18 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
     }
   }
 
-  private void addAlternativUrl(
-      final long groesse, final Film film, final URL urlNormal, final int i, final Resolution small)
-      throws MalformedURLException {
+  private void addAlternativUrl(final long groesse, final Film film, final URL urlNormal, final int i,
+      final Resolution small) {
     final String urlTextKlein = entrySplits.get(i);
     if (!urlTextKlein.isEmpty()) {
-      final FilmUrl urlKlein = urlTextToUri(urlNormal, groesse, urlTextKlein);
-      if (urlKlein != null) {
-        film.addUrl(small, urlKlein);
+      try {
+        final FilmUrl urlKlein = urlTextToUri(urlNormal, groesse, urlTextKlein);
+        if (urlKlein != null) {
+          film.addUrl(small, urlKlein);
+        }
+      } catch (MalformedURLException e) {
+        LOG.warn(format("MalformedURLException video url %s for %s %s %s %s", urlTextKlein, film.getSender(),
+            film.getThema(), film.getTitel(), e));
       }
     }
   }
@@ -119,8 +133,17 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
   }
 
   private void setWebsite(final Film film) {
-    final Optional<URL> urlWebseite = gatherWebsiteUrl();
-    film.setWebsite(urlWebseite.orElse(null));
+    Optional<URL> urlWebseite = Optional.empty();
+    final String websiteUrlText = entrySplits.get(10).trim();
+    if (!websiteUrlText.isBlank()) {
+      try {
+        urlWebseite = Optional.of(new URL(StringEscapeUtils.unescapeJava(websiteUrlText)));
+      } catch (final MalformedURLException malformedURLException) {
+        LOG.warn(format("The website URL \"%s\" can't be parsed for %s %s %s %s", websiteUrlText, film.getSender(),
+            film.getThema(), film.getTitel(), malformedURLException));
+      }
+      film.setWebsite(urlWebseite.orElse(null));
+    }
   }
 
   private void addGeoLocations(final Film film) {
@@ -128,23 +151,29 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
     film.addAllGeoLocations(geoLocations);
   }
 
-  private void addSubtitle(final Film film) throws MalformedURLException {
+  private void addSubtitle(final Film film) {
     final String urlTextUntertitel = entrySplits.get(11);
-    if (!urlTextUntertitel.isEmpty()) {
-      film.addSubtitle(new URL(urlTextUntertitel));
+    try {
+      if (!urlTextUntertitel.isEmpty()
+          && urlTextUntertitel.toLowerCase().startsWith("http")) {
+        film.addSubtitle(new URL(urlTextUntertitel));
+      }
+    } catch (MalformedURLException exception) {
+      LOG.warn(format("Invalid subtitle url %s for %s %s %s", urlTextUntertitel, film.getSender(), film.getThema(),
+          film.getTitel()));
     }
   }
 
   private long gatherGroesse(final Sender sender, final String thema, final String titel) {
     final String groesseText = entrySplits.get(7);
 
-    final long groesse;
+    long groesse = 0L;
     if (StringUtils.isNotBlank(groesseText)) {
-      groesse = Long.parseLong(groesseText);
-    } else {
-      groesse = 0L;
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(format("Film ohne Größe \"%s %s - %s\".", sender.getName(), thema, titel));
+      try {
+        groesse = Long.parseLong(groesseText)*1024; // oldFilmlist format is MB - new DM is KB
+      } catch (NumberFormatException e) {
+        LOG.warn(
+            format("NumberFormatException Size on %s for %s %s %s %s", groesseText, sender.getName(), thema, titel, e));
       }
     }
     return groesse;
@@ -152,25 +181,28 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
 
   private Duration gatherDuration(final Sender sender, final String thema, final String titel) {
     final String durationText = entrySplits.get(6);
-    final Duration dauer;
+    Duration dauer = Duration.ZERO;
     if (StringUtils.isNotBlank(durationText)) {
-      dauer = Duration.between(LocalTime.MIDNIGHT, LocalTime.parse(durationText));
-    } else {
-      dauer = Duration.ZERO;
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(format("Film ohne Dauer \"%s %s - %s\".", sender.getName(), thema, titel));
+      try {
+        dauer = Duration.between(LocalTime.MIDNIGHT, LocalTime.parse(durationText));
+      } catch (DateTimeException | ArithmeticException e) {
+        LOG.warn(format("DateTimeException duration of %s for %s %s %s %s", durationText, sender.getName(), thema,
+            titel, e));
       }
     }
     return dauer;
   }
 
-  private LocalTime gatherTime() {
-    final LocalTime time;
+  private LocalTime gatherTime(final Sender sender, final String thema, final String titel) {
+    LocalTime time = LocalTime.MIDNIGHT;
     final String timeText = entrySplits.get(5);
     if (StringUtils.isNotBlank(timeText)) {
-      time = LocalTime.parse(timeText, TIME_FORMATTER);
-    } else {
-      time = LocalTime.MIDNIGHT;
+      try {
+        time = LocalTime.parse(timeText, TIME_FORMATTER);
+      } catch (DateTimeParseException e) {
+        LOG.warn(
+            format("DateTimeParseException TIME on %s for %s %s %s %s", timeText, sender.getName(), thema, titel, e));
+      }
     }
     return time;
   }
@@ -178,13 +210,13 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
   @Nullable
   private LocalDate gatherDate(final Sender sender, final String thema, final String titel) {
     final String dateText = entrySplits.get(4);
-    final LocalDate date;
+    LocalDate date = DEFAULT_DATE;
     if (StringUtils.isNotBlank(dateText)) {
-      date = LocalDate.parse(dateText, DATE_FORMATTER);
-    } else {
-      date = null;
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(format("Film ohne Datum \"%s %s - %s\".", sender.getName(), thema, titel));
+      try {
+        date = LocalDate.parse(dateText, DATE_FORMATTER);
+      } catch (DateTimeParseException e) {
+        LOG.warn(
+            format("DateTimeParseException DATE on %s for %s %s %s %s", dateText, sender.getName(), thema, titel, e));
       }
     }
     return date;
@@ -211,37 +243,14 @@ public class OldFilmlistEntryToFilmTask implements Callable<Film> {
     return sender;
   }
 
-  private Optional<URL> gatherNormalUrl() {
-    final String urlNormalText = entrySplits.get(9).trim();
-    try {
-      return Optional.of(new URL(StringEscapeUtils.unescapeJava(urlNormalText)));
-    } catch (final MalformedURLException malformedURLException) {
-      LOG.debug(
-          format("The normal download URL \"%s\" can't be prased.", urlNormalText),
-          malformedURLException);
-      return Optional.empty();
-    }
-  }
-
-  private Optional<URL> gatherWebsiteUrl() {
-    final String websiteUrlText = entrySplits.get(10).trim();
-    try {
-      return Optional.of(new URL(StringEscapeUtils.unescapeJava(websiteUrlText)));
-    } catch (final MalformedURLException malformedURLException) {
-      LOG.debug(
-          format("The website URL \"%s\" can't be prased.", websiteUrlText), malformedURLException);
-      return Optional.empty();
-    }
-  }
-
   private Collection<GeoLocations> readGeoLocations(final String aGeoText) {
     final Collection<GeoLocations> geoLocations = new ArrayList<>();
 
     final GeoLocations singleGeoLocation = GeoLocations.getFromDescription(aGeoText);
-    if (singleGeoLocation == null) {
+    if (singleGeoLocation == GeoLocations.GEO_NONE) {
       for (final String geoText : aGeoText.split(String.valueOf(GEO_SPLITTERATOR))) {
         final GeoLocations geoLocation = GeoLocations.getFromDescription(geoText);
-        if (geoLocation != null) {
+        if (geoLocation != GeoLocations.GEO_NONE) {
           geoLocations.add(geoLocation);
         }
       }

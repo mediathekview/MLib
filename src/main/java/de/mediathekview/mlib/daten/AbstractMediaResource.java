@@ -32,7 +32,7 @@ public abstract class AbstractMediaResource<T extends Serializable> implements S
     beschreibung = "";
   }
 
-  public AbstractMediaResource(
+  protected AbstractMediaResource(
       final UUID aUuid,
       final Sender aSender,
       final String aTitel,
@@ -53,7 +53,7 @@ public abstract class AbstractMediaResource<T extends Serializable> implements S
     beschreibung = "";
   }
 
-  public AbstractMediaResource(final AbstractMediaResource<T> copyObj) {
+  protected AbstractMediaResource(final AbstractMediaResource<T> copyObj) {
     super();
     uuid = copyObj.uuid;
     geoLocations = copyObj.geoLocations;
@@ -110,7 +110,7 @@ public abstract class AbstractMediaResource<T extends Serializable> implements S
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final AbstractMediaResource other = (AbstractMediaResource) obj;
+    final AbstractMediaResource<T> other = (AbstractMediaResource<T>) obj;
     if (sender != other.sender) {
       return false;
     }

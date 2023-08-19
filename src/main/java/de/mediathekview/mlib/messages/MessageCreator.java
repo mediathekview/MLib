@@ -8,12 +8,12 @@ import de.mediathekview.mlib.messages.listener.MessageListener;
 public abstract class MessageCreator {
   protected final Collection<MessageListener> messageListeners;
 
-  public MessageCreator() {
+  protected MessageCreator() {
     super();
     messageListeners = ConcurrentHashMap.newKeySet();
   }
 
-  public MessageCreator(final MessageListener... aListeners) {
+  protected MessageCreator(final MessageListener... aListeners) {
     this();
     messageListeners.addAll(Arrays.asList(aListeners));
   }

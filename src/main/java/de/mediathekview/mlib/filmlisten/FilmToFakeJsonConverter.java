@@ -5,6 +5,8 @@ import de.mediathekview.mlib.daten.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.URL;
 import java.time.*;
@@ -46,11 +48,11 @@ public class FilmToFakeJsonConverter {
         "neu"
       };
   private static final String OUTPUT_PATTERN =
-      "\"X\": [\"%s\",%s,%s,\"%s\",\"%s\",\"%s\",\"%s\",%s,\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
+      "\"X\":[\"%s\",%s,%s,\"%s\",\"%s\",\"%s\",\"%s\",%s,\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
   private static final String META_INFORMATION_PATTERN =
-      "\"Filmliste\": [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
+      "\"Filmliste\":[\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
   private static final String COLUMNNAMES_PATTERN =
-      "\"Filmliste\": [\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
+      "\"Filmliste\":[\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]";
   private static final char SPLITTERATOR = ',';
   private static final char FAKE_JSON_BEGIN = '{';
   private static final char FAKE_JSON_END = '}';
@@ -65,18 +67,16 @@ public class FilmToFakeJsonConverter {
   private String lastSender;
   private String lastThema;
 
-  public String toFakeJson(
+  public void toFakeJson(
       final List<AbstractMediaResource<?>> aResources,
+      final OutputStreamWriter outputstream,
       final String aFilmlisteDatum,
       final String aFilmlisteDatumGmt,
       final String aFilmlisteVersion,
       final String aFilmlisteProgramm,
-      final String aFilmlisteId) {
-    final StringBuilder fakeJsonBuilder = new StringBuilder();
-    fakeJsonBuilder.append(FAKE_JSON_BEGIN);
-    fakeJsonBuilder.append(System.lineSeparator());
-
-    fakeJsonBuilder.append(
+      final String aFilmlisteId) throws IOException {
+    outputstream.write(FAKE_JSON_BEGIN);
+    outputstream.write(
         String.format(
             META_INFORMATION_PATTERN,
             aFilmlisteDatum,
@@ -84,10 +84,10 @@ public class FilmToFakeJsonConverter {
             aFilmlisteVersion,
             aFilmlisteProgramm,
             aFilmlisteId));
-    appendEnd(fakeJsonBuilder, false);
+    appendEnd(outputstream, false);
 
-    fakeJsonBuilder.append(String.format(COLUMNNAMES_PATTERN, COLUMNNAMES));
-    appendEnd(fakeJsonBuilder, false);
+    outputstream.write(String.format(COLUMNNAMES_PATTERN, COLUMNNAMES));
+    appendEnd(outputstream, false);
 
     lastSender = "";
     lastThema = "";
@@ -95,7 +95,7 @@ public class FilmToFakeJsonConverter {
         aResources.stream().filter(Objects::nonNull).toList()) {
       try {
         resourceToFakeJson(
-            fakeJsonBuilder,
+            outputstream,
             mediaResource,
             mediaResource.equals(aResources.get(aResources.size() - 1)));
       } catch (final Exception exception) {
@@ -104,15 +104,14 @@ public class FilmToFakeJsonConverter {
       }
     }
 
-    fakeJsonBuilder.append(FAKE_JSON_END);
-    return fakeJsonBuilder.toString();
+    outputstream.write(FAKE_JSON_END);
+
   }
 
-  private void appendEnd(final StringBuilder fakeJsonBuilder, final boolean aIsLastFilm) {
+  private void appendEnd(final OutputStreamWriter outputstream, final boolean aIsLastFilm) throws IOException {
     if (!aIsLastFilm) {
-      fakeJsonBuilder.append(SPLITTERATOR);
+      outputstream.write(SPLITTERATOR);
     }
-    fakeJsonBuilder.append(System.lineSeparator());
   }
 
   private String durationToString(final Duration aDuration) {
@@ -201,17 +200,17 @@ public class FilmToFakeJsonConverter {
   }
 
   private void resourceToFakeJson(
-      final StringBuilder fakeJsonBuilder,
+      final OutputStreamWriter outputstream,
       final AbstractMediaResource<?> aMediaResource,
-      final boolean aIsLastFilm) {
+      final boolean aIsLastFilm) throws IOException {
 
     final String title = aMediaResource.getTitel();
-    appendDefaultEntry(aMediaResource, title, fakeJsonBuilder, aIsLastFilm);
-    appendAudioDescriptionEntry(aMediaResource, title, fakeJsonBuilder, aIsLastFilm);
-    appendSignLanguageEntry(aMediaResource, title, fakeJsonBuilder, aIsLastFilm);
+    appendDefaultEntry(aMediaResource, title, outputstream, aIsLastFilm);
+    appendAudioDescriptionEntry(aMediaResource, title, outputstream, aIsLastFilm);
+    appendSignLanguageEntry(aMediaResource, title, outputstream, aIsLastFilm);
   }
 
-  private void appendDefaultEntry(AbstractMediaResource<?> aMediaResource, String title, StringBuilder fakeJsonBuilder, boolean aIsLastFilm) {
+  private void appendDefaultEntry(AbstractMediaResource<?> aMediaResource, String title, OutputStreamWriter outputstream, boolean aIsLastFilm) throws IOException {
     final String url;
     String urlKlein = "";
     String urlHd = "";
@@ -228,15 +227,15 @@ public class FilmToFakeJsonConverter {
       }
 
       appendMediaResource(
-          fakeJsonBuilder, aMediaResource, title, urlKlein, url, urlHd, aIsLastFilm);
+          outputstream, aMediaResource, title, urlKlein, url, urlHd, aIsLastFilm);
     }
   }
 
   private void appendAudioDescriptionEntry(
       final AbstractMediaResource<?> aMediaResource,
       final String aTitle,
-      final StringBuilder fakeJsonBuilder,
-      final boolean aIsLastFilm) {
+      final OutputStreamWriter outputstream,
+      final boolean aIsLastFilm) throws IOException {
     final String url;
     String urlSmall = "";
     String urlHd = "";
@@ -258,7 +257,7 @@ public class FilmToFakeJsonConverter {
 
         final String titleAudioDescription = aTitle + " (Audiodeskription)";
         appendMediaResource(
-            fakeJsonBuilder,
+            outputstream,
             aMediaResource,
             titleAudioDescription,
             urlSmall,
@@ -272,8 +271,8 @@ public class FilmToFakeJsonConverter {
   private void appendSignLanguageEntry(
       final AbstractMediaResource<?> aMediaResource,
       final String aTitle,
-      final StringBuilder fakeJsonBuilder,
-      final boolean aIsLastFilm) {
+      final OutputStreamWriter outputstream,
+      final boolean aIsLastFilm) throws IOException {
     final String url;
     String urlSmall = "";
     String urlHd = "";
@@ -295,19 +294,19 @@ public class FilmToFakeJsonConverter {
 
         final String titleSignLanguage = aTitle + " (Gebärdensprache)";
         appendMediaResource(
-            fakeJsonBuilder, aMediaResource, titleSignLanguage, urlSmall, url, urlHd, aIsLastFilm);
+            outputstream, aMediaResource, titleSignLanguage, urlSmall, url, urlHd, aIsLastFilm);
       }
     }
   }
 
   private void appendMediaResource(
-      final StringBuilder fakeJsonBuilder,
+      final OutputStreamWriter outputstream,
       final AbstractMediaResource<?> aMediaResource,
       final String aTitle,
       String aUrlSmall,
       final String aUrlNormal,
       String aUrlHd,
-      final boolean aIsLastFilm) {
+      final boolean aIsLastFilm) throws IOException {
     final Gson gson = new Gson();
 
     final String thema = setThema(aMediaResource);
@@ -318,7 +317,7 @@ public class FilmToFakeJsonConverter {
 
     final String website = aMediaResource.getWebsite().map(URL::toString).orElse("");
 
-    fakeJsonBuilder.append(
+    outputstream.write(
         String.format(
             OUTPUT_PATTERN,
             sender,
@@ -348,7 +347,7 @@ public class FilmToFakeJsonConverter {
             geolocationsToStirng(aMediaResource.getGeoLocations()),
             aMediaResource instanceof Podcast podcast && podcast.isNeu()));
 
-    appendEnd(fakeJsonBuilder, aIsLastFilm);
+    appendEnd(outputstream, aIsLastFilm);
   }
 
   private String setSender(final AbstractMediaResource<?> aMediaResource) {
