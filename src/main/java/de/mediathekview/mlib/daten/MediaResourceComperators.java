@@ -14,7 +14,7 @@ public enum MediaResourceComperators {
           AbstractMediaResource::getThema, Comparator.nullsFirst(Comparator.naturalOrder()))),
   DATE_COMPERATOR(
       Comparator.comparing(
-          AbstractMediaResource::getTime, Comparator.nullsFirst(Comparator.naturalOrder()))),
+          AbstractMediaResource::getTime, Comparator.nullsFirst(Comparator.reverseOrder()))),
   DEFAULT_COMPERATOR(createDefaultComperator());
 
   private final Comparator<AbstractMediaResource<?>> comparator;
