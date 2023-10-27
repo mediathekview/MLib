@@ -2,6 +2,8 @@ package de.mediathekview.mlib.filmlisten.writer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import de.mediathekview.mlib.daten.Film;
 import de.mediathekview.mlib.daten.Filmlist;
 import de.mediathekview.mlib.daten.GsonDurationAdapter;
 import de.mediathekview.mlib.daten.GsonLocalDateTimeAdapter;
@@ -14,6 +16,8 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FilmlistWriter extends AbstractFilmlistWriter {
 
@@ -38,5 +42,12 @@ public class FilmlistWriter extends AbstractFilmlistWriter {
     }
 
     return true;
+  }
+
+  @Override
+  public boolean write(Stream<Film> filmlist, OutputStream outputStream) throws IOException {
+    Filmlist fl = new Filmlist();
+    fl.addAllFilms(filmlist.collect(Collectors.toList()));
+    return write(fl, outputStream);
   }
 }

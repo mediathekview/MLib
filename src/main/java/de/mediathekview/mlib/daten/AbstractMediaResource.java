@@ -136,6 +136,10 @@ public abstract class AbstractMediaResource<T extends Serializable> implements S
     beschreibung = TextCleaner.shortAndCleanBeschreibung(aBeschreibung, titel, thema);
   }
 
+  public void setBeschreibungRaw(final String aBeschreibung) {
+    beschreibung = aBeschreibung;
+  }
+  
   public Optional<T> getDefaultUrl() {
     if (urls.containsKey(Resolution.NORMAL)) {
       return Optional.of(getUrl(Resolution.NORMAL));
@@ -174,6 +178,10 @@ public abstract class AbstractMediaResource<T extends Serializable> implements S
   public void setThema(final String aThema) {
     thema = TextCleaner.clean(aThema);
   }
+  
+  public void setThemaRaw(final String aThema) {
+    thema = aThema;
+  }
 
   public LocalDateTime getTime() {
     return time;
@@ -189,6 +197,10 @@ public abstract class AbstractMediaResource<T extends Serializable> implements S
 
   public void setTitel(final String aTitel) {
     titel = TextCleaner.clean(aTitel);
+  }
+  
+  public void setTitelRaw(final String aTitel) {
+    titel = aTitel;
   }
 
   public T getUrl(final Resolution aQuality) {

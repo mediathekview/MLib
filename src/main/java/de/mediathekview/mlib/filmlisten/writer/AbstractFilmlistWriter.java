@@ -1,5 +1,6 @@
 package de.mediathekview.mlib.filmlisten.writer;
 
+import de.mediathekview.mlib.daten.Film;
 import de.mediathekview.mlib.daten.Filmlist;
 import de.mediathekview.mlib.messages.LibMessages;
 import de.mediathekview.mlib.messages.MessageCreator;
@@ -12,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 public abstract class AbstractFilmlistWriter extends MessageCreator {
   private static final Logger LOG = LogManager.getLogger(AbstractFilmlistWriter.class);
@@ -25,6 +27,7 @@ public abstract class AbstractFilmlistWriter extends MessageCreator {
   }
 
   public abstract boolean write(Filmlist filmlist, OutputStream outputStream) throws IOException;
+  public abstract boolean write(Stream<Film> filmlist, OutputStream outputStream) throws IOException;
 
   public boolean write(Filmlist filmlist, Path savePath) {
     try (final OutputStream os = new FileOutputStream(savePath.toFile());
