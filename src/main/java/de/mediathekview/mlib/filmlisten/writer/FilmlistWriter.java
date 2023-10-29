@@ -2,7 +2,6 @@ package de.mediathekview.mlib.filmlisten.writer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import de.mediathekview.mlib.daten.Filmlist;
 import de.mediathekview.mlib.daten.GsonDurationAdapter;
 import de.mediathekview.mlib.daten.GsonLocalDateTimeAdapter;
@@ -40,5 +39,4 @@ public class FilmlistWriter extends AbstractFilmlistWriter {
 
     return true;
   }
-
 }
