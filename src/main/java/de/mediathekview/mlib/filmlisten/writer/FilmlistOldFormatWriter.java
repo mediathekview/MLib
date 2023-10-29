@@ -7,7 +7,6 @@ import de.mediathekview.mlib.daten.GeoLocations;
 import de.mediathekview.mlib.daten.MediaResourceComperators;
 import de.mediathekview.mlib.daten.Podcast;
 import de.mediathekview.mlib.daten.Resolution;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -19,7 +18,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Locale;
-import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,38 +43,6 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
   protected String thema = "";
   protected int cnt;
   
-  
-  @Override
-  public boolean write(Stream<Film> filmlist, OutputStream outputStream) throws IOException {
-    long start = System.currentTimeMillis();
-    try {
-      LOG.info("start writting data");
-      JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(outputStream,StandardCharsets.UTF_8));
-      jsonWriter.beginObject();
-      writeMetaHeader(new Filmlist(), jsonWriter);
-      writeColumnHeader(jsonWriter);
-      filmlist.forEach(aFilm -> {
-        try {
-          writeRecord(aFilm, jsonWriter);
-          cnt++;
-          if (cnt % 1000 == 0) { 
-            jsonWriter.flush(); 
-          }
-        } catch (IOException e) {
-          LOG.error(e);
-        }
-      });
-      jsonWriter.endObject();
-      jsonWriter.flush();
-      LOG.info("done writting in " + ((System.currentTimeMillis()-start)/1000) + "sec for " + cnt + " elements");
-    } catch (IOException e) {
-      LOG.error(e);
-      return false;
-    }
-    return true;
-  }
-
-
   @Override
   public boolean write(Filmlist filmlist, OutputStream outputStream) throws IOException {
     long start = System.currentTimeMillis();
