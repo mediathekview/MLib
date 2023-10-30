@@ -19,7 +19,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-public class FilmlistOldFormatWriterTest {
+class FilmlistOldFormatWriterTest {
   @TempDir
   Path tempDir;
   

@@ -14,8 +14,6 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,7 +29,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
-import static java.lang.String.format;
 import static java.time.format.FormatStyle.MEDIUM;
 
 public class FilmlistOldFormatReader extends AbstractFilmlistReader {
@@ -47,23 +44,12 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
   private String sender = "";
   private String thema = "";
   private String debug = "";
-  int cnt = 0;
+  private int cnt = 0;
   
-  public static void main(String[] args) throws FileNotFoundException {
-    new FilmlistOldFormatReader().read(new FileInputStream("C:/Users/steph/Desktop/Mediathek/oldFormat/Filmliste-akt-oldformat.json"));
-  }
-    
   @Override
   public Optional<Filmlist> read(InputStream aInputStream) {
     long start = System.currentTimeMillis();
-    /*
-    String bigFile = "C:/Users/steph/Desktop/Mediathek/oldFormat/Filmliste-akt-oldformat.json";
-    String medium = "C:/Users/steph/Desktop/Mediathek/oldFormat/Filmlist - Kopie.json";
-    String smallFile = "C:/Users/steph/Desktop/Mediathek/oldFormat/Filmlist.json";
-    String broken = "C:/Users/steph/Desktop/Mediathek/oldFormat/Filmlist-broken.json";
-    */
     Filmlist filmlist = new Filmlist();
-    int cnt = 0;
     debug = "LINE " + cnt;
     //
     
@@ -74,10 +60,10 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
       while (jsonReader.peek() != JsonToken.END_OBJECT) 
       {
         try {
-          readRecrod(jsonReader).ifPresent(aFilm -> {filmlist.add(aFilm);});
+          readRecrod(jsonReader).ifPresent(filmlist::add);
         } catch (Exception e) {
           if (!recoverParser(jsonReader)) {
-            System.out.println("error after " + ((System.currentTimeMillis()-start)/1000) + " on " + cnt + " elements (" + filmlist.getFilms().size()+")");
+            LOG.error("error after {} sec on element {} of {} elements", ((System.currentTimeMillis()-start)/1000), cnt, filmlist.getFilms().size());
             throw(e);
           }
         }
@@ -87,7 +73,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
       LOG.error(e);
       return Optional.of(filmlist);
     }
-    LOG.debug("done reading in " + ((System.currentTimeMillis()-start)/1000) + "sec for " + cnt + " elements (" + filmlist.getFilms().size()+")");
+    LOG.debug("done reading in {} sec for {} elements resulting in {} elements", ((System.currentTimeMillis()-start)/1000), cnt, filmlist.getFilms().size());
     return Optional.of(filmlist);
     
   }
@@ -102,7 +88,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
       jsonReader.endArray();
       return true;
     } catch (Exception e) {
-      // TODO: handle exception
+      LOG.error(e);
     }
     return false;
   }
@@ -126,7 +112,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
       try {
         return LocalDateTime.parse(in, FILMLIST_CREATIONDATE_PATTERN);
       } catch (DateTimeParseException e) {
-        LOG.warn(format("Error readHeader01CreationDate format string %s on line %s throws %s", in, debug, e ));
+        LOG.warn("Error readHeader01CreationDate format string {} on line {} thorws {}", in, debug, e );
       }
     }
     return LocalDateTime.now();
@@ -138,7 +124,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
     try {
       return UUID.fromString(in);
     } catch (Exception e) {
-      LOG.warn("Error readHeader05Hash format string " + in);
+      LOG.warn("Error readHeader05Hash format string {}", in);
     }
     return UUID.randomUUID();
   }
@@ -167,7 +153,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
     jsonReader.nextString(); // Geo
     jsonReader.nextString(); // neu
     jsonReader.endArray();
-  };
+  }
   
   private Optional<Film> readRecrod(JsonReader jsonReader) throws IOException {
     cnt++;
@@ -226,22 +212,18 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
     if (f.getUrls().size() > 0) {
       return Optional.of(f);
     } else {
-      LOG.warn(format("Error no urls for film %s", debug));
+      LOG.warn("Error no urls for film {}", debug);
       return Optional.empty();
     }
   }
   
   
   private Map<Resolution,FilmUrl> generateUrls(URL urlNormal, String urlSmall, String urlHd, long size) {
-    Map<Resolution,FilmUrl> urls = new HashMap<>();
+    Map<Resolution,FilmUrl> urls = new EnumMap<>(Resolution.class);
     if (urlNormal != null) {
       urls.put(Resolution.NORMAL, new FilmUrl(urlNormal, size));
-      rebuildUrl(urlNormal, urlSmall).ifPresent( u -> {
-        urls.put(Resolution.SMALL, new FilmUrl(u, 0L));  
-      });
-      rebuildUrl(urlNormal, urlHd).ifPresent( u -> {
-        urls.put(Resolution.HD, new FilmUrl(u, 0L));  
-      });
+      rebuildUrl(urlNormal, urlSmall).ifPresent( u -> urls.put(Resolution.SMALL, new FilmUrl(u, 0L)));
+      rebuildUrl(urlNormal, urlHd).ifPresent( u -> urls.put(Resolution.HD, new FilmUrl(u, 0L)));
     }
     return urls;
   }
@@ -256,7 +238,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
         }
         return Optional.of(new URL(targetUrl));
       } catch (Exception e) {
-        LOG.warn(format("Error rebuildUrl format string %s on line %s throws %s", targetUrl, debug, e ));
+        LOG.warn("Error rebuildUrl format string {} on line {} throws {}", targetUrl, debug, e );
       }
     }
     return Optional.empty();
@@ -289,7 +271,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
       try {
         return LocalDate.parse(in, DATE_FORMATTER);
       } catch (DateTimeParseException e) {
-        LOG.warn(format("Error readRecord04Datum format string %s on line %s throws %s", in, debug, e ));
+        LOG.warn("Error readRecord04Datum format string {} on line {} throws {}", in, debug, e );
       }
     }
     return DEFAULT_DATE;
@@ -300,7 +282,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
         try {
           return LocalTime.parse(in, TIME_FORMATTER);
         } catch (DateTimeParseException e) {
-          LOG.warn(format("Error readRecord05Zeit format string %s on line %s throws %s", in, debug, e ));
+          LOG.warn("Error readRecord05Zeit format string {} on line {} throws {}", in, debug, e );
         }
       }
       return LocalTime.MIDNIGHT;
@@ -311,7 +293,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
       try {
         return Duration.between(LocalTime.MIDNIGHT, LocalTime.parse(in));
       } catch (DateTimeException | ArithmeticException e) {
-        LOG.info(format("Error readRecord06Dauer format string %s on line %s throws %s", in, debug, e ));
+        LOG.warn("Error readRecord06Dauer format string {} on line {} throws {}", in, debug, e );
       }
     }
     return Duration.ZERO;
@@ -322,7 +304,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
       try {
         return Long.parseLong(in)*1024; // oldFilmlist format is MB - new DM is KB
       } catch (NumberFormatException e) {
-        LOG.warn(format("Error readRecord07Groesse format string %s on line %s throws %s", in, debug, e ));
+        LOG.warn("Error readRecord07Groesse format string {} on line {} throws {}", in, debug, e );
       }
     }
     return 0L;
@@ -337,7 +319,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
       try {
         return new URL(in); 
       } catch (final MalformedURLException e) {
-        LOG.warn(format("Error readRecord09Url format string %s on line %s throws %s", in, debug, e ));
+        LOG.warn("Error readRecord09Url format string {} on line {} throws {}", in, debug, e );
       }
     }
     return null;
@@ -348,7 +330,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
       try {
         return new URL(in); 
       } catch (final MalformedURLException e) {
-        LOG.warn(format("Error readRecord10Website format string %s on line %s throws %s", in, debug, e ));
+        LOG.warn("Error readRecord10Website format string {} on line {} throws {}", in, debug, e );
       }
     }
     return null;
@@ -359,7 +341,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
       try {
         return new URL(in);
       } catch (final MalformedURLException e) {
-        LOG.warn(format("Error readRecord11Untertitel format string %s on line %s throws %s", in, debug, e ));
+        LOG.warn("Error readRecord11Untertitel format string {} on line {} throws {}", in, debug, e );
       }
     }
     return null;

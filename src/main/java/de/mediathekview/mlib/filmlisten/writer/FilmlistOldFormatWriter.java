@@ -62,7 +62,7 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
       });
       jsonWriter.endObject();
       jsonWriter.flush();
-      LOG.info("done writting in " + ((System.currentTimeMillis()-start)/1000) + "sec for " + cnt + " elements (" + filmlist.getFilms().size()+")");
+      LOG.info("done writting in {} sec reading {} elements resulting in {} elements", ((System.currentTimeMillis()-start)/1000), cnt, filmlist.getFilms().size());
     } catch (IOException e) {
       LOG.error(e);
       return false;

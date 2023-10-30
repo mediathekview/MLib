@@ -24,7 +24,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-public class FilmlistOldFormatReaderTest {
+class FilmlistOldFormatReaderTest {
 
   @Test
   void readFilmlistOldFormatIncludingBrokenRecords()
