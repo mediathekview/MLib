@@ -39,13 +39,17 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
   private static final char GEO_SPLITTERATOR = '-';
   private static final DateTimeFormatter DATE_TIME_FORMAT =
       DateTimeFormatter.ofLocalizedDateTime(MEDIUM, SHORT).withLocale(Locale.GERMANY);
-  protected String sender = "";
-  protected String thema = "";
-  protected int cnt;
+  private String sender = "";
+  private String thema = "";
+  private int cnt = 0;
   
   @Override
   public boolean write(Filmlist filmlist, OutputStream outputStream) throws IOException {
     long start = System.currentTimeMillis();
+    // these must be reset otherwise we may have old values in here
+    this.sender = "";
+    this.thema = "";
+    this.cnt = 0;
     try {
       LOG.info("start writting data");
       JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(outputStream,StandardCharsets.UTF_8));
@@ -70,7 +74,7 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
     return true;
   }
 
-  protected void writeMetaHeader(Filmlist list, JsonWriter jsonWriter ) throws IOException {
+  private void writeMetaHeader(Filmlist list, JsonWriter jsonWriter ) throws IOException {
     jsonWriter.name("Filmliste").beginArray();
     jsonWriter.value(writeMetaHeader01CreationDate(list));
     jsonWriter.value(writeMetaHeader02CreationDateUTC(list));
@@ -81,28 +85,28 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
     
   }
   
-  protected String writeMetaHeader01CreationDate(Filmlist in) {
+  private String writeMetaHeader01CreationDate(Filmlist in) {
     return DATE_TIME_FORMAT.format(in.getCreationDate());
   }
 
-  protected String writeMetaHeader02CreationDateUTC(Filmlist in) {
+  private String writeMetaHeader02CreationDateUTC(Filmlist in) {
     return DATE_TIME_FORMAT.format(in.getCreationDate().atZone(ZoneOffset.UTC));    
   }
 
-  protected String writeMetaHeader03Version(Filmlist in) {
+  private String writeMetaHeader03Version(Filmlist in) {
     return "4";
   }
 
-  protected String writeMetaHeader04VErsionLong(Filmlist in) {
+  private String writeMetaHeader04VErsionLong(Filmlist in) {
     return "MSearch [Vers.: 4.0.1]";
   }
 
-  protected String writeMetaHeader05Id(Filmlist in) {
+  private String writeMetaHeader05Id(Filmlist in) {
     return in.getListId().toString();
   }
   
   
-  protected void writeColumnHeader(JsonWriter jsonWriter) throws IOException {
+  private void writeColumnHeader(JsonWriter jsonWriter) throws IOException {
     jsonWriter.name("Filmliste").beginArray();
     jsonWriter.value("Sender");
     jsonWriter.value("Thema");
@@ -127,7 +131,7 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
     jsonWriter.endArray();
   }
 
-  protected void writeRecord(AbstractMediaResource<?> film, JsonWriter jsonWriter) throws IOException {
+  private void writeRecord(AbstractMediaResource<?> film, JsonWriter jsonWriter) throws IOException {
     jsonWriter.name("X").beginArray();
     jsonWriter.value(writeRecord01Sender(film, this.sender));
     jsonWriter.value(writeRecord02Thema(film, this.thema));
@@ -152,7 +156,7 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
     jsonWriter.endArray();
   }
 
-  protected String writeRecord01Sender(AbstractMediaResource<?> in, String aSender) {
+  private String writeRecord01Sender(AbstractMediaResource<?> in, String aSender) {
     if (!aSender.equalsIgnoreCase(in.getSenderName())) {
       this.sender = in.getSenderName();
       return in.getSenderName();
@@ -161,7 +165,7 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
     }
   }
 
-  protected String writeRecord02Thema(AbstractMediaResource<?> in, String aThema) {
+  private String writeRecord02Thema(AbstractMediaResource<?> in, String aThema) {
     if(!aThema.equalsIgnoreCase(in.getThema()) ) {
       this.thema = in.getThema();
       return in.getThema();
@@ -170,102 +174,102 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
     }
   }
 
-  protected String writeRecord03Titel(AbstractMediaResource<?> in) {
+  private String writeRecord03Titel(AbstractMediaResource<?> in) {
     return in.getTitel();
   }
 
-  protected String writeRecord04Datum(AbstractMediaResource<?> in) {
+  private String writeRecord04Datum(AbstractMediaResource<?> in) {
     return in.getTime().format(DATE_FORMATTER);
   }
 
-  protected String writeRecord05Zeit(AbstractMediaResource<?> in) {
+  private String writeRecord05Zeit(AbstractMediaResource<?> in) {
     return in.getTime().format(TIME_FORMATTER);
   }
       
-  protected String writeRecord06Dauer(AbstractMediaResource<?> in) {
+  private String writeRecord06Dauer(AbstractMediaResource<?> in) {
     if (!(in instanceof Podcast pIn) || pIn.getDuration().isZero()) {
       return "";
     }
     return LocalTime.MIDNIGHT.plus(pIn.getDuration()).format(DateTimeFormatter.ofPattern(DURATION_FORMAT));
   }
 
-  protected String writeRecord07Groesse(AbstractMediaResource<?> in) {
+  private String writeRecord07Groesse(AbstractMediaResource<?> in) {
     if ((in instanceof Podcast pIn) && pIn.getUrl(Resolution.NORMAL) != null)
       return (pIn.getUrl(Resolution.NORMAL).getFileSize()/1024) + "";
     return "";
   }
 
-  protected String writeRecord08Beschreibung(AbstractMediaResource<?> in) {
+  private String writeRecord08Beschreibung(AbstractMediaResource<?> in) {
     return in.getBeschreibung();
   }
 
-  protected String writeRecord09UrlNormal(AbstractMediaResource<?> in) {
+  private String writeRecord09UrlNormal(AbstractMediaResource<?> in) {
     if ((in instanceof Podcast pIn) && pIn.getUrl(Resolution.NORMAL) != null)
       return pIn.getUrl(Resolution.NORMAL).getUrl().toString();
     return "";
   }
 
-  protected String writeRecord10Website(AbstractMediaResource<?> in) {
+  private String writeRecord10Website(AbstractMediaResource<?> in) {
     if (in.getWebsite().isPresent()) {
       return in.getWebsite().get().toString();
     }
     return "";
   }
 
-  protected String writeRecord11Untertitel(AbstractMediaResource<?> in) {
+  private String writeRecord11Untertitel(AbstractMediaResource<?> in) {
     if ((in instanceof Film fIn) && !fIn.getSubtitles().isEmpty()) {
       return fIn.getSubtitles().toArray()[0].toString();
     }
     return "";
   }
 
-  protected String writeRecord12UrlRTMP(AbstractMediaResource<?> in) {
+  private String writeRecord12UrlRTMP(AbstractMediaResource<?> in) {
     return "";
   }
 
-  protected String writeRecord13UrlKlein(AbstractMediaResource<?> in) {
+  private String writeRecord13UrlKlein(AbstractMediaResource<?> in) {
     if ((in instanceof Podcast pIn) && in.getUrl(Resolution.SMALL) != null && pIn.getUrl(Resolution.NORMAL) != null) {
       return reduceUrl(pIn.getUrl(Resolution.NORMAL).getUrl().toString(), pIn.getUrl(Resolution.SMALL).getUrl().toString());
     }
     return "";
   }
 
-  protected String writeRecord14UrlKleinRTMP(AbstractMediaResource<?> in) {
+  private String writeRecord14UrlKleinRTMP(AbstractMediaResource<?> in) {
     return "";
   }
 
-  protected String writeRecord15UrlHD(AbstractMediaResource<?> in) {
+  private String writeRecord15UrlHD(AbstractMediaResource<?> in) {
     if ((in instanceof Podcast pIn) && in.getUrl(Resolution.HD) != null && in.getUrl(Resolution.NORMAL) != null) {
       return reduceUrl(pIn.getUrl(Resolution.NORMAL).getUrl().toString(), pIn.getUrl(Resolution.HD).getUrl().toString());
     }
     return "";
   }
 
-  protected String writeRecord16UrlHdRTMP(AbstractMediaResource<?> in) {
+  private String writeRecord16UrlHdRTMP(AbstractMediaResource<?> in) {
     return "";
   }
 
-  protected String writeRecord17DatumL(AbstractMediaResource<?> in) {
+  private String writeRecord17DatumL(AbstractMediaResource<?> in) {
     final ZonedDateTime zonedDateTime = in.getTime().atZone(ZONE_ID);
     return zonedDateTime.toEpochSecond()+"";
   }
 
-  protected String writeRecord18UrlHistory(AbstractMediaResource<?> in) {
+  private String writeRecord18UrlHistory(AbstractMediaResource<?> in) {
     return "";
   }
 
-  protected String writeRecord19Geo(AbstractMediaResource<?> in) {
+  private String writeRecord19Geo(AbstractMediaResource<?> in) {
     return geolocationsToStirng(in.getGeoLocations());
   }
 
-  protected String writeRecord20Neu(AbstractMediaResource<?> in) {
+  private String writeRecord20Neu(AbstractMediaResource<?> in) {
     if ((in instanceof Podcast pIn)) {
       return Boolean.toString(pIn.isNeu());
     }
     return Boolean.toString(false);
   }
   
-  protected String reduceUrl(final String aBaseUrl, final String aUrlToReduce) {
+  private String reduceUrl(final String aBaseUrl, final String aUrlToReduce) {
     final StringBuilder urlIntersectionBuilder = new StringBuilder();
     for (int i = 0;
         i < aBaseUrl.length()

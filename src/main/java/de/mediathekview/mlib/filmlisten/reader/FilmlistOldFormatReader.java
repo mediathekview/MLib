@@ -51,8 +51,10 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
     long start = System.currentTimeMillis();
     Filmlist filmlist = new Filmlist();
     debug = "LINE " + cnt;
-    //
-    
+    // these must be reset for each loading run
+    this.sender = "";
+    this.thema = "";
+    this.cnt = 0;
     try (JsonReader jsonReader = new JsonReader(new InputStreamReader(aInputStream, StandardCharsets.UTF_8)))
     {
       headerMeta(jsonReader, filmlist);
@@ -67,7 +69,6 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
             throw(e);
           }
         }
-        cnt++;
       }
     } catch (IOException e) {
       LOG.error(e);
@@ -248,25 +249,25 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
   
   ////////////////////////////////////////////////////////////
 
-  protected String readRecord01Sender(String in, String sender) {
+  private String readRecord01Sender(String in, String sender) {
     if (!in.isBlank()) {
       sender = in;
     }
     return sender;
   }
   
-  protected String readRecord02Thema(String in, String thema) {
+  private String readRecord02Thema(String in, String thema) {
     if (!in.isBlank()) {
       thema = in;
     }
     return thema;
   }
   
-  protected String readRecord03Titel(String in) {
+  private String readRecord03Titel(String in) {
     return in;
   }
   
-  protected LocalDate readRecord04Datum(String in) {
+  private LocalDate readRecord04Datum(String in) {
     if (StringUtils.isNotBlank(in)) {
       try {
         return LocalDate.parse(in, DATE_FORMATTER);
@@ -277,7 +278,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
     return DEFAULT_DATE;
   }
   
-  protected LocalTime readRecord05Zeit(String in) {
+  private LocalTime readRecord05Zeit(String in) {
       if (StringUtils.isNotBlank(in)) {
         try {
           return LocalTime.parse(in, TIME_FORMATTER);
@@ -288,7 +289,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
       return LocalTime.MIDNIGHT;
   }
   
-  protected Duration readRecord06Dauer(String in) {
+  private Duration readRecord06Dauer(String in) {
     if (StringUtils.isNotBlank(in)) {
       try {
         return Duration.between(LocalTime.MIDNIGHT, LocalTime.parse(in));
@@ -299,7 +300,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
     return Duration.ZERO;
   }
   
-  protected long readRecord07Groesse(String in) {
+  private long readRecord07Groesse(String in) {
     if (StringUtils.isNotBlank(in)) {
       try {
         return Long.parseLong(in)*1024; // oldFilmlist format is MB - new DM is KB
@@ -310,11 +311,11 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
     return 0L;
   }
 
-  protected String readRecord08Beschreibung(String in) {
+  private String readRecord08Beschreibung(String in) {
     return in;
   }
   
-  protected URL readRecord09Url(String in) {
+  private URL readRecord09Url(String in) {
     if (!in.isBlank()) {
       try {
         return new URL(in); 
@@ -325,7 +326,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
     return null;
   }
   
-  protected URL readRecord10Website(String in) {
+  private URL readRecord10Website(String in) {
     if (!in.isBlank() && in.startsWith("http")) {
       try {
         return new URL(in); 
@@ -336,7 +337,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
     return null;
   }
   
-  protected URL readRecord11Untertitel(String in) {
+  private URL readRecord11Untertitel(String in) {
     if (!in.isBlank() && in.startsWith("http")) {
       try {
         return new URL(in);
@@ -347,35 +348,35 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
     return null;
   }
   
-  protected String readRecord12UrlRTMP(String in) {
+  private String readRecord12UrlRTMP(String in) {
     return in;
   }
   
-  protected String readRecord13UrlKlein(String in) {
+  private String readRecord13UrlKlein(String in) {
     return in;
   }
   
-  protected String readRecord14UrlRTMPKlein(String in) {
+  private String readRecord14UrlRTMPKlein(String in) {
+    return in;
+  }
+
+  private String readRecord15UrlHD(String in) {
     return in;
   }
   
-  protected String readRecord15UrlHD(String in) {
+  private String readRecord16UrlRTMPHD(String in) {
     return in;
   }
   
-  protected String readRecord16UrlRTMPHD(String in) {
+  private String readRecord17DatumL(String in) {
     return in;
   }
   
-  protected String readRecord17DatumL(String in) {
+  private String readRecord18UrlHistory(String in) {
     return in;
   }
   
-  protected String readRecord18UrlHistory(String in) {
-    return in;
-  }
-  
-  protected Collection<GeoLocations> readRecord19Geo(String in) {
+  private Collection<GeoLocations> readRecord19Geo(String in) {
     final Collection<GeoLocations> geoLocations = new ArrayList<>();
 
     final GeoLocations singleGeoLocation = GeoLocations.getFromDescription(in);
@@ -393,7 +394,7 @@ public class FilmlistOldFormatReader extends AbstractFilmlistReader {
     return geoLocations; 
   }
 
-  protected Boolean readRecord20Neu(String in) {
+  private Boolean readRecord20Neu(String in) {
     return Boolean.parseBoolean(in);
   }
 
