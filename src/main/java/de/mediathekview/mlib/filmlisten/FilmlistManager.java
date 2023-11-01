@@ -34,13 +34,10 @@ public class FilmlistManager extends MessageCreator {
   private static final Logger LOG = LogManager.getLogger(FilmlistManager.class);
   private static final String TEMP_ENDING = "_TEMP";
   private static FilmlistManager instance;
-  private final FilmlistOldFormatWriter filmlistOldFormatWriter;
-  private final FilmlistWriter filmlistWriter;
+
 
   private FilmlistManager() {
     super();
-    filmlistOldFormatWriter = new FilmlistOldFormatWriter();
-    filmlistWriter = new FilmlistWriter();
   }
 
   public static FilmlistManager getInstance() {
@@ -107,11 +104,13 @@ public class FilmlistManager extends MessageCreator {
       final FilmlistFormats aFormat, final Filmlist aFilmlist, final Path aSavePath) {
     try {
       publishMessage(LibMessages.FILMLIST_WRITE_STARTED, aSavePath);
-      filmlistWriter.addAllMessageListener(messageListeners);
-      filmlistOldFormatWriter.addAllMessageListener(messageListeners);
       if (aFormat.isOldFormat()) {
+        final FilmlistOldFormatWriter filmlistOldFormatWriter = new FilmlistOldFormatWriter();
+        filmlistOldFormatWriter.addAllMessageListener(messageListeners);
         return save(filmlistOldFormatWriter, aFormat, aFilmlist, aSavePath);
       } else {
+        final FilmlistWriter filmlistWriter = new FilmlistWriter();
+        filmlistWriter.addAllMessageListener(messageListeners);
         return save(filmlistWriter, aFormat, aFilmlist, aSavePath);
       }
     } finally {

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_LENGTH;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 class FileSizeDeterminerTest {
@@ -21,7 +22,7 @@ class FileSizeDeterminerTest {
     wireMockServer.stubFor(
         head(urlEqualTo("/" + TEST_FILE_NAME))
             .willReturn(
-                aResponse().withStatus(200).withHeader(CONTENT_LENGTH, "5643")));
+                aResponse().withStatus(200).withHeader(CONTENT_LENGTH, "5643").withHeader(CONTENT_TYPE, "text/html")));
   }
 
   @BeforeEach
@@ -36,20 +37,20 @@ class FileSizeDeterminerTest {
 
   @Test
   void testGetFileSize() {
-    assertThat(getClassUnderTest().getFileSizeForBuilder()).isEqualTo(5643L);
+    assertThat(getClassUnderTest().getRequestInfo(wireMockServer.baseUrl() + TEST_FILE_URL).getSize()).isEqualTo(5643L);
   }
-
+  
   @Test
-  void testGetFileSizeMiB() {
-    assertThat(getClassUnderTest().getFileSizeInMiB()).isEqualTo(5L);
+  void testGetStatusCode() {
+    assertThat(getClassUnderTest().getRequestInfo(wireMockServer.baseUrl() + TEST_FILE_URL).getCode()).isEqualTo(200);
   }
-
+  
   @Test
-  void testGetFileSizeMB() {
-    assertThat(getClassUnderTest().getFileSizeInMB()).isEqualTo(5L);
+  void testGetContentType() {
+    assertThat(getClassUnderTest().getRequestInfo(wireMockServer.baseUrl() + TEST_FILE_URL).getContentType()).isEqualTo("text/html");
   }
 
   private FileSizeDeterminer getClassUnderTest() {
-    return new FileSizeDeterminer(wireMockServer.baseUrl() + TEST_FILE_URL);
+    return new FileSizeDeterminer();
   }
 }
