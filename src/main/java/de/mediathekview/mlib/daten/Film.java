@@ -55,14 +55,6 @@ public class Film extends Podcast {
     return this;
   }
 
-  public Film merge(final Film objToMergeWith) {
-    merge((AbstractMediaResource<FilmUrl>) objToMergeWith);
-    objToMergeWith.getAudioDescriptions().forEach(audioDescriptions::putIfAbsent);
-    objToMergeWith.getSignLanguages().forEach(signLanguages::putIfAbsent);
-    subtitles.addAll(objToMergeWith.getSubtitles());
-    return this;
-  }
-
   public void addAllSubtitleUrls(final Set<URL> urlsToAdd) {
     subtitles.addAll(urlsToAdd);
   }
@@ -153,5 +145,63 @@ public class Film extends Podcast {
 
   public boolean hasUT() {
     return !subtitles.isEmpty();
+  }
+  
+  public static void addAllToFilmlist(final Filmlist source,final Filmlist target) {
+    target.addAllFilms(source.getFilms().values());
+    target.addAllLivestreams(source.getLivestreams().values());
+    target.addAllPodcasts(source.getPodcasts().values());
+  }
+  
+  public static Filmlist mergeTwoFilmlists(final Filmlist aThis, final Filmlist aFilmlist) {
+    final Filmlist toBeAdded = new Filmlist(UUID.randomUUID(), LocalDateTime.now());
+    final Filmlist diff = new Filmlist(UUID.randomUUID(), LocalDateTime.now());
+    // add all from old list not in the new list
+    aFilmlist.getFilms().entrySet().stream()
+        .filter(e -> !containsFilm(aThis, e.getValue()))
+        .forEachOrdered(e -> toBeAdded.getFilms().put(e.getKey(), e.getValue()));
+    // the diff list contains all new entries (fresh list) which are not already in the old list
+    aThis.getFilms().entrySet().stream()
+    .filter(e -> !containsFilm(aFilmlist,e.getValue()))
+    .forEachOrdered(e -> diff.getFilms().put(e.getKey(), e.getValue()));
+    // add the history to the current list
+    aThis.getFilms().putAll(toBeAdded.getFilms());
+    //
+    // the same for podcast
+    aFilmlist.getPodcasts().entrySet().stream()
+        .filter(e -> !containsPodcast(aThis,e.getValue()))
+        .forEachOrdered(e -> toBeAdded.getPodcasts().put(e.getKey(), e.getValue()));
+    aThis.getPodcasts().entrySet().stream()
+    .filter(e -> !containsPodcast(aFilmlist,e.getValue()))
+    .forEachOrdered(e -> diff.getPodcasts().put(e.getKey(), e.getValue()));
+    aThis.getPodcasts().putAll(toBeAdded.getPodcasts());
+    //
+    return diff;
+  }
+  
+  public static boolean containsFilm(Filmlist athis, Film film) {
+    Optional<Film> check = athis.getFilms().entrySet().stream()
+        .filter(entry -> 
+            film.getTitel().equalsIgnoreCase(entry.getValue().getTitel()) &&
+            film.getThema().equalsIgnoreCase(entry.getValue().getThema()) &&
+            film.getSender().equals(entry.getValue().getSender()) &&
+            film.getDuration().equals(entry.getValue().getDuration()))
+        .map(Map.Entry::getValue)
+        .findFirst();
+        
+    return check.isPresent();
+  }
+  
+  public static boolean containsPodcast(Filmlist athis, Podcast prodcast) {
+    Optional<Podcast> check = athis.getPodcasts().entrySet().stream()
+        .filter(entry -> 
+        prodcast.getTitel().equalsIgnoreCase(entry.getValue().getTitel()) &&
+        prodcast.getThema().equalsIgnoreCase(entry.getValue().getThema()) &&
+        prodcast.getSender().equals(entry.getValue().getSender()) &&
+        prodcast.getDuration().equals(entry.getValue().getDuration()))
+        .map(Map.Entry::getValue)
+        .findFirst();
+        
+    return check.isPresent();
   }
 }
