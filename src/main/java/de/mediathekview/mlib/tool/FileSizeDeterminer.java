@@ -8,8 +8,10 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_LENGTH;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 
 public class FileSizeDeterminer {
   private static final Logger LOG = LogManager.getLogger(FileSizeDeterminer.class);
@@ -19,7 +21,45 @@ public class FileSizeDeterminer {
   private static final String FILE_TYPE_M3U8 = "m3u8";
   private final String url;
   private final OkHttpClient client;
-
+  //
+  private Optional<Long> fileSizeInByte = Optional.empty();
+  private Optional<String> responsePath = Optional.empty();
+  private Optional<String> responseContentType = Optional.empty();
+  
+  
+  /*
+   * get the file size of the url in byte
+   */
+  public long getFileSizeInByte() {
+    if (fileSizeInByte.isEmpty()) {
+      getFileSizeForBuilder();
+    }
+    return fileSizeInByte.orElse(-1L);
+  }
+  
+  /*
+   * get the path of the response which may differ to request url for redirects
+   */
+  public String getResponsePath() {
+    if (responsePath.isEmpty()) {
+      getFileSizeInByte();
+    }
+    return responsePath.orElse("");
+  }
+  
+  /*
+   * get the content type of the reponse message
+   */
+  
+  public String getResponseContentType() {
+    if (responseContentType.isEmpty()) {
+      getFileSizeInByte();
+    }
+    return responseContentType.orElse("");
+  }
+  
+  
+  
   /**
    * Builds the determiner with the default read- and connect timeout of 30 seconds.
    *
@@ -55,7 +95,10 @@ public class FileSizeDeterminer {
       try (final Response response =
           client.newCall(createRequestBuilderForRequestType(requestType).build()).execute()) {
         final String contentLengthHeader = response.header(CONTENT_LENGTH);
-        return parseContentLength(contentLengthHeader);
+        responseContentType = Optional.of(response.header(CONTENT_TYPE, ""));
+        responsePath = Optional.of(response.request().url().encodedPath());
+        fileSizeInByte = Optional.of(parseContentLength(contentLengthHeader));
+        return fileSizeInByte.get();
       } catch (final IOException ioException) {
         LOG.error(
             "Something went wrong determining the file size of \"{}\" with {} request.",

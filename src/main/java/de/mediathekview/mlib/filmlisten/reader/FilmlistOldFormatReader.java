@@ -1,177 +1,403 @@
 package de.mediathekview.mlib.filmlisten.reader;
 
 import de.mediathekview.mlib.daten.Film;
+import de.mediathekview.mlib.daten.FilmUrl;
 import de.mediathekview.mlib.daten.Filmlist;
-import de.mediathekview.mlib.tool.TextCleaner;
+import de.mediathekview.mlib.daten.GeoLocations;
+import de.mediathekview.mlib.daten.Resolution;
+import de.mediathekview.mlib.daten.Sender;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
+
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.DateTimeException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static java.time.format.FormatStyle.MEDIUM;
-import static java.time.format.FormatStyle.SHORT;
 
 public class FilmlistOldFormatReader extends AbstractFilmlistReader {
-  private static final String ENTRY_DELIMETER = "\\],";
   private static final Logger LOG = LogManager.getLogger(FilmlistOldFormatReader.class);
   private static final DateTimeFormatter DATE_FORMATTER =
       DateTimeFormatter.ofLocalizedDate(MEDIUM).withLocale(Locale.GERMANY);
-  private static final DateTimeFormatter TIME_FORMATTER =
-      DateTimeFormatter.ofLocalizedTime(SHORT).withLocale(Locale.GERMANY);
-  private static final String ENTRY_PATTERN = "\"\\w*\"\\s?:\\s*\\[\\s?(\"([^\"]|\\\")*\",?\\s?)*";
-  private static final String ENTRY_SPLIT_PATTERN = "\"(\\\\\"|[^\"])*\"";
-  private static final String FILM_ENTRY_ID = "X";
-  private static final String DATE_TIME_SPLITTERATOR = ",?\\s+";
-  private static final String QUOTATION_MARK = "\"";
-
+  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm[:ss]", Locale.GERMANY);
+  
+  private static final LocalDate DEFAULT_DATE = LocalDate.parse("01.01.1970", DATE_FORMATTER);
+  private static final DateTimeFormatter FILMLIST_CREATIONDATE_PATTERN = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm", Locale.GERMANY);
+  private static final char GEO_SPLITTERATOR = '-';
+  private static final String URL_SPLITTERATOR = "\\|";
+  private String sender = "";
+  private String thema = "";
+  private String debug = "";
+  private int cnt = 0;
+  
   @Override
-  public Optional<Filmlist> read(final InputStream aInputStream) {
-    try (final Scanner scanner = new Scanner(aInputStream, StandardCharsets.UTF_8.name());
-        final Scanner entryScanner = scanner.useDelimiter(ENTRY_DELIMETER)) {
-      return convertEntriesToFilms(findEntries(entryScanner));
-    } finally {
-      try {
-        aInputStream.close();
-      } catch (final IOException exception) {
-        LOG.debug("Can't close the ioStream", exception);
+  public Optional<Filmlist> read(InputStream aInputStream) {
+    long start = System.currentTimeMillis();
+    Filmlist filmlist = new Filmlist();
+    debug = "LINE " + cnt;
+    //
+    
+    try (JsonReader jsonReader = new JsonReader(new InputStreamReader(aInputStream, StandardCharsets.UTF_8)))
+    {
+      headerMeta(jsonReader, filmlist);
+      headerColumns(jsonReader);
+      while (jsonReader.peek() != JsonToken.END_OBJECT) 
+      {
+        try {
+          readRecrod(jsonReader).ifPresent(filmlist::add);
+        } catch (Exception e) {
+          if (!recoverParser(jsonReader)) {
+            LOG.error("error after {} sec on element {} of {} elements", ((System.currentTimeMillis()-start)/1000), cnt, filmlist.getFilms().size());
+            throw(e);
+          }
+        }
+        cnt++;
       }
+    } catch (IOException e) {
+      LOG.error(e);
+      return Optional.of(filmlist);
     }
-  }
-
-  @NotNull
-  private Optional<Filmlist> convertEntriesToFilms(final List<String> entries) {
-    final Filmlist filmlist = new Filmlist();
-    final List<Future<Film>> futureFilms = asyncConvertEntriesToFilms(entries, filmlist);
-    futureFilms.stream()
-        .map(
-            filmFuture -> {
-              try {
-                return filmFuture.get();
-              } catch (final InterruptedException interruptedException) {
-                LOG.debug(
-                    "Some error occured during converting a old film list entry to an film.",
-                    interruptedException);
-                Thread.currentThread().interrupt();
-              } catch (final Exception exception) {
-                LOG.debug(
-                    "Some error occured during converting a old film list entry to an film.",
-                    exception);
-              }
-              return null;
-            })
-        .filter(Objects::nonNull)
-        .filter(film -> !film.getUrls().isEmpty())
-        .forEach(filmlist::add);
+    LOG.debug("done reading in {} sec for {} elements resulting in {} elements", ((System.currentTimeMillis()-start)/1000), cnt, filmlist.getFilms().size());
     return Optional.of(filmlist);
+    
   }
-
-  @NotNull
-  private List<Future<Film>> asyncConvertEntriesToFilms(
-      final List<String> entries, final Filmlist filmlist) {
-    final ExecutorService executorService = Executors.newWorkStealingPool();
-    boolean isFirst = true;
-    Future<Film> filmEntryBefore = null;
-    final List<Future<Film>> futureFilms = new ArrayList<>();
-
-    final List<List<String>> splittedEntries =
-        entries.stream()
-            .map(this::splittEntry)
-            .filter(splittEntry -> !splittEntry.isEmpty())
-            .toList();
-
-    for (final List<String> splittedEntry : splittedEntries) {
-      if (isFirst) {
-        setMetaInfo(filmlist, splittedEntry);
-        isFirst = false;
-      } else if (splittedEntry.size() == 21 && FILM_ENTRY_ID.equals(splittedEntry.get(0))) {
-        filmEntryBefore =
-            convertEntryToFilm(filmEntryBefore, executorService, futureFilms, splittedEntry);
-      } else {
-        // TODO do something useful here  
-        LOG.debug(String.format("unkown entry %s",splittedEntry));
+  
+  private boolean recoverParser(JsonReader jsonReader) {
+    int maxTry = 25;
+    try {
+      while (maxTry > 0 && !JsonToken.END_ARRAY.equals(jsonReader.peek())) {
+        jsonReader.nextString();
+        maxTry--;
+      }
+      jsonReader.endArray();
+      return true;
+    } catch (Exception e) {
+      LOG.error(e);
+    }
+    return false;
+  }
+  
+  
+  private void headerMeta(JsonReader jsonReader, Filmlist filmlist) throws IOException {
+    jsonReader.beginObject();
+    jsonReader.nextName();
+    jsonReader.beginArray();
+    filmlist.setCreationDate(readHeader01CreationDate(jsonReader.nextString())); // localdatetime
+    jsonReader.nextString(); // localdatetime UTC
+    readHeader03Version(jsonReader.nextString()); // Version
+    jsonReader.nextString(); // Version
+    filmlist.setListId(readHeader05Hash(jsonReader.nextString())); // hash
+    jsonReader.endArray();
+    
+  }
+  
+  private LocalDateTime readHeader01CreationDate(String in) {
+    if (StringUtils.isNotBlank(in)) {
+      try {
+        return LocalDateTime.parse(in, FILMLIST_CREATIONDATE_PATTERN);
+      } catch (DateTimeParseException e) {
+        LOG.warn("Error readHeader01CreationDate format string {} on line {} thorws {}", in, debug, e );
       }
     }
-    return futureFilms;
+    return LocalDateTime.now();
   }
-
-  private Future<Film> convertEntryToFilm(
-      Future<Film> filmEntryBefore,
-      final ExecutorService executorService,
-      final List<Future<Film>> futureFilms,
-      final List<String> splittedEntry) {
+  private String readHeader03Version(String in)  {
+    return in;
+  }
+  private UUID readHeader05Hash(String in) {
     try {
-      final Future<Film> newEntry =
-          executorService.submit(new OldFilmlistEntryToFilmTask(splittedEntry, filmEntryBefore));
-      futureFilms.add(newEntry);
-      filmEntryBefore = newEntry;
-    } catch (final Exception exception) {
-      LOG.debug(
-          String.format("Error on converting the following text to a film:%n %s ", splittedEntry));
+      return UUID.fromString(in);
+    } catch (Exception e) {
+      LOG.warn("Error readHeader05Hash format string {}", in);
     }
-    return filmEntryBefore;
+    return UUID.randomUUID();
   }
-
-  private List<String> findEntries(final Scanner entryScanner) {
-    final List<String> entries = new ArrayList<>();
-
-    while (entryScanner.hasNext()) {
-      final String entry = entryScanner.next();
-      final Matcher entryMatcher = Pattern.compile(ENTRY_PATTERN).matcher(entry);
-      if (entryMatcher.find()) {
-        entries.add(entryMatcher.group());
+  
+  private void headerColumns(JsonReader jsonReader) throws IOException {
+    jsonReader.nextName();
+    jsonReader.beginArray();
+    jsonReader.nextString(); // Sender
+    jsonReader.nextString(); // Thema
+    jsonReader.nextString(); // Titel
+    jsonReader.nextString(); // Datum
+    jsonReader.nextString(); // Zeit
+    jsonReader.nextString(); // Dauer
+    jsonReader.nextString(); // Größe [MB]
+    jsonReader.nextString(); // Beschreibung
+    jsonReader.nextString(); // Url
+    jsonReader.nextString(); // Website
+    jsonReader.nextString(); // Url Untertitel
+    jsonReader.nextString(); // Url RTMP
+    jsonReader.nextString(); // Url Klein
+    jsonReader.nextString(); // Url RTMP Klein
+    jsonReader.nextString(); // Url HD
+    jsonReader.nextString(); // Url RTMP HD
+    jsonReader.nextString(); // DatumL
+    jsonReader.nextString(); // Url History
+    jsonReader.nextString(); // Geo
+    jsonReader.nextString(); // neu
+    jsonReader.endArray();
+  }
+  
+  private Optional<Film> readRecrod(JsonReader jsonReader) throws IOException {
+    cnt++;
+    //
+    Film f = new Film();
+    f.setUuid(UUID.randomUUID());
+    //    
+    jsonReader.nextName();
+    jsonReader.beginArray();
+    sender = readRecord01Sender(jsonReader.nextString(), sender);
+    f.setSender(Sender.getSenderByName(sender).get());
+    //
+    thema = readRecord02Thema(jsonReader.nextString(), thema);
+    f.setThemaRaw(thema);
+    //
+    String titel = readRecord03Titel(jsonReader.nextString());
+    f.setTitelRaw(titel);
+    debug = sender + thema + titel;
+    //
+    f.setTime(readRecord04Datum(jsonReader.nextString()).atTime(readRecord05Zeit(jsonReader.nextString())));
+    //
+    f.setDuration(readRecord06Dauer(jsonReader.nextString()));
+    //
+    long size = readRecord07Groesse(jsonReader.nextString());
+    //
+    f.setBeschreibungRaw(readRecord08Beschreibung(jsonReader.nextString()));
+    //
+    URL urlNormal = readRecord09Url(jsonReader.nextString());
+    //
+    f.setWebsite(readRecord10Website(jsonReader.nextString()));
+    //
+    f.addSubtitle(readRecord11Untertitel(jsonReader.nextString()));
+    //
+    readRecord12UrlRTMP(jsonReader.nextString());
+    //
+    String urlKlein = readRecord13UrlKlein(jsonReader.nextString());
+    //
+    readRecord14UrlRTMPKlein(jsonReader.nextString());
+    //
+    String urlHd = readRecord15UrlHD(jsonReader.nextString());
+    //
+    readRecord16UrlRTMPHD(jsonReader.nextString());
+    //
+    readRecord17DatumL(jsonReader.nextString());
+    //
+    readRecord18UrlHistory(jsonReader.nextString());
+    //
+    f.setGeoLocations(readRecord19Geo(jsonReader.nextString()));
+    //
+    f.setNeu(readRecord20Neu(jsonReader.nextString()));
+    //
+    jsonReader.endArray();
+    //
+    f.setUrls(generateUrls(urlNormal, urlKlein, urlHd, size));
+    //
+    if (f.getUrls().size() > 0) {
+      return Optional.of(f);
+    } else {
+      LOG.warn("Error no urls for film {}", debug);
+      return Optional.empty();
+    }
+  }
+  
+  
+  private Map<Resolution,FilmUrl> generateUrls(URL urlNormal, String urlSmall, String urlHd, long size) {
+    Map<Resolution,FilmUrl> urls = new EnumMap<>(Resolution.class);
+    if (urlNormal != null) {
+      urls.put(Resolution.NORMAL, new FilmUrl(urlNormal, size));
+      rebuildUrl(urlNormal, urlSmall).ifPresent( u -> urls.put(Resolution.SMALL, new FilmUrl(u, 0L)));
+      rebuildUrl(urlNormal, urlHd).ifPresent( u -> urls.put(Resolution.HD, new FilmUrl(u, 0L)));
+    }
+    return urls;
+  }
+  
+  private Optional<URL> rebuildUrl(URL urlNromal, String targetUrl) {
+    if (!targetUrl.isBlank()) {
+      try {
+        final String[] splittedUrlText = targetUrl.split(URL_SPLITTERATOR);
+        if (splittedUrlText.length == 2) {
+          final int lengthOfOld = Integer.parseInt(splittedUrlText[0]);
+          return Optional.of(new URL(urlNromal.toString().substring(0, lengthOfOld) + splittedUrlText[1]));
+        }
+        return Optional.of(new URL(targetUrl));
+      } catch (Exception e) {
+        LOG.warn("Error rebuildUrl format string {} on line {} throws {}", targetUrl, debug, e );
       }
     }
-    return entries;
+    return Optional.empty();
   }
+  
+  
+  
+  ////////////////////////////////////////////////////////////
 
-  private void setMetaInfo(final Filmlist aFilmlist, final List<String> aSplittedEntry) {
-    try {
-      setCreationTime(aFilmlist, aSplittedEntry);
-      setListId(aFilmlist, aSplittedEntry);
-    } catch (final Exception exception) {
-      LOG.debug("Somethin went wrong on setting the meta data of filmlist.", exception);
+  protected String readRecord01Sender(String in, String sender) {
+    if (!in.isBlank()) {
+      sender = in;
     }
+    return sender;
   }
-
-  private void setListId(final Filmlist aFilmlist, final List<String> aSplittedEntry) {
-    try {
-      aFilmlist.setListId(UUID.fromString(aSplittedEntry.get(5)));
-    } catch (final IllegalArgumentException illegalArgumentException) {
-      LOG.debug(String.format("Can't parse the film list id. Setting a random uuid. %s", aSplittedEntry), illegalArgumentException);
-      aFilmlist.setListId(UUID.randomUUID());
+  
+  protected String readRecord02Thema(String in, String thema) {
+    if (!in.isBlank()) {
+      thema = in;
     }
+    return thema;
+  }
+  
+  protected String readRecord03Titel(String in) {
+    return in;
+  }
+  
+  protected LocalDate readRecord04Datum(String in) {
+    if (StringUtils.isNotBlank(in)) {
+      try {
+        return LocalDate.parse(in, DATE_FORMATTER);
+      } catch (DateTimeParseException e) {
+        LOG.warn("Error readRecord04Datum format string {} on line {} throws {}", in, debug, e );
+      }
+    }
+    return DEFAULT_DATE;
+  }
+  
+  protected LocalTime readRecord05Zeit(String in) {
+      if (StringUtils.isNotBlank(in)) {
+        try {
+          return LocalTime.parse(in, TIME_FORMATTER);
+        } catch (DateTimeParseException e) {
+          LOG.warn("Error readRecord05Zeit format string {} on line {} throws {}", in, debug, e );
+        }
+      }
+      return LocalTime.MIDNIGHT;
+  }
+  
+  protected Duration readRecord06Dauer(String in) {
+    if (StringUtils.isNotBlank(in)) {
+      try {
+        return Duration.between(LocalTime.MIDNIGHT, LocalTime.parse(in));
+      } catch (DateTimeException | ArithmeticException e) {
+        LOG.warn("Error readRecord06Dauer format string {} on line {} throws {}", in, debug, e );
+      }
+    }
+    return Duration.ZERO;
+  }
+  
+  protected long readRecord07Groesse(String in) {
+    if (StringUtils.isNotBlank(in)) {
+      try {
+        return Long.parseLong(in)*1024; // oldFilmlist format is MB - new DM is KB
+      } catch (NumberFormatException e) {
+        LOG.warn("Error readRecord07Groesse format string {} on line {} throws {}", in, debug, e );
+      }
+    }
+    return 0L;
   }
 
-  private void setCreationTime(final Filmlist aFilmlist, final List<String> aSplittedEntry) {
-    final String[] dateTimeSplitted = aSplittedEntry.get(1).split(DATE_TIME_SPLITTERATOR);
-    aFilmlist.setCreationDate(
-        LocalDateTime.of(
-            LocalDate.parse(dateTimeSplitted[0], DATE_FORMATTER),
-            LocalTime.parse(dateTimeSplitted[1], TIME_FORMATTER)));
+  protected String readRecord08Beschreibung(String in) {
+    return in;
   }
+  
+  protected URL readRecord09Url(String in) {
+    if (!in.isBlank()) {
+      try {
+        return new URL(in); 
+      } catch (final MalformedURLException e) {
+        LOG.warn("Error readRecord09Url format string {} on line {} throws {}", in, debug, e );
+      }
+    }
+    return null;
+  }
+  
+  protected URL readRecord10Website(String in) {
+    if (!in.isBlank() && in.startsWith("http")) {
+      try {
+        return new URL(in); 
+      } catch (final MalformedURLException e) {
+        LOG.warn("Error readRecord10Website format string {} on line {} throws {}", in, debug, e );
+      }
+    }
+    return null;
+  }
+  
+  protected URL readRecord11Untertitel(String in) {
+    if (!in.isBlank() && in.startsWith("http")) {
+      try {
+        return new URL(in);
+      } catch (final MalformedURLException e) {
+        LOG.warn("Error readRecord11Untertitel format string {} on line {} throws {}", in, debug, e );
+      }
+    }
+    return null;
+  }
+  
+  protected String readRecord12UrlRTMP(String in) {
+    return in;
+  }
+  
+  protected String readRecord13UrlKlein(String in) {
+    return in;
+  }
+  
+  protected String readRecord14UrlRTMPKlein(String in) {
+    return in;
+  }
+  
+  protected String readRecord15UrlHD(String in) {
+    return in;
+  }
+  
+  protected String readRecord16UrlRTMPHD(String in) {
+    return in;
+  }
+  
+  protected String readRecord17DatumL(String in) {
+    return in;
+  }
+  
+  protected String readRecord18UrlHistory(String in) {
+    return in;
+  }
+  
+  protected Collection<GeoLocations> readRecord19Geo(String in) {
+    final Collection<GeoLocations> geoLocations = new ArrayList<>();
 
-  private List<String> splittEntry(final String aEntry) {
-    final List<String> entrySplits = new ArrayList<>();
-    final Matcher entrySplitMatcher = Pattern.compile(ENTRY_SPLIT_PATTERN).matcher(aEntry);
-    while (entrySplitMatcher.find()) {
-      entrySplits.add(
-          TextCleaner.clean(
-              entrySplitMatcher.group().replaceFirst(QUOTATION_MARK, "").replaceAll("\"$", "")));
+    final GeoLocations singleGeoLocation = GeoLocations.getFromDescription(in);
+    if (singleGeoLocation == GeoLocations.GEO_NONE) {
+      for (final String geoText : in.split(String.valueOf(GEO_SPLITTERATOR))) {
+        final GeoLocations geoLocation = GeoLocations.getFromDescription(geoText);
+        if (geoLocation != GeoLocations.GEO_NONE) {
+          geoLocations.add(geoLocation);
+        }
+      }
+    } else {
+      geoLocations.add(singleGeoLocation);
     }
 
-    return entrySplits;
+    return geoLocations; 
   }
+
+  protected Boolean readRecord20Neu(String in) {
+    return Boolean.parseBoolean(in);
+  }
+
+
+  
+  
 }
