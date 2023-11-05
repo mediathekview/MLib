@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 /** Represents a found film. */
 public class Film extends Podcast {
   private static final long serialVersionUID = -7834270191129532291L;
@@ -157,21 +158,23 @@ public class Film extends Podcast {
     final Filmlist toBeAdded = new Filmlist(UUID.randomUUID(), LocalDateTime.now());
     final Filmlist diff = new Filmlist(UUID.randomUUID(), LocalDateTime.now());
     // add all from old list not in the new list
+    Map<Integer, Film> indexTTSD = buildIndexTitelThemaSenderDuration(aThis);
     aFilmlist.getFilms().entrySet().stream()
-        .filter(e -> !containsFilm(aThis, e.getValue()))
+        .filter(e -> !indexTTSD.containsKey(Objects.hash(e.getValue().getSenderName(),e.getValue().getTitel(), e.getValue().getThema(), e.getValue().getDuration().toString())))
         .forEachOrdered(e -> toBeAdded.getFilms().put(e.getKey(), e.getValue()));
     // the diff list contains all new entries (fresh list) which are not already in the old list
+    Map<Integer, Film> indexaFilmlist = buildIndexTitelThemaSenderDuration(aFilmlist);
     aThis.getFilms().entrySet().stream()
-    .filter(e -> !containsFilm(aFilmlist,e.getValue()))
+    .filter(e -> !indexaFilmlist.containsKey(Objects.hash(e.getValue().getSenderName(),e.getValue().getTitel(), e.getValue().getThema(), e.getValue().getDuration().toString())))
     .forEachOrdered(e -> diff.getFilms().put(e.getKey(), e.getValue()));
     // add the history to the current list
     aThis.getFilms().putAll(toBeAdded.getFilms());
     //
     // the same for podcast
-    aFilmlist.getPodcasts().entrySet().stream()
+    aFilmlist.getPodcasts().entrySet().stream().parallel()
         .filter(e -> !containsPodcast(aThis,e.getValue()))
         .forEachOrdered(e -> toBeAdded.getPodcasts().put(e.getKey(), e.getValue()));
-    aThis.getPodcasts().entrySet().stream()
+    aThis.getPodcasts().entrySet().stream().parallel()
     .filter(e -> !containsPodcast(aFilmlist,e.getValue()))
     .forEachOrdered(e -> diff.getPodcasts().put(e.getKey(), e.getValue()));
     aThis.getPodcasts().putAll(toBeAdded.getPodcasts());
@@ -179,6 +182,13 @@ public class Film extends Podcast {
     return diff;
   }
   
+  private static Map<Integer, Film> buildIndexTitelThemaSenderDuration(Filmlist aList) {
+    Map<Integer, Film> index = new HashMap<Integer, Film>(aList.getFilms().size());
+    aList.getFilms().values().forEach( entry -> {
+      index.put(Objects.hash(entry.getSenderName(),entry.getTitel(), entry.getThema(), entry.getDuration().toString()), entry);
+    });
+    return index;
+  }
   public static boolean containsFilm(Filmlist athis, Film film) {
     Optional<Film> check = athis.getFilms().entrySet().stream()
         .filter(entry -> 
