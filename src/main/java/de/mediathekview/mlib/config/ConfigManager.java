@@ -18,7 +18,7 @@ public abstract class ConfigManager<T extends ConfigDTO> {
     config =
         ConfigurationBuilder.newBuilder()
             .source()
-            .fromFileOnPath("./" + getConfigFileName())
+            .fromFileOnPath(getConfigFileName())
             .build(getConfigClass());
   }
 
