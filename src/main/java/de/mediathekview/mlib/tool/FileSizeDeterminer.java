@@ -1,5 +1,6 @@
 package de.mediathekview.mlib.tool;
 
+import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -8,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_LENGTH;
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
@@ -19,17 +21,18 @@ public class FileSizeDeterminer {
 
   
   public FileSizeDeterminer() {
-    this(30L,30L);
+    this(30L, 30L, 10);
   }
 
   public FileSizeDeterminer(
-      final long connectTimeoutInSeconds, final long readTimeoutInSeconds) {
-    client =
-        new OkHttpClientBuilder()
-            .withConnectTimeout(connectTimeoutInSeconds)
-            .withReadTimeout(readTimeoutInSeconds)
-            .build();
+      final long connectTimeoutInSeconds, final long readTimeoutInSeconds, final int threadPoolSize) {
+    OkHttpClient.Builder b = new OkHttpClient.Builder();
+    b.readTimeout(readTimeoutInSeconds,TimeUnit.SECONDS);
+    b.connectTimeout(connectTimeoutInSeconds,TimeUnit.SECONDS);
+    b.connectionPool(new ConnectionPool(threadPoolSize, 5L, TimeUnit.MINUTES));
+    client = b.build();
   }
+
   public RespoonseInfo getRequestInfo(final String url) {
     return getRequestInfo(url, RequestType.HEAD);
   }
