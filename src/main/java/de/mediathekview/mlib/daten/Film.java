@@ -160,12 +160,12 @@ public class Film extends Podcast {
     // add all from old list not in the new list
     Map<Integer, Film> indexTTSD = buildIndexTitelThemaSenderDuration(aThis);
     aFilmlist.getFilms().entrySet().stream()
-        .filter(e -> !indexTTSD.containsKey(Objects.hash(e.getValue().getSenderName(),e.getValue().getTitel(), e.getValue().getThema(), e.getValue().getDuration().toString())))
+        .filter(e -> !indexTTSD.containsKey(Objects.hash(e.getValue().getSenderName(),e.getValue().getTitel(), e.getValue().getThema(), e.getValue().getDuration())))
         .forEachOrdered(e -> toBeAdded.getFilms().put(e.getKey(), e.getValue()));
     // the diff list contains all new entries (fresh list) which are not already in the old list
     Map<Integer, Film> indexaFilmlist = buildIndexTitelThemaSenderDuration(aFilmlist);
     aThis.getFilms().entrySet().stream()
-    .filter(e -> !indexaFilmlist.containsKey(Objects.hash(e.getValue().getSenderName(),e.getValue().getTitel(), e.getValue().getThema(), e.getValue().getDuration().toString())))
+    .filter(e -> !indexaFilmlist.containsKey(Objects.hash(e.getValue().getSenderName(),e.getValue().getTitel(), e.getValue().getThema(), e.getValue().getDuration())))
     .forEachOrdered(e -> diff.getFilms().put(e.getKey(), e.getValue()));
     // add the history to the current list
     aThis.getFilms().putAll(toBeAdded.getFilms());
@@ -185,7 +185,7 @@ public class Film extends Podcast {
   private static Map<Integer, Film> buildIndexTitelThemaSenderDuration(Filmlist aList) {
     Map<Integer, Film> index = new HashMap<Integer, Film>(aList.getFilms().size());
     aList.getFilms().values().forEach( entry -> {
-      index.put(Objects.hash(entry.getSenderName(),entry.getTitel(), entry.getThema(), entry.getDuration().toString()), entry);
+      index.put(Objects.hash(entry.getSenderName(),entry.getTitel(), entry.getThema(), entry.getDuration()), entry);
     });
     return index;
   }
