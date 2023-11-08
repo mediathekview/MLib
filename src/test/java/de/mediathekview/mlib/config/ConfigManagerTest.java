@@ -22,7 +22,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
  */
 @TestMethodOrder(org.junit.jupiter.api.MethodOrderer.OrderAnnotation.class)
 class ConfigManagerTest {
-  private final String TEST_CONFIG_FILE_NAME = "TestConfig.yaml";
+  private static final String TEST_CONFIG_FILE_NAME = "TestConfig.yaml";
 
   class TestConfigManager extends ConfigManager<TestConfigDTO> {
 
@@ -33,7 +33,7 @@ class ConfigManagerTest {
 
     @Override
     protected String getConfigFileName() {
-      return (TEST_CONFIG_FILE_NAME);
+      return TEST_CONFIG_FILE_NAME;
     }
 
     @Override
@@ -53,13 +53,38 @@ class ConfigManagerTest {
   void testGetConfigClass() {
     assertThat(new TestConfigManager().getConfigClass()).isEqualTo(TestConfigDTO.class);
   }
-
+  
   @Test
   @Order(3)
   void testReadClasspathConfig() {
     final TestConfigDTO classpathConfig = new TestConfigManager().getConfig();
-    assertThat(classpathConfig.getValueWithDefault()).isEqualTo("TestValue");
-    assertThat(classpathConfig.getValueWithoutDefault()).isEqualTo("Some other test value");
+    assertThat(classpathConfig.getValueWithDefault()).isEqualTo("Hello World!");
+    assertThat(classpathConfig.getValueWithoutDefault()).isEqualTo("Not the default, sorry!");
   }
-    
+  
+  @Test
+  @Order(4)
+  void testReadFileConfig() throws IOException {
+
+    writeTempTestFileConfig();
+
+    final TestConfigDTO fileConfig = new TestConfigManager().getConfig();
+    assertThat(fileConfig.getValueWithDefault()).isEqualTo("FileConfig");
+    assertThat(fileConfig.getValueWithoutDefault()).isEqualTo("Some other test value");
+  }
+
+  @BeforeEach
+  void deleteExistingFiles() throws IOException {
+    Files.deleteIfExists(Paths.get(TEST_CONFIG_FILE_NAME));
+  }
+
+  private void writeTempTestFileConfig() throws IOException {
+    final Path tempConfigPath = Paths.get("./" + TEST_CONFIG_FILE_NAME);
+
+    Files.write(
+        tempConfigPath,
+        Arrays.asList("valueWithDefault: FileConfig", "valueWithoutDefault: Some other test value"),
+        StandardOpenOption.CREATE,
+        StandardOpenOption.TRUNCATE_EXISTING);
+  }
 }

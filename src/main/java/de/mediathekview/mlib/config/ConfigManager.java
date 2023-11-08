@@ -38,15 +38,21 @@ public abstract class ConfigManager<T extends ConfigDTO> {
     // Do something after the configuration is read
   }
   
+  /*
+   * check if the given file exists in FS or
+   * try to read a resource from filesystem
+   */
   public String getResourcePath(String resourceName) {
     try {
-      ClassLoader classLoader = getClass().getClassLoader();
-      URL resourceUrl = classLoader.getResource(resourceName);
-      if (resourceUrl != null) {
+      if (new java.io.File(resourceName).exists()) {
+        return resourceName;
+      } else {       
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL resourceUrl = classLoader.getResource(resourceName);
+        if (resourceUrl != null) {
           Path resourcePath = Paths.get(resourceUrl.toURI());
           return resourcePath.toString();
-      } else {
-        return resourceName;
+        }
       }
     } catch(Exception e) {}
     return null;
