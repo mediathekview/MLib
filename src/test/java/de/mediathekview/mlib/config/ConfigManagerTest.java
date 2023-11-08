@@ -56,28 +56,10 @@ class ConfigManagerTest {
 
   @Test
   @Order(3)
-  void testReadFileConfig() throws IOException {
-
-    writeTempTestFileConfig();
-
-    final TestConfigDTO fileConfig = new TestConfigManager().getConfig();
-    assertThat(fileConfig.getValueWithDefault()).isEqualTo("TestValue");
-    assertThat(fileConfig.getValueWithoutDefault()).isEqualTo("Some other test value");
-  }
-
-  @BeforeEach
-  void deleteExistingFiles() throws IOException {
-    Files.deleteIfExists(Paths.get(TEST_CONFIG_FILE_NAME));
-  }
-
-  private void writeTempTestFileConfig() throws IOException {
-    final Path tempConfigPath = Paths.get("./" + TEST_CONFIG_FILE_NAME);
-
-    Files.write(
-        tempConfigPath,
-        Arrays.asList("valueWithDefault: TestValue", "valueWithoutDefault: Some other test value"),
-        StandardOpenOption.CREATE,
-        StandardOpenOption.TRUNCATE_EXISTING);
+  void testReadClasspathConfig() {
+    final TestConfigDTO classpathConfig = new TestConfigManager().getConfig();
+    assertThat(classpathConfig.getValueWithDefault()).isEqualTo("TestValue");
+    assertThat(classpathConfig.getValueWithoutDefault()).isEqualTo("Some other test value");
   }
     
 }
