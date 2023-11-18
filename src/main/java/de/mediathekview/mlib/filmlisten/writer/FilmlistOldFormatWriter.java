@@ -204,8 +204,13 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
   }
 
   private String writeRecord09UrlNormal(AbstractMediaResource<?> in) {
-    if ((in instanceof Podcast pIn) && pIn.getUrl(Resolution.NORMAL) != null)
+    if ((in instanceof Podcast pIn) && pIn.getUrl(Resolution.NORMAL) != null) {
       return pIn.getUrl(Resolution.NORMAL).getUrl().toString();
+    } else if ((in instanceof Film pIn) && pIn.getAudioDescription(Resolution.NORMAL) != null) {
+      return pIn.getAudioDescription(Resolution.NORMAL).getUrl().toString();
+    } else if ((in instanceof Film pIn) && pIn.getSignLanguage(Resolution.NORMAL) != null) {
+      return pIn.getSignLanguage(Resolution.NORMAL).getUrl().toString();
+    }
     return "";
   }
 
@@ -230,6 +235,10 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
   private String writeRecord13UrlKlein(AbstractMediaResource<?> in) {
     if ((in instanceof Podcast pIn) && in.getUrl(Resolution.SMALL) != null && pIn.getUrl(Resolution.NORMAL) != null) {
       return reduceUrl(pIn.getUrl(Resolution.NORMAL).getUrl().toString(), pIn.getUrl(Resolution.SMALL).getUrl().toString());
+    } else if ((in instanceof Film pIn) && pIn.getAudioDescription(Resolution.NORMAL) != null && pIn.getAudioDescription(Resolution.SMALL) != null) {
+      return reduceUrl(pIn.getAudioDescription(Resolution.NORMAL).getUrl().toString(), pIn.getAudioDescription(Resolution.SMALL).getUrl().toString());
+    } else if ((in instanceof Film pIn) && pIn.getSignLanguage(Resolution.NORMAL) != null && pIn.getSignLanguage(Resolution.SMALL) != null) {
+      return reduceUrl(pIn.getSignLanguage(Resolution.NORMAL).getUrl().toString(), pIn.getSignLanguage(Resolution.SMALL).getUrl().toString());
     }
     return "";
   }
@@ -241,6 +250,10 @@ public class FilmlistOldFormatWriter extends AbstractFilmlistWriter {
   private String writeRecord15UrlHD(AbstractMediaResource<?> in) {
     if ((in instanceof Podcast pIn) && in.getUrl(Resolution.HD) != null && in.getUrl(Resolution.NORMAL) != null) {
       return reduceUrl(pIn.getUrl(Resolution.NORMAL).getUrl().toString(), pIn.getUrl(Resolution.HD).getUrl().toString());
+    } else if ((in instanceof Film pIn) && pIn.getAudioDescription(Resolution.NORMAL) != null && pIn.getAudioDescription(Resolution.HD) != null) {
+      return reduceUrl(pIn.getAudioDescription(Resolution.NORMAL).getUrl().toString(), pIn.getAudioDescription(Resolution.HD).getUrl().toString());
+    } else if ((in instanceof Film pIn) && pIn.getSignLanguage(Resolution.NORMAL) != null && pIn.getSignLanguage(Resolution.HD) != null) {
+      return reduceUrl(pIn.getSignLanguage(Resolution.NORMAL).getUrl().toString(), pIn.getSignLanguage(Resolution.HD).getUrl().toString());
     }
     return "";
   }
