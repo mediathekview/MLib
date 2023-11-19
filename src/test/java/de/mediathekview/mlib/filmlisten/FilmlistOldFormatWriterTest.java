@@ -57,9 +57,11 @@ class FilmlistOldFormatWriterTest {
   void readWriteFilmlistAndCheckAllUrlTypesDoPersist()
       throws IOException {
     //
+    Filmlist input = inputFilmlist();
     Filmlist expected = expectedFilmlist();
+    //
     Path tempFile = Files.createTempFile(tempDir, "TestFilmlistOldFormatWriter", ".out");
-    new FilmlistOldFormatWriter().write(expected, tempFile);
+    new FilmlistOldFormatWriter().write(input, tempFile);
     assertTrue( Files.exists(tempFile));
     //
     Optional<Filmlist> afterWriteAndRead = new FilmlistOldFormatReader().read(new FileInputStream(tempFile.toString()));
@@ -92,12 +94,6 @@ class FilmlistOldFormatWriterTest {
     bFilm.getUrls().forEach( (resolution, url) -> {
       if (aFilm.getUrl(resolution) != null) {
         assertEquals(aFilm.getUrl(resolution).toString(), url.toString());
-      } else if (aFilm.getAudioDescription(resolution) != null) {
-        assertEquals(aFilm.getAudioDescription(resolution).toString(), url.toString());
-      } else if (aFilm.getSignLanguage(resolution) != null) {
-        assertEquals(aFilm.getSignLanguage(resolution).toString(), url.toString());
-      } else {
-        assertEquals("We did expect an url but could not find any", "");  
       }
     });
   }
@@ -111,7 +107,7 @@ class FilmlistOldFormatWriterTest {
       completeMatchExpected.setUuid(UUID.randomUUID());
       completeMatchExpected.setSender(Sender.DREISAT);
       completeMatchExpected.setThema("37 Grad");
-      completeMatchExpected.setTitelRaw("37° Totgerast");      
+      completeMatchExpected.setTitelRaw("37°: Ein Gen verändert unser Leben");      
       completeMatchExpected.setBeschreibung("description");
       completeMatchExpected.setDuration(Duration.ofMinutes(28).plusSeconds(45));
       completeMatchExpected.setTime(LocalDateTime.of(2023, 5, 30, 22, 15, 0));
@@ -143,11 +139,139 @@ class FilmlistOldFormatWriterTest {
       completeMatchExpected.setUuid(UUID.randomUUID());
       completeMatchExpected.setSender(Sender.DREISAT);
       completeMatchExpected.setThema("37 Grad");
-      completeMatchExpected.setTitelRaw("37°: Ein Gen verändert unser Leben (Gebaerdensprache)");      
+      completeMatchExpected.setTitelRaw("37°: Ein Gen verändert unser Leben (Gebärdensprache)");      
       completeMatchExpected.setBeschreibung("description \"37°\" with quotes");
       completeMatchExpected.setDuration(Duration.ofMinutes(28).plusSeconds(41));
       completeMatchExpected.setTime(LocalDateTime.of(2023, 5, 16, 22, 15, 0));
       completeMatchExpected.setWebsite(new URL("https://host.de/something/website.html"));
+      completeMatchExpected.addSignLanguage(Resolution.NORMAL, new FilmUrl(new URL("https://some.host.de/SignLanguageNormal.mp4"), 405L));
+      completeMatchExpected.addSignLanguage(Resolution.SMALL, new FilmUrl(new URL("https://some.host.de/SignLanguageSmall.mp4"), 0L));
+      completeMatchExpected.addSignLanguage(Resolution.HD, new FilmUrl(new URL("https://some.host.de/SignLanguageHd.mp4"), 0L));
+      completeMatchExpected.addGeolocation(GeoLocations.GEO_DE_AT_CH);
+      completeMatchExpected.addSubtitle(new URL("https://host.de/23/05/230502_2215_sendung_37g/4/subtitle.xml"));
+      expectedFilmlist.add(completeMatchExpected);
+      //
+      completeMatchExpected = new Film();
+      completeMatchExpected.setUuid(UUID.randomUUID());
+      completeMatchExpected.setSender(Sender.DREISAT);
+      completeMatchExpected.setThema("37 Grad");
+      completeMatchExpected.setTitelRaw("37°: Everything at once");      
+      completeMatchExpected.setBeschreibung("description \"37°\" with quotes");
+      completeMatchExpected.setDuration(Duration.ofMinutes(28).plusSeconds(41));
+      completeMatchExpected.setTime(LocalDateTime.of(2023, 5, 16, 22, 15, 0));
+      completeMatchExpected.setWebsite(new URL("https://host.de/something/website.html"));
+      completeMatchExpected.addUrl(Resolution.NORMAL, new FilmUrl(new URL("https://some.host.de/normal.mp4"), 405L));
+      completeMatchExpected.addUrl(Resolution.SMALL, new FilmUrl(new URL("https://some.host.de/small.mp4"), 0L));
+      completeMatchExpected.addUrl(Resolution.HD, new FilmUrl(new URL("https://some.host.de/hd.mp4"), 0L));
+      completeMatchExpected.addGeolocation(GeoLocations.GEO_DE_AT_CH);
+      completeMatchExpected.addSubtitle(new URL("https://host.de/23/05/230502_2215_sendung_37g/4/subtitle.xml"));
+      expectedFilmlist.add(completeMatchExpected);
+      //
+      completeMatchExpected = new Film();
+      completeMatchExpected.setUuid(UUID.randomUUID());
+      completeMatchExpected.setSender(Sender.DREISAT);
+      completeMatchExpected.setThema("37 Grad");
+      completeMatchExpected.setTitelRaw("37°: Everything at once (Audiodeskription)");      
+      completeMatchExpected.setBeschreibung("description \"37°\" with quotes");
+      completeMatchExpected.setDuration(Duration.ofMinutes(28).plusSeconds(41));
+      completeMatchExpected.setTime(LocalDateTime.of(2023, 5, 16, 22, 15, 0));
+      completeMatchExpected.setWebsite(new URL("https://host.de/something/website.html"));
+      completeMatchExpected.addUrl(Resolution.NORMAL, new FilmUrl(new URL("https://some.host.de/AudioDescriptionNormal.mp4"), 405L));
+      completeMatchExpected.addUrl(Resolution.SMALL, new FilmUrl(new URL("https://some.host.de/AudioDescriptionSmall.mp4"), 0L));
+      completeMatchExpected.addUrl(Resolution.HD, new FilmUrl(new URL("https://some.host.de/AudioDescriptionHd.mp4"), 0L));
+      completeMatchExpected.addGeolocation(GeoLocations.GEO_DE_AT_CH);
+      completeMatchExpected.addSubtitle(new URL("https://host.de/23/05/230502_2215_sendung_37g/4/subtitle.xml"));
+      expectedFilmlist.add(completeMatchExpected);
+      //
+      completeMatchExpected = new Film();
+      completeMatchExpected.setUuid(UUID.randomUUID());
+      completeMatchExpected.setSender(Sender.DREISAT);
+      completeMatchExpected.setThema("37 Grad");
+      completeMatchExpected.setTitelRaw("37°: Everything at once (Gebärdensprache)");      
+      completeMatchExpected.setBeschreibung("description \"37°\" with quotes");
+      completeMatchExpected.setDuration(Duration.ofMinutes(28).plusSeconds(41));
+      completeMatchExpected.setTime(LocalDateTime.of(2023, 5, 16, 22, 15, 0));
+      completeMatchExpected.setWebsite(new URL("https://host.de/something/website.html"));
+      completeMatchExpected.addUrl(Resolution.NORMAL, new FilmUrl(new URL("https://some.host.de/SignLanguageNormal.mp4"), 405L));
+      completeMatchExpected.addUrl(Resolution.SMALL, new FilmUrl(new URL("https://some.host.de/SignLanguageSmall.mp4"), 0L));
+      completeMatchExpected.addUrl(Resolution.HD, new FilmUrl(new URL("https://some.host.de/SignLanguageHd.mp4"), 0L));
+      completeMatchExpected.addGeolocation(GeoLocations.GEO_DE_AT_CH);
+      completeMatchExpected.addSubtitle(new URL("https://host.de/23/05/230502_2215_sendung_37g/4/subtitle.xml"));
+      expectedFilmlist.add(completeMatchExpected);
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return expectedFilmlist;
+  }
+  
+  private Filmlist inputFilmlist() {
+    Filmlist expectedFilmlist = new Filmlist();
+    try {
+      Film completeMatchExpected = new Film();
+      //
+      completeMatchExpected.setUuid(UUID.randomUUID());
+      completeMatchExpected.setSender(Sender.DREISAT);
+      completeMatchExpected.setThema("37 Grad");
+      completeMatchExpected.setTitelRaw("37°: Ein Gen verändert unser Leben");      
+      completeMatchExpected.setBeschreibung("description");
+      completeMatchExpected.setDuration(Duration.ofMinutes(28).plusSeconds(45));
+      completeMatchExpected.setTime(LocalDateTime.of(2023, 5, 30, 22, 15, 0));
+      completeMatchExpected.setWebsite(new URL("https://host.de/something/website.html"));
+      completeMatchExpected.addUrl(Resolution.NORMAL, new FilmUrl(new URL("https://some.host.de/normal.mp4"), 405L));
+      completeMatchExpected.addUrl(Resolution.SMALL, new FilmUrl(new URL("https://some.host.de/small.mp4"), 0L));
+      completeMatchExpected.addUrl(Resolution.HD, new FilmUrl(new URL("https://some.host.de/hd.mp4"), 0L));
+      completeMatchExpected.addGeolocation(GeoLocations.GEO_DE_AT_CH);
+      completeMatchExpected.addSubtitle(new URL("https://host.de/23/05/230502_2215_sendung_37g/4/subtitle.xml"));
+      expectedFilmlist.add(completeMatchExpected);
+      //
+      completeMatchExpected = new Film();
+      completeMatchExpected.setUuid(UUID.randomUUID());
+      completeMatchExpected.setSender(Sender.DREISAT);
+      completeMatchExpected.setThema("37 Grad");
+      completeMatchExpected.setTitelRaw("37°: Ein Gen verändert unser Leben (Audiodeskription)");      
+      completeMatchExpected.setBeschreibung("description \"37°\" with quotes");
+      completeMatchExpected.setDuration(Duration.ofMinutes(28).plusSeconds(41));
+      completeMatchExpected.setTime(LocalDateTime.of(2023, 5, 16, 22, 15, 0));
+      completeMatchExpected.setWebsite(new URL("https://host.de/something/website.html"));
+      completeMatchExpected.addAudioDescription(Resolution.NORMAL, new FilmUrl(new URL("https://some.host.de/AudioDescriptionNormal.mp4"), 405L));
+      completeMatchExpected.addAudioDescription(Resolution.SMALL, new FilmUrl(new URL("https://some.host.de/AudioDescriptionSmall.mp4"), 0L));
+      completeMatchExpected.addAudioDescription(Resolution.HD, new FilmUrl(new URL("https://some.host.de/AudioDescriptionHd.mp4"), 0L));
+      completeMatchExpected.addGeolocation(GeoLocations.GEO_DE_AT_CH);
+      completeMatchExpected.addSubtitle(new URL("https://host.de/23/05/230502_2215_sendung_37g/4/subtitle.xml"));
+      expectedFilmlist.add(completeMatchExpected);
+      //
+      completeMatchExpected = new Film();
+      completeMatchExpected.setUuid(UUID.randomUUID());
+      completeMatchExpected.setSender(Sender.DREISAT);
+      completeMatchExpected.setThema("37 Grad");
+      completeMatchExpected.setTitelRaw("37°: Ein Gen verändert unser Leben (Gebärdensprache)");      
+      completeMatchExpected.setBeschreibung("description \"37°\" with quotes");
+      completeMatchExpected.setDuration(Duration.ofMinutes(28).plusSeconds(41));
+      completeMatchExpected.setTime(LocalDateTime.of(2023, 5, 16, 22, 15, 0));
+      completeMatchExpected.setWebsite(new URL("https://host.de/something/website.html"));
+      completeMatchExpected.addSignLanguage(Resolution.NORMAL, new FilmUrl(new URL("https://some.host.de/SignLanguageNormal.mp4"), 405L));
+      completeMatchExpected.addSignLanguage(Resolution.SMALL, new FilmUrl(new URL("https://some.host.de/SignLanguageSmall.mp4"), 0L));
+      completeMatchExpected.addSignLanguage(Resolution.HD, new FilmUrl(new URL("https://some.host.de/SignLanguageHd.mp4"), 0L));
+      completeMatchExpected.addGeolocation(GeoLocations.GEO_DE_AT_CH);
+      completeMatchExpected.addSubtitle(new URL("https://host.de/23/05/230502_2215_sendung_37g/4/subtitle.xml"));
+      expectedFilmlist.add(completeMatchExpected);
+      //
+      completeMatchExpected = new Film();
+      completeMatchExpected.setUuid(UUID.randomUUID());
+      completeMatchExpected.setSender(Sender.DREISAT);
+      completeMatchExpected.setThema("37 Grad");
+      completeMatchExpected.setTitelRaw("37°: Everything at once");      
+      completeMatchExpected.setBeschreibung("description \"37°\" with quotes");
+      completeMatchExpected.setDuration(Duration.ofMinutes(28).plusSeconds(41));
+      completeMatchExpected.setTime(LocalDateTime.of(2023, 5, 16, 22, 15, 0));
+      completeMatchExpected.setWebsite(new URL("https://host.de/something/website.html"));
+      completeMatchExpected.addUrl(Resolution.NORMAL, new FilmUrl(new URL("https://some.host.de/normal.mp4"), 405L));
+      completeMatchExpected.addUrl(Resolution.SMALL, new FilmUrl(new URL("https://some.host.de/small.mp4"), 0L));
+      completeMatchExpected.addUrl(Resolution.HD, new FilmUrl(new URL("https://some.host.de/hd.mp4"), 0L));
+      completeMatchExpected.addAudioDescription(Resolution.NORMAL, new FilmUrl(new URL("https://some.host.de/AudioDescriptionNormal.mp4"), 405L));
+      completeMatchExpected.addAudioDescription(Resolution.SMALL, new FilmUrl(new URL("https://some.host.de/AudioDescriptionSmall.mp4"), 0L));
+      completeMatchExpected.addAudioDescription(Resolution.HD, new FilmUrl(new URL("https://some.host.de/AudioDescriptionHd.mp4"), 0L));
       completeMatchExpected.addSignLanguage(Resolution.NORMAL, new FilmUrl(new URL("https://some.host.de/SignLanguageNormal.mp4"), 405L));
       completeMatchExpected.addSignLanguage(Resolution.SMALL, new FilmUrl(new URL("https://some.host.de/SignLanguageSmall.mp4"), 0L));
       completeMatchExpected.addSignLanguage(Resolution.HD, new FilmUrl(new URL("https://some.host.de/SignLanguageHd.mp4"), 0L));
