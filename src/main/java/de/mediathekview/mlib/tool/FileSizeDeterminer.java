@@ -65,10 +65,22 @@ public class FileSizeDeterminer {
     final Request.Builder requestBuilder;
     switch (requestType) {
       case GET:
-        requestBuilder = new Request.Builder().url(url).get();
+        requestBuilder = new Request.Builder()
+            .url(url)
+            .get()
+            .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
+            .addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+            .addHeader("Accept-Language", "en-US,en;q=0.5")
+            .addHeader("Accept-Encoding", "gzip, deflate, br");
         break;
       case HEAD:
-        requestBuilder = new Request.Builder().url(url).head();
+        requestBuilder = new Request.Builder()
+            .url(url)
+            .head() // Indicates that this is a HEAD request
+            .addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
+            .addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+            .addHeader("Accept-Language", "en-US,en;q=0.5")
+            .addHeader("Accept-Encoding", "gzip, deflate, br");
         break;
       default:
         throw new IllegalStateException("Unsupported request type for determining the file size.");
