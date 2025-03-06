@@ -285,8 +285,14 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
   public String getIndex() {
     // liefert einen eindeutigen Index für die Filmliste
+    String url = getUrl();
+
+    // bei ZDF Hosts Sonderlogik mit (n)rodl
+    url = url.replaceFirst("https://nrodl", "https://rodl")
+            .replaceFirst("http://nrodl", "http://rodl");
+
     // URL beim KiKa und ORF ändern sich laufend!
-    return (arr[FILM_SENDER] + arr[FILM_THEMA]).toLowerCase() + getUrl();
+    return (arr[FILM_SENDER] + arr[FILM_THEMA]).toLowerCase() + url;
   }
 
   public String getIndexAddOld() {
