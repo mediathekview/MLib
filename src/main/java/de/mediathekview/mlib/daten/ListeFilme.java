@@ -138,13 +138,16 @@ public class ListeFilme extends ArrayList<DatenFilm> {
                 if (f.arr[DatenFilm.FILM_SENDER].equals(Const.KIKA)) {
                     if (!hash.contains(f.arr[DatenFilm.FILM_THEMA] + f.arr[DatenFilm.FILM_TITEL])) {
                         addInit(f);
+                        addHash(f, hash, index);
                     }
                 } else if (index) {
                     if (!hash.contains(f.getIndex())) {
                         addInit(f);
+                        addHash(f, hash, index);
                     }
                 } else if (!hash.contains(f.getUrl())) {
                     addInit(f);
+                    addHash(f, hash, index);
                 }
             }
         }
