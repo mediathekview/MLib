@@ -134,7 +134,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
           long dauerSekunden, String description) {
     // da werden die gefundenen Filme beim Absuchen der Senderwebsites erstellt, und nur die!!
     arr[FILM_SENDER] = ssender;
-    arr[FILM_THEMA] = tthema.isEmpty() ? ssender : normalize(cleanWhitespaces(tthema.trim()));
+    arr[FILM_THEMA] = tthema.isEmpty() ? ssender : replaceCharacters(normalize(cleanWhitespaces(tthema.trim())));
     setTitle(ttitel.isEmpty() ? tthema : ttitel.trim());
     arr[FILM_URL] = uurl;
     arr[FILM_URL_RTMP] = uurlRtmp;
@@ -145,6 +145,13 @@ public class DatenFilm implements Comparable<DatenFilm> {
 
     // Filmlänge
     checkFilmDauer(dauerSekunden);
+  }
+
+  private String replaceCharacters(final String value) {
+    if (value.contains("–")) {
+      return value.replace("–", "-");
+    }
+    return value;
   }
 
   private void setTitle(String title) {
