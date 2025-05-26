@@ -43,6 +43,8 @@ public enum Sender {
   WDR4("WDR 4"),
   WDR5("WDR 5"),
   ZDF("ZDF"),
+  ZDF_INFO("ZDFinfo"),
+  ZDF_NEO("ZDFneo"),
   ZDF_TIVI("ZDF Tivi", "ZDF-tivi");
 
   private final String name;
