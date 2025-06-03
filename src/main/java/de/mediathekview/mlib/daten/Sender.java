@@ -45,7 +45,7 @@ public enum Sender {
   ZDF("ZDF"),
   ZDF_INFO("ZDFinfo"),
   ZDF_NEO("ZDFneo"),
-  ZDF_TIVI("ZDF Tivi", "ZDF-tivi");
+  ZDF_TIVI("ZDF-tivi", "ZDFtivi", "ZDF Tivi");
 
   private final String name;
   private final String[] nameAlternatives;
