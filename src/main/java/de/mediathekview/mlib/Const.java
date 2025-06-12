@@ -63,6 +63,8 @@ public class Const {
     public static final String TAGESSCHAU24 = "tagesschau24";
     public static final String WDR = "WDR";
     public static final String ZDF = "ZDF";
+    public static final String ZDF_INFO = "ZDFinfo";
+    public static final String ZDF_NEO = "ZDFneo";
     public static final String ZDF_TIVI = "ZDF-tivi";
 
     public static final String[] SENDER = {DREISAT, ARD, ARTE_DE, ARTE_FR, BR, DW, HR, KIKA, MDR, NDR, ORF, PHOENIX, RBB, SR, SRF, SRF_PODCAST, SWR, WDR, ZDF, ZDF_TIVI};
