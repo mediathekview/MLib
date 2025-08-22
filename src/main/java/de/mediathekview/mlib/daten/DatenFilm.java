@@ -330,7 +330,7 @@ public class DatenFilm implements Comparable<DatenFilm> {
   public String getUrl() {
     // liefert die URL zum VERGLEICHEN!!
     String url = "";
-    if (arr[DatenFilm.FILM_SENDER].equals(Const.ORF)) {
+    if (Const.ORF.equals(arr[DatenFilm.FILM_SENDER])) {
       final String uurl = arr[DatenFilm.FILM_URL];
       try {
         final String online = "/online/";
