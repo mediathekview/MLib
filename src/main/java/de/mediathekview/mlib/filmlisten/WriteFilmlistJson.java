@@ -41,7 +41,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 public class WriteFilmlistJson {
-
+    
     private void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(64 * 1024);
         while (src.read(buffer) != -1) {
@@ -70,8 +70,11 @@ public class WriteFilmlistJson {
      *
      * @param datei      file path
      * @param listeFilme film data
+     * @return true, if writing the file was successful, else false
      */
-    public void filmlisteSchreibenJsonCompressed(String datei, ListeFilme listeFilme) {
+    public boolean filmlisteSchreibenJsonCompressed(String datei, ListeFilme listeFilme) {
+        boolean result = false;
+        
         final String tempFile = datei + "_temp";
         filmlisteSchreibenJson(tempFile, listeFilme);
 
@@ -84,18 +87,29 @@ public class WriteFilmlistJson {
                     final int exitCode = p.waitFor();
                     if (exitCode == 0) {
                         Files.move(Paths.get(tempFile + ".xz"), Paths.get(datei), StandardCopyOption.REPLACE_EXISTING);
+                        result = true;
+                    } else {
+                        Log.sysLog("Komprimieren mit XZ fehlgeschlagen. ExitCode: " + exitCode);
+                        result = false;
                     }
-                } else
+                } else {
                     compressFile(tempFile, datei);
+                    result = true;
+                }
             }
 
             Files.deleteIfExists(Paths.get(tempFile));
+            
         } catch (IOException | InterruptedException ex) {
+            Log.errorLog(846930144, ex);
             Log.sysLog("Komprimieren fehlgeschlagen");
+            result = false;
         }
+        
+        return result;
     }
 
-    public void filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
+    public boolean filmlisteSchreibenJson(String datei, ListeFilme listeFilme) {
         try {
             Log.sysLog("Filme schreiben (" + listeFilme.size() + " Filme) :");
 
@@ -156,9 +170,12 @@ public class WriteFilmlistJson {
                 jg.writeEndObject();
                 Log.sysLog("   --> geschrieben!");
             }
+            return true;
         } catch (Exception ex) {
             Log.errorLog(846930145, ex, "nach: " + datei);
         }
+
+        return false;
     }
 
     private Path testNativeXz() {
@@ -167,8 +184,9 @@ public class WriteFilmlistJson {
         Path xz = null;
 
         for (String path : paths) {
-            xz = Paths.get(path);
-            if (Files.isExecutable(xz)) {
+            Path temp = Paths.get(path);
+            if (Files.isExecutable(temp)) {
+                xz = temp;
                 break;
             }
         }
@@ -184,7 +202,6 @@ public class WriteFilmlistJson {
              final WritableByteChannel outputChannel = Channels.newChannel(output)) {
 
             fastChannelCopy(inputChannel, outputChannel);
-        } catch (IOException ignored) {
         }
     }
 }
